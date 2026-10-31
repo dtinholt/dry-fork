@@ -1,0 +1,27 @@
+{
+  "size": [96, 84],
+  "bpp": 4,
+  "note": "Raw portrait ids 1 to 4. NPC records and monster records reference them; the curses front end draws none of them.",
+  "portraits": [
+    {
+      "raw_id": 1,
+      "subject": "Orla Penn",
+      "description": "Head and shoulders, three-quarter view facing left. Narrow face, sun-creased eyes, short grey-streaked hair under a flat-brimmed hat pushed back. A rifle sling crosses the right shoulder. Background: a pale sky band over a dark horizon line. Palette: tans, a faded blue scarf, dark brown hat. Animation: the eyes blink every 40 frames; the scarf end lifts in two frames of wind."
+    },
+    {
+      "raw_id": 2,
+      "subject": "Teodor Lusk",
+      "description": "Head and shoulders, facing the viewer. Broad face, heavy black beard, round wire spectacles pushed up on the forehead, grease smear on one cheek. Apron strap over a collarless shirt. Background: a workbench wall with three hanging spanners as dark silhouettes. Palette: dark greys, black, one warm orange highlight on the spectacles. Animation: the spectacles drop onto the nose and back in three frames."
+    },
+    {
+      "raw_id": 3,
+      "subject": "Wren Abara",
+      "description": "Head and shoulders, profile facing right. Close-cropped dark hair, a thin scar along the jaw, one silver ring in the ear, chin slightly raised. Collar of a sand-coloured duster turned up. Background: plain ochre wall with a shadow cast from the left. Palette: deep brown skin tones, ochre, cream, one silver highlight. Animation: the head turns to the viewer over four frames and back."
+    },
+    {
+      "raw_id": 4,
+      "subject": "Sallow Kett",
+      "description": "Head and shoulders, facing the viewer, filling the frame. Large bald head, split lower lip, a broken nose, small eyes under a heavy brow, smiling. A coil of copper wire over one shoulder. Background: steel cage bars in dark grey behind him. Palette: pale skin, copper orange, steel greys. Animation: the smile widens in two frames; the wire coil glints in one frame."
+    }
+  ]
+}

@@ -1,0 +1,1355 @@
+compiled into /Users/dtinholt/wasteland-build/runs/w1-2026-10-21/scratch/probe136-uvtw1pvc
+files: ['ALLHTDS1', 'ALLPICS1', 'COLORF.FNT', 'CURS', 'END.CPA', 'GAME1', 'IC0_9.WLF', 'LABHOOKS.JSON', 'LABSKILL.BIN', 'LABSTR.BIN', 'LABTABLES.BIN', 'MASKS.WLF', 'PARAGRAPHS.JSON', 'TITLE.PIC']
+
+script length 414
+checkpoints: ['CP1', 'CP2', 'CP3', None, 'CP4', 'CP5-pre-save', 'CP5', None, 'CP6', 'CP7', None, 'CP8', 'CP9', 'CP10']
+
+=== scenario bump ===
+{"seed": 20261021, "seq": 0, "type": "new_game"}
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"key": "LEFT", "seq": 2, "type": "input"}
+{"location": 1, "seq": 3, "steps": 1, "type": "move", "x": 14, "y": 20}
+{"key": "LEFT", "seq": 4, "type": "input"}
+{"location": 1, "seq": 5, "steps": 2, "type": "move", "x": 13, "y": 20}
+{"key": "LEFT", "seq": 6, "type": "input"}
+{"location": 1, "seq": 7, "steps": 3, "type": "move", "x": 12, "y": 20}
+{"key": "LEFT", "seq": 8, "type": "input"}
+{"location": 1, "seq": 9, "steps": 4, "type": "move", "x": 11, "y": 20}
+{"key": "LEFT", "seq": 10, "type": "input"}
+{"location": 1, "seq": 11, "steps": 5, "type": "move", "x": 10, "y": 20}
+{"key": "LEFT", "seq": 12, "type": "input"}
+{"location": 1, "seq": 13, "steps": 6, "type": "move", "x": 9, "y": 20}
+{"key": "LEFT", "seq": 14, "type": "input"}
+{"location": 1, "seq": 15, "steps": 7, "type": "move", "x": 8, "y": 20}
+{"key": "LEFT", "seq": 16, "type": "input"}
+{"location": 1, "seq": 17, "steps": 8, "type": "move", "x": 7, "y": 20}
+{"key": "LEFT", "seq": 18, "type": "input"}
+{"location": 1, "seq": 19, "steps": 9, "type": "move", "x": 6, "y": 20}
+{"key": "LEFT", "seq": 20, "type": "input"}
+{"location": 1, "seq": 21, "steps": 10, "type": "move", "x": 5, "y": 20}
+{"key": "LEFT", "seq": 22, "type": "input"}
+{"location": 1, "seq": 23, "steps": 11, "type": "move", "x": 4, "y": 20}
+{"key": "LEFT", "seq": 24, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 25, "type": "bump", "x": 3, "y": 20}
+{"key": "LEFT", "seq": 26, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 27, "type": "bump", "x": 3, "y": 20}
+{"name": "a", "seq": 28, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 11, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [1, 0]], "level": 1, "max_hp": 26, "money": 60, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 1]], "level": 1, "max_hp": 21, "money": 80, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 1], [9, 3]], "level": 1, "max_hp": 22, "money": 70, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}], "rng_state": 20261021, "steps": 11, "x": 4, "y": 20}, "type": "checkpoint"}
+
+=== scenario cp6 ===
+{"seed": 20261021, "seq": 0, "type": "new_game"}
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"name": "CP1", "seq": 2, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 0, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [1, 0]], "level": 1, "max_hp": 26, "money": 60, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 1]], "level": 1, "max_hp": 21, "money": 80, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 1], [9, 3]], "level": 1, "max_hp": 22, "money": 70, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}], "rng_state": 20261021, "steps": 0, "x": 15, "y": 20}, "type": "checkpoint"}
+{"key": "UP", "seq": 3, "type": "input"}
+{"location": 1, "seq": 4, "steps": 1, "type": "move", "x": 15, "y": 19}
+{"key": "UP", "seq": 5, "type": "input"}
+{"location": 1, "seq": 6, "steps": 2, "type": "move", "x": 15, "y": 18}
+{"key": "UP", "seq": 7, "type": "input"}
+{"location": 1, "seq": 8, "steps": 3, "type": "move", "x": 15, "y": 17}
+{"key": "UP", "seq": 9, "type": "input"}
+{"location": 1, "seq": 10, "steps": 4, "type": "move", "x": 15, "y": 16}
+{"key": "UP", "seq": 11, "type": "input"}
+{"location": 1, "seq": 12, "steps": 5, "type": "move", "x": 15, "y": 15}
+{"key": "UP", "seq": 13, "type": "input"}
+{"location": 1, "seq": 14, "steps": 6, "type": "move", "x": 15, "y": 14}
+{"key": "UP", "seq": 15, "type": "input"}
+{"location": 1, "seq": 16, "steps": 7, "type": "move", "x": 15, "y": 13}
+{"key": "UP", "seq": 17, "type": "input"}
+{"location": 1, "seq": 18, "steps": 8, "type": "move", "x": 15, "y": 12}
+{"key": "LEFT", "seq": 19, "type": "input"}
+{"location": 1, "seq": 20, "steps": 9, "type": "move", "x": 14, "y": 12}
+{"key": "UP", "seq": 21, "type": "input"}
+{"location": 1, "seq": 22, "steps": 10, "type": "move", "x": 14, "y": 11}
+{"key": "UP", "seq": 23, "type": "input"}
+{"location": 1, "seq": 24, "steps": 11, "type": "move", "x": 14, "y": 10}
+{"key": "UP", "seq": 25, "type": "input"}
+{"location": 1, "seq": 26, "steps": 12, "type": "move", "x": 14, "y": 9}
+{"key": "UP", "seq": 27, "type": "input"}
+{"location": 1, "seq": 28, "steps": 13, "type": "move", "x": 14, "y": 8}
+{"key": "LEFT", "seq": 29, "type": "input"}
+{"location": 1, "seq": 30, "steps": 14, "type": "move", "x": 13, "y": 8}
+{"key": "LEFT", "seq": 31, "type": "input"}
+{"location": 1, "seq": 32, "steps": 15, "type": "move", "x": 12, "y": 8}
+{"key": "LEFT", "seq": 33, "type": "input"}
+{"location": 1, "seq": 34, "steps": 16, "type": "move", "x": 11, "y": 8}
+{"key": "LEFT", "seq": 35, "type": "input"}
+{"location": 1, "seq": 36, "steps": 17, "type": "move", "x": 10, "y": 8}
+{"key": "LEFT", "seq": 37, "type": "input"}
+{"location": 1, "seq": 38, "steps": 18, "type": "move", "x": 9, "y": 8}
+{"key": "LEFT", "seq": 39, "type": "input"}
+{"location": 1, "seq": 40, "steps": 19, "type": "move", "x": 8, "y": 8}
+{"key": "LEFT", "seq": 41, "type": "input"}
+{"location": 1, "seq": 42, "steps": 20, "type": "move", "x": 7, "y": 8}
+{"key": "LEFT", "seq": 43, "type": "input"}
+{"location": 1, "seq": 44, "steps": 21, "type": "move", "x": 6, "y": 8}
+{"key": "UP", "seq": 45, "type": "input"}
+{"location": 1, "seq": 46, "steps": 22, "type": "move", "x": 6, "y": 7}
+{"n": 3, "seq": 47, "type": "paragraph"}
+{"key": "UP", "seq": 48, "type": "input"}
+{"location": 1, "seq": 49, "steps": 23, "type": "move", "x": 6, "y": 6}
+{"key": "UP", "seq": 50, "type": "input"}
+{"location": 1, "seq": 51, "steps": 24, "type": "move", "x": 6, "y": 5}
+{"location": 1, "seq": 52, "string": 5, "type": "message"}
+{"seq": 53, "shop": 0, "type": "shop_open"}
+{"key": "B", "seq": 54, "type": "input"}
+{"items": [1, 3, 4, 7, 9, 10], "prompt": "buy_item", "seq": 55, "type": "prompt"}
+{"key": "c", "seq": 56, "type": "input"}
+{"prompt": "member", "seq": 57, "type": "prompt"}
+{"key": "3", "seq": 58, "type": "input"}
+{"delta": -7, "member": 3, "seq": 59, "total": 73, "type": "money"}
+{"item": 4, "member": 3, "price": 7, "seq": 60, "slot": 2, "status": 2, "type": "buy"}
+{"key": "B", "seq": 61, "type": "input"}
+{"items": [1, 3, 4, 7, 9, 10], "prompt": "buy_item", "seq": 62, "type": "prompt"}
+{"key": "c", "seq": 63, "type": "input"}
+{"prompt": "member", "seq": 64, "type": "prompt"}
+{"key": "4", "seq": 65, "type": "input"}
+{"delta": -7, "member": 4, "seq": 66, "total": 63, "type": "money"}
+{"item": 4, "member": 4, "price": 7, "seq": 67, "slot": 2, "status": 2, "type": "buy"}
+{"key": "S", "seq": 68, "type": "input"}
+{"prompt": "member", "seq": 69, "type": "prompt"}
+{"key": "2", "seq": 70, "type": "input"}
+{"prompt": "item_slot", "seq": 71, "type": "prompt"}
+{"key": "c", "seq": 72, "type": "input"}
+{"item": 1, "member": 2, "price": 8, "seq": 73, "slot": 3, "type": "sell"}
+{"delta": 8, "member": 2, "seq": 74, "total": 68, "type": "money"}
+{"key": "B", "seq": 75, "type": "input"}
+{"items": [1, 3, 4, 7, 9, 10], "prompt": "buy_item", "seq": 76, "type": "prompt"}
+{"key": "d", "seq": 77, "type": "input"}
+{"prompt": "member", "seq": 78, "type": "prompt"}
+{"key": "2", "seq": 79, "type": "input"}
+{"delta": -28, "member": 2, "seq": 80, "total": 40, "type": "money"}
+{"item": 7, "member": 2, "price": 28, "seq": 81, "slot": 3, "status": 0, "type": "buy"}
+{"key": "X", "seq": 82, "type": "input"}
+{"seq": 83, "type": "shop_close"}
+{"key": "C", "seq": 84, "type": "input"}
+{"prompt": "member", "seq": 85, "type": "prompt"}
+{"key": "2", "seq": 86, "type": "input"}
+{"member": 2, "seq": 87, "type": "char_open"}
+{"key": "E", "seq": 88, "type": "input"}
+{"prompt": "item_slot", "seq": 89, "type": "prompt"}
+{"key": "c", "seq": 90, "type": "input"}
+{"ac": 3, "item": 7, "member": 2, "seq": 91, "slot": 3, "type": "equip"}
+{"key": "X", "seq": 92, "type": "input"}
+{"seq": 93, "type": "char_close"}
+{"name": "CP2", "seq": 94, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 24, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [7, 0]], "level": 1, "max_hp": 26, "money": 40, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 2]], "level": 1, "max_hp": 21, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 2], [9, 3]], "level": 1, "max_hp": 22, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}], "rng_state": 20261021, "steps": 24, "x": 6, "y": 5}, "type": "checkpoint"}
+{"key": "DOWN", "seq": 95, "type": "input"}
+{"location": 1, "seq": 96, "steps": 25, "type": "move", "x": 6, "y": 6}
+{"key": "DOWN", "seq": 97, "type": "input"}
+{"location": 1, "seq": 98, "steps": 26, "type": "move", "x": 6, "y": 7}
+{"n": 3, "seq": 99, "type": "paragraph"}
+{"key": "DOWN", "seq": 100, "type": "input"}
+{"location": 1, "seq": 101, "steps": 27, "type": "move", "x": 6, "y": 8}
+{"key": "RIGHT", "seq": 102, "type": "input"}
+{"location": 1, "seq": 103, "steps": 28, "type": "move", "x": 7, "y": 8}
+{"key": "DOWN", "seq": 104, "type": "input"}
+{"location": 1, "seq": 105, "steps": 29, "type": "move", "x": 7, "y": 9}
+{"key": "DOWN", "seq": 106, "type": "input"}
+{"location": 1, "seq": 107, "steps": 30, "type": "move", "x": 7, "y": 10}
+{"key": "DOWN", "seq": 108, "type": "input"}
+{"location": 1, "seq": 109, "steps": 31, "type": "move", "x": 7, "y": 11}
+{"key": "DOWN", "seq": 110, "type": "input"}
+{"location": 1, "seq": 111, "steps": 32, "type": "move", "x": 7, "y": 12}
+{"key": "DOWN", "seq": 112, "type": "input"}
+{"location": 1, "seq": 113, "steps": 33, "type": "move", "x": 7, "y": 13}
+{"key": "DOWN", "seq": 114, "type": "input"}
+{"location": 1, "seq": 115, "steps": 34, "type": "move", "x": 7, "y": 14}
+{"key": "DOWN", "seq": 116, "type": "input"}
+{"location": 1, "seq": 117, "steps": 35, "type": "move", "x": 7, "y": 15}
+{"key": "DOWN", "seq": 118, "type": "input"}
+{"location": 1, "seq": 119, "steps": 36, "type": "move", "x": 7, "y": 16}
+{"key": "DOWN", "seq": 120, "type": "input"}
+{"location": 1, "seq": 121, "steps": 37, "type": "move", "x": 7, "y": 17}
+{"key": "DOWN", "seq": 122, "type": "input"}
+{"location": 1, "seq": 123, "steps": 38, "type": "move", "x": 7, "y": 18}
+{"key": "RIGHT", "seq": 124, "type": "input"}
+{"location": 1, "seq": 125, "steps": 39, "type": "move", "x": 8, "y": 18}
+{"key": "UP", "seq": 126, "type": "input"}
+{"action": 1, "action_class": 11, "seq": 127, "type": "bump", "x": 8, "y": 17}
+{"n": 6, "seq": 128, "type": "paragraph"}
+{"prompt": "recruit", "seq": 129, "type": "prompt"}
+{"key": "Y", "seq": 130, "type": "input"}
+{"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+{"location": 1, "npc": 0, "seq": 132, "slot": 5, "type": "recruit"}
+{"name": "CP3", "seq": 133, "state": {"cell_changes": [[1, 8, 17, 0, 0, 28]], "day": 1, "hour": 8, "location": 1, "minute": 39, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [7, 0]], "level": 1, "max_hp": 26, "money": 40, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 2]], "level": 1, "max_hp": 21, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 2], [9, 3]], "level": 1, "max_hp": 22, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 200}], "rng_state": 20261021, "steps": 39, "x": 8, "y": 18}, "type": "checkpoint"}
+{"key": "RIGHT", "seq": 134, "type": "input"}
+{"location": 1, "seq": 135, "steps": 40, "type": "move", "x": 9, "y": 18}
+{"key": "RIGHT", "seq": 136, "type": "input"}
+{"location": 1, "seq": 137, "steps": 41, "type": "move", "x": 10, "y": 18}
+{"key": "RIGHT", "seq": 138, "type": "input"}
+{"location": 1, "seq": 139, "steps": 42, "type": "move", "x": 11, "y": 18}
+{"key": "RIGHT", "seq": 140, "type": "input"}
+{"location": 1, "seq": 141, "steps": 43, "type": "move", "x": 12, "y": 18}
+{"key": "RIGHT", "seq": 142, "type": "input"}
+{"location": 1, "seq": 143, "steps": 44, "type": "move", "x": 13, "y": 18}
+{"key": "RIGHT", "seq": 144, "type": "input"}
+{"location": 1, "seq": 145, "steps": 45, "type": "move", "x": 14, "y": 18}
+{"key": "RIGHT", "seq": 146, "type": "input"}
+{"location": 1, "seq": 147, "steps": 46, "type": "move", "x": 15, "y": 18}
+{"key": "DOWN", "seq": 148, "type": "input"}
+{"location": 1, "seq": 149, "steps": 47, "type": "move", "x": 15, "y": 19}
+{"key": "DOWN", "seq": 150, "type": "input"}
+{"location": 1, "seq": 151, "steps": 48, "type": "move", "x": 15, "y": 20}
+{"key": "DOWN", "seq": 152, "type": "input"}
+{"location": 1, "seq": 153, "steps": 49, "type": "move", "x": 15, "y": 21}
+{"key": "DOWN", "seq": 154, "type": "input"}
+{"location": 1, "seq": 155, "steps": 50, "type": "move", "x": 15, "y": 22}
+{"key": "DOWN", "seq": 156, "type": "input"}
+{"location": 1, "seq": 157, "steps": 51, "type": "move", "x": 15, "y": 23}
+{"key": "DOWN", "seq": 158, "type": "input"}
+{"location": 1, "seq": 159, "steps": 52, "type": "move", "x": 15, "y": 24}
+{"key": "DOWN", "seq": 160, "type": "input"}
+{"location": 1, "seq": 161, "steps": 53, "type": "move", "x": 15, "y": 25}
+{"key": "DOWN", "seq": 162, "type": "input"}
+{"location": 1, "seq": 163, "steps": 54, "type": "move", "x": 15, "y": 26}
+{"key": "DOWN", "seq": 164, "type": "input"}
+{"location": 1, "seq": 165, "steps": 55, "type": "move", "x": 15, "y": 27}
+{"key": "DOWN", "seq": 166, "type": "input"}
+{"location": 1, "seq": 167, "steps": 56, "type": "move", "x": 15, "y": 28}
+{"key": "DOWN", "seq": 168, "type": "input"}
+{"location": 1, "seq": 169, "steps": 57, "type": "move", "x": 15, "y": 29}
+{"n": 2, "seq": 170, "type": "paragraph"}
+{"key": "DOWN", "seq": 171, "type": "input"}
+{"location": 1, "seq": 172, "steps": 58, "type": "move", "x": 15, "y": 30}
+{"key": "DOWN", "seq": 173, "type": "input"}
+{"location": 1, "seq": 174, "steps": 59, "type": "move", "x": 15, "y": 31}
+{"location": 0, "seq": 175, "type": "map_change", "x": 10, "y": 41}
+{"key": "RIGHT", "seq": 176, "type": "input"}
+{"location": 0, "seq": 177, "steps": 60, "type": "move", "x": 11, "y": 41}
+{"key": "RIGHT", "seq": 178, "type": "input"}
+{"location": 0, "seq": 179, "steps": 61, "type": "move", "x": 12, "y": 41}
+{"key": "RIGHT", "seq": 180, "type": "input"}
+{"location": 0, "seq": 181, "steps": 62, "type": "move", "x": 13, "y": 41}
+{"key": "RIGHT", "seq": 182, "type": "input"}
+{"location": 0, "seq": 183, "steps": 63, "type": "move", "x": 14, "y": 41}
+{"key": "RIGHT", "seq": 184, "type": "input"}
+{"location": 0, "seq": 185, "steps": 64, "type": "move", "x": 15, "y": 41}
+{"key": "RIGHT", "seq": 186, "type": "input"}
+{"location": 0, "seq": 187, "steps": 65, "type": "move", "x": 16, "y": 41}
+{"key": "RIGHT", "seq": 188, "type": "input"}
+{"location": 0, "seq": 189, "steps": 66, "type": "move", "x": 17, "y": 41}
+{"key": "RIGHT", "seq": 190, "type": "input"}
+{"location": 0, "seq": 191, "steps": 67, "type": "move", "x": 18, "y": 41}
+{"key": "RIGHT", "seq": 192, "type": "input"}
+{"location": 0, "seq": 193, "steps": 68, "type": "move", "x": 19, "y": 41}
+{"key": "RIGHT", "seq": 194, "type": "input"}
+{"location": 0, "seq": 195, "steps": 69, "type": "move", "x": 20, "y": 41}
+{"key": "RIGHT", "seq": 196, "type": "input"}
+{"location": 0, "seq": 197, "steps": 70, "type": "move", "x": 21, "y": 41}
+{"key": "RIGHT", "seq": 198, "type": "input"}
+{"location": 0, "seq": 199, "steps": 71, "type": "move", "x": 22, "y": 41}
+{"key": "RIGHT", "seq": 200, "type": "input"}
+{"location": 0, "seq": 201, "steps": 72, "type": "move", "x": 23, "y": 41}
+{"key": "RIGHT", "seq": 202, "type": "input"}
+{"location": 0, "seq": 203, "steps": 73, "type": "move", "x": 24, "y": 41}
+{"key": "RIGHT", "seq": 204, "type": "input"}
+{"location": 0, "seq": 205, "steps": 74, "type": "move", "x": 25, "y": 41}
+{"key": "RIGHT", "seq": 206, "type": "input"}
+{"location": 0, "seq": 207, "steps": 75, "type": "move", "x": 26, "y": 41}
+{"n": 7, "seq": 208, "type": "paragraph"}
+{"key": "RIGHT", "seq": 209, "type": "input"}
+{"location": 0, "seq": 210, "steps": 76, "type": "move", "x": 27, "y": 41}
+{"key": "RIGHT", "seq": 211, "type": "input"}
+{"location": 0, "seq": 212, "steps": 77, "type": "move", "x": 28, "y": 41}
+{"key": "RIGHT", "seq": 213, "type": "input"}
+{"location": 0, "seq": 214, "steps": 78, "type": "move", "x": 29, "y": 41}
+{"key": "RIGHT", "seq": 215, "type": "input"}
+{"location": 0, "seq": 216, "steps": 79, "type": "move", "x": 30, "y": 41}
+{"groups": [{"band": 3, "count": 3, "hp": [14, 12, 14], "monster": "raider"}], "seq": 217, "type": "encounter_start"}
+{"n": 8, "seq": 218, "type": "paragraph"}
+{"level": 2, "member": 5, "need": 66, "roll": 54, "seq": 219, "skill": 18, "success": true, "type": "check"}
+{"key": "A", "seq": 220, "type": "input"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 1, "seq": 221, "type": "round_orders"}
+{"round": 1, "seq": 222, "type": "round_start"}
+{"damage": 6, "group": 1, "hit": true, "member": 1, "need": 57, "roll": 53, "seq": 223, "side": "party", "target": 1, "type": "attack"}
+{"damage": 4, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 38, "seq": 224, "side": "party", "target": 1, "type": "attack"}
+{"damage": 6, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 32, "seq": 225, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 92, "seq": 226, "side": "party", "target": 2, "type": "attack"}
+{"damage": 3, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 56, "seq": 227, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 1, "group": 1, "hit": false, "member": 1, "need": 22, "roll": 61, "seq": 228, "side": "monsters", "type": "attack"}
+{"attacker": 2, "damage": 1, "group": 1, "hit": true, "member": 2, "need": 22, "roll": 16, "seq": 229, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 60, "seq": 230, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 1, "seq": 231, "type": "monster_dies"}
+{"key": "A", "seq": 232, "type": "input"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 2, "seq": 233, "type": "round_orders"}
+{"round": 2, "seq": 234, "type": "round_start"}
+{"chance": 4, "member": 1, "roll": 4, "seq": 235, "type": "jam"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 75, "seq": 236, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 48, "seq": 237, "side": "party", "target": 2, "type": "attack"}
+{"damage": 8, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 15, "seq": 238, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 5, "need": 58, "roll": 78, "seq": 239, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 2, "damage": 4, "group": 1, "hit": true, "member": 4, "need": 28, "roll": 2, "seq": 240, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 75, "seq": 241, "side": "monsters", "type": "attack"}
+{"level": 0, "member": 1, "need": 46, "roll": 58, "seq": 242, "skill": 22, "success": false, "type": "check"}
+{"key": "A", "seq": 243, "type": "input"}
+{"orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 3, "seq": 244, "type": "round_orders"}
+{"round": 3, "seq": 245, "type": "round_start"}
+{"member": 1, "seq": 246, "type": "click"}
+{"damage": 10, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 55, "seq": 247, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 68, "seq": 248, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 85, "seq": 249, "side": "party", "target": 3, "type": "attack"}
+{"damage": 9, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 42, "seq": 250, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 2, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 40, "seq": 251, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 25, "seq": 252, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 2, "seq": 253, "type": "monster_dies"}
+{"level": 0, "member": 1, "need": 46, "roll": 38, "seq": 254, "skill": 22, "success": true, "type": "check"}
+{"member": 1, "seq": 255, "type": "unjammed"}
+{"key": "A", "seq": 256, "type": "input"}
+{"orders": {"1": ["advance", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 4, "seq": 257, "type": "round_orders"}
+{"round": 4, "seq": 258, "type": "round_start"}
+{"member": 1, "seq": 259, "type": "click"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 72, "seq": 260, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 72, "seq": 261, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 69, "seq": 262, "side": "party", "target": 3, "type": "attack"}
+{"damage": 5, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 19, "seq": 263, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 34, "seq": 264, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 3, "seq": 265, "type": "monster_dies"}
+{"result": "victory", "rounds": 4, "seq": 266, "type": "combat_end"}
+{"delta": 14, "member": 1, "seq": 267, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 28, "member": 1, "rank": "Hand", "seq": 268, "type": "promote"}
+{"delta": 14, "member": 2, "seq": 269, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 31, "member": 2, "rank": "Hand", "seq": 270, "type": "promote"}
+{"delta": 14, "member": 3, "seq": 271, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 25, "member": 3, "rank": "Hand", "seq": 272, "type": "promote"}
+{"delta": 14, "member": 4, "seq": 273, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 26, "member": 4, "rank": "Hand", "seq": 274, "type": "promote"}
+{"delta": 14, "member": 5, "seq": 275, "total": 214, "type": "xp"}
+{"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 276, "type": "cell_change", "x": 30, "y": 41}
+{"delta": 75, "member": 1, "seq": 277, "total": 195, "type": "money"}
+{"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 278, "type": "cell_change", "x": 30, "y": 41}
+{"name": "CP4", "seq": 279, "state": {"cell_changes": [[1, 8, 17, 0, 0, 28], [0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13]], "day": 1, "hour": 12, "location": 0, "minute": 19, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 2, "max_hp": 28, "money": 195, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 25, "items": [[5, 8], [6, 1], [7, 0]], "level": 2, "max_hp": 31, "money": 40, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 104}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 18, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}], "rng_state": 90935533, "steps": 79, "x": 30, "y": 41}, "type": "checkpoint"}
+{"key": "RIGHT", "seq": 280, "type": "input"}
+{"location": 0, "seq": 281, "steps": 80, "type": "move", "x": 31, "y": 41}
+{"n": 9, "seq": 282, "type": "paragraph"}
+{"key": "RIGHT", "seq": 283, "type": "input"}
+{"location": 0, "seq": 284, "steps": 81, "type": "move", "x": 32, "y": 41}
+{"key": "UP", "seq": 285, "type": "input"}
+{"location": 0, "seq": 286, "steps": 82, "type": "move", "x": 32, "y": 40}
+{"key": "UP", "seq": 287, "type": "input"}
+{"location": 0, "seq": 288, "steps": 83, "type": "move", "x": 32, "y": 39}
+{"key": "UP", "seq": 289, "type": "input"}
+{"location": 0, "seq": 290, "steps": 84, "type": "move", "x": 32, "y": 38}
+{"members": [1, 2, 3, 4], "seq": 291, "type": "natural_heal"}
+{"key": "UP", "seq": 292, "type": "input"}
+{"location": 0, "seq": 293, "steps": 85, "type": "move", "x": 32, "y": 37}
+{"key": "UP", "seq": 294, "type": "input"}
+{"location": 0, "seq": 295, "steps": 86, "type": "move", "x": 32, "y": 36}
+{"key": "UP", "seq": 296, "type": "input"}
+{"location": 0, "seq": 297, "steps": 87, "type": "move", "x": 32, "y": 35}
+{"key": "UP", "seq": 298, "type": "input"}
+{"location": 0, "seq": 299, "steps": 88, "type": "move", "x": 32, "y": 34}
+{"key": "UP", "seq": 300, "type": "input"}
+{"location": 0, "seq": 301, "steps": 89, "type": "move", "x": 32, "y": 33}
+{"key": "UP", "seq": 302, "type": "input"}
+{"location": 0, "seq": 303, "steps": 90, "type": "move", "x": 32, "y": 32}
+{"key": "UP", "seq": 304, "type": "input"}
+{"location": 0, "seq": 305, "steps": 91, "type": "move", "x": 32, "y": 31}
+{"key": "UP", "seq": 306, "type": "input"}
+{"location": 0, "seq": 307, "steps": 92, "type": "move", "x": 32, "y": 30}
+{"key": "UP", "seq": 308, "type": "input"}
+{"location": 0, "seq": 309, "steps": 93, "type": "move", "x": 32, "y": 29}
+{"key": "UP", "seq": 310, "type": "input"}
+{"location": 0, "seq": 311, "steps": 94, "type": "move", "x": 32, "y": 28}
+{"key": "RIGHT", "seq": 312, "type": "input"}
+{"location": 0, "seq": 313, "steps": 95, "type": "move", "x": 33, "y": 28}
+{"key": "RIGHT", "seq": 314, "type": "input"}
+{"location": 0, "seq": 315, "steps": 96, "type": "move", "x": 34, "y": 28}
+{"key": "RIGHT", "seq": 316, "type": "input"}
+{"location": 0, "seq": 317, "steps": 97, "type": "move", "x": 35, "y": 28}
+{"key": "RIGHT", "seq": 318, "type": "input"}
+{"location": 0, "seq": 319, "steps": 98, "type": "move", "x": 36, "y": 28}
+{"key": "RIGHT", "seq": 320, "type": "input"}
+{"location": 0, "seq": 321, "steps": 99, "type": "move", "x": 37, "y": 28}
+{"key": "RIGHT", "seq": 322, "type": "input"}
+{"location": 0, "seq": 323, "steps": 100, "type": "move", "x": 38, "y": 28}
+{"key": "RIGHT", "seq": 324, "type": "input"}
+{"location": 0, "seq": 325, "steps": 101, "type": "move", "x": 39, "y": 28}
+{"key": "RIGHT", "seq": 326, "type": "input"}
+{"location": 0, "seq": 327, "steps": 102, "type": "move", "x": 40, "y": 28}
+{"key": "RIGHT", "seq": 328, "type": "input"}
+{"location": 0, "seq": 329, "steps": 103, "type": "move", "x": 41, "y": 28}
+{"key": "RIGHT", "seq": 330, "type": "input"}
+{"location": 0, "seq": 331, "steps": 104, "type": "move", "x": 42, "y": 28}
+{"key": "RIGHT", "seq": 332, "type": "input"}
+{"location": 0, "seq": 333, "steps": 105, "type": "move", "x": 43, "y": 28}
+{"key": "RIGHT", "seq": 334, "type": "input"}
+{"location": 0, "seq": 335, "steps": 106, "type": "move", "x": 44, "y": 28}
+{"location": 2, "seq": 336, "type": "map_change", "x": 1, "y": 16}
+{"key": "RIGHT", "seq": 337, "type": "input"}
+{"location": 2, "seq": 338, "steps": 107, "type": "move", "x": 2, "y": 16}
+{"n": 10, "seq": 339, "type": "paragraph"}
+{"key": "UP", "seq": 340, "type": "input"}
+{"location": 2, "seq": 341, "steps": 108, "type": "move", "x": 2, "y": 15}
+{"key": "UP", "seq": 342, "type": "input"}
+{"location": 2, "seq": 343, "steps": 109, "type": "move", "x": 2, "y": 14}
+{"key": "UP", "seq": 344, "type": "input"}
+{"location": 2, "seq": 345, "steps": 110, "type": "move", "x": 2, "y": 13}
+{"key": "UP", "seq": 346, "type": "input"}
+{"location": 2, "seq": 347, "steps": 111, "type": "move", "x": 2, "y": 12}
+{"key": "UP", "seq": 348, "type": "input"}
+{"location": 2, "seq": 349, "steps": 112, "type": "move", "x": 2, "y": 11}
+{"key": "UP", "seq": 350, "type": "input"}
+{"location": 2, "seq": 351, "steps": 113, "type": "move", "x": 2, "y": 10}
+{"key": "UP", "seq": 352, "type": "input"}
+{"location": 2, "seq": 353, "steps": 114, "type": "move", "x": 2, "y": 9}
+{"key": "UP", "seq": 354, "type": "input"}
+{"location": 2, "seq": 355, "steps": 115, "type": "move", "x": 2, "y": 8}
+{"key": "UP", "seq": 356, "type": "input"}
+{"location": 2, "seq": 357, "steps": 116, "type": "move", "x": 2, "y": 7}
+{"key": "RIGHT", "seq": 358, "type": "input"}
+{"location": 2, "seq": 359, "steps": 117, "type": "move", "x": 3, "y": 7}
+{"key": "RIGHT", "seq": 360, "type": "input"}
+{"location": 2, "seq": 361, "steps": 118, "type": "move", "x": 4, "y": 7}
+{"key": "RIGHT", "seq": 362, "type": "input"}
+{"location": 2, "seq": 363, "steps": 119, "type": "move", "x": 5, "y": 7}
+{"key": "RIGHT", "seq": 364, "type": "input"}
+{"location": 2, "seq": 365, "steps": 120, "type": "move", "x": 6, "y": 7}
+{"key": "RIGHT", "seq": 366, "type": "input"}
+{"location": 2, "seq": 367, "steps": 121, "type": "move", "x": 7, "y": 7}
+{"key": "UP", "seq": 368, "type": "input"}
+{"location": 2, "seq": 369, "steps": 122, "type": "move", "x": 7, "y": 6}
+{"n": 11, "seq": 370, "type": "paragraph"}
+{"key": "UP", "seq": 371, "type": "input"}
+{"location": 2, "seq": 372, "steps": 123, "type": "move", "x": 7, "y": 5}
+{"location": 2, "seq": 373, "string": 5, "type": "message"}
+{"seq": 374, "shop": 1, "type": "shop_open"}
+{"key": "B", "seq": 375, "type": "input"}
+{"items": [3, 4, 5, 6], "prompt": "buy_item", "seq": 376, "type": "prompt"}
+{"key": "d", "seq": 377, "type": "input"}
+{"prompt": "member", "seq": 378, "type": "prompt"}
+{"key": "2", "seq": 379, "type": "input"}
+{"delta": -13, "member": 2, "seq": 380, "total": 27, "type": "money"}
+{"item": 6, "member": 2, "price": 13, "seq": 381, "slot": 2, "status": 2, "type": "buy"}
+{"key": "X", "seq": 382, "type": "input"}
+{"seq": 383, "type": "shop_close"}
+{"key": "DOWN", "seq": 384, "type": "input"}
+{"location": 2, "seq": 385, "steps": 124, "type": "move", "x": 7, "y": 6}
+{"n": 11, "seq": 386, "type": "paragraph"}
+{"key": "DOWN", "seq": 387, "type": "input"}
+{"location": 2, "seq": 388, "steps": 125, "type": "move", "x": 7, "y": 7}
+{"key": "RIGHT", "seq": 389, "type": "input"}
+{"location": 2, "seq": 390, "steps": 126, "type": "move", "x": 8, "y": 7}
+{"key": "RIGHT", "seq": 391, "type": "input"}
+{"location": 2, "seq": 392, "steps": 127, "type": "move", "x": 9, "y": 7}
+{"key": "RIGHT", "seq": 393, "type": "input"}
+{"location": 2, "seq": 394, "steps": 128, "type": "move", "x": 10, "y": 7}
+{"key": "RIGHT", "seq": 395, "type": "input"}
+{"location": 2, "seq": 396, "steps": 129, "type": "move", "x": 11, "y": 7}
+{"key": "RIGHT", "seq": 397, "type": "input"}
+{"location": 2, "seq": 398, "steps": 130, "type": "move", "x": 12, "y": 7}
+{"key": "RIGHT", "seq": 399, "type": "input"}
+{"location": 2, "seq": 400, "steps": 131, "type": "move", "x": 13, "y": 7}
+{"key": "RIGHT", "seq": 401, "type": "input"}
+{"location": 2, "seq": 402, "steps": 132, "type": "move", "x": 14, "y": 7}
+{"key": "RIGHT", "seq": 403, "type": "input"}
+{"location": 2, "seq": 404, "steps": 133, "type": "move", "x": 15, "y": 7}
+{"key": "RIGHT", "seq": 405, "type": "input"}
+{"location": 2, "seq": 406, "steps": 134, "type": "move", "x": 16, "y": 7}
+{"key": "RIGHT", "seq": 407, "type": "input"}
+{"location": 2, "seq": 408, "steps": 135, "type": "move", "x": 17, "y": 7}
+{"key": "RIGHT", "seq": 409, "type": "input"}
+{"location": 2, "seq": 410, "steps": 136, "type": "move", "x": 18, "y": 7}
+{"key": "RIGHT", "seq": 411, "type": "input"}
+{"location": 2, "seq": 412, "steps": 137, "type": "move", "x": 19, "y": 7}
+{"key": "RIGHT", "seq": 413, "type": "input"}
+{"location": 2, "seq": 414, "steps": 138, "type": "move", "x": 20, "y": 7}
+{"key": "RIGHT", "seq": 415, "type": "input"}
+{"location": 2, "seq": 416, "steps": 139, "type": "move", "x": 21, "y": 7}
+{"key": "RIGHT", "seq": 417, "type": "input"}
+{"location": 2, "seq": 418, "steps": 140, "type": "move", "x": 22, "y": 7}
+{"key": "RIGHT", "seq": 419, "type": "input"}
+{"location": 2, "seq": 420, "steps": 141, "type": "move", "x": 23, "y": 7}
+{"key": "UP", "seq": 421, "type": "input"}
+{"location": 2, "seq": 422, "steps": 142, "type": "move", "x": 23, "y": 6}
+{"key": "UP", "seq": 423, "type": "input"}
+{"location": 2, "seq": 424, "steps": 143, "type": "move", "x": 23, "y": 5}
+{"key": "RIGHT", "seq": 425, "type": "input"}
+{"location": 2, "seq": 426, "steps": 144, "type": "move", "x": 24, "y": 5}
+{"key": "RIGHT", "seq": 427, "type": "input"}
+{"location": 2, "seq": 428, "steps": 145, "type": "move", "x": 25, "y": 5}
+{"location": 2, "seq": 429, "string": 6, "type": "message"}
+{"seq": 430, "shop": 2, "type": "shop_open"}
+{"key": "B", "seq": 431, "type": "input"}
+{"items": [2, 7, 8, 9, 10], "prompt": "buy_item", "seq": 432, "type": "prompt"}
+{"key": "c", "seq": 433, "type": "input"}
+{"prompt": "member", "seq": 434, "type": "prompt"}
+{"key": "1", "seq": 435, "type": "input"}
+{"delta": -104, "member": 1, "seq": 436, "total": 91, "type": "money"}
+{"item": 8, "member": 1, "price": 104, "seq": 437, "slot": 4, "status": 0, "type": "buy"}
+{"key": "X", "seq": 438, "type": "input"}
+{"seq": 439, "type": "shop_close"}
+{"key": "C", "seq": 440, "type": "input"}
+{"prompt": "member", "seq": 441, "type": "prompt"}
+{"key": "1", "seq": 442, "type": "input"}
+{"member": 1, "seq": 443, "type": "char_open"}
+{"key": "E", "seq": 444, "type": "input"}
+{"prompt": "item_slot", "seq": 445, "type": "prompt"}
+{"key": "d", "seq": 446, "type": "input"}
+{"ac": 5, "item": 8, "member": 1, "seq": 447, "slot": 4, "type": "equip"}
+{"key": "X", "seq": 448, "type": "input"}
+{"seq": 449, "type": "char_close"}
+{"name": "CP5-pre-save", "seq": 450, "state": {"cell_changes": [[1, 8, 17, 0, 0, 28], [0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13]], "day": 1, "hour": 17, "location": 2, "minute": 28, "mode": "map", "party": [{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0]], "level": 2, "max_hp": 28, "money": 91, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 104}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}], "rng_state": 90935533, "steps": 145, "x": 25, "y": 5}, "type": "checkpoint"}
+{"key": "S", "seq": 451, "type": "input"}
+{"seq": 452, "serial": 1, "type": "save"}
+{"key": "O", "seq": 453, "type": "input"}
+{"prompt": "load", "seq": 454, "type": "prompt"}
+{"key": "Y", "seq": 455, "type": "input"}
+{"seq": 456, "serial": 1, "type": "load"}
+{"name": "CP5", "seq": 457, "state": {"cell_changes": [[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]], "day": 1, "hour": 17, "location": 2, "minute": 28, "mode": "map", "party": [{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0]], "level": 2, "max_hp": 28, "money": 91, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 104}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}], "rng_state": 90935533, "steps": 145, "x": 25, "y": 5}, "type": "checkpoint"}
+{"key": "LEFT", "seq": 458, "type": "input"}
+{"location": 2, "seq": 459, "steps": 146, "type": "move", "x": 24, "y": 5}
+{"key": "LEFT", "seq": 460, "type": "input"}
+{"location": 2, "seq": 461, "steps": 147, "type": "move", "x": 23, "y": 5}
+{"key": "DOWN", "seq": 462, "type": "input"}
+{"location": 2, "seq": 463, "steps": 148, "type": "move", "x": 23, "y": 6}
+{"key": "DOWN", "seq": 464, "type": "input"}
+{"location": 2, "seq": 465, "steps": 149, "type": "move", "x": 23, "y": 7}
+{"key": "DOWN", "seq": 466, "type": "input"}
+{"location": 2, "seq": 467, "steps": 150, "type": "move", "x": 23, "y": 8}
+{"key": "DOWN", "seq": 468, "type": "input"}
+{"location": 2, "seq": 469, "steps": 151, "type": "move", "x": 23, "y": 9}
+{"key": "LEFT", "seq": 470, "type": "input"}
+{"location": 2, "seq": 471, "steps": 152, "type": "move", "x": 22, "y": 9}
+{"key": "DOWN", "seq": 472, "type": "input"}
+{"location": 2, "seq": 473, "steps": 153, "type": "move", "x": 22, "y": 10}
+{"key": "DOWN", "seq": 474, "type": "input"}
+{"location": 2, "seq": 475, "steps": 154, "type": "move", "x": 22, "y": 11}
+{"key": "DOWN", "seq": 476, "type": "input"}
+{"location": 2, "seq": 477, "steps": 155, "type": "move", "x": 22, "y": 12}
+{"key": "DOWN", "seq": 478, "type": "input"}
+{"location": 2, "seq": 479, "steps": 156, "type": "move", "x": 22, "y": 13}
+{"key": "DOWN", "seq": 480, "type": "input"}
+{"location": 2, "seq": 481, "steps": 157, "type": "move", "x": 22, "y": 14}
+{"key": "DOWN", "seq": 482, "type": "input"}
+{"location": 2, "seq": 483, "steps": 158, "type": "move", "x": 22, "y": 15}
+{"key": "RIGHT", "seq": 484, "type": "input"}
+{"location": 2, "seq": 485, "steps": 159, "type": "move", "x": 23, "y": 15}
+{"key": "RIGHT", "seq": 486, "type": "input"}
+{"location": 2, "seq": 487, "steps": 160, "type": "move", "x": 24, "y": 15}
+{"key": "RIGHT", "seq": 488, "type": "input"}
+{"location": 2, "seq": 489, "steps": 161, "type": "move", "x": 25, "y": 15}
+{"key": "RIGHT", "seq": 490, "type": "input"}
+{"location": 2, "seq": 491, "steps": 162, "type": "move", "x": 26, "y": 15}
+{"key": "UP", "seq": 492, "type": "input"}
+{"action": 2, "action_class": 4, "seq": 493, "type": "bump", "x": 26, "y": 14}
+{"location": 2, "seq": 494, "string": 7, "type": "message"}
+{"level": 2, "member": 3, "need": 50, "roll": 19, "seq": 495, "skill": 14, "success": true, "type": "check"}
+{"seq": 496, "type": "unlock", "x": 26, "y": 14}
+{"action": 1, "action_class": 4, "image": 30, "location": 2, "seq": 497, "type": "cell_change", "x": 26, "y": 14}
+{"action": 1, "action_class": 4, "image": 29, "location": 2, "seq": 498, "type": "cell_change", "x": 26, "y": 14}
+{"delta": 10, "member": 3, "seq": 499, "total": 114, "type": "xp"}
+{"key": "UP", "seq": 500, "type": "input"}
+{"location": 2, "seq": 501, "steps": 163, "type": "move", "x": 26, "y": 14}
+{"key": "UP", "seq": 502, "type": "input"}
+{"location": 2, "seq": 503, "steps": 164, "type": "move", "x": 26, "y": 13}
+{"key": "UP", "seq": 504, "type": "input"}
+{"location": 2, "seq": 505, "steps": 165, "type": "move", "x": 26, "y": 12}
+{"item": 11, "member": 1, "seq": 506, "slot": 5, "status": 0, "type": "item_gain"}
+{"action": 0, "action_class": 0, "image": 27, "location": 2, "seq": 507, "type": "cell_change", "x": 26, "y": 12}
+{"name": "CP6", "seq": 508, "state": {"cell_changes": [[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27]], "day": 1, "hour": 17, "location": 2, "minute": 48, "mode": "map", "party": [{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0], [11, 1]], "level": 2, "max_hp": 28, "money": 91, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 114}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}], "rng_state": 2578932118, "steps": 165, "x": 26, "y": 12}, "type": "checkpoint"}
+
+=== scenario cp9 ===
+{"seed": 20261021, "seq": 0, "type": "new_game"}
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"name": "CP1", "seq": 2, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 0, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [1, 0]], "level": 1, "max_hp": 26, "money": 60, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 1]], "level": 1, "max_hp": 21, "money": 80, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 1], [9, 3]], "level": 1, "max_hp": 22, "money": 70, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}], "rng_state": 20261021, "steps": 0, "x": 15, "y": 20}, "type": "checkpoint"}
+{"key": "UP", "seq": 3, "type": "input"}
+{"location": 1, "seq": 4, "steps": 1, "type": "move", "x": 15, "y": 19}
+{"key": "UP", "seq": 5, "type": "input"}
+{"location": 1, "seq": 6, "steps": 2, "type": "move", "x": 15, "y": 18}
+{"key": "UP", "seq": 7, "type": "input"}
+{"location": 1, "seq": 8, "steps": 3, "type": "move", "x": 15, "y": 17}
+{"key": "UP", "seq": 9, "type": "input"}
+{"location": 1, "seq": 10, "steps": 4, "type": "move", "x": 15, "y": 16}
+{"key": "UP", "seq": 11, "type": "input"}
+{"location": 1, "seq": 12, "steps": 5, "type": "move", "x": 15, "y": 15}
+{"key": "UP", "seq": 13, "type": "input"}
+{"location": 1, "seq": 14, "steps": 6, "type": "move", "x": 15, "y": 14}
+{"key": "UP", "seq": 15, "type": "input"}
+{"location": 1, "seq": 16, "steps": 7, "type": "move", "x": 15, "y": 13}
+{"key": "UP", "seq": 17, "type": "input"}
+{"location": 1, "seq": 18, "steps": 8, "type": "move", "x": 15, "y": 12}
+{"key": "LEFT", "seq": 19, "type": "input"}
+{"location": 1, "seq": 20, "steps": 9, "type": "move", "x": 14, "y": 12}
+{"key": "UP", "seq": 21, "type": "input"}
+{"location": 1, "seq": 22, "steps": 10, "type": "move", "x": 14, "y": 11}
+{"key": "UP", "seq": 23, "type": "input"}
+{"location": 1, "seq": 24, "steps": 11, "type": "move", "x": 14, "y": 10}
+{"key": "UP", "seq": 25, "type": "input"}
+{"location": 1, "seq": 26, "steps": 12, "type": "move", "x": 14, "y": 9}
+{"key": "UP", "seq": 27, "type": "input"}
+{"location": 1, "seq": 28, "steps": 13, "type": "move", "x": 14, "y": 8}
+{"key": "LEFT", "seq": 29, "type": "input"}
+{"location": 1, "seq": 30, "steps": 14, "type": "move", "x": 13, "y": 8}
+{"key": "LEFT", "seq": 31, "type": "input"}
+{"location": 1, "seq": 32, "steps": 15, "type": "move", "x": 12, "y": 8}
+{"key": "LEFT", "seq": 33, "type": "input"}
+{"location": 1, "seq": 34, "steps": 16, "type": "move", "x": 11, "y": 8}
+{"key": "LEFT", "seq": 35, "type": "input"}
+{"location": 1, "seq": 36, "steps": 17, "type": "move", "x": 10, "y": 8}
+{"key": "LEFT", "seq": 37, "type": "input"}
+{"location": 1, "seq": 38, "steps": 18, "type": "move", "x": 9, "y": 8}
+{"key": "LEFT", "seq": 39, "type": "input"}
+{"location": 1, "seq": 40, "steps": 19, "type": "move", "x": 8, "y": 8}
+{"key": "LEFT", "seq": 41, "type": "input"}
+{"location": 1, "seq": 42, "steps": 20, "type": "move", "x": 7, "y": 8}
+{"key": "LEFT", "seq": 43, "type": "input"}
+{"location": 1, "seq": 44, "steps": 21, "type": "move", "x": 6, "y": 8}
+{"key": "UP", "seq": 45, "type": "input"}
+{"location": 1, "seq": 46, "steps": 22, "type": "move", "x": 6, "y": 7}
+{"n": 3, "seq": 47, "type": "paragraph"}
+{"key": "UP", "seq": 48, "type": "input"}
+{"location": 1, "seq": 49, "steps": 23, "type": "move", "x": 6, "y": 6}
+{"key": "UP", "seq": 50, "type": "input"}
+{"location": 1, "seq": 51, "steps": 24, "type": "move", "x": 6, "y": 5}
+{"location": 1, "seq": 52, "string": 5, "type": "message"}
+{"seq": 53, "shop": 0, "type": "shop_open"}
+{"key": "B", "seq": 54, "type": "input"}
+{"items": [1, 3, 4, 7, 9, 10], "prompt": "buy_item", "seq": 55, "type": "prompt"}
+{"key": "c", "seq": 56, "type": "input"}
+{"prompt": "member", "seq": 57, "type": "prompt"}
+{"key": "3", "seq": 58, "type": "input"}
+{"delta": -7, "member": 3, "seq": 59, "total": 73, "type": "money"}
+{"item": 4, "member": 3, "price": 7, "seq": 60, "slot": 2, "status": 2, "type": "buy"}
+{"key": "B", "seq": 61, "type": "input"}
+{"items": [1, 3, 4, 7, 9, 10], "prompt": "buy_item", "seq": 62, "type": "prompt"}
+{"key": "c", "seq": 63, "type": "input"}
+{"prompt": "member", "seq": 64, "type": "prompt"}
+{"key": "4", "seq": 65, "type": "input"}
+{"delta": -7, "member": 4, "seq": 66, "total": 63, "type": "money"}
+{"item": 4, "member": 4, "price": 7, "seq": 67, "slot": 2, "status": 2, "type": "buy"}
+{"key": "S", "seq": 68, "type": "input"}
+{"prompt": "member", "seq": 69, "type": "prompt"}
+{"key": "2", "seq": 70, "type": "input"}
+{"prompt": "item_slot", "seq": 71, "type": "prompt"}
+{"key": "c", "seq": 72, "type": "input"}
+{"item": 1, "member": 2, "price": 8, "seq": 73, "slot": 3, "type": "sell"}
+{"delta": 8, "member": 2, "seq": 74, "total": 68, "type": "money"}
+{"key": "B", "seq": 75, "type": "input"}
+{"items": [1, 3, 4, 7, 9, 10], "prompt": "buy_item", "seq": 76, "type": "prompt"}
+{"key": "d", "seq": 77, "type": "input"}
+{"prompt": "member", "seq": 78, "type": "prompt"}
+{"key": "2", "seq": 79, "type": "input"}
+{"delta": -28, "member": 2, "seq": 80, "total": 40, "type": "money"}
+{"item": 7, "member": 2, "price": 28, "seq": 81, "slot": 3, "status": 0, "type": "buy"}
+{"key": "X", "seq": 82, "type": "input"}
+{"seq": 83, "type": "shop_close"}
+{"key": "C", "seq": 84, "type": "input"}
+{"prompt": "member", "seq": 85, "type": "prompt"}
+{"key": "2", "seq": 86, "type": "input"}
+{"member": 2, "seq": 87, "type": "char_open"}
+{"key": "E", "seq": 88, "type": "input"}
+{"prompt": "item_slot", "seq": 89, "type": "prompt"}
+{"key": "c", "seq": 90, "type": "input"}
+{"ac": 3, "item": 7, "member": 2, "seq": 91, "slot": 3, "type": "equip"}
+{"key": "X", "seq": 92, "type": "input"}
+{"seq": 93, "type": "char_close"}
+{"name": "CP2", "seq": 94, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 24, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [7, 0]], "level": 1, "max_hp": 26, "money": 40, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 2]], "level": 1, "max_hp": 21, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 2], [9, 3]], "level": 1, "max_hp": 22, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}], "rng_state": 20261021, "steps": 24, "x": 6, "y": 5}, "type": "checkpoint"}
+{"key": "DOWN", "seq": 95, "type": "input"}
+{"location": 1, "seq": 96, "steps": 25, "type": "move", "x": 6, "y": 6}
+{"key": "DOWN", "seq": 97, "type": "input"}
+{"location": 1, "seq": 98, "steps": 26, "type": "move", "x": 6, "y": 7}
+{"n": 3, "seq": 99, "type": "paragraph"}
+{"key": "DOWN", "seq": 100, "type": "input"}
+{"location": 1, "seq": 101, "steps": 27, "type": "move", "x": 6, "y": 8}
+{"key": "RIGHT", "seq": 102, "type": "input"}
+{"location": 1, "seq": 103, "steps": 28, "type": "move", "x": 7, "y": 8}
+{"key": "DOWN", "seq": 104, "type": "input"}
+{"location": 1, "seq": 105, "steps": 29, "type": "move", "x": 7, "y": 9}
+{"key": "DOWN", "seq": 106, "type": "input"}
+{"location": 1, "seq": 107, "steps": 30, "type": "move", "x": 7, "y": 10}
+{"key": "DOWN", "seq": 108, "type": "input"}
+{"location": 1, "seq": 109, "steps": 31, "type": "move", "x": 7, "y": 11}
+{"key": "DOWN", "seq": 110, "type": "input"}
+{"location": 1, "seq": 111, "steps": 32, "type": "move", "x": 7, "y": 12}
+{"key": "DOWN", "seq": 112, "type": "input"}
+{"location": 1, "seq": 113, "steps": 33, "type": "move", "x": 7, "y": 13}
+{"key": "DOWN", "seq": 114, "type": "input"}
+{"location": 1, "seq": 115, "steps": 34, "type": "move", "x": 7, "y": 14}
+{"key": "DOWN", "seq": 116, "type": "input"}
+{"location": 1, "seq": 117, "steps": 35, "type": "move", "x": 7, "y": 15}
+{"key": "DOWN", "seq": 118, "type": "input"}
+{"location": 1, "seq": 119, "steps": 36, "type": "move", "x": 7, "y": 16}
+{"key": "DOWN", "seq": 120, "type": "input"}
+{"location": 1, "seq": 121, "steps": 37, "type": "move", "x": 7, "y": 17}
+{"key": "DOWN", "seq": 122, "type": "input"}
+{"location": 1, "seq": 123, "steps": 38, "type": "move", "x": 7, "y": 18}
+{"key": "RIGHT", "seq": 124, "type": "input"}
+{"location": 1, "seq": 125, "steps": 39, "type": "move", "x": 8, "y": 18}
+{"key": "UP", "seq": 126, "type": "input"}
+{"action": 1, "action_class": 11, "seq": 127, "type": "bump", "x": 8, "y": 17}
+{"n": 6, "seq": 128, "type": "paragraph"}
+{"prompt": "recruit", "seq": 129, "type": "prompt"}
+{"key": "Y", "seq": 130, "type": "input"}
+{"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+{"location": 1, "npc": 0, "seq": 132, "slot": 5, "type": "recruit"}
+{"name": "CP3", "seq": 133, "state": {"cell_changes": [[1, 8, 17, 0, 0, 28]], "day": 1, "hour": 8, "location": 1, "minute": 39, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [7, 0]], "level": 1, "max_hp": 26, "money": 40, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 2]], "level": 1, "max_hp": 21, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 2], [9, 3]], "level": 1, "max_hp": 22, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 200}], "rng_state": 20261021, "steps": 39, "x": 8, "y": 18}, "type": "checkpoint"}
+{"key": "RIGHT", "seq": 134, "type": "input"}
+{"location": 1, "seq": 135, "steps": 40, "type": "move", "x": 9, "y": 18}
+{"key": "RIGHT", "seq": 136, "type": "input"}
+{"location": 1, "seq": 137, "steps": 41, "type": "move", "x": 10, "y": 18}
+{"key": "RIGHT", "seq": 138, "type": "input"}
+{"location": 1, "seq": 139, "steps": 42, "type": "move", "x": 11, "y": 18}
+{"key": "RIGHT", "seq": 140, "type": "input"}
+{"location": 1, "seq": 141, "steps": 43, "type": "move", "x": 12, "y": 18}
+{"key": "RIGHT", "seq": 142, "type": "input"}
+{"location": 1, "seq": 143, "steps": 44, "type": "move", "x": 13, "y": 18}
+{"key": "RIGHT", "seq": 144, "type": "input"}
+{"location": 1, "seq": 145, "steps": 45, "type": "move", "x": 14, "y": 18}
+{"key": "RIGHT", "seq": 146, "type": "input"}
+{"location": 1, "seq": 147, "steps": 46, "type": "move", "x": 15, "y": 18}
+{"key": "DOWN", "seq": 148, "type": "input"}
+{"location": 1, "seq": 149, "steps": 47, "type": "move", "x": 15, "y": 19}
+{"key": "DOWN", "seq": 150, "type": "input"}
+{"location": 1, "seq": 151, "steps": 48, "type": "move", "x": 15, "y": 20}
+{"key": "DOWN", "seq": 152, "type": "input"}
+{"location": 1, "seq": 153, "steps": 49, "type": "move", "x": 15, "y": 21}
+{"key": "DOWN", "seq": 154, "type": "input"}
+{"location": 1, "seq": 155, "steps": 50, "type": "move", "x": 15, "y": 22}
+{"key": "DOWN", "seq": 156, "type": "input"}
+{"location": 1, "seq": 157, "steps": 51, "type": "move", "x": 15, "y": 23}
+{"key": "DOWN", "seq": 158, "type": "input"}
+{"location": 1, "seq": 159, "steps": 52, "type": "move", "x": 15, "y": 24}
+{"key": "DOWN", "seq": 160, "type": "input"}
+{"location": 1, "seq": 161, "steps": 53, "type": "move", "x": 15, "y": 25}
+{"key": "DOWN", "seq": 162, "type": "input"}
+{"location": 1, "seq": 163, "steps": 54, "type": "move", "x": 15, "y": 26}
+{"key": "DOWN", "seq": 164, "type": "input"}
+{"location": 1, "seq": 165, "steps": 55, "type": "move", "x": 15, "y": 27}
+{"key": "DOWN", "seq": 166, "type": "input"}
+{"location": 1, "seq": 167, "steps": 56, "type": "move", "x": 15, "y": 28}
+{"key": "DOWN", "seq": 168, "type": "input"}
+{"location": 1, "seq": 169, "steps": 57, "type": "move", "x": 15, "y": 29}
+{"n": 2, "seq": 170, "type": "paragraph"}
+{"key": "DOWN", "seq": 171, "type": "input"}
+{"location": 1, "seq": 172, "steps": 58, "type": "move", "x": 15, "y": 30}
+{"key": "DOWN", "seq": 173, "type": "input"}
+{"location": 1, "seq": 174, "steps": 59, "type": "move", "x": 15, "y": 31}
+{"location": 0, "seq": 175, "type": "map_change", "x": 10, "y": 41}
+{"key": "RIGHT", "seq": 176, "type": "input"}
+{"location": 0, "seq": 177, "steps": 60, "type": "move", "x": 11, "y": 41}
+{"key": "RIGHT", "seq": 178, "type": "input"}
+{"location": 0, "seq": 179, "steps": 61, "type": "move", "x": 12, "y": 41}
+{"key": "RIGHT", "seq": 180, "type": "input"}
+{"location": 0, "seq": 181, "steps": 62, "type": "move", "x": 13, "y": 41}
+{"key": "RIGHT", "seq": 182, "type": "input"}
+{"location": 0, "seq": 183, "steps": 63, "type": "move", "x": 14, "y": 41}
+{"key": "RIGHT", "seq": 184, "type": "input"}
+{"location": 0, "seq": 185, "steps": 64, "type": "move", "x": 15, "y": 41}
+{"key": "RIGHT", "seq": 186, "type": "input"}
+{"location": 0, "seq": 187, "steps": 65, "type": "move", "x": 16, "y": 41}
+{"key": "RIGHT", "seq": 188, "type": "input"}
+{"location": 0, "seq": 189, "steps": 66, "type": "move", "x": 17, "y": 41}
+{"key": "RIGHT", "seq": 190, "type": "input"}
+{"location": 0, "seq": 191, "steps": 67, "type": "move", "x": 18, "y": 41}
+{"key": "RIGHT", "seq": 192, "type": "input"}
+{"location": 0, "seq": 193, "steps": 68, "type": "move", "x": 19, "y": 41}
+{"key": "RIGHT", "seq": 194, "type": "input"}
+{"location": 0, "seq": 195, "steps": 69, "type": "move", "x": 20, "y": 41}
+{"key": "RIGHT", "seq": 196, "type": "input"}
+{"location": 0, "seq": 197, "steps": 70, "type": "move", "x": 21, "y": 41}
+{"key": "RIGHT", "seq": 198, "type": "input"}
+{"location": 0, "seq": 199, "steps": 71, "type": "move", "x": 22, "y": 41}
+{"key": "RIGHT", "seq": 200, "type": "input"}
+{"location": 0, "seq": 201, "steps": 72, "type": "move", "x": 23, "y": 41}
+{"key": "RIGHT", "seq": 202, "type": "input"}
+{"location": 0, "seq": 203, "steps": 73, "type": "move", "x": 24, "y": 41}
+{"key": "RIGHT", "seq": 204, "type": "input"}
+{"location": 0, "seq": 205, "steps": 74, "type": "move", "x": 25, "y": 41}
+{"key": "RIGHT", "seq": 206, "type": "input"}
+{"location": 0, "seq": 207, "steps": 75, "type": "move", "x": 26, "y": 41}
+{"n": 7, "seq": 208, "type": "paragraph"}
+{"key": "RIGHT", "seq": 209, "type": "input"}
+{"location": 0, "seq": 210, "steps": 76, "type": "move", "x": 27, "y": 41}
+{"key": "RIGHT", "seq": 211, "type": "input"}
+{"location": 0, "seq": 212, "steps": 77, "type": "move", "x": 28, "y": 41}
+{"key": "RIGHT", "seq": 213, "type": "input"}
+{"location": 0, "seq": 214, "steps": 78, "type": "move", "x": 29, "y": 41}
+{"key": "RIGHT", "seq": 215, "type": "input"}
+{"location": 0, "seq": 216, "steps": 79, "type": "move", "x": 30, "y": 41}
+{"groups": [{"band": 3, "count": 3, "hp": [14, 12, 14], "monster": "raider"}], "seq": 217, "type": "encounter_start"}
+{"n": 8, "seq": 218, "type": "paragraph"}
+{"level": 2, "member": 5, "need": 66, "roll": 54, "seq": 219, "skill": 18, "success": true, "type": "check"}
+{"key": "A", "seq": 220, "type": "input"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 1, "seq": 221, "type": "round_orders"}
+{"round": 1, "seq": 222, "type": "round_start"}
+{"damage": 6, "group": 1, "hit": true, "member": 1, "need": 57, "roll": 53, "seq": 223, "side": "party", "target": 1, "type": "attack"}
+{"damage": 4, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 38, "seq": 224, "side": "party", "target": 1, "type": "attack"}
+{"damage": 6, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 32, "seq": 225, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 92, "seq": 226, "side": "party", "target": 2, "type": "attack"}
+{"damage": 3, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 56, "seq": 227, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 1, "group": 1, "hit": false, "member": 1, "need": 22, "roll": 61, "seq": 228, "side": "monsters", "type": "attack"}
+{"attacker": 2, "damage": 1, "group": 1, "hit": true, "member": 2, "need": 22, "roll": 16, "seq": 229, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 60, "seq": 230, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 1, "seq": 231, "type": "monster_dies"}
+{"key": "A", "seq": 232, "type": "input"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 2, "seq": 233, "type": "round_orders"}
+{"round": 2, "seq": 234, "type": "round_start"}
+{"chance": 4, "member": 1, "roll": 4, "seq": 235, "type": "jam"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 75, "seq": 236, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 48, "seq": 237, "side": "party", "target": 2, "type": "attack"}
+{"damage": 8, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 15, "seq": 238, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 5, "need": 58, "roll": 78, "seq": 239, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 2, "damage": 4, "group": 1, "hit": true, "member": 4, "need": 28, "roll": 2, "seq": 240, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 75, "seq": 241, "side": "monsters", "type": "attack"}
+{"level": 0, "member": 1, "need": 46, "roll": 58, "seq": 242, "skill": 22, "success": false, "type": "check"}
+{"key": "A", "seq": 243, "type": "input"}
+{"orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 3, "seq": 244, "type": "round_orders"}
+{"round": 3, "seq": 245, "type": "round_start"}
+{"member": 1, "seq": 246, "type": "click"}
+{"damage": 10, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 55, "seq": 247, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 68, "seq": 248, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 85, "seq": 249, "side": "party", "target": 3, "type": "attack"}
+{"damage": 9, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 42, "seq": 250, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 2, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 40, "seq": 251, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 25, "seq": 252, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 2, "seq": 253, "type": "monster_dies"}
+{"level": 0, "member": 1, "need": 46, "roll": 38, "seq": 254, "skill": 22, "success": true, "type": "check"}
+{"member": 1, "seq": 255, "type": "unjammed"}
+{"key": "A", "seq": 256, "type": "input"}
+{"orders": {"1": ["advance", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 4, "seq": 257, "type": "round_orders"}
+{"round": 4, "seq": 258, "type": "round_start"}
+{"member": 1, "seq": 259, "type": "click"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 72, "seq": 260, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 72, "seq": 261, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 69, "seq": 262, "side": "party", "target": 3, "type": "attack"}
+{"damage": 5, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 19, "seq": 263, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 34, "seq": 264, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 3, "seq": 265, "type": "monster_dies"}
+{"result": "victory", "rounds": 4, "seq": 266, "type": "combat_end"}
+{"delta": 14, "member": 1, "seq": 267, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 28, "member": 1, "rank": "Hand", "seq": 268, "type": "promote"}
+{"delta": 14, "member": 2, "seq": 269, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 31, "member": 2, "rank": "Hand", "seq": 270, "type": "promote"}
+{"delta": 14, "member": 3, "seq": 271, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 25, "member": 3, "rank": "Hand", "seq": 272, "type": "promote"}
+{"delta": 14, "member": 4, "seq": 273, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 26, "member": 4, "rank": "Hand", "seq": 274, "type": "promote"}
+{"delta": 14, "member": 5, "seq": 275, "total": 214, "type": "xp"}
+{"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 276, "type": "cell_change", "x": 30, "y": 41}
+{"delta": 75, "member": 1, "seq": 277, "total": 195, "type": "money"}
+{"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 278, "type": "cell_change", "x": 30, "y": 41}
+{"name": "CP4", "seq": 279, "state": {"cell_changes": [[1, 8, 17, 0, 0, 28], [0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13]], "day": 1, "hour": 12, "location": 0, "minute": 19, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 2, "max_hp": 28, "money": 195, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 25, "items": [[5, 8], [6, 1], [7, 0]], "level": 2, "max_hp": 31, "money": 40, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 104}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 18, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}], "rng_state": 90935533, "steps": 79, "x": 30, "y": 41}, "type": "checkpoint"}
+{"key": "RIGHT", "seq": 280, "type": "input"}
+{"location": 0, "seq": 281, "steps": 80, "type": "move", "x": 31, "y": 41}
+{"n": 9, "seq": 282, "type": "paragraph"}
+{"key": "RIGHT", "seq": 283, "type": "input"}
+{"location": 0, "seq": 284, "steps": 81, "type": "move", "x": 32, "y": 41}
+{"key": "UP", "seq": 285, "type": "input"}
+{"location": 0, "seq": 286, "steps": 82, "type": "move", "x": 32, "y": 40}
+{"key": "UP", "seq": 287, "type": "input"}
+{"location": 0, "seq": 288, "steps": 83, "type": "move", "x": 32, "y": 39}
+{"key": "UP", "seq": 289, "type": "input"}
+{"location": 0, "seq": 290, "steps": 84, "type": "move", "x": 32, "y": 38}
+{"members": [1, 2, 3, 4], "seq": 291, "type": "natural_heal"}
+{"key": "UP", "seq": 292, "type": "input"}
+{"location": 0, "seq": 293, "steps": 85, "type": "move", "x": 32, "y": 37}
+{"key": "UP", "seq": 294, "type": "input"}
+{"location": 0, "seq": 295, "steps": 86, "type": "move", "x": 32, "y": 36}
+{"key": "UP", "seq": 296, "type": "input"}
+{"location": 0, "seq": 297, "steps": 87, "type": "move", "x": 32, "y": 35}
+{"key": "UP", "seq": 298, "type": "input"}
+{"location": 0, "seq": 299, "steps": 88, "type": "move", "x": 32, "y": 34}
+{"key": "UP", "seq": 300, "type": "input"}
+{"location": 0, "seq": 301, "steps": 89, "type": "move", "x": 32, "y": 33}
+{"key": "UP", "seq": 302, "type": "input"}
+{"location": 0, "seq": 303, "steps": 90, "type": "move", "x": 32, "y": 32}
+{"key": "UP", "seq": 304, "type": "input"}
+{"location": 0, "seq": 305, "steps": 91, "type": "move", "x": 32, "y": 31}
+{"key": "UP", "seq": 306, "type": "input"}
+{"location": 0, "seq": 307, "steps": 92, "type": "move", "x": 32, "y": 30}
+{"key": "UP", "seq": 308, "type": "input"}
+{"location": 0, "seq": 309, "steps": 93, "type": "move", "x": 32, "y": 29}
+{"key": "UP", "seq": 310, "type": "input"}
+{"location": 0, "seq": 311, "steps": 94, "type": "move", "x": 32, "y": 28}
+{"key": "RIGHT", "seq": 312, "type": "input"}
+{"location": 0, "seq": 313, "steps": 95, "type": "move", "x": 33, "y": 28}
+{"key": "RIGHT", "seq": 314, "type": "input"}
+{"location": 0, "seq": 315, "steps": 96, "type": "move", "x": 34, "y": 28}
+{"key": "RIGHT", "seq": 316, "type": "input"}
+{"location": 0, "seq": 317, "steps": 97, "type": "move", "x": 35, "y": 28}
+{"key": "RIGHT", "seq": 318, "type": "input"}
+{"location": 0, "seq": 319, "steps": 98, "type": "move", "x": 36, "y": 28}
+{"key": "RIGHT", "seq": 320, "type": "input"}
+{"location": 0, "seq": 321, "steps": 99, "type": "move", "x": 37, "y": 28}
+{"key": "RIGHT", "seq": 322, "type": "input"}
+{"location": 0, "seq": 323, "steps": 100, "type": "move", "x": 38, "y": 28}
+{"key": "RIGHT", "seq": 324, "type": "input"}
+{"location": 0, "seq": 325, "steps": 101, "type": "move", "x": 39, "y": 28}
+{"key": "RIGHT", "seq": 326, "type": "input"}
+{"location": 0, "seq": 327, "steps": 102, "type": "move", "x": 40, "y": 28}
+{"key": "RIGHT", "seq": 328, "type": "input"}
+{"location": 0, "seq": 329, "steps": 103, "type": "move", "x": 41, "y": 28}
+{"key": "RIGHT", "seq": 330, "type": "input"}
+{"location": 0, "seq": 331, "steps": 104, "type": "move", "x": 42, "y": 28}
+{"key": "RIGHT", "seq": 332, "type": "input"}
+{"location": 0, "seq": 333, "steps": 105, "type": "move", "x": 43, "y": 28}
+{"key": "RIGHT", "seq": 334, "type": "input"}
+{"location": 0, "seq": 335, "steps": 106, "type": "move", "x": 44, "y": 28}
+{"location": 2, "seq": 336, "type": "map_change", "x": 1, "y": 16}
+{"key": "RIGHT", "seq": 337, "type": "input"}
+{"location": 2, "seq": 338, "steps": 107, "type": "move", "x": 2, "y": 16}
+{"n": 10, "seq": 339, "type": "paragraph"}
+{"key": "UP", "seq": 340, "type": "input"}
+{"location": 2, "seq": 341, "steps": 108, "type": "move", "x": 2, "y": 15}
+{"key": "UP", "seq": 342, "type": "input"}
+{"location": 2, "seq": 343, "steps": 109, "type": "move", "x": 2, "y": 14}
+{"key": "UP", "seq": 344, "type": "input"}
+{"location": 2, "seq": 345, "steps": 110, "type": "move", "x": 2, "y": 13}
+{"key": "UP", "seq": 346, "type": "input"}
+{"location": 2, "seq": 347, "steps": 111, "type": "move", "x": 2, "y": 12}
+{"key": "UP", "seq": 348, "type": "input"}
+{"location": 2, "seq": 349, "steps": 112, "type": "move", "x": 2, "y": 11}
+{"key": "UP", "seq": 350, "type": "input"}
+{"location": 2, "seq": 351, "steps": 113, "type": "move", "x": 2, "y": 10}
+{"key": "UP", "seq": 352, "type": "input"}
+{"location": 2, "seq": 353, "steps": 114, "type": "move", "x": 2, "y": 9}
+{"key": "UP", "seq": 354, "type": "input"}
+{"location": 2, "seq": 355, "steps": 115, "type": "move", "x": 2, "y": 8}
+{"key": "UP", "seq": 356, "type": "input"}
+{"location": 2, "seq": 357, "steps": 116, "type": "move", "x": 2, "y": 7}
+{"key": "RIGHT", "seq": 358, "type": "input"}
+{"location": 2, "seq": 359, "steps": 117, "type": "move", "x": 3, "y": 7}
+{"key": "RIGHT", "seq": 360, "type": "input"}
+{"location": 2, "seq": 361, "steps": 118, "type": "move", "x": 4, "y": 7}
+{"key": "RIGHT", "seq": 362, "type": "input"}
+{"location": 2, "seq": 363, "steps": 119, "type": "move", "x": 5, "y": 7}
+{"key": "RIGHT", "seq": 364, "type": "input"}
+{"location": 2, "seq": 365, "steps": 120, "type": "move", "x": 6, "y": 7}
+{"key": "RIGHT", "seq": 366, "type": "input"}
+{"location": 2, "seq": 367, "steps": 121, "type": "move", "x": 7, "y": 7}
+{"key": "UP", "seq": 368, "type": "input"}
+{"location": 2, "seq": 369, "steps": 122, "type": "move", "x": 7, "y": 6}
+{"n": 11, "seq": 370, "type": "paragraph"}
+{"key": "UP", "seq": 371, "type": "input"}
+{"location": 2, "seq": 372, "steps": 123, "type": "move", "x": 7, "y": 5}
+{"location": 2, "seq": 373, "string": 5, "type": "message"}
+{"seq": 374, "shop": 1, "type": "shop_open"}
+{"key": "B", "seq": 375, "type": "input"}
+{"items": [3, 4, 5, 6], "prompt": "buy_item", "seq": 376, "type": "prompt"}
+{"key": "d", "seq": 377, "type": "input"}
+{"prompt": "member", "seq": 378, "type": "prompt"}
+{"key": "2", "seq": 379, "type": "input"}
+{"delta": -13, "member": 2, "seq": 380, "total": 27, "type": "money"}
+{"item": 6, "member": 2, "price": 13, "seq": 381, "slot": 2, "status": 2, "type": "buy"}
+{"key": "X", "seq": 382, "type": "input"}
+{"seq": 383, "type": "shop_close"}
+{"key": "DOWN", "seq": 384, "type": "input"}
+{"location": 2, "seq": 385, "steps": 124, "type": "move", "x": 7, "y": 6}
+{"n": 11, "seq": 386, "type": "paragraph"}
+{"key": "DOWN", "seq": 387, "type": "input"}
+{"location": 2, "seq": 388, "steps": 125, "type": "move", "x": 7, "y": 7}
+{"key": "RIGHT", "seq": 389, "type": "input"}
+{"location": 2, "seq": 390, "steps": 126, "type": "move", "x": 8, "y": 7}
+{"key": "RIGHT", "seq": 391, "type": "input"}
+{"location": 2, "seq": 392, "steps": 127, "type": "move", "x": 9, "y": 7}
+{"key": "RIGHT", "seq": 393, "type": "input"}
+{"location": 2, "seq": 394, "steps": 128, "type": "move", "x": 10, "y": 7}
+{"key": "RIGHT", "seq": 395, "type": "input"}
+{"location": 2, "seq": 396, "steps": 129, "type": "move", "x": 11, "y": 7}
+{"key": "RIGHT", "seq": 397, "type": "input"}
+{"location": 2, "seq": 398, "steps": 130, "type": "move", "x": 12, "y": 7}
+{"key": "RIGHT", "seq": 399, "type": "input"}
+{"location": 2, "seq": 400, "steps": 131, "type": "move", "x": 13, "y": 7}
+{"key": "RIGHT", "seq": 401, "type": "input"}
+{"location": 2, "seq": 402, "steps": 132, "type": "move", "x": 14, "y": 7}
+{"key": "RIGHT", "seq": 403, "type": "input"}
+{"location": 2, "seq": 404, "steps": 133, "type": "move", "x": 15, "y": 7}
+{"key": "RIGHT", "seq": 405, "type": "input"}
+{"location": 2, "seq": 406, "steps": 134, "type": "move", "x": 16, "y": 7}
+{"key": "RIGHT", "seq": 407, "type": "input"}
+{"location": 2, "seq": 408, "steps": 135, "type": "move", "x": 17, "y": 7}
+{"key": "RIGHT", "seq": 409, "type": "input"}
+{"location": 2, "seq": 410, "steps": 136, "type": "move", "x": 18, "y": 7}
+{"key": "RIGHT", "seq": 411, "type": "input"}
+{"location": 2, "seq": 412, "steps": 137, "type": "move", "x": 19, "y": 7}
+{"key": "RIGHT", "seq": 413, "type": "input"}
+{"location": 2, "seq": 414, "steps": 138, "type": "move", "x": 20, "y": 7}
+{"key": "RIGHT", "seq": 415, "type": "input"}
+{"location": 2, "seq": 416, "steps": 139, "type": "move", "x": 21, "y": 7}
+{"key": "RIGHT", "seq": 417, "type": "input"}
+{"location": 2, "seq": 418, "steps": 140, "type": "move", "x": 22, "y": 7}
+{"key": "RIGHT", "seq": 419, "type": "input"}
+{"location": 2, "seq": 420, "steps": 141, "type": "move", "x": 23, "y": 7}
+{"key": "UP", "seq": 421, "type": "input"}
+{"location": 2, "seq": 422, "steps": 142, "type": "move", "x": 23, "y": 6}
+{"key": "UP", "seq": 423, "type": "input"}
+{"location": 2, "seq": 424, "steps": 143, "type": "move", "x": 23, "y": 5}
+{"key": "RIGHT", "seq": 425, "type": "input"}
+{"location": 2, "seq": 426, "steps": 144, "type": "move", "x": 24, "y": 5}
+{"key": "RIGHT", "seq": 427, "type": "input"}
+{"location": 2, "seq": 428, "steps": 145, "type": "move", "x": 25, "y": 5}
+{"location": 2, "seq": 429, "string": 6, "type": "message"}
+{"seq": 430, "shop": 2, "type": "shop_open"}
+{"key": "B", "seq": 431, "type": "input"}
+{"items": [2, 7, 8, 9, 10], "prompt": "buy_item", "seq": 432, "type": "prompt"}
+{"key": "c", "seq": 433, "type": "input"}
+{"prompt": "member", "seq": 434, "type": "prompt"}
+{"key": "1", "seq": 435, "type": "input"}
+{"delta": -104, "member": 1, "seq": 436, "total": 91, "type": "money"}
+{"item": 8, "member": 1, "price": 104, "seq": 437, "slot": 4, "status": 0, "type": "buy"}
+{"key": "X", "seq": 438, "type": "input"}
+{"seq": 439, "type": "shop_close"}
+{"key": "C", "seq": 440, "type": "input"}
+{"prompt": "member", "seq": 441, "type": "prompt"}
+{"key": "1", "seq": 442, "type": "input"}
+{"member": 1, "seq": 443, "type": "char_open"}
+{"key": "E", "seq": 444, "type": "input"}
+{"prompt": "item_slot", "seq": 445, "type": "prompt"}
+{"key": "d", "seq": 446, "type": "input"}
+{"ac": 5, "item": 8, "member": 1, "seq": 447, "slot": 4, "type": "equip"}
+{"key": "X", "seq": 448, "type": "input"}
+{"seq": 449, "type": "char_close"}
+{"name": "CP5-pre-save", "seq": 450, "state": {"cell_changes": [[1, 8, 17, 0, 0, 28], [0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13]], "day": 1, "hour": 17, "location": 2, "minute": 28, "mode": "map", "party": [{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0]], "level": 2, "max_hp": 28, "money": 91, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 104}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}], "rng_state": 90935533, "steps": 145, "x": 25, "y": 5}, "type": "checkpoint"}
+{"key": "S", "seq": 451, "type": "input"}
+{"seq": 452, "serial": 1, "type": "save"}
+{"key": "O", "seq": 453, "type": "input"}
+{"prompt": "load", "seq": 454, "type": "prompt"}
+{"key": "Y", "seq": 455, "type": "input"}
+{"seq": 456, "serial": 1, "type": "load"}
+{"name": "CP5", "seq": 457, "state": {"cell_changes": [[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]], "day": 1, "hour": 17, "location": 2, "minute": 28, "mode": "map", "party": [{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0]], "level": 2, "max_hp": 28, "money": 91, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 104}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}], "rng_state": 90935533, "steps": 145, "x": 25, "y": 5}, "type": "checkpoint"}
+{"key": "LEFT", "seq": 458, "type": "input"}
+{"location": 2, "seq": 459, "steps": 146, "type": "move", "x": 24, "y": 5}
+{"key": "LEFT", "seq": 460, "type": "input"}
+{"location": 2, "seq": 461, "steps": 147, "type": "move", "x": 23, "y": 5}
+{"key": "DOWN", "seq": 462, "type": "input"}
+{"location": 2, "seq": 463, "steps": 148, "type": "move", "x": 23, "y": 6}
+{"key": "DOWN", "seq": 464, "type": "input"}
+{"location": 2, "seq": 465, "steps": 149, "type": "move", "x": 23, "y": 7}
+{"key": "DOWN", "seq": 466, "type": "input"}
+{"location": 2, "seq": 467, "steps": 150, "type": "move", "x": 23, "y": 8}
+{"key": "DOWN", "seq": 468, "type": "input"}
+{"location": 2, "seq": 469, "steps": 151, "type": "move", "x": 23, "y": 9}
+{"key": "LEFT", "seq": 470, "type": "input"}
+{"location": 2, "seq": 471, "steps": 152, "type": "move", "x": 22, "y": 9}
+{"key": "DOWN", "seq": 472, "type": "input"}
+{"location": 2, "seq": 473, "steps": 153, "type": "move", "x": 22, "y": 10}
+{"key": "DOWN", "seq": 474, "type": "input"}
+{"location": 2, "seq": 475, "steps": 154, "type": "move", "x": 22, "y": 11}
+{"key": "DOWN", "seq": 476, "type": "input"}
+{"location": 2, "seq": 477, "steps": 155, "type": "move", "x": 22, "y": 12}
+{"key": "DOWN", "seq": 478, "type": "input"}
+{"location": 2, "seq": 479, "steps": 156, "type": "move", "x": 22, "y": 13}
+{"key": "DOWN", "seq": 480, "type": "input"}
+{"location": 2, "seq": 481, "steps": 157, "type": "move", "x": 22, "y": 14}
+{"key": "DOWN", "seq": 482, "type": "input"}
+{"location": 2, "seq": 483, "steps": 158, "type": "move", "x": 22, "y": 15}
+{"key": "RIGHT", "seq": 484, "type": "input"}
+{"location": 2, "seq": 485, "steps": 159, "type": "move", "x": 23, "y": 15}
+{"key": "RIGHT", "seq": 486, "type": "input"}
+{"location": 2, "seq": 487, "steps": 160, "type": "move", "x": 24, "y": 15}
+{"key": "RIGHT", "seq": 488, "type": "input"}
+{"location": 2, "seq": 489, "steps": 161, "type": "move", "x": 25, "y": 15}
+{"key": "RIGHT", "seq": 490, "type": "input"}
+{"location": 2, "seq": 491, "steps": 162, "type": "move", "x": 26, "y": 15}
+{"key": "UP", "seq": 492, "type": "input"}
+{"action": 2, "action_class": 4, "seq": 493, "type": "bump", "x": 26, "y": 14}
+{"location": 2, "seq": 494, "string": 7, "type": "message"}
+{"level": 2, "member": 3, "need": 50, "roll": 19, "seq": 495, "skill": 14, "success": true, "type": "check"}
+{"seq": 496, "type": "unlock", "x": 26, "y": 14}
+{"action": 1, "action_class": 4, "image": 30, "location": 2, "seq": 497, "type": "cell_change", "x": 26, "y": 14}
+{"action": 1, "action_class": 4, "image": 29, "location": 2, "seq": 498, "type": "cell_change", "x": 26, "y": 14}
+{"delta": 10, "member": 3, "seq": 499, "total": 114, "type": "xp"}
+{"key": "UP", "seq": 500, "type": "input"}
+{"location": 2, "seq": 501, "steps": 163, "type": "move", "x": 26, "y": 14}
+{"key": "UP", "seq": 502, "type": "input"}
+{"location": 2, "seq": 503, "steps": 164, "type": "move", "x": 26, "y": 13}
+{"key": "UP", "seq": 504, "type": "input"}
+{"location": 2, "seq": 505, "steps": 165, "type": "move", "x": 26, "y": 12}
+{"item": 11, "member": 1, "seq": 506, "slot": 5, "status": 0, "type": "item_gain"}
+{"action": 0, "action_class": 0, "image": 27, "location": 2, "seq": 507, "type": "cell_change", "x": 26, "y": 12}
+{"name": "CP6", "seq": 508, "state": {"cell_changes": [[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27]], "day": 1, "hour": 17, "location": 2, "minute": 48, "mode": "map", "party": [{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0], [11, 1]], "level": 2, "max_hp": 28, "money": 91, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 114}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}], "rng_state": 2578932118, "steps": 165, "x": 26, "y": 12}, "type": "checkpoint"}
+{"key": "DOWN", "seq": 509, "type": "input"}
+{"location": 2, "seq": 510, "steps": 166, "type": "move", "x": 26, "y": 13}
+{"key": "DOWN", "seq": 511, "type": "input"}
+{"location": 2, "seq": 512, "steps": 167, "type": "move", "x": 26, "y": 14}
+{"key": "DOWN", "seq": 513, "type": "input"}
+{"location": 2, "seq": 514, "steps": 168, "type": "move", "x": 26, "y": 15}
+{"key": "DOWN", "seq": 515, "type": "input"}
+{"location": 2, "seq": 516, "steps": 169, "type": "move", "x": 26, "y": 16}
+{"key": "LEFT", "seq": 517, "type": "input"}
+{"location": 2, "seq": 518, "steps": 170, "type": "move", "x": 25, "y": 16}
+{"key": "LEFT", "seq": 519, "type": "input"}
+{"location": 2, "seq": 520, "steps": 171, "type": "move", "x": 24, "y": 16}
+{"key": "LEFT", "seq": 521, "type": "input"}
+{"location": 2, "seq": 522, "steps": 172, "type": "move", "x": 23, "y": 16}
+{"key": "LEFT", "seq": 523, "type": "input"}
+{"location": 2, "seq": 524, "steps": 173, "type": "move", "x": 22, "y": 16}
+{"key": "LEFT", "seq": 525, "type": "input"}
+{"location": 2, "seq": 526, "steps": 174, "type": "move", "x": 21, "y": 16}
+{"key": "LEFT", "seq": 527, "type": "input"}
+{"location": 2, "seq": 528, "steps": 175, "type": "move", "x": 20, "y": 16}
+{"key": "LEFT", "seq": 529, "type": "input"}
+{"location": 2, "seq": 530, "steps": 176, "type": "move", "x": 19, "y": 16}
+{"key": "LEFT", "seq": 531, "type": "input"}
+{"location": 2, "seq": 532, "steps": 177, "type": "move", "x": 18, "y": 16}
+{"key": "DOWN", "seq": 533, "type": "input"}
+{"action": 1, "action_class": 11, "seq": 534, "type": "bump", "x": 18, "y": 17}
+{"n": 13, "seq": 535, "type": "paragraph"}
+{"prompt": "recruit", "seq": 536, "type": "prompt"}
+{"key": "Y", "seq": 537, "type": "input"}
+{"action": 0, "action_class": 0, "image": 28, "location": 2, "seq": 538, "type": "cell_change", "x": 18, "y": 17}
+{"location": 2, "npc": 0, "seq": 539, "slot": 6, "type": "recruit"}
+{"key": "RIGHT", "seq": 540, "type": "input"}
+{"location": 2, "seq": 541, "steps": 178, "type": "move", "x": 19, "y": 16}
+{"key": "RIGHT", "seq": 542, "type": "input"}
+{"location": 2, "seq": 543, "steps": 179, "type": "move", "x": 20, "y": 16}
+{"key": "RIGHT", "seq": 544, "type": "input"}
+{"location": 2, "seq": 545, "steps": 180, "type": "move", "x": 21, "y": 16}
+{"key": "RIGHT", "seq": 546, "type": "input"}
+{"location": 2, "seq": 547, "steps": 181, "type": "move", "x": 22, "y": 16}
+{"key": "DOWN", "seq": 548, "type": "input"}
+{"location": 2, "seq": 549, "steps": 182, "type": "move", "x": 22, "y": 17}
+{"key": "DOWN", "seq": 550, "type": "input"}
+{"location": 2, "seq": 551, "steps": 183, "type": "move", "x": 22, "y": 18}
+{"key": "DOWN", "seq": 552, "type": "input"}
+{"location": 2, "seq": 553, "steps": 184, "type": "move", "x": 22, "y": 19}
+{"key": "DOWN", "seq": 554, "type": "input"}
+{"location": 2, "seq": 555, "steps": 185, "type": "move", "x": 22, "y": 20}
+{"key": "DOWN", "seq": 556, "type": "input"}
+{"location": 2, "seq": 557, "steps": 186, "type": "move", "x": 22, "y": 21}
+{"key": "DOWN", "seq": 558, "type": "input"}
+{"location": 2, "seq": 559, "steps": 187, "type": "move", "x": 22, "y": 22}
+{"key": "DOWN", "seq": 560, "type": "input"}
+{"location": 2, "seq": 561, "steps": 188, "type": "move", "x": 22, "y": 23}
+{"key": "DOWN", "seq": 562, "type": "input"}
+{"location": 2, "seq": 563, "steps": 189, "type": "move", "x": 22, "y": 24}
+{"key": "RIGHT", "seq": 564, "type": "input"}
+{"location": 2, "seq": 565, "steps": 190, "type": "move", "x": 23, "y": 24}
+{"key": "RIGHT", "seq": 566, "type": "input"}
+{"location": 2, "seq": 567, "steps": 191, "type": "move", "x": 24, "y": 24}
+{"key": "RIGHT", "seq": 568, "type": "input"}
+{"location": 2, "seq": 569, "steps": 192, "type": "move", "x": 25, "y": 24}
+{"key": "UP", "seq": 570, "type": "input"}
+{"location": 2, "seq": 571, "steps": 193, "type": "move", "x": 25, "y": 23}
+{"key": "UP", "seq": 572, "type": "input"}
+{"location": 2, "seq": 573, "steps": 194, "type": "move", "x": 25, "y": 22}
+{"key": "UP", "seq": 574, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 575, "type": "bump", "x": 25, "y": 21}
+{"price": 40, "prompt": "heal", "seq": 576, "type": "prompt"}
+{"key": "Y", "seq": 577, "type": "input"}
+{"delta": -40, "member": 1, "seq": 578, "total": 51, "type": "money"}
+{"price": 40, "seq": 579, "type": "heal_all"}
+{"name": "CP7", "seq": 580, "state": {"cell_changes": [[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27], [2, 18, 17, 0, 0, 28]], "day": 1, "hour": 18, "location": 2, "minute": 17, "mode": "map", "party": [{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0], [11, 1]], "level": 2, "max_hp": 28, "money": 51, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 114}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}, {"ac": 3, "armour_slot": 2, "cond": 0, "hp": 26, "items": [[1, 0], [7, 0]], "level": 2, "max_hp": 26, "money": 40, "name": "Teodor Lusk", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 6, "weapon_slot": 1, "xp": 150}], "rng_state": 2578932118, "steps": 194, "x": 25, "y": 22}, "type": "checkpoint"}
+{"key": "DOWN", "seq": 581, "type": "input"}
+{"location": 2, "seq": 582, "steps": 195, "type": "move", "x": 25, "y": 23}
+{"key": "DOWN", "seq": 583, "type": "input"}
+{"location": 2, "seq": 584, "steps": 196, "type": "move", "x": 25, "y": 24}
+{"key": "LEFT", "seq": 585, "type": "input"}
+{"location": 2, "seq": 586, "steps": 197, "type": "move", "x": 24, "y": 24}
+{"key": "LEFT", "seq": 587, "type": "input"}
+{"location": 2, "seq": 588, "steps": 198, "type": "move", "x": 23, "y": 24}
+{"key": "LEFT", "seq": 589, "type": "input"}
+{"location": 2, "seq": 590, "steps": 199, "type": "move", "x": 22, "y": 24}
+{"key": "UP", "seq": 591, "type": "input"}
+{"location": 2, "seq": 592, "steps": 200, "type": "move", "x": 22, "y": 23}
+{"key": "UP", "seq": 593, "type": "input"}
+{"location": 2, "seq": 594, "steps": 201, "type": "move", "x": 22, "y": 22}
+{"key": "UP", "seq": 595, "type": "input"}
+{"location": 2, "seq": 596, "steps": 202, "type": "move", "x": 22, "y": 21}
+{"key": "UP", "seq": 597, "type": "input"}
+{"location": 2, "seq": 598, "steps": 203, "type": "move", "x": 22, "y": 20}
+{"key": "UP", "seq": 599, "type": "input"}
+{"location": 2, "seq": 600, "steps": 204, "type": "move", "x": 22, "y": 19}
+{"key": "UP", "seq": 601, "type": "input"}
+{"location": 2, "seq": 602, "steps": 205, "type": "move", "x": 22, "y": 18}
+{"key": "UP", "seq": 603, "type": "input"}
+{"location": 2, "seq": 604, "steps": 206, "type": "move", "x": 22, "y": 17}
+{"key": "UP", "seq": 605, "type": "input"}
+{"location": 2, "seq": 606, "steps": 207, "type": "move", "x": 22, "y": 16}
+{"key": "LEFT", "seq": 607, "type": "input"}
+{"location": 2, "seq": 608, "steps": 208, "type": "move", "x": 21, "y": 16}
+{"key": "LEFT", "seq": 609, "type": "input"}
+{"location": 2, "seq": 610, "steps": 209, "type": "move", "x": 20, "y": 16}
+{"key": "LEFT", "seq": 611, "type": "input"}
+{"location": 2, "seq": 612, "steps": 210, "type": "move", "x": 19, "y": 16}
+{"key": "LEFT", "seq": 613, "type": "input"}
+{"location": 2, "seq": 614, "steps": 211, "type": "move", "x": 18, "y": 16}
+{"key": "LEFT", "seq": 615, "type": "input"}
+{"location": 2, "seq": 616, "steps": 212, "type": "move", "x": 17, "y": 16}
+{"key": "LEFT", "seq": 617, "type": "input"}
+{"location": 2, "seq": 618, "steps": 213, "type": "move", "x": 16, "y": 16}
+{"key": "LEFT", "seq": 619, "type": "input"}
+{"location": 2, "seq": 620, "steps": 214, "type": "move", "x": 15, "y": 16}
+{"key": "LEFT", "seq": 621, "type": "input"}
+{"location": 2, "seq": 622, "steps": 215, "type": "move", "x": 14, "y": 16}
+{"key": "LEFT", "seq": 623, "type": "input"}
+{"location": 2, "seq": 624, "steps": 216, "type": "move", "x": 13, "y": 16}
+{"key": "LEFT", "seq": 625, "type": "input"}
+{"location": 2, "seq": 626, "steps": 217, "type": "move", "x": 12, "y": 16}
+{"key": "LEFT", "seq": 627, "type": "input"}
+{"location": 2, "seq": 628, "steps": 218, "type": "move", "x": 11, "y": 16}
+{"key": "LEFT", "seq": 629, "type": "input"}
+{"location": 2, "seq": 630, "steps": 219, "type": "move", "x": 10, "y": 16}
+{"key": "LEFT", "seq": 631, "type": "input"}
+{"location": 2, "seq": 632, "steps": 220, "type": "move", "x": 9, "y": 16}
+{"key": "LEFT", "seq": 633, "type": "input"}
+{"location": 2, "seq": 634, "steps": 221, "type": "move", "x": 8, "y": 16}
+{"key": "LEFT", "seq": 635, "type": "input"}
+{"location": 2, "seq": 636, "steps": 222, "type": "move", "x": 7, "y": 16}
+{"key": "LEFT", "seq": 637, "type": "input"}
+{"location": 2, "seq": 638, "steps": 223, "type": "move", "x": 6, "y": 16}
+{"key": "LEFT", "seq": 639, "type": "input"}
+{"location": 2, "seq": 640, "steps": 224, "type": "move", "x": 5, "y": 16}
+{"key": "LEFT", "seq": 641, "type": "input"}
+{"location": 2, "seq": 642, "steps": 225, "type": "move", "x": 4, "y": 16}
+{"key": "LEFT", "seq": 643, "type": "input"}
+{"location": 2, "seq": 644, "steps": 226, "type": "move", "x": 3, "y": 16}
+{"key": "LEFT", "seq": 645, "type": "input"}
+{"location": 2, "seq": 646, "steps": 227, "type": "move", "x": 2, "y": 16}
+{"n": 10, "seq": 647, "type": "paragraph"}
+{"key": "LEFT", "seq": 648, "type": "input"}
+{"location": 2, "seq": 649, "steps": 228, "type": "move", "x": 1, "y": 16}
+{"key": "LEFT", "seq": 650, "type": "input"}
+{"location": 2, "seq": 651, "steps": 229, "type": "move", "x": 0, "y": 16}
+{"location": 0, "seq": 652, "type": "map_change", "x": 43, "y": 28}
+{"key": "DOWN", "seq": 653, "type": "input"}
+{"location": 0, "seq": 654, "steps": 230, "type": "move", "x": 43, "y": 29}
+{"key": "RIGHT", "seq": 655, "type": "input"}
+{"location": 0, "seq": 656, "steps": 231, "type": "move", "x": 44, "y": 29}
+{"key": "DOWN", "seq": 657, "type": "input"}
+{"location": 0, "seq": 658, "steps": 232, "type": "move", "x": 44, "y": 30}
+{"key": "DOWN", "seq": 659, "type": "input"}
+{"location": 0, "seq": 660, "steps": 233, "type": "move", "x": 44, "y": 31}
+{"key": "DOWN", "seq": 661, "type": "input"}
+{"location": 0, "seq": 662, "steps": 234, "type": "move", "x": 44, "y": 32}
+{"key": "DOWN", "seq": 663, "type": "input"}
+{"location": 0, "seq": 664, "steps": 235, "type": "move", "x": 44, "y": 33}
+{"key": "DOWN", "seq": 665, "type": "input"}
+{"location": 0, "seq": 666, "steps": 236, "type": "move", "x": 44, "y": 34}
+{"key": "DOWN", "seq": 667, "type": "input"}
+{"location": 0, "seq": 668, "steps": 237, "type": "move", "x": 44, "y": 35}
+{"key": "DOWN", "seq": 669, "type": "input"}
+{"location": 0, "seq": 670, "steps": 238, "type": "move", "x": 44, "y": 36}
+{"key": "DOWN", "seq": 671, "type": "input"}
+{"location": 0, "seq": 672, "steps": 239, "type": "move", "x": 44, "y": 37}
+{"key": "DOWN", "seq": 673, "type": "input"}
+{"location": 0, "seq": 674, "steps": 240, "type": "move", "x": 44, "y": 38}
+{"key": "DOWN", "seq": 675, "type": "input"}
+{"location": 0, "seq": 676, "steps": 241, "type": "move", "x": 44, "y": 39}
+{"key": "DOWN", "seq": 677, "type": "input"}
+{"location": 0, "seq": 678, "steps": 242, "type": "move", "x": 44, "y": 40}
+{"key": "DOWN", "seq": 679, "type": "input"}
+{"location": 0, "seq": 680, "steps": 243, "type": "move", "x": 44, "y": 41}
+{"key": "DOWN", "seq": 681, "type": "input"}
+{"location": 0, "seq": 682, "steps": 244, "type": "move", "x": 44, "y": 42}
+{"key": "DOWN", "seq": 683, "type": "input"}
+{"location": 0, "seq": 684, "steps": 245, "type": "move", "x": 44, "y": 43}
+{"key": "DOWN", "seq": 685, "type": "input"}
+{"location": 0, "seq": 686, "steps": 246, "type": "move", "x": 44, "y": 44}
+{"key": "DOWN", "seq": 687, "type": "input"}
+{"location": 0, "seq": 688, "steps": 247, "type": "move", "x": 44, "y": 45}
+{"key": "DOWN", "seq": 689, "type": "input"}
+{"location": 0, "seq": 690, "steps": 248, "type": "move", "x": 44, "y": 46}
+{"key": "DOWN", "seq": 691, "type": "input"}
+{"location": 0, "seq": 692, "steps": 249, "type": "move", "x": 44, "y": 47}
+{"location": 3, "seq": 693, "type": "map_change", "x": 3, "y": 2}
+{"key": "DOWN", "seq": 694, "type": "input"}
+{"location": 3, "seq": 695, "steps": 250, "type": "move", "x": 3, "y": 3}
+{"n": 18, "seq": 696, "type": "paragraph"}
+{"key": "DOWN", "seq": 697, "type": "input"}
+{"location": 3, "seq": 698, "steps": 251, "type": "move", "x": 3, "y": 4}
+{"key": "DOWN", "seq": 699, "type": "input"}
+{"location": 3, "seq": 700, "steps": 252, "type": "move", "x": 3, "y": 5}
+{"key": "DOWN", "seq": 701, "type": "input"}
+{"location": 3, "seq": 702, "steps": 253, "type": "move", "x": 3, "y": 6}
+{"key": "RIGHT", "seq": 703, "type": "input"}
+{"location": 3, "seq": 704, "steps": 254, "type": "move", "x": 4, "y": 6}
+{"key": "RIGHT", "seq": 705, "type": "input"}
+{"location": 3, "seq": 706, "steps": 255, "type": "move", "x": 5, "y": 6}
+{"key": "RIGHT", "seq": 707, "type": "input"}
+{"location": 3, "seq": 708, "steps": 256, "type": "move", "x": 6, "y": 6}
+{"key": "RIGHT", "seq": 709, "type": "input"}
+{"location": 3, "seq": 710, "steps": 257, "type": "move", "x": 7, "y": 6}
+{"key": "RIGHT", "seq": 711, "type": "input"}
+{"location": 3, "seq": 712, "steps": 258, "type": "move", "x": 8, "y": 6}
+{"key": "RIGHT", "seq": 713, "type": "input"}
+{"location": 3, "seq": 714, "steps": 259, "type": "move", "x": 9, "y": 6}
+{"groups": [{"band": 2, "count": 4, "hp": [8, 4, 10, 6], "monster": "pump crawler"}], "seq": 715, "type": "encounter_start"}
+{"n": 19, "seq": 716, "type": "paragraph"}
+{"level": 2, "member": 5, "need": 65, "roll": 17, "seq": 717, "skill": 18, "success": true, "type": "check"}
+{"key": "A", "seq": 718, "type": "input"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["advance", 1]}, "round": 1, "seq": 719, "type": "round_orders"}
+{"round": 1, "seq": 720, "type": "round_start"}
+{"group": 1, "hit": false, "member": 1, "need": 57, "roll": 75, "seq": 721, "side": "party", "target": 1, "type": "attack"}
+{"damage": 7, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 12, "seq": 722, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 94, "seq": 723, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 57, "seq": 724, "side": "party", "target": 1, "type": "attack"}
+{"damage": 8, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 21, "seq": 725, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "index": 1, "seq": 726, "type": "monster_dies"}
+{"band": 2, "seq": 727, "type": "advance"}
+{"attacker": 2, "group": 1, "hit": false, "member": 1, "need": 20, "roll": 50, "seq": 728, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 32, "roll": 76, "seq": 729, "side": "monsters", "type": "attack"}
+{"attacker": 4, "damage": 1, "group": 1, "hit": true, "member": 3, "need": 32, "roll": 29, "seq": 730, "side": "monsters", "type": "attack"}
+{"band": 1, "group": 1, "seq": 731, "type": "group_closes"}
+{"key": "A", "seq": 732, "type": "input"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["advance", 1]}, "round": 2, "seq": 733, "type": "round_orders"}
+{"round": 2, "seq": 734, "type": "round_start"}
+{"damage": 2, "group": 1, "hit": true, "member": 1, "need": 62, "roll": 12, "seq": 735, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 2, "need": 60, "roll": 90, "seq": 736, "side": "party", "target": 2, "type": "attack"}
+{"damage": 1, "group": 1, "hit": true, "member": 3, "need": 51, "roll": 26, "seq": 737, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 49, "roll": 95, "seq": 738, "side": "party", "target": 2, "type": "attack"}
+{"damage": 7, "group": 1, "hit": true, "member": 5, "need": 63, "roll": 54, "seq": 739, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "index": 2, "seq": 740, "type": "monster_dies"}
+{"band": 1, "seq": 741, "type": "advance"}
+{"attacker": 3, "damage": 1, "group": 1, "hit": true, "member": 4, "need": 43, "roll": 12, "seq": 742, "side": "monsters", "type": "attack"}
+{"attacker": 4, "damage": 2, "group": 1, "hit": true, "member": 5, "need": 37, "roll": 25, "seq": 743, "side": "monsters", "type": "attack"}
+{"key": "A", "seq": 744, "type": "input"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["unarmed", 1]}, "round": 3, "seq": 745, "type": "round_orders"}
+{"round": 3, "seq": 746, "type": "round_start"}
+{"damage": 4, "group": 1, "hit": true, "member": 1, "need": 67, "roll": 35, "seq": 747, "side": "party", "target": 3, "type": "attack"}
+{"damage": 9, "group": 1, "hit": true, "member": 2, "need": 65, "roll": 62, "seq": 748, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 56, "roll": 82, "seq": 749, "side": "party", "target": 4, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 54, "roll": 73, "seq": 750, "side": "party", "target": 4, "type": "attack"}
+{"damage": 12, "group": 1, "hit": true, "member": 5, "need": 68, "roll": 4, "seq": 751, "side": "party", "target": 4, "type": "attack"}
+{"group": 1, "index": 3, "seq": 752, "type": "monster_dies"}
+{"group": 1, "index": 4, "seq": 753, "type": "monster_dies"}
+{"result": "victory", "rounds": 3, "seq": 754, "type": "combat_end"}
+{"delta": 18, "member": 1, "seq": 755, "total": 122, "type": "xp"}
+{"delta": 18, "member": 2, "seq": 756, "total": 122, "type": "xp"}
+{"delta": 18, "member": 3, "seq": 757, "total": 132, "type": "xp"}
+{"delta": 18, "member": 4, "seq": 758, "total": 122, "type": "xp"}
+{"delta": 18, "member": 5, "seq": 759, "total": 232, "type": "xp"}
+{"delta": 18, "member": 6, "seq": 760, "total": 168, "type": "xp"}
+{"action": 1, "action_class": 5, "image": 37, "location": 3, "seq": 761, "type": "cell_change", "x": 9, "y": 6}
+{"item": 9, "member": 1, "seq": 762, "slot": 6, "status": 3, "type": "item_gain"}
+{"action": 0, "action_class": 0, "image": 37, "location": 3, "seq": 763, "type": "cell_change", "x": 9, "y": 6}
+{"name": "CP8", "seq": 764, "state": {"cell_changes": [[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27], [2, 18, 17, 0, 0, 28], [3, 9, 6, 5, 1, 37], [3, 9, 6, 0, 0, 37]], "day": 1, "hour": 22, "location": 3, "minute": 32, "mode": "map", "party": [{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0], [11, 1], [9, 1]], "level": 2, "max_hp": 28, "money": 51, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 122}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 122}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 132}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 122}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 232}, {"ac": 3, "armour_slot": 2, "cond": 0, "hp": 26, "items": [[1, 0], [7, 0]], "level": 2, "max_hp": 26, "money": 40, "name": "Teodor Lusk", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 6, "weapon_slot": 1, "xp": 168}], "rng_state": 1547336489, "steps": 259, "x": 9, "y": 6}, "type": "checkpoint"}
+{"key": "RIGHT", "seq": 765, "type": "input"}
+{"location": 3, "seq": 766, "steps": 260, "type": "move", "x": 10, "y": 6}
+{"key": "RIGHT", "seq": 767, "type": "input"}
+{"location": 3, "seq": 768, "steps": 261, "type": "move", "x": 11, "y": 6}
+{"key": "RIGHT", "seq": 769, "type": "input"}
+{"location": 3, "seq": 770, "steps": 262, "type": "move", "x": 12, "y": 6}
+{"key": "RIGHT", "seq": 771, "type": "input"}
+{"location": 3, "seq": 772, "steps": 263, "type": "move", "x": 13, "y": 6}
+{"key": "RIGHT", "seq": 773, "type": "input"}
+{"location": 3, "seq": 774, "steps": 264, "type": "move", "x": 14, "y": 6}
+{"key": "RIGHT", "seq": 775, "type": "input"}
+{"location": 3, "seq": 776, "steps": 265, "type": "move", "x": 15, "y": 6}
+{"key": "RIGHT", "seq": 777, "type": "input"}
+{"action": 5, "action_class": 4, "seq": 778, "type": "bump", "x": 16, "y": 6}
+{"location": 3, "seq": 779, "string": 10, "type": "message"}
+{"item": 11, "member": 1, "seq": 780, "type": "key_used"}
+{"seq": 781, "type": "unlock", "x": 16, "y": 6}
+{"action": 4, "action_class": 4, "image": 39, "location": 3, "seq": 782, "type": "cell_change", "x": 16, "y": 6}
+{"action": 4, "action_class": 4, "image": 37, "location": 3, "seq": 783, "type": "cell_change", "x": 16, "y": 6}
+{"key": "RIGHT", "seq": 784, "type": "input"}
+{"location": 3, "seq": 785, "steps": 266, "type": "move", "x": 16, "y": 6}
+{"key": "RIGHT", "seq": 786, "type": "input"}
+{"location": 3, "seq": 787, "steps": 267, "type": "move", "x": 17, "y": 6}
+{"n": 22, "seq": 788, "type": "paragraph"}
+{"key": "UP", "seq": 789, "type": "input"}
+{"location": 3, "seq": 790, "steps": 268, "type": "move", "x": 17, "y": 5}
+{"key": "UP", "seq": 791, "type": "input"}
+{"location": 3, "seq": 792, "steps": 269, "type": "move", "x": 17, "y": 4}
+{"key": "RIGHT", "seq": 793, "type": "input"}
+{"location": 3, "seq": 794, "steps": 270, "type": "move", "x": 18, "y": 4}
+{"key": "RIGHT", "seq": 795, "type": "input"}
+{"location": 3, "seq": 796, "steps": 271, "type": "move", "x": 19, "y": 4}
+{"key": "RIGHT", "seq": 797, "type": "input"}
+{"location": 3, "seq": 798, "steps": 272, "type": "move", "x": 20, "y": 4}
+{"key": "RIGHT", "seq": 799, "type": "input"}
+{"location": 3, "seq": 800, "steps": 273, "type": "move", "x": 21, "y": 4}
+{"members": [3, 4, 5], "seq": 801, "type": "natural_heal"}
+{"item": 12, "member": 1, "seq": 802, "slot": 7, "status": 0, "type": "item_gain"}
+{"action": 0, "action_class": 0, "image": 37, "location": 3, "seq": 803, "type": "cell_change", "x": 21, "y": 4}
+{"name": "CP9", "seq": 804, "state": {"cell_changes": [[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27], [2, 18, 17, 0, 0, 28], [3, 9, 6, 5, 1, 37], [3, 9, 6, 0, 0, 37], [3, 16, 6, 4, 4, 39], [3, 16, 6, 4, 4, 37], [3, 21, 4, 0, 0, 37]], "day": 1, "hour": 23, "location": 3, "minute": 0, "mode": "map", "party": [{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0], [11, 1], [9, 1], [12, 1]], "level": 2, "max_hp": 28, "money": 51, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 122}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 122}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 132}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 122}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 232}, {"ac": 3, "armour_slot": 2, "cond": 0, "hp": 26, "items": [[1, 0], [7, 0]], "level": 2, "max_hp": 26, "money": 40, "name": "Teodor Lusk", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 6, "weapon_slot": 1, "xp": 168}], "rng_state": 1547336489, "steps": 273, "x": 21, "y": 4}, "type": "checkpoint"}
+

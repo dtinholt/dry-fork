@@ -1,0 +1,439 @@
+========================= wl_combat_ref.py lines 240-346
+                issues.append(("need", "party attack by member %d: roll %r need %r but hit=%r damage=%r"
+                               % (s, e.get("roll"), e.get("need"), e.get("hit"), e.get("damage"))))
+            if hit and not (w["n"] <= e.get("damage", 0) <= w["n"] * w["s"]):
+                issues.append(("need", "party attack by member %d: damage %r outside %dd%d"
+                               % (s, e.get("damage"), w["n"], w["s"])))
+            if in_phase1:
+                exp_t = next((i for i in range(3) if hp[i] - pend[i] > 0), None)
+                if exp_t is None:
+                    exp_t = next((i for i in range(3) if hp[i] > 0), None)
+                if exp_t is not None and e.get("target") != exp_t + 1:
+                    issues.append(("target", "round %s member %d: target expected %d, got %r"
+                                   % (cur_round, s, exp_t + 1, e.get("target"))))
+                tg = (e.get("target") or 1) - 1
+                if hit and 0 <= tg < 3:
+                    pend[tg] += e.get("damage", 0)
+            loads[s] = max(0, loads[s] - 1)
+        elif t == "attack" and e.get("side") == "monsters":
+            s = e.get("member")
+            mm = PARTY_CP3.get(s)
+            if mm is None:
+                issues.append(("need", "monster attack on unknown member %r" % s))
+                continue
+            need = ref_monster_need(RAIDER["combatRating"], mm["ac"], band)
+            if e.get("need") != need:
+                issues.append(("need", "monster attack on member %d at band %d: need expected %d, got %r"
+                               % (s, band, need, e.get("need"))))
+            hit = e.get("roll") is not None and e.get("roll") <= e.get("need", -1)
+            if e.get("hit") != hit or (("damage" in e) != hit):
+                issues.append(("need", "monster attack on member %d: roll %r need %r but hit=%r"
+                               % (s, e.get("roll"), e.get("need"), e.get("hit"))))
+            if hit and not (1 <= e.get("damage", 0) <= 6):
+                issues.append(("need", "monster attack damage %r outside 1d6" % e.get("damage")))
+        elif t == "jam":
+            s = e.get("member")
+            mm = PARTY_CP3.get(s, {"skills": {}})
+            j = ref_jam_chance(mm["skills"].get(GUNSMITHING, 0))
+            if e.get("chance") != j or not (isinstance(e.get("roll"), int) and 1 <= e["roll"] <= j):
+                issues.append(("jam", "jam of member %r: chance expected %d with roll <= chance, got chance %r roll %r"
+                               % (s, j, e.get("chance"), e.get("roll"))))
+            jammed.add(s)
+            loads[s] = 0
+        elif t == "check" and e.get("skill") == GUNSMITHING:
+            s = e.get("member")
+            mm = PARTY_CP3.get(s, {"skills": {}, "IQ": 0})
+            lvl = mm["skills"].get(GUNSMITHING, 0)
+            need = 20 + 15 * lvl + 2 * mm["IQ"]
+            if e.get("need") != need or e.get("level") != lvl:
+                issues.append(("jam", "unjam check of member %r: need expected %d (level %d), got need %r level %r"
+                               % (s, need, lvl, e.get("need"), e.get("level"))))
+            ok = need >= 100 or (need > 0 and e.get("roll") is not None and e["roll"] <= need)
+            if e.get("success") != ok:
+                issues.append(("jam", "unjam check of member %r: roll %r need %d but success=%r"
+                               % (s, e.get("roll"), need, e.get("success"))))
+        elif t == "unjammed":
+            jammed.discard(e.get("member"))
+            loads[e.get("member")] = 0
+        elif t == "reload":
+            s = e.get("member")
+            cap = PARTY_CP3.get(s, {"weapon": PISTOL})["weapon"]["cap"]
+            if e.get("status") != cap:
+                issues.append(("jam", "reload of member %r: status expected %d, got %r" % (s, cap, e.get("status"))))
+            loads[s] = cap
+            boxes[s] -= 1
+        elif t == "group_closes":
+            finalize()
+            band = e.get("band", band)
+        elif t == "advance":
+            band = e.get("band", band)
+        elif t == "monster_dies":
+            finalize()
+            last_death_round = cur_round
+        elif t in ("unconscious", "death"):
+            finalize()
+    # victory checks
+    ce = events[end]
+    if ce.get("result") != "victory":
+        issues.append(("victory", "combat_end result expected 'victory', got %r" % ce.get("result")))
+    elif ce.get("rounds") != last_death_round:
+        issues.append(("victory", "combat_end rounds expected %r (round of the last monster_dies), got %r"
+                       % (last_death_round, ce.get("rounds"))))
+    total_xp = 3 * RAIDER["sturdiness"] * (RAIDER["armorClass"] + 1)
+    share = total_xp // 5
+    after = events[end + 1:]
+    xps = [e for e in after[:20] if e.get("type") == "xp"]
+    if [x.get("member") for x in xps] != [1, 2, 3, 4, 5]:
+        issues.append(("victory", "xp events after victory: expected members [1, 2, 3, 4, 5], got %r"
+                       % [x.get("member") for x in xps]))
+    for x in xps:
+        s = x.get("member")
+        if s in PARTY_CP3:
+            if x.get("delta") != share or x.get("total") != PARTY_CP3[s]["xp"] + share:
+                issues.append(("victory", "xp of member %d: expected delta %d total %d, got delta %r total %r"
+                               % (s, share, PARTY_CP3[s]["xp"] + share, x.get("delta"), x.get("total"))))
+    promos = [e for e in after[:20] if e.get("type") == "promote"]
+    exp_p = []
+    for s, mm in sorted(PARTY_CP3.items()):
+        lvl0 = mm.get("level", 1)
+        lvl = ref_level_after(lvl0, mm["xp"] + share)
+        if lvl > lvl0:
+            exp_p.append({"type": "promote", "member": s, "level": lvl, "max_hp": ref_max_hp(mm["STR"], lvl),
+                          "rank": ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"][min(lvl, 7) - 1]})
+    got_p = [{k: v for k, v in p.items() if k != "seq"} for p in promos]
+    if got_p != exp_p:
+        i = next((k for k in range(min(len(got_p), len(exp_p))) if got_p[k] != exp_p[k]), min(len(got_p), len(exp_p)))
+        issues.append(("victory", "promote event %d: expected %r, got %r"
+                       % (i, exp_p[i] if i < len(exp_p) else None, got_p[i] if i < len(got_p) else None)))
+    return issues
+========================= conftest.py
+"""Acceptance-test configuration for PREREG-W1 (SPEC-07).
+
+- Registers the `milestone(name)` marker; every test carries exactly one.
+- Adds `--group M1` ... `--group M6` to select one milestone group.
+- Puts the project's src/ first on sys.path so `import wlengine` finds the
+  builder's package.
+- Provides the session fixtures: the SPEC-02/SPEC-03 fixture set, the engine's
+  compiled Dry Fork data, the oracle decoding of that data, and cached headless
+  runs.
+
+Frozen with the tests (SPEC-07 section 6).
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+sys.dont_write_bytecode = True
+_TESTS = Path(__file__).resolve().parent
+_SRC = _TESTS.parent / "src"
+for p in (str(_TESTS), str(_SRC)):
+    if p in sys.path:
+        sys.path.remove(p)
+sys.path.insert(0, str(_TESTS))
+sys.path.insert(0, str(_SRC))
+
+import wl_support as W  # noqa: E402
+
+MILESTONES = ("M1", "M2", "M3", "M4", "M5", "M6")
+sys.addaudithook(W.audit_hook)
+
+
+def pytest_addoption(parser):
+    parser.addoption("--group", action="store", default=None, metavar="M",
+                     help="run only the tests of one milestone group (M1 to M6), SPEC-07")
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "milestone(name): PREREG-W1 milestone group, M1 to M6 (SPEC-07)")
+
+
+def pytest_collection_modifyitems(config, items):
+    group = config.getoption("--group")
+    if group is not None and group not in MILESTONES:
+        raise pytest.UsageError("--group must be one of %s, got %r" % (", ".join(MILESTONES), group))
+    keep, drop = [], []
+    for it in items:
+        marks = [m.args[0] if m.args else None for m in it.iter_markers("milestone")]
+        if len(marks) != 1 or marks[0] not in MILESTONES:
+            raise pytest.UsageError("%s must carry exactly one milestone marker (got %r)" % (it.nodeid, marks))
+        (keep if group is None or marks[0] == group else drop).append(it)
+    if drop:
+        config.hook.pytest_deselected(items=drop)
+        items[:] = keep
+
+
+# ---------------------------------------------------------------------------
+# Session fixtures
+# ---------------------------------------------------------------------------
+
+def _oracle(args: list[str], timeout: int = 300) -> subprocess.CompletedProcess:
+    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+    env.pop("PYTHONPATH", None)
+    return subprocess.run([sys.executable, str(_TESTS / "oracle_tool.py")] + args, capture_output=True,
+                          text=True, timeout=timeout, env=env, stdin=subprocess.DEVNULL)
+
+
+class FixtureSet:
+    def __init__(self, d: Path, manifest: dict) -> None:
+        self.dir = d
+        self.manifest = manifest
+
+    def path(self, name: str) -> str:
+        return str(self.dir / name)
+
+    def read(self, name: str) -> bytes:
+        return (self.dir / name).read_bytes()
+
+
+def _make_fixture_set(tmp_path_factory, seed: int) -> FixtureSet:
+    d = tmp_path_factory.mktemp("fixtures")
+    mand = tmp_path_factory.mktemp("manifest")
+    r = _oracle(["fixtures", str(d), str(mand), str(seed)])
+    if r.returncode != 0:
+        raise RuntimeError("fixture generator failed (test infrastructure): %s %s" % (r.stdout[-500:], r.stderr[-500:]))
+    W.FORBIDDEN_PREFIXES.append(str(mand) + os.sep)
+    return FixtureSet(d, json.loads((mand / "manifest.json").read_text()))
+
+
+@pytest.fixture(scope="session")
+def fixture_set(tmp_path_factory) -> FixtureSet:
+    """SPEC-02 section 12.8 / SPEC-03 section 12 fixtures (seed 19880101), manifest kept apart."""
+    return _make_fixture_set(tmp_path_factory, 19880101)
+
+
+@pytest.fixture(scope="session")
+def fixture_set_alt(tmp_path_factory) -> FixtureSet:
+    """The same generator with seed 20261022: same structure, different content (SPEC-07 section 5)."""
+    return _make_fixture_set(tmp_path_factory, 20261022)
+
+
+class Compiled:
+    def __init__(self, d: Path | None, error: str | None) -> None:
+        self.dir = d
+        self.error = error
+
+    def need(self) -> Path:
+        if self.error:
+            W.fail("scenario compile failed, so this check cannot run: " + self.error)
+        return self.dir
+
+    def copy(self, tmp_path_factory) -> Path:
+        src = self.need()
+        dst = tmp_path_factory.mktemp("data")
+        shutil.copytree(src, dst, dirs_exist_ok=True)
+        return dst
+
+
+@pytest.fixture(scope="session")
+def compiled(tmp_path_factory) -> Compiled:
+    """The engine's own compilation of SPEC/scenario (SPEC-05 section 13)."""
+    d = tmp_path_factory.mktemp("compiled")
+    try:
+        W.engine_ready()
+        fn = W.api("scenario.compile")
+    except pytest.fail.Exception as e:
+        return Compiled(None, str(e))
+    try:
+        W._armed(fn, str(W.SCENARIO), str(d), allow_reference_log=True)
+    except NotImplementedError as e:
+        return Compiled(None, "wlengine.scenario.compile: not implemented (%s)" % (e or "NotImplementedError"))
+    except Exception as e:  # noqa: BLE001
+        return Compiled(None, "wlengine.scenario.compile raised %s: %s" % (type(e).__name__, W.short(str(e), 200)))
+    if W._STATE["violations"]:
+        v = W._STATE["violations"][0]
+        W._STATE["violations"].clear()
+        if not v.startswith(str(W.SCENARIO)):
+            return Compiled(None, "wlengine.scenario.compile opened a file the engine must not read: %s" % v)
+    return Compiled(d, None)
+
+
+class OracleView:
+    def __init__(self, data: dict | None, error: str | None) -> None:
+        self.data = data or {}
+        self.error = error
+
+    def oracle(self, section: str):
+        if self.error:
+            W.fail(self.error)
+        errs = self.data.get("errors", {})
+        if section in errs:
+            W.fail("reference reader rejected the compiled data (%s): %s" % (section, errs[section]))
+        if section not in self.data.get("oracle", {}):
+            W.fail("reference reader found no %s in the compiled data" % section)
+        return self.data["oracle"][section]
+
+    def expected(self, section: str):
+        if self.error and not self.data.get("expected"):
+            W.fail(self.error)
+        return self.data["expected"][section]
+
+
+@pytest.fixture(scope="session")
+def oracle_view(compiled) -> OracleView:
+    if compiled.error:
+        return OracleView(None, "scenario compile failed, so this check cannot run: " + compiled.error)
+    r = _oracle(["compiled", str(compiled.dir), str(W.SCENARIO)])
+    try:
+        data = json.loads(r.stdout)
+    except ValueError:
+        raise RuntimeError("oracle tool failed (test infrastructure): %s" % r.stderr[-800:])
+    if "fatal" in data:
+        raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+    return OracleView(data, None)
+
+
+@pytest.fixture(scope="session")
+def expected_view(tmp_path_factory) -> dict:
+    """Expected structures from the scenario JSON alone (no engine involved)."""
+    d = tmp_path_factory.mktemp("empty")
+    r = _oracle(["compiled", str(d), str(W.SCENARIO)])
+    data = json.loads(r.stdout)
+    if "fatal" in data:
+        raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+    return data["expected"]
+
+
+class Runner:
+    """Cached headless runs on fresh copies of the compiled data."""
+
+    def __init__(self, compiled: Compiled, tmp_path_factory) -> None:
+        self.compiled = compiled
+        self.tpf = tmp_path_factory
+        self.cache: dict = {}
+
+    def run(self, key: str, script: dict, seed: int | None = None, data_dir: Path | None = None):
+        """Return (events, data_dir). Fails the test cleanly on any engine problem."""
+        ck = (key, seed, str(data_dir) if data_dir else None)
+        if ck in self.cache:
+            ev, dd, err = self.cache[ck]
+            if err:
+                W.fail(err)
+            return ev, dd
+        dd = data_dir or self.compiled.copy(self.tpf)
+        err = None
+        ev = None
+        try:
+            ev = W.call("headless.run", str(dd), json.loads(json.dumps(script)), seed)
+            if not isinstance(ev, list) or not all(isinstance(e, dict) for e in ev):
+                err = "wlengine.headless.run must return a list of event dicts, got %s" % type(ev).__name__
+        except pytest.fail.Exception as e:
+            err = str(e)
+        self.cache[ck] = (ev, dd, err)
+        if err:
+            W.fail(err)
+        return ev, dd
+
+
+@pytest.fixture(scope="session")
+def runner(compiled, tmp_path_factory) -> Runner:
+    return Runner(compiled, tmp_path_factory)
+
+
+@pytest.fixture(scope="session")
+def walkthrough() -> dict:
+    return W.load_json(W.SCENARIO / "walkthrough.json")
+
+
+@pytest.fixture(scope="session")
+def reference_log() -> list[dict]:
+    return W.load_json(W.REFERENCE_LOG)["events"]
+SCENARIO DIR /Users/dtinholt/wasteland-build/project/SPEC/scenario: ['encounters.json', 'hooks.json', 'items.json', 'map0-overworld.json', 'map1-saltwell.json', 'map2-ninemile.json', 'map3-pumphouse.json', 'npcs.json', 'paragraphs.json', 'party.json', 'portraits.json', 'rng-vectors.json', 'scenario.json', 'shops.json', 'skills.json', 'strings.json', 'tiles.json', 'walkthrough-reference-log.json', 'walkthrough.json']
+SCENARIO DIR /Users/dtinholt/wasteland-build/project/SPEC: ['SPEC-01-codecs.md', 'SPEC-02-containers.md', 'SPEC-03-maps.md', 'SPEC-04-rules.md', 'SPEC-05-scenario.md', 'SPEC-06-ui.md', 'SPEC-07-acceptance.md', 'reference', 'scenario']
+map1-saltwell.json at /Users/dtinholt/wasteland-build/project/SPEC/scenario/map1-saltwell.json
+keys: ['action_cells', 'action_class', 'action_value', 'conventions', 'height', 'info', 'location', 'mobs', 'name', 'npcs', 'records', 'strings', 'tiles', 'tileset', 'width']
+tiles row20: [25, 0, 0, 11, 0, 0, 0, 0]
+action_class row20: [11, 0, 0, 11, 0, 0, 0, 0]
+SPEC-05 line 65: | 11 | 21 | cactus | no | Single green column cactus with two arms. |
+========================= SPEC-05 5.2 Saltwell
+5.2 Saltwell (location 1)
+
+A fenced town. The dry goods store is the north-west building, the healer the
+north-east building, the pump stands in the square at (15,11), the gate is the
+gap in the south fence at (15,31) and (16,31).
+
+```text
+     00000000001111111111222222222233
+     01234567890123456789012345678901
+  0  ||||||||||||||||||||||||||||||||
+  1  |..............................|
+  2  |.#########......#############.|
+  3  |.#_______#......#___________#.|
+  4  |.#__nnn__#......#____h______#.|
+  5  |.#_______#......#___________#.|
+  6  |.#_______#..Y...#___________#.|
+  7  |.####/####......######/######.|
+  8  |.....;................;.......|
+  9  |.....;;;;;;;;;;;;;;;;;;;......|
+ 10  |..T.........;;;;;.............|
+ 11  |............;;P;;......Y......|
+ 12  |............;;;;;.............|
+ 13  |..............;...............|
+ 14  |..............;.......b.......|
+ 15  |..w...........;...............|
+ 16  |..............;...............|
+ 17  |.......p......;...............|
+ 18  |.......;;;;;;;;...............|
+ 19  |..............;.......T.......|
+ 20  |..Y...........;...............|
+ 21  |..............;..........Y....|
+ 22  |..............;...............|
+ 23  |.....b........;...............|
+ 24  |..............;...............|
+ 25  |..............;.........b.....|
+ 26  |..............;...............|
+ 27  |..T...........;...............|
+ 28  |..............;...............|
+ 29  |..............;...............|
+ 30  |..............;;..............|
+ 31  |||||||||||||||;;|||||||||||||||
+```
+
+Non-plain cells other than walls (196 wall cells):
+
+| X | Y | Tile | Class | Action | Record | Note |
+| --- | --- | --- | --- | --- | --- | --- |
+| 22 | 4 | 22 | 11 | 0 | none | Healer's cot, Saltwell |
+| 6 | 5 | 17 | 6 | 1 | shop list 0, message 5 "Saltwell Dry Goods." | Shop list 0, Saltwell Dry Goods |
+| 6 | 7 | 19 | 1 | 2 | messages 2 "Read paragraph 3." | Dry goods doorway, paragraph 3 |
+| 23 | 7 | 19 | 1 | 3 | messages 3 "Read paragraph 5." | Healer's doorway, paragraph 5 |
+| 15 | 11 | 23 | 11 | 0 | none | Saltwell pump: win hook |
+| 13 | 12 | 18 | 1 | 4 | messages 4 "The trough is green at the edges and nearly empty." | Trough message |
+| 8 | 17 | 24 | 11 | 1 | message 6 "Read paragraph 6." | NPC 0 of Saltwell: Orla Penn |
+| 15 | 29 | 18 | 1 | 1 | messages 1 "Read paragraph 2." | Saltwell sign, paragraph 2 |
+| 15 | 31 | 18 | 10 | 1 | absolute, no confirm, message 0, target location 0 (10,41) | Saltwell gate to overworld (10,41) |
+| 16 | 31 | 18 | 10 | 2 | absolute, no confirm, message 0, target location 0 (10,41) | Saltwell gate to overworld (10,41) |
+
+Strings:
+
+| Index | Text |
+| --- | --- |
+| 0 | (empty) |
+| 1 | Read paragraph 2. |
+| 2 | Read paragraph 3. |
+| 3 | Read paragraph 5. |
+| 4 | The trough is green at the edges and nearly empty. |
+| 5 | Saltwell Dry Goods. |
+| 6 | Read paragraph 6. |
+| 7 | Orla shrugs. Some other time, then. |
+
+Monsters:
+
+| Index | Name | Sturdiness | Combat rating | Random damage (d6) | Max group | AC | Fixed damage | Weapon type | Type | Portrait |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | stray dog (plural +"s") | 4 | 2 | 1 | 2 | 0 | 0 | 1 | 1 | 1 |
+
+NPC section: NPC 0 = Orla Penn (record in section 10).
+
+### 5.3 Ninemile (location 2)
+
+A walled town entered from the west gate (x = 0, y = 15 to 17). The gunsmith is
+the north-west building, the outfitter the north-east building, the storehouse
+stands east of the main street, the healer is south-east and the dini

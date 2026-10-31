@@ -1,0 +1,621 @@
+======================================================================
+FILE /Users/dtinholt/wasteland-build/project/src/wlengine/headless.py PATTERN def .*bump|bump\"|'bump'
+--- line 603 ---
+  597             self.prev_location = self.location
+  598             self.prev_x = self.x if ox is None else ox
+  599             self.prev_y = self.y if oy is None else oy
+  600         self.location, self.x, self.y = loc, x, y
+  601         self.emit("map_change", location=loc, x=x, y=y)
+  602 
+  603     def bump(self, nx, ny):
+  604         m = self.sc.map(self.location)
+  605         rec = maps.record_at(m, nx, ny)
+  606         cls, action = self.cell_class_action(nx, ny)
+  607         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+  608         self.bump_effect(rec, nx, ny, cls)
+  609 
+  610     def bump_effect(self, rec, nx, ny, cls=None):
+  611         if cls is None:
+  612             cls, _a = self.cell_class_action(nx, ny)
+  613         if cls == 11:
+  614             self.bump_blocked(rec, nx, ny)
+  615         elif cls == 4:
+  616             if rec is not None and rec.get("impassable"):
+  617                 self.show_message(rec.get("message", 0))
+  618                 if self.sc.hook(self.location, nx, ny):
+  619                     self.run_hook_at(nx, ny)
+  620                 else:
+  621                     self.apply_tail(rec, nx, ny)
+  622             elif rec is not None:
+  623                 self.show_message(rec.get("message", 0))
+  624                 self.apply_tail(rec, nx, ny)
+  625         elif cls == 3:
+  626             self.start_encounter(rec)
+  627 
+  628     def bump_blocked(self, rec, nx, ny):
+  629         if rec is not None:
+  630             self.show_message(rec.get("message", 0))
+  631             self.apply_tail(rec, nx, ny)
+  632         self.run_hook_at(nx, ny)
+--- line 607 ---
+  601         self.emit("map_change", location=loc, x=x, y=y)
+  602 
+  603     def bump(self, nx, ny):
+  604         m = self.sc.map(self.location)
+  605         rec = maps.record_at(m, nx, ny)
+  606         cls, action = self.cell_class_action(nx, ny)
+  607         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+  608         self.bump_effect(rec, nx, ny, cls)
+  609 
+  610     def bump_effect(self, rec, nx, ny, cls=None):
+  611         if cls is None:
+  612             cls, _a = self.cell_class_action(nx, ny)
+  613         if cls == 11:
+  614             self.bump_blocked(rec, nx, ny)
+  615         elif cls == 4:
+  616             if rec is not None and rec.get("impassable"):
+  617                 self.show_message(rec.get("message", 0))
+  618                 if self.sc.hook(self.location, nx, ny):
+  619                     self.run_hook_at(nx, ny)
+  620                 else:
+  621                     self.apply_tail(rec, nx, ny)
+  622             elif rec is not None:
+  623                 self.show_message(rec.get("message", 0))
+  624                 self.apply_tail(rec, nx, ny)
+  625         elif cls == 3:
+  626             self.start_encounter(rec)
+  627 
+  628     def bump_blocked(self, rec, nx, ny):
+  629         if rec is not None:
+  630             self.show_message(rec.get("message", 0))
+  631             self.apply_tail(rec, nx, ny)
+  632         self.run_hook_at(nx, ny)
+  633 
+  634     def run_hook_at(self, nx, ny):
+  635         hook = self.sc.hook(self.location, nx, ny)
+  636         if hook:
+--- line 610 ---
+  604         m = self.sc.map(self.location)
+  605         rec = maps.record_at(m, nx, ny)
+  606         cls, action = self.cell_class_action(nx, ny)
+  607         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+  608         self.bump_effect(rec, nx, ny, cls)
+  609 
+  610     def bump_effect(self, rec, nx, ny, cls=None):
+  611         if cls is None:
+  612             cls, _a = self.cell_class_action(nx, ny)
+  613         if cls == 11:
+  614             self.bump_blocked(rec, nx, ny)
+  615         elif cls == 4:
+  616             if rec is not None and rec.get("impassable"):
+  617                 self.show_message(rec.get("message", 0))
+  618                 if self.sc.hook(self.location, nx, ny):
+  619                     self.run_hook_at(nx, ny)
+  620                 else:
+  621                     self.apply_tail(rec, nx, ny)
+  622             elif rec is not None:
+  623                 self.show_message(rec.get("message", 0))
+  624                 self.apply_tail(rec, nx, ny)
+  625         elif cls == 3:
+  626             self.start_encounter(rec)
+  627 
+  628     def bump_blocked(self, rec, nx, ny):
+  629         if rec is not None:
+  630             self.show_message(rec.get("message", 0))
+  631             self.apply_tail(rec, nx, ny)
+  632         self.run_hook_at(nx, ny)
+  633 
+  634     def run_hook_at(self, nx, ny):
+  635         hook = self.sc.hook(self.location, nx, ny)
+  636         if hook:
+  637             self.run_hook(hook, nx, ny)
+  638 
+  639     def apply_tail(self, rec, x, y):
+--- line 628 ---
+  622             elif rec is not None:
+  623                 self.show_message(rec.get("message", 0))
+  624                 self.apply_tail(rec, nx, ny)
+  625         elif cls == 3:
+  626             self.start_encounter(rec)
+  627 
+  628     def bump_blocked(self, rec, nx, ny):
+  629         if rec is not None:
+  630             self.show_message(rec.get("message", 0))
+  631             self.apply_tail(rec, nx, ny)
+  632         self.run_hook_at(nx, ny)
+  633 
+  634     def run_hook_at(self, nx, ny):
+  635         hook = self.sc.hook(self.location, nx, ny)
+  636         if hook:
+  637             self.run_hook(hook, nx, ny)
+  638 
+  639     def apply_tail(self, rec, x, y):
+  640         tail = maps.apply_tail(rec)
+  641         if tail is None:
+  642             return
+  643         m = self.sc.map(self.location)
+  644         m["cells"]["actionClass"][y][x] = tail[0]
+  645         m["cells"]["action"][y][x] = tail[1]
+  646         img = maps.image_at(m, x, y)
+  647         newrec = maps.record_at(m, x, y)
+  648         if newrec is not None and "tile" in newrec:
+  649             img = newrec["tile"]
+  650             m["cells"]["image"][y][x] = img
+  651         self.cell_change(x, y, tail[0], tail[1], img)
+  652 
+  653     def apply_loot(self, rec, x, y):
+  654         for item in rec.get("items", []):
+  655             if isinstance(item, (list, tuple)):
+  656                 iid = item[0]
+  657                 fixed = bool(item[1]) if len(item) > 1 else True
+--- line 744 ---
+  738         self.pending_hook = hook
+  739         self.pending_cell = (nx, ny)
+  740         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+  741 
+  742     # -- locks -------------------------------------------------------------
+  743 
+  744     def bump_lock(self, rec, nx, ny):
+  745         hook = self.sc.hook(self.location, nx, ny)
+  746         if hook is None:
+  747             return
+  748         key_item = hook.get("key_item")
+  749         if key_item is not None:
+  750             member = self.member_with_item(key_item)
+  751             if member is not None:
+  752                 self.emit("key_used", member=member, item=key_item)
+  753                 self.unlock(nx, ny, hook, member, xp=0)
+  754                 return
+  755         member = self.pick_member(hook.get("skill", 0))
+  756         skill = hook.get("skill", 0)
+  757         level = self.skill_level(self.party[member - 1], skill)
+  758         attr = self.attr_value(self.party[member - 1], skill)
+  759         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+  760                                 bool(hook.get("tool_item")))
+  761         roll = self.rng.d100()
+  762         success = roll <= need
+  763         self.emit("check", member=member, skill=skill, level=level, need=need,
+  764                   roll=roll, success=success)
+  765         if success:
+  766             self.unlock(nx, ny, hook, member)
+  767         else:
+  768             self.show_message(hook.get("fail_message", 0))
+  769 
+  770     def unlock(self, nx, ny, hook, member, xp=10):
+  771         self.emit("unlock", x=nx, y=ny)
+  772         m = self.sc.map(self.location)
+  773         rec = maps.record_at(m, nx, ny)
+======================================================================
+FILE /Users/dtinholt/wasteland-build/project/src/wlengine/headless.py PATTERN steps \+=|self\.steps
+--- line 55 ---
+   49         self.events = []
+   50         self._seq = 0
+   51         self.mode = "map"
+   52         self.location = 0
+   53         self.x = 0
+   54         self.y = 0
+   55         self.steps = 0
+   56         self.day = 1
+   57         self.hour = 0
+   58         self.minute = 0
+   59         self.prev_x = 0
+   60         self.prev_y = 0
+   61         self.prev_location = 0
+   62         self.cell_changes = []
+   63         self.rng = None
+   64         self.seed = seed
+   65         self.party = []
+   66         self.serial = 0
+   67         self.paragraph = 0
+   68         self.shop = None
+   69         self.pending = None
+   70         self.pending_member = None
+   71         self.pending_item = None
+   72         self.pending_hook = None
+   73         self.pending_cell = (0, 0)
+   74         self.combat = None
+   75         self.saved = {}
+   76         self.script_seed = None
+   77         self._items = None
+   78 
+   79     # -- event log ---------------------------------------------------------
+   80 
+   81     def emit(self, type_, **kw):
+   82         ev = {"seq": self._seq, "type": type_}
+   83         ev.update(kw)
+   84         self._seq += 1
+--- line 96 ---
+   90 
+   91     def snapshot(self):
+   92         return {
+   93             "location": self.location,
+   94             "x": self.x,
+   95             "y": self.y,
+   96             "steps": self.steps,
+   97             "day": self.day,
+   98             "hour": self.hour,
+   99             "minute": self.minute,
+  100             "mode": self.mode,
+  101             "cell_changes": self.sorted_cell_changes(),
+  102             "rng_state": self.rng.state if self.rng is not None else None,
+  103             "party": [self.member_snapshot(i + 1)
+  104                       for i in range(len(self.party))],
+  105         }
+  106 
+  107     def sorted_cell_changes(self):
+  108         """LR-57: the snapshot's cell changes are sorted by (location, y, x)
+  109         and a cell that changed more than once keeps only its last change."""
+  110         last = {}
+  111         for c in self.cell_changes:
+  112             last[(c[0], c[1], c[2])] = list(c)
+  113         return [last[k] for k in sorted(last, key=lambda k: (k[0], k[2], k[1]))]
+  114 
+  115     def member_snapshot(self, member):
+  116         m = self.party[member - 1]
+  117         return {
+  118             "slot": member,
+  119             "name": m.get("name", ""),
+  120             "npc": m.get("npc", 0),
+  121             "level": m.get("level", 1),
+  122             "xp": m.get("xp", 0),
+  123             "max_hp": m.get("max_hp", 0),
+  124             "hp": m.get("hp", 0),
+  125             "cond": m.get("cond", 0),
+--- line 179 ---
+  173         self.location = start["location"]
+  174         self.x = start["x"]
+  175         self.y = start["y"]
+  176         self.hour = start.get("hour", 8)
+  177         self.minute = start.get("minute", 0)
+  178         self.day = start.get("day", 1)
+  179         self.steps = 0
+  180         self.cell_changes = []
+  181         self.mode = "map"
+  182         self.party = self.sc.premade_party()
+  183         self.emit("new_game", seed=seed)
+  184         self.paragraph = start.get("paragraph", 1)
+  185         self.emit("paragraph", n=self.paragraph)
+  186 
+  187     # -- script ------------------------------------------------------------
+  188 
+  189     def run_script(self, script):
+  190         for item in script:
+  191             if isinstance(item, dict):
+  192                 if "checkpoint" in item:
+  193                     self.checkpoint(item["checkpoint"])
+  194                 elif "repeat_until" in item:
+  195                     self.run_repeat(item)
+  196                 else:
+  197                     raise ScriptError("unknown script item %r" % (item,))
+  198             else:
+  199                 self.input(item)
+  200         return self.events
+  201 
+  202     def run_repeat(self, item):
+  203         raise ScriptError("repeat_until not supported yet")
+  204 
+  205     def input(self, key):
+  206         self.emit("input", key=key)
+  207         if not self.dispatch(str(key)):
+  208             self.emit("ignored", key=key)
+--- line 524 ---
+  518         cls, _action = self.cell_class_action(nx, ny)
+  519         if cls == 11 or not maps.is_passable(m, nx, ny):
+  520             self.bump(nx, ny)
+  521             return
+  522         ox, oy = self.x, self.y
+  523         self.x, self.y = nx, ny
+  524         self.steps += 1
+  525         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+  526         self.advance_time(self.step_minutes())
+  527         self.after_move(ox, oy)
+  528 
+  529     def step_minutes(self):
+  530         m = self.sc.map(self.location)
+  531         tp = m["info"].get("timePerStep", 256)
+  532         return tp >> 8
+  533 
+  534     def cell_class_action(self, x, y):
+  535         m = self.sc.map(self.location)
+  536         size = m["size"]
+  537         if not (0 <= x < size and 0 <= y < size):
+  538             return 0, 0
+  539         return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+  540 
+  541     def show_message(self, index):
+  542         if not index:
+  543             return
+  544         text = self.sc.map_string(self.location, index)
+  545         if text.startswith("Read paragraph ") and text.endswith("."):
+  546             body = text[len("Read paragraph "):-1]
+  547             if body.isdigit():
+  548                 self.emit("paragraph", n=int(body))
+  549                 return
+  550         self.emit("message", location=self.location, string=index)
+  551 
+  552     def advance_time(self, minutes):
+  553         before_hour = self.hour
+--- line 525 ---
+  519         if cls == 11 or not maps.is_passable(m, nx, ny):
+  520             self.bump(nx, ny)
+  521             return
+  522         ox, oy = self.x, self.y
+  523         self.x, self.y = nx, ny
+  524         self.steps += 1
+  525         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+  526         self.advance_time(self.step_minutes())
+  527         self.after_move(ox, oy)
+  528 
+  529     def step_minutes(self):
+  530         m = self.sc.map(self.location)
+  531         tp = m["info"].get("timePerStep", 256)
+  532         return tp >> 8
+  533 
+  534     def cell_class_action(self, x, y):
+  535         m = self.sc.map(self.location)
+  536         size = m["size"]
+  537         if not (0 <= x < size and 0 <= y < size):
+  538             return 0, 0
+  539         return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+  540 
+  541     def show_message(self, index):
+  542         if not index:
+  543             return
+  544         text = self.sc.map_string(self.location, index)
+  545         if text.startswith("Read paragraph ") and text.endswith("."):
+  546             body = text[len("Read paragraph "):-1]
+  547             if body.isdigit():
+  548                 self.emit("paragraph", n=int(body))
+  549                 return
+  550         self.emit("message", location=self.location, string=index)
+  551 
+  552     def advance_time(self, minutes):
+  553         before_hour = self.hour
+  554         self.minute += minutes
+--- line 718 ---
+  712                 self.emit("paragraph", n=para)
+  713             return
+  714         para = self.hook_get(hook, "win_paragraph", "win_para")
+  715         if para:
+  716             self.emit("paragraph", n=para)
+  717         self.mode = "won"
+  718         self.emit("win", steps=self.steps, day=self.day,
+  719                   minutes=self.hour * 60 + self.minute)
+  720 
+  721     def hook_get(self, hook, *names):
+  722         for name in names:
+  723             if name in hook and hook[name] is not None:
+  724                 return hook[name]
+  725         return None
+  726 
+  727     def hook_recruit(self, hook, nx, ny):
+  728         para = self.hook_get(hook, "paragraph")
+  729         if para:
+  730             self.emit("paragraph", n=para)
+  731         self.pending = "recruit"
+  732         self.pending_hook = hook
+  733         self.pending_cell = (nx, ny)
+  734         self.emit("prompt", prompt="recruit")
+  735 
+  736     def hook_healer(self, hook, nx, ny):
+  737         self.pending = "heal"
+  738         self.pending_hook = hook
+  739         self.pending_cell = (nx, ny)
+  740         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+  741 
+  742     # -- locks -------------------------------------------------------------
+  743 
+  744     def bump_lock(self, rec, nx, ny):
+  745         hook = self.sc.hook(self.location, nx, ny)
+  746         if hook is None:
+  747             return
+======================================================================
+FILE /Users/dtinholt/wasteland-build/project/src/wlengine/headless.py PATTERN reload
+(no match)
+======================================================================
+FILE /Users/dtinholt/wasteland-build/project/src/wlengine/headless.py PATTERN def auto_orders|def .*orders
+(no match)
+======================================================================
+FILE /Users/dtinholt/wasteland-build/project/src/wlengine/rules.py PATTERN rank|skill_points|promot
+(no match)
+======================================================================
+FILE /Users/dtinholt/wasteland-build/project/src/wlengine/labstate.py PATTERN .*
+--- line 1 ---
+    1 """LABSTATE.BIN (SPEC-04 LR-57).
+    2 
+    3 Little-endian file: magic ``WLLABSV1``, step counter, day, clock seconds, a
+    4 pad byte, the generator state, the cell-change count and the cell changes
+    5 sorted by (location, y, x), then a u16 sum of all earlier bytes.
+    6 """
+    7 
+    8 from __future__ import annotations
+    9 
+   10 from .errors import FormatError
+   11 
+   12 MAGIC = b"WLLABSV1"
+   13 
+   14 
+   15 def encode_labstate(state: dict) -> bytes:
+   16     """LR-57: cell changes written sorted by (location, y, x)."""
+   17     cc = sorted(state.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+   18     b = bytearray(MAGIC)
+   19     b += int(state.get("steps", 0)).to_bytes(4, "little")
+   20     b += int(state.get("day", 1)).to_bytes(2, "little")
+   21     b += bytes((int(state.get("seconds", 0)) & 0xFF, 0))
+   22     b += int(state.get("rng_state", 0)).to_bytes(4, "little")
+   23     b += len(cc).to_bytes(2, "little")
+   24     for c in cc:
+   25         b += bytes(int(v) & 0xFF for v in c)
+   26     b += (sum(b) & 0xFFFF).to_bytes(2, "little")
+   27     return bytes(b)
+   28 
+   29 
+   30 def decode_labstate(data: bytes) -> dict:
+   31     """LR-57; ``FormatError`` on a wrong magic or sum."""
+   32     if len(data) < 0x16 + 2:
+   33         raise FormatError("LABSTATE: %d bytes, too short" % len(data))
+   34     if data[:8] != MAGIC:
+   35         raise FormatError("LABSTATE: bad magic %r" % (bytes(data[:8]),))
+   36     n = int.from_bytes(data[0x14:0x16], "little")
+   37     end = 0x16 + 6 * n
+   38     if len(data) != end + 2:
+   39         raise FormatError("LABSTATE: %d bytes, expected %d" % (len(data), end + 2))
+   40     if sum(data[:end]) & 0xFFFF != int.from_bytes(data[end:end + 2], "little"):
+   41         raise FormatError("LABSTATE: bad checksum")
+   42     cc = [list(data[0x16 + 6 * i:0x16 + 6 * i + 6]) for i in range(n)]
+   43     return {"steps": int.from_bytes(data[8:12], "little"),
+   44             "day": int.from_bytes(data[12:14], "little"),
+   45             "seconds": data[14], "pad": data[15],
+   46             "rng_state": int.from_bytes(data[16:20], "little"),
+   47             "cell_changes": cc}
+   48 
+   49 
+   50 __all__ = ["encode_labstate", "decode_labstate", "MAGIC"]
+======================================================================
+REF reflog.txt cell_changes at -1
+======================================================================
+TEST test_bump_is_not_a_step
+def test_bump_is_not_a_step(runner):
+    ev, _ = runner.run("bump", {"seed": SEED, "script": ["LEFT"] * 13 + [{"checkpoint": "a"}]})
+    subset("after 12 steps west and one bump (LR-15)", ckpt(ev, "a"),
+           {"location": 1, "x": 3, "y": 20, "steps": 12, "hour": 8, "minute": 12})
+    tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-2:]
+    check_eq("events of the bump into the cactus at (2, 20)", tail,
+             [{"type": "input", "key": "LEFT"}, {"type": "bump", "x": 2, "y": 20, "action_class": 11, "action": 0}])
+
+
+def test_rest(runner):
+    ev, _ = runner.run("rest", {"seed": SEED, "script": ["R", {"checkpoint": "a"}]})
+    subset("after one rest (LR-17)", ckpt(ev, "a"), {"steps": 0, "day": 1, "hour": 9, "minute": 0, "rng_state": SEED})
+    i = next((k for k, e in enumerate(ev) if e.get("type") == "input"), None)
+    check_eq("events after the R token (full HP, no Foraging)",
+             [strip(e) for e in ev[i:] if e.get("type") != "checkpoint"],
+             [{"type": "input", "key": "R"}, {"type": "rest"}])
+
+
+def test_win_hook_without_item(runner):
+    ev, _ = runner.run("pump", {"seed": SEED, "script": ["UP"] * 9 + [{"checkpoint": "a"}]})
+    tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-3:]
+    check_eq("bumping the Saltwell pump without the valve (LR-18, LR-24)", tail,
+             [{"type": "input", "key": "UP"}, {"type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0},
+              {"type": "paragraph", "n": 4}])
+    subset("mode after the pump bump", ckpt(ev, "a"), {"mode": "map", "steps": 8})
+
+
+# ---- shop, equip, recruit (walkthrough to CP2 and CP3; no random draws) -----
+
+ITEMS = {it["id"]: it for it in W.load_json(W.SCENARIO / "items.json")["items"]}
+SHOPS = W.load_json(W.SCENARIO / "shops.json")["shops"]
+
+
+def _cp2(runner, walkthrough):
+    ev, _ = runner.run("cp2", {"seed": SEED, "script": prefix(walkthrough, "CP2")})
+    return between(ev, "CP1", "CP2")
+
+
+def test_shop_buy_list(runner, walkthrough):
+    seg = _cp2(runner, walkthrough)
+    p = next((e for e in seg if e.get("type") == "prompt" and e.get("prompt") == "buy_item"), None)
+    want = sorted(int(k) for k, v in SHOPS[0]["stock"].items() if 1 <= v <= 255)
+    check_eq("buy list of shop list 0 (LR-50, SPEC-06 6.1 prompt)", p and p.get("items"), want)
+
+
+def test_shop_buy_prices(runner, walkthrough):
+    seg = _cp2(runner, walkthrough)
+    buys = [e for e in seg if e.get("type") == "buy"]
+    check_eq("number of purchases before CP
+======================================================================
+TEST test_raider_fight_rules
+def test_raider_fight_rules(runner, walkthrough, cat):
+    for seed in FIGHT_SEEDS:
+        ev = _fight(runner, walkthrough, seed)
+        issues = [m for c, m in CR.consistency(ev) if c in (cat, "all")]
+        if issues:
+            fail("seed %d, %s: %s" % (seed, cat, issues[0]))
+
+
+def test_victory_loot(runner, walkthrough):
+    for seed in [SEED] + FIGHT_SEEDS[:2]:
+        ev = _fight(runner, walkthrough, seed)
+        i = next((k for k, e in enumerate(ev) if e.get("type") == "combat_end"), None)
+        if i is None:
+            fail("seed %d: no combat_end in the raider fight" % seed)
+        got = [strip(e) for e in ev[i:] if e.get("type") in ("cell_change", "money")][:3]
+        check_eq("seed %d: tail (5, 1) then loot of 75 coins after the victory (LR-44, SPEC-03 9.6)" % seed, got,
+                 [{"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13},
+                  {"type": "money", "member": 1, "delta": 75, "total": 195},
+                  {"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}])
+
+
+# ---- locks, healer, key (walkthrough to CP6, CP7, CP9) -----------------------
+
+@pytest.mark.parametrize("seed", [SEED, 1, 2])
+def test_storehouse_lock(runner, walkthrough, seed):
+    ev, _ = runner.run("cp6", {"seed": seed, "script": prefix(walkthrough, "CP6")}, seed)
+    seg = between(ev, "CP5", "CP6")
+    checks = [e for e in seg if e.get("type") == "check"]
+    if not checks:
+        fail("seed %d: no check event at the storehouse door" % seed)
+    for c in checks:
+        exp = {"type": "check", "member": 3, "skill": 14, "level": 2, "need": 50}
+        check_eq("seed %d: storehouse check (LR-13, LR-14, worked example need 50)" % seed,
+                 {k: c.get(k) for k in exp}, exp)
+        if c.get("success") != (isinstance(c.get("roll"), int) and 1 <= c["roll"] <= 50):
+            fail("seed %d: check roll %r with need 50 but success=%r" % (seed, c.get("roll"), c.get("success")))
+    if any(c.get("success") for c in checks[:-1]) or not checks[-1].get("success"):
+        fail("seed %d: the bumps must repeat until the first success (repeat_until cell:2,26,14)" % seed)
+    i = seg.index(checks[-1])
+    check_eq("seed %d: events after the successful check (LR-21 order)" % seed, seg[i + 1:i + 6],
+             [{"type": "unlock", "x": 26, "y": 14},
+              {"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, 
+======================================================================
+TEST test_save_labstate
+def test_save_labstate(runner, walkthrough):
+    ev, dd = _saved(runner, walkthrough)
+    st = ckpt(ev, "CP5-pre-save")
+    p = dd / "LABSTATE.BIN"
+    if not p.is_file():
+        fail("no LABSTATE.BIN next to GAME1 after S (LR-54)")
+    try:
+        ls = W.ref_labstate(p.read_bytes())
+    except ValueError as e:
+        fail("LABSTATE.BIN does not follow LR-57: %s" % e)
+    want_cc = sorted(st.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+    check_eq("LABSTATE.BIN after the save (LR-57)", ls,
+             {"steps": st.get("steps"), "day": st.get("day"), "seconds": 0, "pad": 0, "rng_state": st.get("rng_state"),
+              "cell_changes": want_cc})
+
+
+def test_save_savegame_fields(runner, walkthrough):
+    ev, dd = _saved(runner, walkthrough)
+    p = _payload(dd)
+    got = {"order": list(p[1:8]), "x": p[8], "y": p[9], "map": p[10], "prevX": p[11], "prevY": p[12], "prevMap": p[13],
+           "groups1to3": list(p[14:56]), "viewport": [p[0x78], p[0x79]], "members": [p[0x7D], p[0x80]],
+           "party": p[0x7E], "location": p[0x7F], "extra": p[0x81], "clock": [p[0x83], p[0x84]], "scroll": p[0x85],
+           "serial": int.from_bytes(p[0xF5:0xF9], "little")}
+    want = {"order": [1, 2, 3, 4, 5, 0, 0], "x": 25, "y": 5, "map": 2, "prevX": 43, "prevY": 28, "prevMap": 0,
+            "groups1to3": [0] * 42, "viewport": [25, 5], "members": [5, 5], "party": 0, "location": 2, "extra": 0,
+            "clock": [28, 17], "scroll": 0, "serial": 1}
+    check_eq("savegame payload after the save at CP5 (LR-55, L-TR4)", got, want)
+    names = [bytes(p[0x100 * (s + 1):0x100 * (s + 1) + 14]).split(b"\x00")[0].decode("latin-1") for s in range(7)]
+    check_eq("character record names (LR-55)", names, ["Hessa Brand", "Tobin Ash", "Maro Quill", "Dell Ostrow",
+                                                       "Orla Penn", "", ""])
+    check_eq("slots 6 and 7 all zero (LR-55)", any(p[0x600:0x800]), False)
+
+
+def test_load_restores_state(runner, walkthrough):
+    ev, dd = _saved(runner, walkthrough)
+    want = ckpt(ev, "CP5-pre-save")
+    ev2, _ = runner.run("reload", {"seed": 5, "script": ["O", "Y", {"checkpoint": "loaded"}]}, None, data_dir=dd)
+    check_eq("a fresh run that loads the save sees the saved state (LR-4, LR-56)", ckpt(ev2, "loaded"), want)
+
+
+def test_save_load_save(runner, walkthrough):
+    _, dd1 = _saved(runner, walkthrough)
+    p1 = _payload(dd1)
+    l1 = (dd1 / "LABSTATE.BIN").read_bytes()
+    _, dd2 = runner.run("saveloadsave", {"seed": SEED,
+======================================================================
+REF ref.txt CP4 at -1
+======================================================================
+REF ref.txt CP5-pre-save at -1

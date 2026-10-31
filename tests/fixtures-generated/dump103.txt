@@ -1,0 +1,5277 @@
+### wlengine.combat module source
+"""SPEC-04 LR-26 to LR-46: combat resolution for the headless driver.
+
+The engine keeps ``self.combat`` as a dict while a fight is running:
+
+    {"round": int,            # 0 while the surprise round is pending
+     "groups": [...],         # LR-26 groups, each with "hp" per monster
+     "band": int,             # LR-28 range band (1 = melee)
+     "surprised": bool,
+     "kills": int,
+     "fired": set(),          # slots that fired in phase 1
+     "pending_monsters": [[int]],   # phase 1 damage per group/index
+     "pending_members": {slot: int},
+     "over": bool,
+     "last_death_round": int}
+
+This module is a mixin: ``wlengine.headless.Engine`` inherits from
+``CombatMixin`` so the combat methods can use the engine's helpers
+(``emit``, ``item_record``, ``skill_level``, ``rng`` ...).
+"""
+
+from __future__ import annotations
+
+from . import rules
+
+RANGED_SKILLS = (4, 5, 12)
+GUNSMITHING = 22
+LOOKOUT = 18
+RANKS = ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"]
+
+
+def _alive(member):
+    return member.get("hp", 0) > 0 and not member.get("cond")
+
+
+def weapon_dice(rec):
+    """(n, s) of a weapon's damage: high nibble dice, low nibble sides."""
+    if rec is None:
+        return 1, 6
+    if "damage_n" in rec:
+        return rec.get("damage_n", 1), rec.get("damage_s", 6)
+    byte = rec.get("damage", 0) or 0
+    n = (byte >> 4) & 0x0F
+    s = byte & 0x0F
+    if n <= 0:
+        n = 1
+    if s <= 0:
+        s = 6
+    return n, s
+
+
+class CombatMixin:
+    # -- inventory helpers -------------------------------------------------
+
+    def member_weapon(self, member):
+        """The equipped weapon: item slot 1 (LR-33)."""
+        items = member.get("items") or []
+        if not items:
+            return None, 0
+        iid = items[0][0]
+        return self.item_record(iid), iid
+
+    def weapon_ammo(self, member):
+        rec, _iid = self.member_weapon(member)
+        if rec is None:
+            return 0
+        return member.get("loaded", rec.get("capacity", 0))
+
+    def ammo_boxes(self, member):
+        """Total rounds in the member's ammunition items."""
+        total = 0
+        for iid, count in (member.get("items") or [])[1:]:
+            rec = self.item_record(iid)
+            if rec and rec.get("ammo"):
+                total += rec["ammo"] * count
+        return total
+
+    def spend_ammo(self, member):
+        member["loaded"] = max(0, self.weapon_ammo(member) - 1)
+
+    def reload(self, member):
+        """LR-33: one ammunition item refills the weapon to capacity."""
+        rec, _iid = self.member_weapon(member)
+        cap = rec.get("capacity", 0) if rec else 0
+        items = member.get("items") or []
+        for idx in range(1, len(items)):
+            iid, count = items[idx]
+            irec = self.item_record(iid)
+            if not irec or not irec.get("ammo") or count <= 0:
+                continue
+            items[idx] = [iid, count - 1]
+            member["loaded"] = cap
+            return cap
+        return 0
+
+    # -- orders (LR-33) ----------------------------------------------------
+
+    def auto_orders(self):
+        c = self.combat
+        orders = {}
+        any_alive = any(hp > 0 for g in c["groups"] for hp in g["hp"])
+        band = c["band"]
+        for i, m in enumerate(self.party):
+            slot = str(i + 1)
+            if not _alive(m):
+                orders[slot] = ["dead"]
+                continue
+            if not any_alive:
+                orders[slot] = ["wait"]
+                continue
+            if m.get("jammed"):
+                orders[slot] = ["unjam"]
+                continue
+            rec, _iid = self.member_weapon(m)
+            if rec is not None and rec.get("skill") in RANGED_SKILLS:
+                if self.weapon_ammo(m) > 0:
+                    orders[slot] = ["fire", 1]
+                    continue
+                if self.ammo_boxes(m) > 0:
+                    orders[slot] = ["reload"]
+                    continue
+            orders[slot] = ["unarmed", 1] if band == 1 else ["advance", 1]
+        return orders
+
+    # -- targeting ---------------------------------------------------------
+
+    def pick_monster_target(self, pending=None):
+        """LR-34 step 4: first monster that is still standing after pending damage."""
+        c = self.combat
+        if pending is None:
+            pending = c.get("pending_monsters")
+        for gi, g in enumerate(c["groups"]):
+            pend = pending[gi] if pending else [0] * len(g["hp"])
+            for mi, hp in enumerate(g["hp"]):
+                if hp > 0 and hp - pend[mi] > 0:
+                    return {"group": gi, "index": mi, "ac": g["mob"].get("armorClass", 0),
+                            "band": c["band"]}
+        for gi, g in enumerate(c["groups"]):
+            for mi, hp in enumerate(g["hp"]):
+                if hp > 0:
+                    return {"group": gi, "index": mi, "ac": g["mob"].get("armorClass", 0),
+                            "band": c["band"]}
+        return None
+
+    def pick_random_member(self):
+        """LR-34: a conscious member chosen uniformly."""
+        conscious = [i + 1 for i, m in enumerate(self.party) if _alive(m)]
+        if not conscious:
+            return None
+        slot = conscious[self.rng.roll(len(conscious)) - 1]
+        return {"slot": slot, "ac": self.party[slot - 1].get("ac", 0)}
+
+    # -- phase 1 (LR-34) ---------------------------------------------------
+
+    def party_phase1(self):
+        c = self.combat
+        if c is None:
+            return
+        fired = c.setdefault("fired", set())
+        pend = c["pending_monsters"]
+        for i, m in enumerate(self.party):
+            if not _alive(m):
+                continue
+            rec, _iid = self.member_weapon(m)
+            if rec is None or rec.get("skill") not in RANGED_SKILLS:
+                continue
+            if self.weapon_ammo(m) <= 0:
+                self.emit("click", member=i + 1)
+                continue
+            roll = self.rng.d100()
+            jam = rules.jam_chance(self.skill_level(m, GUNSMITHING))
+            if roll <= jam:
+                m["jammed"] = True
+                m["loaded"] = 0
+                self.emit("jam", member=i + 1, roll=roll, chance=jam)
+                continue
+            self.spend_ammo(m)
+            fired.add(i + 1)
+            target = self.pick_monster_target(pend)
+            if target is None:
+                continue
+            need = rules.ranged_need(self.skill_level(m, rec.get("skill", 0)),
+                                     (m.get("attrs") or {}).get("AGL", 0),
+                                     target["ac"], c["band"])
+            roll = self.rng.d100()
+            hit = roll <= need
+            ev = {"side": "party", "member": i + 1, "group": target["group"] + 1,
+                  "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+            if hit:
+                n, s = weapon_dice(rec)
+                dmg = self.rng.dice(n, s)
+                ev["damage"] = dmg
+                pend[target["group"]][target["index"]] += dmg
+            self.emit("attack", **ev)
+
+    def monster_phase1(self):
+        c = self.combat
+        if c is None:
+            return
+        pend = c["pending_members"]
+        conscious = [i + 1 for i, m in enumerate(self.party) if _alive(m)]
+        for gi, g in enumerate(c["groups"]):
+            mob = g["mob"]
+            if mob.get("weaponType", 0) < 3:
+                continue
+            for mi, hp in enumerate(g["hp"]):
+                if hp <= 0:
+                    continue
+                if not conscious:
+                    break
+                t = conscious[self.rng.roll(len(conscious)) - 1]
+                m = self.party[t - 1]
+                need = rules.monster_need(mob.get("combatRating", 0), m.get("ac", 0), c["band"])
+                roll = self.rng.d100()
+                hit = roll <= need
+                ev = {"side": "monsters", "group": gi + 1, "attacker": mi + 1, "member": t,
+                      "need": need, "roll": roll, "hit": hit}
+                if hit:
+                    dmg = self.rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+                    ev["damage"] = dmg
+                    pend[t] = pend.get(t, 0) + dmg
+                self.emit("attack", **ev)
+
+    def apply_phase1(self):
+        c = self.combat
+        for gi, g in enumerate(c["groups"]):
+            pend = c["pending_monsters"][gi]
+            for mi in range(len(g["hp"])):
+                if g["hp"][mi] > 0 and pend[mi]:
+                    g["hp"][mi] -= pend[mi]
+                    if g["hp"][mi] <= 0:
+                        c["kills"] += 1
+                        c["last_death_round"] = c["round"]
+                        self.emit("monster_dies", group=gi + 1, index=mi + 1)
+        for slot in sorted(c["pending_members"]):
+            dmg = c["pending_members"][slot]
+            if dmg and _alive(self.party[slot - 1]):
+                self.apply_member_damage(slot, dmg)
+
+    def apply_member_damage(self, slot, dmg):
+        m = self.party[slot - 1]
+        res = rules.damage_member(m.get("hp", 0), dmg)
+        m["hp"] = res["hp"]
+        if res.get("cond"):
+            m["cond"] = res["cond"]
+            self.emit("death" if res["cond"] == 2 else "unconscious", member=slot)
+
+    # -- phase 2 (LR-35) ---------------------------------------------------
+
+    def phase2(self):
+        c = self.combat
+        actors = []
+        fired = c.get("fired") or set()
+        for i, m in enumerate(self.party):
+            if not _alive(m):
+                continue
+            if (i + 1) in fired:
+                continue
+            actors.append({"side": "party", "slot": i + 1, "speed": self.member_speed(m)})
+        for gi, g in enumerate(c["groups"]):
+            if g["mob"].get("weaponType", 0) >= 3:
+                continue
+            for mi, hp in enumerate(g["hp"]):
+                if hp <= 0:
+                    continue
+                actors.append({"side": "monster", "group": gi, "index": mi,
+                               "speed": g["mob"].get("combatRating", 0)})
+        for a in rules.speed_order(actors):
+            if c.get("over"):
+                return
+            if a["side"] == "party":
+                self.member_phase2(a["slot"])
+            else:
+                self.monster_phase2(a["group"], a["index"])
+            if self.check_end():
+                return
+
+    def member_speed(self, member):
+        return (member.get("attrs") or {}).get("SPD", 0)
+
+    def member_phase2(self, slot):
+        m = self.party[slot - 1]
+        if not _alive(m):
+            return
+        if m.get("jammed"):
+            self.unjam(slot)
+            return
+        rec, _iid = self.member_weapon(m)
+        if rec is not None and rec.get("skill") in RANGED_SKILLS and self.weapon_ammo(m) > 0:
+            self.fire(slot, rec)
+            return
+        if self.combat["band"] <= 1:
+            self.melee_attack(slot)
+        else:
+            self.advance()
+
+    def fire(self, slot, rec):
+        m = self.party[slot - 1]
+        target = self.pick_monster_target()
+        if target is None:
+            return
+        self.spend_ammo(m)
+        need = rules.ranged_need(self.skill_level(m, rec.get("skill", 0)),
+                                 (m.get("attrs") or {}).get("AGL", 0),
+                                 target["ac"], self.combat["band"])
+        roll = self.rng.d100()
+        hit = roll <= need
+        ev = {"side": "party", "member": slot, "group": target["group"] + 1,
+              "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+        if hit:
+            n, s = weapon_dice(rec)
+            dmg = self.rng.dice(n, s)
+            ev["damage"] = dmg
+            self.damage_monster(target["group"], target["index"], dmg)
+        self.emit("attack", **ev)
+
+    def melee_attack(self, slot):
+        m = self.party[slot - 1]
+        target = self.pick_monster_target()
+        if target is None:
+            return
+        rec, _iid = self.member_weapon(m)
+        level = self.skill_level(m, rec.get("skill", 0)) if rec else 0
+        need = rules.melee_need(level, (m.get("attrs") or {}).get("STR", 0), target["ac"])
+        roll = self.rng.d100()
+        hit = roll <= need
+        ev = {"side": "party", "member": slot, "group": target["group"] + 1,
+              "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+        if hit:
+            if rec is not None:
+                n, s = weapon_dice(rec)
+            else:
+                n, s = 1, 2
+            dmg = self.rng.dice(n, s) + rules.melee_damage_bonus(
+                (m.get("attrs") or {}).get("STR", 0))
+            ev["damage"] = dmg
+            self.damage_monster(target["group"], target["index"], dmg)
+        self.emit("attack", **ev)
+
+    def monster_phase2(self, gi, mi):
+        c = self.combat
+        g = c["groups"][gi]
+        mob = g["mob"]
+        target = self.pick_random_member()
+        if target is None:
+            return
+        m = self.party[target["slot"] - 1]
+        need = rules.monster_need(mob.get("combatRating", 0), m.get("ac", 0), c["band"])
+        roll = self.rng.d100()
+        hit = roll <= need
+        ev = {"side": "monsters", "group": gi + 1, "attacker": mi + 1, "member": target["slot"],
+              "need": need, "roll": roll, "hit": hit}
+        if hit:
+            dmg = self.rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+            ev["damage"] = dmg
+            self.apply_member_damage(target["slot"], dmg)
+        self.emit("attack", **ev)
+
+    def unjam(self, slot):
+        m = self.party[slot - 1]
+        level = self.skill_level(m, GUNSMITHING)
+        res = rules.skill_check(self.rng, level, (m.get("attrs") or {}).get("IQ", 0), 0)
+        self.emit("check", member=slot, skill=GUNSMITHING, level=level, **res)
+        if res.get("success"):
+            m["jammed"] = False
+            self.emit("unjammed", member=slot)
+
+    def advance(self):
+        c = self.combat
+        c["band"] = max(1, c["band"] - 1)
+        self.emit("advance", band=c["band"])
+
+    def damage_monster(self, gi, mi, dmg):
+        c = self.combat
+        g = c["groups"][gi]
+        if g["hp"][mi] <= 0:
+            return
+        g["hp"][mi] -= dmg
+        if g["hp"][mi] <= 0:
+            c["kills"] += 1
+            c["last_death_round"] = c["round"]
+            self.emit("monster_dies", group=gi + 1, index=mi + 1)
+
+    # -- rounds ------------------------------------------------------------
+
+    def reset_phase(self):
+        c = self.combat
+        c["fired"] = set()
+        c["pending_monsters"] = [[0] * len(g["hp"]) for g in c["groups"]]
+        c["pending_members"] = {}
+
+    def check_end(self):
+        c = self.combat
+        if c is None or c.get("over"):
+            return True
+        if not any(hp > 0 for g in c["groups"] for hp in g["hp"]):
+            self.victory()
+            return True
+        if not any(_alive(m) for m in self.party):
+            self.defeat()
+            return True
+        return False
+
+    def combat_round(self):
+        c = self.combat
+        if c is None:
+            return
+        rnd = c["round"] if c["round"] else 1
+        c["round"] = rnd
+        orders = self.auto_orders()
+        self.emit("round_orders", round=rnd, orders=orders)
+        self.emit("round_start", round=rnd)
+        self.reset_phase()
+        self.party_phase1()
+        self.monster_phase1()
+        self.apply_phase1()
+        if self.check_end():
+            return
+        self.phase2()
+        if self.check_end():
+            return
+        self.end_of_round()
+
+    def surprise_round(self):
+        c = self.combat
+        if c is None:
+            return
+        c["round"] = 0
+        self.emit("round_start", round=0)
+        self.reset_phase()
+        self.monster_phase1()
+        self.apply_phase1()
+        if self.check_end():
+            return
+        self.end_of_round()
+
+    # -- victory and defeat (LR-44 to LR-46) -------------------------------
+
+    def victory(self):
+        c = self.combat
+        if c is None or c.get("over"):
+            return
+        c["over"] = True
+        rounds = c.get("last_death_round") or c["round"]
+        self.emit("combat_end", result="victory", rounds=rounds)
+        total = 0
+        for gi, g in enumerate(c["groups"]):
+            mob = g["mob"]
+            killed = sum(1 for hp in g["hp"] if hp <= 0)
+            total += killed * mob.get("sturdiness", 0) * (mob.get("armorClass", 0) + 1)
+        alive = [i + 1 for i, m in enumerate(self.party) if not m.get("cond") == 2]
+        share = total // len(alive) if alive else 0
+        for slot in range(1, len(self.party) + 1):
+            m = self.party[slot - 1]
+            m["xp"] = m.get("xp", 0) + share
+            self.emit("xp", member=slot, delta=share, total=m["xp"])
+            lvl0 = m.get("level", 1)
+            lvl = rules.level_after(lvl0, m["xp"])
+            if lvl > lvl0:
+                m["level"] = lvl
+                m["max_hp"] = rules.max_hp((m.get("attrs") or {}).get("STR", 0), lvl)
+                self.emit("promote", member=slot, level=lvl, max_hp=m["max_hp"],
+                          rank=RANKS[min(lvl, 7) - 1])
+        money = 5 * self.best_salvage() * c["kills"]
+        if money:
+            self.party[0]["money"] = self.party[0].get("money", 0) + money
+            self.emit("money", member=1, delta=money, total=self.party[0]["money"])
+        self.combat = None
+        self.mode = "map"
+
+    def best_salvage(self):
+        best = 0
+        for m in self.party:
+            best = max(best, self.skill_level(m, 20))
+        return best
+
+    def defeat(self):
+        c = self.combat
+        if c is None or c.get("over"):
+            return
+        c["over"] = True
+        self.emit("combat_end", result="defeat")
+        self.emit("game_over")
+        self.combat = None
+        self.mode = "gameover"
+
+
+### wlengine.rules module source
+"""Game rules (SPEC-04).
+
+This module holds the lab rules v1 of SPEC-04: the random generator, the
+character formulas, skill checks, movement and time, encounters, combat and
+the shop prices.  ``read_skill_table`` reads the 36-entry skill metadata table
+of LABSKILL.BIN (SPEC-04 LR-6).
+"""
+
+from __future__ import annotations
+
+from .errors import FormatError
+
+SKILL_ENTRIES = 36
+MASK32 = 0xFFFFFFFF
+DEFAULT_SEED = 0x6D2B79F5
+
+
+def read_skill_table(path: str) -> list:
+    """36 x ``[minimum_iq, cost, attribute_offset]`` (SPEC-04 LR-6)."""
+    with open(path, "rb") as fh:
+        data = fh.read()
+    if len(data) < 2 * SKILL_ENTRIES:
+        raise FormatError("LABSKILL: %d bytes, expected at least %d"
+                          % (len(data), 2 * SKILL_ENTRIES))
+    out = []
+    for i in range(SKILL_ENTRIES):
+        b0, b1 = data[2 * i], data[2 * i + 1]
+        out.append([b0 >> 3, b0 & 7, b1])
+    return out
+
+
+# ---------------------------------------------------------------------------
+# LR-1, LR-2: the generator
+# ---------------------------------------------------------------------------
+
+class Rng:
+    """xorshift32 generator of SPEC-04 LR-1 and LR-2."""
+
+    def __init__(self, seed: int = 0) -> None:
+        seed = int(seed) & MASK32
+        self.state = seed if seed else DEFAULT_SEED
+
+    def next(self) -> int:
+        x = self.state
+        x ^= (x << 13) & MASK32
+        x ^= x >> 17
+        x ^= (x << 5) & MASK32
+        x &= MASK32
+        self.state = x
+        return x
+
+    def roll(self, n: int) -> int:
+        return 1 + self.next() % n
+
+    def rnd(self, n: int) -> int:
+        if n == 0:
+            return 0
+        if n == 1:
+            return 1
+        return self.roll(n)
+
+    def dice(self, n: int, sides: int) -> int:
+        total = 0
+        for _ in range(n):
+            total += self.roll(sides)
+        return total
+
+    def d100(self) -> int:
+        return self.roll(100)
+
+
+# ---------------------------------------------------------------------------
+# LR-5 to LR-10: characters
+# ---------------------------------------------------------------------------
+
+def roll_attributes(rng: Rng) -> list:
+    """LR-7: six draws, in the order STR, IQ, LCK, SPD, AGL, CHA."""
+    return [8 + rng.roll(10) for _ in range(6)]
+
+
+def max_hp(strength: int, level: int) -> int:
+    """LR-8, LR-46."""
+    return 10 + strength + (level - 1) * (2 + strength // 5)
+
+
+def armour_class(agility: int, armour_bonus: int, evasion_level: int) -> int:
+    """LR-8."""
+    return agility // 5 + armour_bonus + evasion_level
+
+
+def starting_money(luck: int) -> int:
+    """LR-9."""
+    return 50 + 5 * luck
+
+
+# ---------------------------------------------------------------------------
+# LR-13, LR-14: checks
+# ---------------------------------------------------------------------------
+
+def check_need(level: int, attribute: int, difficulty: int, tool: bool = False) -> int:
+    """LR-13, unclamped."""
+    return 20 + 15 * level + 2 * attribute - difficulty + (20 if tool else 0)
+
+
+def skill_check(rng: Rng, level: int, attribute: int, difficulty: int, tool: bool = False) -> dict:
+    """LR-13: one d100 unless the need is 100 or more, or 0 or less."""
+    need = check_need(level, attribute, difficulty, tool)
+    if need >= 100:
+        return {"need": need, "roll": None, "success": True}
+    if need <= 0:
+        return {"need": need, "roll": None, "success": False}
+    r = rng.d100()
+    return {"need": need, "roll": r, "success": r <= need}
+
+
+def pick_checker(candidates: list):
+    """LR-14: highest level, then higher attribute, then lower slot."""
+    best = None
+    best_key = None
+    for c in candidates:
+        if c.get("cond", 0) != 0:
+            continue
+        key = (c.get("level", 0), c.get("attribute", 0), -c.get("slot", 0))
+        if best_key is None or key > best_key:
+            best_key = key
+            best = c.get("slot")
+    return best
+
+
+# ---------------------------------------------------------------------------
+# LR-15 to LR-17: movement and time
+# ---------------------------------------------------------------------------
+
+def advance_clock(clock: dict, minutes: int, seconds: int):
+    """LR-16, LR-17: returns (clock, hours whose minute 0 was reached)."""
+    day = clock.get("day", 1)
+    minute = clock.get("minute", 0)
+    second = clock.get("second", 0)
+    total_s = second + seconds
+    second = total_s % 60
+    add_min = minutes + total_s // 60
+    hours = []
+    for _ in range(add_min):
+        minute += 1
+        if minute == 1440:
+            minute = 0
+        if minute % 60 == 0:
+            h = minute // 60
+            hours.append(h)
+            if h == 0:
+                day += 1
+    return {"day": day, "minute": minute, "second": second}, hours
+
+
+# ---------------------------------------------------------------------------
+# LR-45, LR-46: experience
+# ---------------------------------------------------------------------------
+
+def xp_threshold(level: int) -> int:
+    """LR-45."""
+    return 50 * level * (level + 1)
+
+
+def level_after(level: int, xp: int) -> int:
+    """LR-45."""
+    while xp >= xp_threshold(level):
+        level += 1
+    return level
+
+
+# ---------------------------------------------------------------------------
+# LR-20, LR-53: money and shops
+# ---------------------------------------------------------------------------
+
+def buy_price(price: int, haggling: int) -> int:
+    """LR-53."""
+    h = min(5, haggling)
+    return price * (100 - 5 * h) // 100
+
+
+def sell_price(price: int, haggling: int) -> int:
+    """LR-53."""
+    h = min(5, haggling)
+    return price * (50 + 5 * h) // 100
+
+
+def pay(moneys: list, first_slot: int, price: int):
+    """LR-20: new money list, or None when the party cannot pay."""
+    if sum(moneys) < price:
+        return None
+    out = list(moneys)
+    order = [first_slot - 1] + [i for i in range(len(moneys)) if i != first_slot - 1]
+    left = price
+    for i in order:
+        take = min(out[i], left)
+        out[i] -= take
+        left -= take
+        if left == 0:
+            break
+    return out
+
+
+# ---------------------------------------------------------------------------
+# LR-26 to LR-28: monsters and encounters
+# ---------------------------------------------------------------------------
+
+def monster_values(mob: dict) -> dict:
+    """LR-27."""
+    cr = mob.get("combatRating", 0)
+    ac = mob.get("armorClass", 0)
+    st = mob.get("sturdiness", 0)
+    return {"to_hit_base": 20 + 5 * cr, "speed": cr, "ac": ac,
+            "ranged": mob.get("weaponType", 0) >= 3, "xp": st * (ac + 1)}
+
+
+def monster_hp(rng: Rng, sturdiness: int) -> int:
+    """SPEC-03 6.6, LR-26: the high byte is drawn first."""
+    hi = rng.rnd(sturdiness >> 8)
+    lo = rng.rnd(sturdiness & 0xFF)
+    return sturdiness // 4 + ((hi << 8) | lo)
+
+
+def monster_damage(rng: Rng, mob: dict) -> int:
+    """LR-27."""
+    return rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+
+
+def build_groups(rng: Rng, mobs: list, record: dict) -> list:
+    """LR-26, LR-28."""
+    counts = []
+    for entry in record.get("groups", []):
+        mob_index, rnd_flag, size = entry[0], entry[1], entry[2]
+        if mob_index == 0:
+            continue
+        mob = mobs[mob_index - 1]
+        s = size if size else mob.get("maxGroup", 0)
+        counts.append((mob_index, rng.rnd(s) if rnd_flag else s))
+    out = []
+    for mob_index, count in counts:
+        if count <= 0:
+            continue
+        mob = mobs[mob_index - 1]
+        hp = [monster_hp(rng, mob.get("sturdiness", 0)) for _ in range(count)]
+        band = 3 if mob.get("weaponType", 0) >= 3 else 2
+        out.append({"monster": mob_index, "count": count, "band": band, "hp": hp})
+    return out
+
+
+# ---------------------------------------------------------------------------
+# LR-34, LR-35, LR-39, LR-40, LR-43: combat formulas
+# ---------------------------------------------------------------------------
+
+def _clamp(v: int, lo: int, hi: int) -> int:
+    return max(lo, min(hi, v))
+
+
+def ranged_need(level: int, agility: int, target_ac: int, band: int) -> int:
+    """LR-34."""
+    return _clamp(35 + 12 * level + agility - 6 * target_ac - 5 * (band - 1), 5, 95)
+
+
+def melee_need(level: int, agility: int, target_ac: int) -> int:
+    """LR-35."""
+    return _clamp(35 + 12 * level + agility - 6 * target_ac, 5, 95)
+
+
+def monster_need(combat_rating: int, member_ac: int, band: int) -> int:
+    """LR-34, LR-35."""
+    return _clamp(20 + 5 * combat_rating - 6 * member_ac - 5 * (band - 1), 5, 95)
+
+
+def flee_need(best_member_speed: int, best_monster_speed: int, command_level: int) -> int:
+    """LR-43."""
+    return _clamp(40 + 5 * (best_member_speed - best_monster_speed) + 5 * command_level, 5, 95)
+
+
+def jam_chance(gunsmithing_level: int) -> int:
+    """LR-34."""
+    return max(1, 4 - gunsmithing_level)
+
+
+def unarmed_attacks(grappling_level: int) -> int:
+    """LR-35."""
+    return 1 + grappling_level // 2
+
+
+def melee_damage_bonus(strength: int) -> int:
+    """LR-35."""
+    return max(0, (strength - 10) // 2)
+
+
+def damage_member(hp: int, damage: int) -> dict:
+    """LR-40."""
+    prev = hp
+    hp -= damage
+    if hp > 0:
+        return {"hp": hp, "cond": 0, "last_hp": None}
+    over = damage - prev
+    return {"hp": 0, "cond": 2 if over >= 5 else 1, "last_hp": prev}
+
+
+def speed_order(actors: list) -> list:
+    """LR-35: speed, members before monsters, slot, group, monster."""
+    def key(a):
+        party = a.get("side") == "party"
+        return (-a.get("speed", 0), 0 if party else 1,
+                a.get("slot", 0) if party else 0,
+                0 if party else a.get("group", 0),
+                0 if party else a.get("index", 0))
+    return sorted(actors, key=key)
+
+
+__all__ = ["Rng", "read_skill_table", "roll_attributes", "max_hp", "armour_class",
+           "starting_money", "check_need", "skill_check", "pick_checker", "advance_clock",
+           "xp_threshold", "level_after", "buy_price", "sell_price", "pay", "monster_values",
+           "monster_hp", "monster_damage", "build_groups", "ranged_need", "melee_need",
+           "monster_need", "flee_need", "jam_chance", "unarmed_attacks", "melee_damage_bonus",
+           "damage_member", "speed_order"]
+
+
+### wlengine.headless module source
+"""Headless driver (SPEC-06 section 5, SPEC-07 API).
+
+The headless driver runs the engine over a compiled data directory with a
+scripted list of input tokens and returns the event log plus the final state.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+
+from . import containers, labstate, maps, rules, strings
+from .combat import CombatMixin
+from .errors import FormatError, ScriptError
+
+# ---------------------------------------------------------------------------
+# scenario loading
+# ---------------------------------------------------------------------------
+
+
+def _load_scenario(data_dir):
+    from . import scenario as scenario_mod
+    loader = getattr(scenario_mod, "load", None)
+    if loader is not None:
+        return loader(data_dir)
+    cls = getattr(scenario_mod, "Scenario", None)
+    if cls is not None:
+        for name in ("from_dir", "read", "load"):
+            fn = getattr(cls, name, None)
+            if fn is not None:
+                return fn(data_dir)
+        return cls(data_dir)
+    raise FormatError("wlengine.scenario has no loader")
+
+
+# ---------------------------------------------------------------------------
+# engine
+# ---------------------------------------------------------------------------
+
+
+class Engine(CombatMixin):
+    """One engine instance driven by a script of input tokens."""
+
+    def __init__(self, data_dir, seed=None, options=None):
+        self.data_dir = data_dir
+        self.options = dict(options or {})
+        self.sc = _load_scenario(data_dir)
+        self.events = []
+        self._seq = 0
+        self.mode = "map"
+        self.location = 0
+        self.x = 0
+        self.y = 0
+        self.steps = 0
+        self.day = 1
+        self.hour = 0
+        self.minute = 0
+        self.cell_changes = []
+        self.rng = None
+        self.seed = seed
+        self.party = []
+        self.serial = 0
+        self.paragraph = 0
+        self.shop = None
+        self.pending = None
+        self.pending_member = None
+        self.pending_item = None
+        self.pending_hook = None
+        self.pending_cell = (0, 0)
+        self.combat = None
+        self.saved = {}
+        self.script_seed = None
+        self._items = None
+
+    # -- event log ---------------------------------------------------------
+
+    def emit(self, type_, **kw):
+        ev = {"seq": self._seq, "type": type_}
+        ev.update(kw)
+        self._seq += 1
+        self.events.append(ev)
+        return ev
+
+    def checkpoint(self, name):
+        self.emit("checkpoint", name=name, state=self.snapshot())
+
+    def snapshot(self):
+        return {
+            "location": self.location,
+            "x": self.x,
+            "y": self.y,
+            "steps": self.steps,
+            "day": self.day,
+            "hour": self.hour,
+            "minute": self.minute,
+            "mode": self.mode,
+            "cell_changes": [list(c) for c in self.cell_changes],
+            "rng_state": self.rng.state if self.rng is not None else None,
+            "party": [self.member_snapshot(i + 1)
+                      for i in range(len(self.party))],
+        }
+
+    def member_snapshot(self, member):
+        m = self.party[member - 1]
+        return {
+            "slot": member,
+            "name": m.get("name", ""),
+            "npc": m.get("npc", 0),
+            "level": m.get("level", 1),
+            "xp": m.get("xp", 0),
+            "max_hp": m.get("max_hp", 0),
+            "hp": m.get("hp", 0),
+            "cond": m.get("cond", 0),
+            "money": m.get("money", 0),
+            "ac": m.get("ac", 0),
+            "rank": m.get("rank", 0),
+            "skill_points": m.get("skill_points", 0),
+            "items": [list(it) for it in m.get("items", [])],
+            "weapon_slot": m.get("weapon_slot", -1),
+            "armour_slot": m.get("armour_slot", -1),
+        }
+
+    # -- item table --------------------------------------------------------
+
+    def item_table(self):
+        if self._items is not None:
+            return self._items
+        tbl = getattr(self.sc, "items", None)
+        if tbl is None:
+            fn = getattr(self.sc, "item_table", None)
+            if fn is not None:
+                tbl = fn()
+        if tbl is None:
+            tbl = {}
+        if isinstance(tbl, list):
+            tbl = {i + 1: v for i, v in enumerate(tbl)}
+        self._items = tbl
+        return tbl
+
+    def item(self, iid):
+        return self.item_table().get(iid, {})
+
+    def item_price(self, iid):
+        it = self.item(iid)
+        if isinstance(it, dict):
+            return it.get("price", 0)
+        return 0
+
+    def item_name(self, iid):
+        it = self.item(iid)
+        if isinstance(it, dict):
+            return it.get("name", "")
+        return ""
+
+    # -- new game ----------------------------------------------------------
+
+    def new_game(self, seed):
+        self.seed = seed
+        self.rng = rules.Rng(seed)
+        start = self.sc.start
+        self.location = start["location"]
+        self.x = start["x"]
+        self.y = start["y"]
+        self.hour = start.get("hour", 8)
+        self.minute = start.get("minute", 0)
+        self.day = start.get("day", 1)
+        self.steps = 0
+        self.cell_changes = []
+        self.mode = "map"
+        self.party = self.sc.premade_party()
+        self.emit("new_game", seed=seed)
+        self.paragraph = start.get("paragraph", 1)
+        self.emit("paragraph", n=self.paragraph)
+
+    # -- script ------------------------------------------------------------
+
+    def run_script(self, script):
+        for item in script:
+            if isinstance(item, dict):
+                if "checkpoint" in item:
+                    self.checkpoint(item["checkpoint"])
+                elif "repeat_until" in item:
+                    self.run_repeat(item)
+                else:
+                    raise ScriptError("unknown script item %r" % (item,))
+            else:
+                self.input(item)
+        return self.events
+
+    def run_repeat(self, item):
+        raise ScriptError("repeat_until not supported yet")
+
+    def input(self, key):
+        self.emit("input", key=key)
+        if not self.dispatch(str(key)):
+            self.emit("ignored", key=key)
+
+    def dispatch(self, key):
+        low = key.lower()
+        if self.pending == "char_member" and key.isdigit():
+            member = int(key)
+            if 1 <= member <= len(self.party):
+                self.pending = None
+                self.pending_member = member
+                self.mode = "char"
+                self.emit("char_open", member=member)
+                return True
+            return False
+        if self.mode == "shop":
+            return self.shop_key(key, low)
+        if self.mode == "char":
+            return self.char_key(key, low)
+        if self.mode == "combat":
+            return self.combat_key(key, low)
+        handler = getattr(self, "key_" + low, None)
+        if handler is None:
+            return False
+        return handler() is not False
+
+    # -- inventory ---------------------------------------------------------
+
+    def member_items(self, member):
+        return self.party[member - 1].setdefault("items", [])
+
+    def add_item(self, member, iid, count=1):
+        items = self.member_items(member)
+        for entry in items:
+            if entry[0] == iid:
+                entry[1] += count
+                return entry
+        items.append([iid, count])
+        return items[-1]
+
+    def remove_item(self, member, iid, count=1):
+        items = self.member_items(member)
+        for i, entry in enumerate(items):
+            if entry[0] == iid:
+                entry[1] -= count
+                if entry[1] <= 0:
+                    items.pop(i)
+                return True
+        return False
+
+    def item_slot(self, member, iid):
+        for i, entry in enumerate(self.member_items(member)):
+            if entry[0] == iid:
+                return i
+        return -1
+
+    # -- shop --------------------------------------------------------------
+
+    def shop_items(self):
+        if self.shop is None:
+            return []
+        return list(self.shop.get("items", []))
+
+    def shop_recs(self):
+        if self.shop is None:
+            return []
+        return self.shop.get("recs", [])
+
+    def item_record(self, iid):
+        recs = self.shop_recs()
+        if not recs:
+            recs = self.sc.shops[0]["items"] if self.sc.shops else []
+        if 1 <= iid <= len(recs):
+            return recs[iid - 1]
+        return None
+
+    def best_skill(self, skill):
+        best = 0
+        for m in self.party:
+            if m.get("hp", 0) <= 0:
+                continue
+            best = max(best, self.skill_level(m, skill))
+        return best
+
+    def haggling(self):
+        return min(5, self.best_skill(20))
+
+    def buy_price(self, price):
+        h = self.haggling()
+        return price * (100 - 5 * h) // 100
+
+    def sell_price(self, price):
+        h = self.haggling()
+        return price * (50 + 5 * h) // 100
+
+    def shop_key(self, key, low):
+        if self.pending == "buy_item" and low.isalpha():
+            idx = ord(low) - ord("a")
+            items = self.shop_items()
+            if 0 <= idx < len(items):
+                self.pending_item = items[idx]
+                self.pending = "buy_member"
+                self.emit("prompt", prompt="member")
+                return True
+            return False
+        if self.pending == "buy_member" and low.isdigit():
+            member = int(low)
+            if 1 <= member <= len(self.party):
+                self.pending = None
+                self.shop_buy(member, self.pending_item)
+                return True
+            return False
+        if self.pending == "sell_member" and low.isdigit():
+            member = int(low)
+            if 1 <= member <= len(self.party):
+                self.pending_member = member
+                self.pending = "sell_item"
+                self.emit("prompt", prompt="item_slot")
+                return True
+            return False
+        if self.pending == "sell_item" and low.isalpha():
+            idx = ord(low) - ord("a")
+            items = self.member_items(self.pending_member)
+            if 0 <= idx < len(items):
+                self.pending = None
+                self.shop_sell(self.pending_member, items[idx][0])
+                return True
+            return False
+        if self.pending == "char_member" and low.isdigit():
+            member = int(low)
+            if 1 <= member <= len(self.party):
+                self.pending = None
+                self.pending_member = member
+                self.mode = "char"
+                self.emit("char_open", member=member)
+                return True
+            return False
+        if low == "b":
+            self.pending = "buy_item"
+            self.emit("prompt", prompt="buy_item", items=self.shop_items())
+            return True
+        if low == "s":
+            self.pending = "sell_member"
+            self.emit("prompt", prompt="member")
+            return True
+        if low == "c":
+            self.pending = "char_member"
+            self.emit("prompt", prompt="member")
+            return True
+        if low == "x":
+            self.mode = "map"
+            self.shop = None
+            self.pending = None
+            self.emit("shop_close")
+            return True
+        return False
+
+    def shop_buy(self, member, iid):
+        rec = self.item_record(iid) or {}
+        price = self.buy_price(rec.get("price", 0))
+        m = self.party[member - 1]
+        m["money"] = m.get("money", 0) - price
+        self.emit("money", member=member, delta=-price, total=m["money"])
+        items = self.member_items(member)
+        itype = rec.get("type", 0)
+        if itype == 3:  # ammunition stacks
+            for i, entry in enumerate(items):
+                if entry[0] == iid and entry[1] < 127:
+                    entry[1] += 1
+                    self.emit("buy", member=member, item=iid, price=price,
+                              slot=i + 1, status=entry[1])
+                    return
+        status = 1 if itype == 3 else (rec.get("capacity", 0) if itype == 5 else 0)
+        slot = None
+        for i, entry in enumerate(items):
+            if entry[0] == 0:
+                slot = i
+                break
+        if slot is None:
+            if len(items) >= 30:
+                self.emit("message", location=self.location, string=3)
+                return
+            items.append([iid, status])
+            slot = len(items) - 1
+        else:
+            items[slot] = [iid, status]
+        self.emit("buy", member=member, item=iid, price=price, slot=slot + 1,
+                  status=status)
+
+    def shop_sell(self, member, iid):
+        rec = self.item_record(iid) or {}
+        if rec.get("type", 0) == 7:
+            self.emit("message", location=self.location, string=31)
+            return
+        price = self.sell_price(rec.get("price", 0))
+        slot = self.item_slot(member, iid)
+        self.emit("sell", member=member, item=iid, price=price, slot=slot + 1)
+        items = self.member_items(member)
+        if 0 <= slot < len(items):
+            items[slot] = [0, 0]
+        m = self.party[member - 1]
+        if m.get("armour_slot", 0) == slot + 1:
+            m["armour_slot"] = 0
+            self.recompute_ac(member)
+        if m.get("weapon_slot", 0) == slot + 1:
+            m["weapon_slot"] = 0
+        m["money"] = m.get("money", 0) + price
+        self.emit("money", member=member, delta=price, total=m["money"])
+
+    def recompute_ac(self, member):
+        m = self.party[member - 1]
+        attrs = m.get("attrs") or {}
+        agl = attrs.get("AGL", m.get("agility", 0))
+        bonus = 0
+        aslot = m.get("armour_slot", 0)
+        items = m.get("items", [])
+        if aslot and 0 <= aslot - 1 < len(items):
+            rec = self.item_record(items[aslot - 1][0])
+            if rec:
+                bonus = rec.get("damage", 0)
+        evasion = self.skill_level(m, 11)
+        m["ac"] = agl // 5 + bonus + evasion
+
+    # -- character screen --------------------------------------------------
+
+    def char_key(self, key, low):
+        if low == "e":
+            self.pending = "equip_item"
+            self.emit("prompt", prompt="item_slot")
+            return True
+        if low == "x":
+            self.mode = "map"
+            self.pending = None
+            self.emit("char_close")
+            return True
+        if self.pending == "equip_item" and low.isalpha():
+            idx = ord(low) - ord("a")
+            items = self.member_items(self.pending_member)
+            if 0 <= idx < len(items):
+                self.pending = None
+                self.equip(self.pending_member, idx, items[idx][0])
+                return True
+            return False
+        return False
+
+    def equip(self, member, slot, iid):
+        self.party[member - 1]["armour_slot"] = slot + 1
+        self.recompute_ac(member)
+        ac = self.party[member - 1]["ac"]
+        self.emit("equip", member=member, slot=slot + 1, item=iid, ac=ac)
+
+    # -- combat ------------------------------------------------------------
+
+    def combat_key(self, key, low):
+        if low == "a":
+            self.combat_round()
+            return True
+        if low == "f":
+            self.flee()
+            return True
+        return False
+
+    def build_groups(self, rec):
+        """LR-26, LR-28: groups from the map's monster table and the record."""
+        m = self.sc.map(self.location)
+        mobs = list((m or {}).get("mobs", []))
+        groups = rules.build_groups(self.rng, mobs, rec or {})
+        for g in groups:
+            mob = mobs[g["monster"] - 1]
+            name = mob.get("name", b"")
+            if isinstance(name, bytes):
+                name = name.split(b"\x0a")[0].decode("latin-1")
+            else:
+                name = str(name).split("\n")[0]
+            g["mob"] = mob
+            g["monster"] = name
+        return groups
+
+    def group_event(self, g):
+        out = {k: (list(v) if isinstance(v, list) else v) for k, v in g.items() if k != "mob"}
+        return out
+
+    ATTR_ORDER = ("STR", "IQ", "LCK", "SPD", "AGL", "CHA")
+    ATTR_OFFSETS = {14: 0, 15: 1, 16: 2, 17: 3, 18: 4, 20: 5}
+
+    def attr_value(self, member, skill):
+        """LR-13: the member's value of the attribute linked to ``skill``."""
+        idx = self.skill_attribute(skill)
+        attrs = member.get("attrs") or {}
+        return attrs.get(self.ATTR_ORDER[idx], 0)
+
+    # -- movement ----------------------------------------------------------
+
+    def key_down(self):
+        self.move(0, 1)
+
+    def key_up(self):
+        self.move(0, -1)
+
+    def key_left(self):
+        self.move(-1, 0)
+
+    def key_right(self):
+        self.move(1, 0)
+
+    def move(self, dx, dy):
+        nx, ny = self.x + dx, self.y + dy
+        m = self.sc.map(self.location)
+        size = m["size"]
+        if not (0 <= nx < size and 0 <= ny < size):
+            self.emit("blocked", x=nx, y=ny)
+            return
+        if not maps.is_passable(m, nx, ny):
+            self.bump(nx, ny)
+            return
+        self.x, self.y = nx, ny
+        self.steps += 1
+        self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+        self.advance_time(self.step_minutes())
+        self.after_move()
+
+    def step_minutes(self):
+        m = self.sc.map(self.location)
+        tp = m["info"].get("timePerStep", 256)
+        return tp >> 8
+
+    def cell_class_action(self, x, y):
+        m = self.sc.map(self.location)
+        size = m["size"]
+        if not (0 <= x < size and 0 <= y < size):
+            return 0, 0
+        return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+
+    def show_message(self, index):
+        if not index:
+            return
+        text = self.sc.map_string(self.location, index)
+        if text.startswith("Read paragraph ") and text.endswith("."):
+            body = text[len("Read paragraph "):-1]
+            if body.isdigit():
+                self.emit("paragraph", n=int(body))
+                return
+        self.emit("message", location=self.location, string=index)
+
+    def advance_time(self, minutes):
+        before_hour = self.hour
+        self.minute += minutes
+        while self.minute >= 60:
+            self.minute -= 60
+            self.hour += 1
+        while self.hour >= 24:
+            self.hour -= 24
+            self.day += 1
+            self.emit("day", day=self.day)
+        if self.hour != before_hour:
+            self.natural_heal()
+
+    def natural_heal(self):
+        healed = []
+        for i, m in enumerate(self.party):
+            if m.get("hp", 0) < m.get("max_hp", 0):
+                m["hp"] = m.get("max_hp", 0)
+                healed.append(i + 1)
+        if healed:
+            self.emit("natural_heal", members=healed)
+
+    def after_move(self):
+        m = self.sc.map(self.location)
+        cls, action = self.cell_class_action(self.x, self.y)
+        rec = maps.record_at(m, self.x, self.y)
+        if cls == 10:
+            self.transition(rec)
+        elif cls == 6:
+            self.open_shop(rec)
+        elif cls == 3:
+            self.start_encounter(rec)
+        elif cls == 1 and rec is not None:
+            for msg in rec.get("messages", []):
+                self.show_message(msg)
+        elif cls == 5 and rec is not None:
+            self.apply_loot(rec, self.x, self.y)
+        elif cls == 4 and rec is not None and not rec.get("impassable"):
+            self.show_message(rec.get("message", 0))
+            self.apply_tail(rec, self.x, self.y)
+
+    def transition(self, rec):
+        loc, x, y = maps.resolve_transition(self.sc.tables, rec, self.x, self.y,
+                                            (self.location, self.x, self.y))
+        self.location, self.x, self.y = loc, x, y
+        self.emit("map_change", location=loc, x=x, y=y)
+
+    def bump(self, nx, ny):
+        m = self.sc.map(self.location)
+        rec = maps.record_at(m, nx, ny)
+        cls, action = self.cell_class_action(nx, ny)
+        self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+        self.bump_effect(rec, nx, ny, cls)
+
+    def bump_effect(self, rec, nx, ny, cls=None):
+        if cls is None:
+            cls, _a = self.cell_class_action(nx, ny)
+        if cls == 11:
+            self.bump_blocked(rec, nx, ny)
+        elif cls == 4:
+            if rec is not None and rec.get("impassable"):
+                self.show_message(rec.get("message", 0))
+                self.apply_tail(rec, nx, ny)
+                self.run_hook_at(nx, ny)
+            elif rec is not None:
+                self.show_message(rec.get("message", 0))
+                self.apply_tail(rec, nx, ny)
+        elif cls == 3:
+            self.start_encounter(rec)
+
+    def bump_blocked(self, rec, nx, ny):
+        if rec is not None:
+            self.show_message(rec.get("message", 0))
+            self.apply_tail(rec, nx, ny)
+        self.run_hook_at(nx, ny)
+
+    def run_hook_at(self, nx, ny):
+        hook = self.sc.hook(self.location, nx, ny)
+        if hook:
+            self.run_hook(hook, nx, ny)
+
+    def apply_tail(self, rec, x, y):
+        tail = maps.apply_tail(rec)
+        if tail is None:
+            return
+        m = self.sc.map(self.location)
+        m["cells"]["actionClass"][y][x] = tail[0]
+        m["cells"]["action"][y][x] = tail[1]
+        self.cell_change(x, y, tail[0], tail[1], maps.image_at(m, x, y))
+
+    def apply_loot(self, rec, x, y):
+        for item in rec.get("items", []):
+            iid = item[0] if isinstance(item, (list, tuple)) else item
+            amount = item[1] if isinstance(item, (list, tuple)) and len(item) > 1 else 0
+            placed = False
+            for i, m in enumerate(self.party):
+                if len(m.get("items", [])) < 30:
+                    self.add_item(i + 1, iid, 1)
+                    slot = self.item_slot(i + 1, iid)
+                    self.emit("item_gain", member=i + 1, item=iid, slot=slot,
+                              status=amount)
+                    placed = True
+                    break
+            if not placed:
+                self.emit("item_lost", item=iid)
+        cash = rec.get("cash")
+        if cash:
+            m = self.party[0]
+            m["money"] = m.get("money", 0) + cash
+            self.emit("money", member=1, delta=cash, total=m["money"])
+        self.apply_tail(rec, x, y)
+
+    # -- cell changes ------------------------------------------------------
+
+    def cell_change(self, x, y, action_class, action, image):
+        self.cell_changes.append([self.location, x, y, action_class, action,
+                                  image])
+        self.emit("cell_change", location=self.location, x=x, y=y,
+                  action_class=action_class, action=action, image=image)
+
+    # -- hooks -------------------------------------------------------------
+
+    def run_hook(self, hook, nx, ny):
+        kind = hook.get("kind")
+        if kind == "win":
+            self.hook_win(hook, nx, ny)
+        elif kind == "recruit":
+            self.hook_recruit(hook, nx, ny)
+        elif kind == "healer":
+            self.hook_healer(hook, nx, ny)
+        elif kind == "lock":
+            self.bump_lock(None, nx, ny)
+
+    def hook_win(self, hook, nx, ny):
+        item = hook.get("item")
+        if item is not None and not self.party_has(item):
+            para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+            if para:
+                self.emit("paragraph", n=para)
+            return
+        para = self.hook_get(hook, "win_paragraph", "win_para")
+        if para:
+            self.emit("paragraph", n=para)
+        self.mode = "won"
+        self.emit("win", steps=self.steps, day=self.day,
+                  minutes=self.hour * 60 + self.minute)
+
+    def hook_get(self, hook, *names):
+        for name in names:
+            if name in hook and hook[name] is not None:
+                return hook[name]
+        return None
+
+    def hook_recruit(self, hook, nx, ny):
+        para = self.hook_get(hook, "paragraph")
+        if para:
+            self.emit("paragraph", n=para)
+        self.pending = "recruit"
+        self.pending_hook = hook
+        self.pending_cell = (nx, ny)
+        self.emit("prompt", prompt="recruit")
+
+    def hook_healer(self, hook, nx, ny):
+        self.pending = "heal"
+        self.pending_hook = hook
+        self.pending_cell = (nx, ny)
+        self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+
+    # -- locks -------------------------------------------------------------
+
+    def bump_lock(self, rec, nx, ny):
+        hook = self.sc.hook(self.location, nx, ny)
+        if hook is None:
+            return
+        msg = self.hook_get(hook, "success_message", "message")
+        if msg:
+            self.emit("message", location=self.location, string=msg)
+        key_item = hook.get("key_item")
+        if key_item is not None:
+            member = self.member_with_item(key_item)
+            if member is not None:
+                self.emit("key_used", member=member, item=key_item)
+                self.unlock(nx, ny, hook, member, xp=0)
+                return
+        member = self.pick_member(hook.get("skill", 0))
+        skill = hook.get("skill", 0)
+        level = self.skill_level(self.party[member - 1], skill)
+        attr = self.skill_attribute(skill)
+        need = rules.check_need(level, attr, hook.get("difficulty", 0),
+                                hook.get("tool_item") is not None)
+        roll = self.rng.d100()
+        success = roll <= need
+        self.emit("check", member=member, skill=skill, level=level, need=need,
+                  roll=roll, success=success)
+        if success:
+            self.unlock(nx, ny, hook, member)
+        else:
+            self.emit("message", location=self.location,
+                      string=hook.get("fail_message", ""))
+
+    def unlock(self, nx, ny, hook, member, xp=10):
+        self.emit("unlock", x=nx, y=ny)
+        m = self.sc.map(self.location)
+        rec = maps.record_at(m, nx, ny)
+        img = maps.image_at(m, nx, ny)
+        tail = maps.apply_tail(rec) if rec is not None else None
+        if tail is None:
+            tail = (0, 0)
+        m["cells"]["actionClass"][ny][nx] = tail[0]
+        m["cells"]["action"][ny][nx] = tail[1]
+        self.cell_change(nx, ny, tail[0], tail[1], img)
+        newimg = maps.image_at(m, nx, ny)
+        self.cell_change(nx, ny, tail[0], tail[1], newimg)
+        if xp:
+            mm = self.party[member - 1]
+            mm["xp"] = mm.get("xp", 0) + xp
+            self.emit("xp", member=member, delta=xp, total=mm["xp"])
+        para = self.hook_get(hook, "paragraph", "success_paragraph")
+        if para:
+            self.emit("paragraph", n=para)
+
+    def member_with_item(self, item):
+        for i, m in enumerate(self.party):
+            for it in m.get("items", []):
+                if it[0] == item and it[1] > 0:
+                    return i + 1
+        return None
+
+    def pick_member(self, skill):
+        idx = self.skill_attribute(skill)
+        best = 1
+        best_key = None
+        for i, m in enumerate(self.party):
+            if m.get("cond", 0) != 0:
+                continue
+            lvl = self.skill_level(m, skill)
+            attrs = m.get("attrs") or {}
+            a = attrs.get(self.ATTR_ORDER[idx], 0)
+            key = (lvl, a, -i)
+            if best_key is None or key > best_key:
+                best_key = key
+                best = i + 1
+        return best
+
+    def skill_attribute(self, skill):
+        """LR-6: LABSKILL byte 1 is a record offset; map it to an attribute."""
+        tbl = getattr(self.sc, "skill_table", None)
+        if tbl:
+            try:
+                off = tbl[skill][2]
+            except Exception:  # noqa: BLE001
+                off = None
+            if off in self.ATTR_OFFSETS:
+                return self.ATTR_OFFSETS[off]
+        return 1
+
+    def end_of_round(self):
+        """LR-36: living melee groups above band 1 close in, then round += 1."""
+        c = self.combat
+        if c is None:
+            return
+        for i, g in enumerate(c["groups"]):
+            mob = g.get("mob") or {}
+            melee = mob.get("weaponType", 0) < 3
+            if melee and g["band"] > 1 and any(h > 0 for h in g["hp"]):
+                g["band"] -= 1
+                self.emit("group_closes", group=i + 1, band=g["band"])
+        c["round"] += 1
+
+    def party_has(self, item):
+        for m in self.party:
+            for it in m.get("items", []):
+                if it[0] == item and it[1] > 0:
+                    return True
+        return False
+
+    def skill_level(self, member, skill):
+        for sid, lvl in member.get("skills", []):
+            if sid == skill:
+                return lvl
+        return 0
+
+    # -- shops -------------------------------------------------------------
+
+    def open_shop(self, rec):
+        n = rec.get("shop", 0)
+        self.show_message(rec.get("message", 0))
+        self.mode = "shop"
+        recs = self.sc.shops[n]["items"] if n in self.sc.shops else []
+        items = [i + 1 for i, it in enumerate(recs) if 1 <= it.get("stock", 0) <= 255]
+        self.shop = {"number": n, "recs": recs, "items": items}
+        self.emit("shop_open", shop=n)
+
+    def key_b(self):
+        if self.mode != "shop":
+            return False
+        self.pending = "buy_item"
+        self.emit("prompt", prompt="buy_item", items=list(self.shop["items"]))
+
+    def key_s(self):
+        if self.mode == "shop":
+            self.pending = "sell_member"
+            self.emit("prompt", prompt="member")
+            return
+        self.serial += 1
+        self.save_game()
+
+    def key_c(self):
+        self.pending = "char_member"
+        self.emit("prompt", prompt="member")
+
+    def key_e(self):
+        if self.mode != "char":
+            return False
+        self.pending = "equip_item"
+        self.emit("prompt", prompt="item_slot")
+
+    def key_x(self):
+        if self.mode == "shop":
+            self.mode = "map"
+            self.shop = None
+            self.pending = None
+            self.emit("shop_close")
+            return
+        if self.mode == "char":
+            self.mode = "map"
+            self.pending = None
+            self.emit("char_close")
+            return
+        return False
+
+    def key_o(self):
+        self.emit("prompt", prompt="load")
+        self.pending = "load"
+
+    def key_y(self):
+        if self.pending == "load":
+            self.pending = None
+            self.load_game()
+            return
+        if self.pending == "recruit":
+            self.pending = None
+            self.do_recruit()
+            return
+        if self.pending == "heal":
+            self.pending = None
+            self.do_heal()
+            return
+        return False
+
+    def key_n(self):
+        if self.pending in ("recruit", "heal", "load"):
+            self.pending = None
+            return
+        return False
+
+    def do_recruit(self):
+        hook = self.pending_hook
+        nx, ny = self.pending_cell
+        m = self.sc.map(self.location)
+        img = self.hook_get(hook, "cleared_image", "image")
+        m["cells"]["actionClass"][ny][nx] = 0
+        m["cells"]["action"][ny][nx] = 0
+        m["cells"]["image"][ny][nx] = img
+        self.cell_change(nx, ny, 0, 0, img)
+        slot = len(self.party) + 1
+        idx = hook.get("npc", 0) or 0
+        npcs = m.get("npcs", [])
+        ch = npcs[idx] if 0 <= idx < len(npcs) else {}
+        self.party.append(self.member_from_character(ch, slot))
+        self.emit("recruit", location=self.location, npc=idx, slot=slot)
+
+    def member_from_character(self, ch, slot):
+        aff = ch.get("afflictions", 0)
+        cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+        return {
+            "slot": slot, "name": ch.get("name", ""), "npc": ch.get("npc", 0),
+            "level": ch.get("level", 1), "xp": ch.get("experience", 0),
+            "max_hp": ch.get("maxCon", 0), "hp": ch.get("curCon", 0),
+            "cond": cond, "money": ch.get("money", 0),
+            "ac": ch.get("armorClass", 0), "rank": ch.get("rank", ""),
+            "skill_points": ch.get("skillPoints", 0),
+            "items": [list(x) for x in ch.get("items", [])],
+            "skills": [list(x) for x in ch.get("skills", [])],
+            "weapon_slot": ch.get("weaponSlot", 0),
+            "armour_slot": ch.get("armorSlot", 0),
+            "attrs": {"STR": ch.get("strength", 0), "IQ": ch.get("intelligence", 0),
+                      "LCK": ch.get("luck", 0), "SPD": ch.get("speed", 0),
+                      "AGL": ch.get("agility", 0), "CHA": ch.get("charisma", 0)},
+            "gender": ch.get("gender", 0), "nationality": ch.get("nationality", 0),
+            "game_won": ch.get("gameWon", 0),
+        }
+
+    def do_heal(self):
+        hook = self.pending_hook
+        price = hook.get("price", 0)
+        m = self.party[0]
+        m["money"] = m.get("money", 0) - price
+        self.emit("money", member=1, delta=-price, total=m["money"])
+        for mm in self.party:
+            mm["hp"] = mm.get("max_hp", 0)
+        self.emit("heal_all", price=price)
+
+    # -- rest --------------------------------------------------------------
+
+    def key_r(self):
+        self.advance_time(60)
+        self.emit("rest")
+
+    # -- save / load -------------------------------------------------------
+
+    def save_game(self):
+        self.emit("save", serial=self.serial)
+        self.saved[self.serial] = self.snapshot()
+        try:
+            self.write_save_files()
+        except Exception:  # noqa: BLE001
+            pass
+
+    def write_save_files(self):
+        pass
+
+    def load_game(self):
+        self.emit("load", serial=self.serial)
+
+    # -- combat ------------------------------------------------------------
+
+    def start_encounter(self, rec):
+        self.mode = "combat"
+        groups = self.build_groups(rec)
+        self.combat = {"groups": groups, "round": 0, "rec": rec, "surprised": False,
+                       "band": 3, "kills": 0, "fired": set(),
+                       "pending_monsters": [[0] * len(g["hp"]) for g in groups],
+                       "pending_members": {}, "over": False, "last_death_round": None}
+        self.emit("encounter_start", groups=[self.group_event(g) for g in groups])
+        msg = (rec or {}).get("message", 0)
+        if msg:
+            self.show_message(msg)
+        if (rec or {}).get("friendly"):
+            self.emit("combat_end", result="friendly")
+            self.mode = "map"
+            self.apply_tail(rec, self.x, self.y)
+            return
+        if not groups:
+            self.emit("combat_end", result="victory", rounds=0)
+            self.mode = "map"
+            self.apply_tail(rec, self.x, self.y)
+            return
+        d_max = max(g["mob"].get("combatRating", 0) for g in groups)
+        skill = 18
+        member = self.pick_member(skill)
+        level = self.skill_level(self.party[member - 1], skill)
+        attr = self.attr_value(self.party[member - 1], skill)
+        res = rules.skill_check(self.rng, level, attr, d_max)
+        self.emit("check", member=member, skill=skill, level=level, **res)
+        if not res["success"]:
+            self.combat["surprised"] = True
+            self.emit("surprised")
+            self.surprise_round()
+
+    def key_a(self):
+        if self.mode != "combat":
+            return False
+        self.combat_round()
+        return True
+
+    # -- repeat ------------------------------------------------------------
+
+    def run_repeat(self, item):
+        spec = item["repeat_until"]
+        if isinstance(spec, dict):
+            script = spec.get("script")
+            if script is None:
+                script = spec.get("keys", [])
+            until = spec.get("until")
+            if until is None:
+                until = spec.get("condition")
+            limit = spec.get("limit", spec.get("max", 200))
+        else:
+            script = item.get("keys", [])
+            until = spec
+            limit = item.get("max", item.get("limit", 200))
+        for _ in range(limit):
+            self.run_script(script)
+            if until is None or self._until_met(until):
+                break
+
+    def _until_met(self, until):
+        if isinstance(until, str):
+            if until.startswith("mode:"):
+                return self.mode == until[len("mode:"):]
+            if until.startswith("cell:"):
+                parts = until[len("cell:"):].split(",")
+                if len(parts) == 3:
+                    loc, x, y = (int(p) for p in parts)
+                    return any(c[0] == loc and c[1] == x and c[2] == y
+                               for c in self.cell_changes)
+                return False
+            return any(e.get("type") == until for e in self.events)
+        if isinstance(until, dict):
+            for e in self.events:
+                if all(e.get(k) == v for k, v in until.items()):
+                    return True
+        return False
+
+
+# ---------------------------------------------------------------------------
+# entry point
+# ---------------------------------------------------------------------------
+
+
+def run(data_dir, options=None, seed=None, *args, **kwargs):
+    if isinstance(options, str):
+        try:
+            options = json.loads(options)
+        except ValueError:
+            options = {"script": [options]}
+    if isinstance(options, (list, tuple)):
+        options = {"script": list(options)}
+    options = dict(options or {})
+    if seed is None:
+        seed = kwargs.get("seed", options.get("seed"))
+    eng = Engine(data_dir, seed=seed, options=options)
+    eng.new_game(seed)
+    eng.run_script(options.get("script", []))
+    return eng.events
+
+
+### walkthrough.json
+{
+ "seed": 20261021,
+ "start": "new game: party.json at scenario.json start",
+ "token_rules": {
+  "key": "UP, DOWN, LEFT, RIGHT, ESC, or one printable character",
+  "repeat_until": "test the condition; while false, send 'keys' in order and test again; fail the run after 'max' rounds",
+  "conditions": "mode:NAME is true when the engine mode is NAME; cell:L,X,Y is true when cell (X,Y) of location L has a cell change",
+  "checkpoint": "emit a checkpoint event carrying the state snapshot; consumes no input"
+ },
+ "summary": {
+  "steps_to_win": 358,
+  "tokens": 414,
+  "direction_tokens": 363,
+  "checkpoints": 10,
+  "auxiliary_checkpoints": 1,
+  "seeds_checked": "5000 seeds (1 to 5000) replayed by the lab reference: all 10 checkpoints match 'expected', no member ever falls"
+ },
+ "expected_rule": "Every field under 'expected' must match exactly for any seed. items_excluding_ammo is sorted; 'hp' and 'items' (slot order, with status bytes) appear only where the lab reference found them independent of the random stream over seeds 1 to 300. CP5 must equal CP5-pre-save in every snapshot field, generator state included. 'reference_seeded' holds the lab reference values for seed 20261021; an independent clean-room implementation built from SPEC-03, SPEC-04 and SPEC-06 alone reproduced it exactly on 21 Oct 2026; SPEC-07 decides whether to assert it.",
+ "script": [
+  {
+   "checkpoint": "CP1"
+  },
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "B",
+  "c",
+  "3",
+  "B",
+  "c",
+  "4",
+  "S",
+  "2",
+  "c",
+  "B",
+  "d",
+  "2",
+  "X",
+  "C",
+  "2",
+  "E",
+  "c",
+  "X",
+  {
+   "checkpoint": "CP2"
+  },
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "UP",
+  "Y",
+  {
+   "checkpoint": "CP3"
+  },
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  {
+   "repeat_until": "mode:map",
+   "keys": [
+    "A"
+   ],
+   "max": 30
+  },
+  {
+   "checkpoint": "CP4"
+  },
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "B",
+  "d",
+  "2",
+  "X",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "RIGHT",
+  "RIGHT",
+  "B",
+  "c",
+  "1",
+  "X",
+  "C",
+  "1",
+  "E",
+  "d",
+  "X",
+  {
+   "checkpoint": "CP5-pre-save"
+  },
+  "S",
+  "O",
+  "Y",
+  {
+   "checkpoint": "CP5"
+  },
+  "LEFT",
+  "LEFT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "LEFT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  {
+   "repeat_until": "cell:2,26,14",
+   "keys": [
+    "UP"
+   ],
+   "max": 40
+  },
+  "UP",
+  "UP",
+  "UP",
+  {
+   "checkpoint": "CP6"
+  },
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "DOWN",
+  "Y",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "UP",
+  "Y",
+  {
+   "checkpoint": "CP7"
+  },
+  "DOWN",
+  "DOWN",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "DOWN",
+  "RIGHT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  {
+   "repeat_until": "mode:map",
+   "keys": [
+    "A"
+   ],
+   "max": 30
+  },
+  {
+   "checkpoint": "CP8"
+  },
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  {
+   "checkpoint": "CP9"
+  },
+  "DOWN",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "DOWN",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  {
+   "checkpoint": "CP10"
+  }
+ ],
+ "checkpoints": [
+  {
+   "name": "CP1",
+   "description": "New game in Saltwell: four PCs at (15,20), 08:00 day 1, paragraph 1 shown",
+   "auxiliary": false,
+   "expected": {
+    "location": 1,
+    "x": 15,
+    "y": 20,
+    "steps": 0,
+    "day": 1,
+    "hour": 8,
+    "minute": 0,
+    "mode": "map",
+    "cell_changes": [],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 24,
+      "money": 120,
+      "ac": 3,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       3,
+       7
+      ],
+      "hp": 24,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 26,
+      "money": 60,
+      "ac": 2,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       1,
+       5
+      ],
+      "hp": 26,
+      "items": [
+       [
+        5,
+        8
+       ],
+       [
+        6,
+        1
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 21,
+      "money": 80,
+      "ac": 3,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ],
+      "hp": 21,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        1
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 22,
+      "money": 70,
+      "ac": 2,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ],
+      "hp": 22,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        1
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 20261021,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 24,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 26,
+      "items": [
+       [
+        5,
+        8
+       ],
+       [
+        6,
+        1
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 21,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        1
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 22,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        1
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP2",
+   "description": "Saltwell Dry Goods: two boxes of pistol rounds bought, pipe club sold, hide vest bought and worn by Tobin",
+   "auxiliary": false,
+   "expected": {
+    "location": 1,
+    "x": 6,
+    "y": 5,
+    "steps": 24,
+    "day": 1,
+    "hour": 8,
+    "minute": 24,
+    "mode": "map",
+    "cell_changes": [],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 24,
+      "money": 120,
+      "ac": 3,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       3,
+       7
+      ],
+      "hp": 24,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 26,
+      "money": 40,
+      "ac": 3,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ],
+      "hp": 26,
+      "items": [
+       [
+        5,
+        8
+       ],
+       [
+        6,
+        1
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 21,
+      "money": 73,
+      "ac": 3,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ],
+      "hp": 21,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 22,
+      "money": 63,
+      "ac": 2,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ],
+      "hp": 22,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 20261021,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 24,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 26,
+      "items": [
+       [
+        5,
+        8
+       ],
+       [
+        6,
+        1
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 21,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 22,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP3",
+   "description": "Orla Penn recruited into slot 5",
+   "auxiliary": false,
+   "expected": {
+    "location": 1,
+    "x": 8,
+    "y": 18,
+    "steps": 39,
+    "day": 1,
+    "hour": 8,
+    "minute": 39,
+    "mode": "map",
+    "cell_changes": [
+     [
+      1,
+      8,
+      17,
+      0,
+      0,
+      28
+     ]
+    ],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 24,
+      "money": 120,
+      "ac": 3,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       3,
+       7
+      ],
+      "hp": 24,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 26,
+      "money": 40,
+      "ac": 3,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ],
+      "hp": 26,
+      "items": [
+       [
+        5,
+        8
+       ],
+       [
+        6,
+        1
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 21,
+      "money": 73,
+      "ac": 3,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ],
+      "hp": 21,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 1,
+      "xp": 90,
+      "max_hp": 22,
+      "money": 63,
+      "ac": 2,
+      "rank": "Drifter",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ],
+      "hp": 22,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "name": "Orla Penn",
+      "npc": 1,
+      "level": 2,
+      "xp": 200,
+      "max_hp": 27,
+      "money": 25,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       5
+      ],
+      "hp": 27,
+      "items": [
+       [
+        5,
+        8
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 20261021,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 24,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 26,
+      "items": [
+       [
+        5,
+        8
+       ],
+       [
+        6,
+        1
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 21,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 22,
+      "items": [
+       [
+        3,
+        6
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        8
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP4",
+   "description": "Bridge raiders beaten; PCs promoted to level 2; 75 coins looted",
+   "auxiliary": false,
+   "expected": {
+    "location": 0,
+    "x": 30,
+    "y": 41,
+    "steps": 79,
+    "day": 1,
+    "hour": 12,
+    "minute": 19,
+    "mode": "map",
+    "cell_changes": [
+     [
+      0,
+      30,
+      41,
+      0,
+      0,
+      13
+     ],
+     [
+      1,
+      8,
+      17,
+      0,
+      0,
+      28
+     ]
+    ],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 28,
+      "money": 195,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       3,
+       7
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 31,
+      "money": 40,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 25,
+      "money": 73,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 26,
+      "money": 63,
+      "ac": 2,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ]
+     },
+     {
+      "slot": 5,
+      "name": "Orla Penn",
+      "npc": 1,
+      "level": 2,
+      "xp": 214,
+      "max_hp": 27,
+      "money": 25,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       5
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 2973743393,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 25,
+      "items": [
+       [
+        3,
+        0
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 30,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        1
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 25,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 22,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP5-pre-save",
+   "description": "Auxiliary: state just before the save; CP5 must equal it field for field, generator state included",
+   "auxiliary": true,
+   "expected": {
+    "location": 2,
+    "x": 25,
+    "y": 5,
+    "steps": 145,
+    "day": 1,
+    "hour": 17,
+    "minute": 28,
+    "mode": "map",
+    "cell_changes": [
+     [
+      0,
+      30,
+      41,
+      0,
+      0,
+      13
+     ],
+     [
+      0,
+      31,
+      41,
+      0,
+      0,
+      22
+     ],
+     [
+      1,
+      8,
+      17,
+      0,
+      0,
+      28
+     ]
+    ],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 28,
+      "money": 91,
+      "ac": 5,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 4,
+      "items_excluding_ammo": [
+       3,
+       7,
+       8
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 31,
+      "money": 27,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 25,
+      "money": 73,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 26,
+      "money": 63,
+      "ac": 2,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ]
+     },
+     {
+      "slot": 5,
+      "name": "Orla Penn",
+      "npc": 1,
+      "level": 2,
+      "xp": 214,
+      "max_hp": 27,
+      "money": 25,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       5
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 2973743393,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 28,
+      "items": [
+       [
+        3,
+        0
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ],
+       [
+        8,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 31,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 25,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 26,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP5",
+   "description": "Ninemile purchases done, plate jacket worn by Hessa; saved and loaded: state equals the pre-save state",
+   "auxiliary": false,
+   "expected": {
+    "location": 2,
+    "x": 25,
+    "y": 5,
+    "steps": 145,
+    "day": 1,
+    "hour": 17,
+    "minute": 28,
+    "mode": "map",
+    "cell_changes": [
+     [
+      0,
+      30,
+      41,
+      0,
+      0,
+      13
+     ],
+     [
+      0,
+      31,
+      41,
+      0,
+      0,
+      22
+     ],
+     [
+      1,
+      8,
+      17,
+      0,
+      0,
+      28
+     ]
+    ],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 28,
+      "money": 91,
+      "ac": 5,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 4,
+      "items_excluding_ammo": [
+       3,
+       7,
+       8
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 31,
+      "money": 27,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 25,
+      "money": 73,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 26,
+      "money": 63,
+      "ac": 2,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ]
+     },
+     {
+      "slot": 5,
+      "name": "Orla Penn",
+      "npc": 1,
+      "level": 2,
+      "xp": 214,
+      "max_hp": 27,
+      "money": 25,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       5
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 2973743393,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 28,
+      "items": [
+       [
+        3,
+        0
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ],
+       [
+        8,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 31,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 25,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 26,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP6",
+   "description": "Storehouse unlocked with Tumblers; Gate card looted",
+   "auxiliary": false,
+   "expected": {
+    "location": 2,
+    "x": 26,
+    "y": 12,
+    "steps": 165,
+    "day": 1,
+    "hour": 17,
+    "minute": 48,
+    "mode": "map",
+    "cell_changes": [
+     [
+      0,
+      30,
+      41,
+      0,
+      0,
+      13
+     ],
+     [
+      0,
+      31,
+      41,
+      0,
+      0,
+      22
+     ],
+     [
+      1,
+      8,
+      17,
+      0,
+      0,
+      28
+     ],
+     [
+      2,
+      26,
+      12,
+      0,
+      0,
+      27
+     ],
+     [
+      2,
+      26,
+      14,
+      4,
+      1,
+      29
+     ]
+    ],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 28,
+      "money": 91,
+      "ac": 5,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 4,
+      "items_excluding_ammo": [
+       3,
+       7,
+       8,
+       11
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 31,
+      "money": 27,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 2,
+      "xp": 114,
+      "max_hp": 25,
+      "money": 73,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 26,
+      "money": 63,
+      "ac": 2,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ]
+     },
+     {
+      "slot": 5,
+      "name": "Orla Penn",
+      "npc": 1,
+      "level": 2,
+      "xp": 214,
+      "max_hp": 27,
+      "money": 25,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       5
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 68685520,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 28,
+      "items": [
+       [
+        3,
+        0
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ],
+       [
+        8,
+        0
+       ],
+       [
+        11,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 31,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 25,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 26,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP7",
+   "description": "Teodor Lusk recruited into slot 6; party healed to full for 40 coins",
+   "auxiliary": false,
+   "expected": {
+    "location": 2,
+    "x": 25,
+    "y": 22,
+    "steps": 194,
+    "day": 1,
+    "hour": 18,
+    "minute": 17,
+    "mode": "map",
+    "cell_changes": [
+     [
+      0,
+      30,
+      41,
+      0,
+      0,
+      13
+     ],
+     [
+      0,
+      31,
+      41,
+      0,
+      0,
+      22
+     ],
+     [
+      1,
+      8,
+      17,
+      0,
+      0,
+      28
+     ],
+     [
+      2,
+      18,
+      17,
+      0,
+      0,
+      28
+     ],
+     [
+      2,
+      26,
+      12,
+      0,
+      0,
+      27
+     ],
+     [
+      2,
+      26,
+      14,
+      4,
+      1,
+      29
+     ]
+    ],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 28,
+      "money": 51,
+      "ac": 5,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 4,
+      "items_excluding_ammo": [
+       3,
+       7,
+       8,
+       11
+      ],
+      "hp": 28
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 31,
+      "money": 27,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ],
+      "hp": 31
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 2,
+      "xp": 114,
+      "max_hp": 25,
+      "money": 73,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ],
+      "hp": 25
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 2,
+      "xp": 104,
+      "max_hp": 26,
+      "money": 63,
+      "ac": 2,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ],
+      "hp": 26
+     },
+     {
+      "slot": 5,
+      "name": "Orla Penn",
+      "npc": 1,
+      "level": 2,
+      "xp": 214,
+      "max_hp": 27,
+      "money": 25,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       5
+      ],
+      "hp": 27
+     },
+     {
+      "slot": 6,
+      "name": "Teodor Lusk",
+      "npc": 1,
+      "level": 2,
+      "xp": 150,
+      "max_hp": 26,
+      "money": 40,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 2,
+      "items_excluding_ammo": [
+       1,
+       7
+      ],
+      "hp": 26,
+      "items": [
+       [
+        1,
+        0
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 68685520,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 28,
+      "items": [
+       [
+        3,
+        0
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        7,
+        0
+       ],
+       [
+        8,
+        0
+       ],
+       [
+        11,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 31,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 25,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 26,
+      "items": [
+       [
+        3,
+        1
+       ],
+       [
+        4,
+        2
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        3
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 6,
+      "hp": 26,
+      "items": [
+       [
+        1,
+        0
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP8",
+   "description": "Pump crawlers beaten in Pumphouse Deep; Field kit looted",
+   "auxiliary": false,
+   "expected": {
+    "location": 3,
+    "x": 9,
+    "y": 6,
+    "steps": 259,
+    "day": 1,
+    "hour": 22,
+    "minute": 32,
+    "mode": "map",
+    "cell_changes": [
+     [
+      0,
+      30,
+      41,
+      0,
+      0,
+      13
+     ],
+     [
+      0,
+      31,
+      41,
+      0,
+      0,
+      22
+     ],
+     [
+      1,
+      8,
+      17,
+      0,
+      0,
+      28
+     ],
+     [
+      2,
+      18,
+      17,
+      0,
+      0,
+      28
+     ],
+     [
+      2,
+      26,
+      12,
+      0,
+      0,
+      27
+     ],
+     [
+      2,
+      26,
+      14,
+      4,
+      1,
+      29
+     ],
+     [
+      3,
+      9,
+      6,
+      0,
+      0,
+      37
+     ]
+    ],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 2,
+      "xp": 122,
+      "max_hp": 28,
+      "money": 51,
+      "ac": 5,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 4,
+      "items_excluding_ammo": [
+       3,
+       7,
+       8,
+       9,
+       11
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 2,
+      "xp": 122,
+      "max_hp": 31,
+      "money": 27,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 2,
+      "xp": 132,
+      "max_hp": 25,
+      "money": 73,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 2,
+      "xp": 122,
+      "max_hp": 26,
+      "money": 63,
+      "ac": 2,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ]
+     },
+     {
+      "slot": 5,
+      "name": "Orla Penn",
+      "npc": 1,
+      "level": 2,
+      "xp": 232,
+      "max_hp": 27,
+      "money": 25,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       5
+      ]
+     },
+     {
+      "slot": 6,
+      "name": "Teodor Lusk",
+      "npc": 1,
+      "level": 2,
+      "xp": 168,
+      "max_hp": 26,
+      "money": 40,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 2,
+      "items_excluding_ammo": [
+       1,
+       7
+      ],
+      "items": [
+       [
+        1,
+        0
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 1205497775,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 28,
+      "items": [
+       [
+        3,
+        4
+       ],
+       [
+        4,
+        1
+       ],
+       [
+        7,
+        0
+       ],
+       [
+        8,
+        0
+       ],
+       [
+        11,
+        0
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 26,
+      "items": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 25,
+      "items": [
+       [
+        3,
+        5
+       ],
+       [
+        4,
+        1
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 26,
+      "items": [
+       [
+        3,
+        5
+       ],
+       [
+        4,
+        1
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 6,
+      "hp": 22,
+      "items": [
+       [
+        1,
+        0
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP9",
+   "description": "Vault gate opened with the Gate card; Governor valve looted",
+   "auxiliary": false,
+   "expected": {
+    "location": 3,
+    "x": 21,
+    "y": 4,
+    "steps": 273,
+    "day": 1,
+    "hour": 23,
+    "minute": 0,
+    "mode": "map",
+    "cell_changes": [
+     [
+      0,
+      30,
+      41,
+      0,
+      0,
+      13
+     ],
+     [
+      0,
+      31,
+      41,
+      0,
+      0,
+      22
+     ],
+     [
+      1,
+      8,
+      17,
+      0,
+      0,
+      28
+     ],
+     [
+      2,
+      18,
+      17,
+      0,
+      0,
+      28
+     ],
+     [
+      2,
+      26,
+      12,
+      0,
+      0,
+      27
+     ],
+     [
+      2,
+      26,
+      14,
+      4,
+      1,
+      29
+     ],
+     [
+      3,
+      9,
+      6,
+      0,
+      0,
+      37
+     ],
+     [
+      3,
+      16,
+      6,
+      4,
+      4,
+      37
+     ],
+     [
+      3,
+      21,
+      4,
+      0,
+      0,
+      37
+     ]
+    ],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 2,
+      "xp": 122,
+      "max_hp": 28,
+      "money": 51,
+      "ac": 5,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 4,
+      "items_excluding_ammo": [
+       3,
+       7,
+       8,
+       9,
+       11,
+       12
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 2,
+      "xp": 122,
+      "max_hp": 31,
+      "money": 27,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 2,
+      "xp": 132,
+      "max_hp": 25,
+      "money": 73,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 2,
+      "xp": 122,
+      "max_hp": 26,
+      "money": 63,
+      "ac": 2,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ]
+     },
+     {
+      "slot": 5,
+      "name": "Orla Penn",
+      "npc": 1,
+      "level": 2,
+      "xp": 232,
+      "max_hp": 27,
+      "money": 25,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       5
+      ]
+     },
+     {
+      "slot": 6,
+      "name": "Teodor Lusk",
+      "npc": 1,
+      "level": 2,
+      "xp": 168,
+      "max_hp": 26,
+      "money": 40,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 2,
+      "items_excluding_ammo": [
+       1,
+       7
+      ],
+      "items": [
+       [
+        1,
+        0
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 1205497775,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 28,
+      "items": [
+       [
+        3,
+        4
+       ],
+       [
+        4,
+        1
+       ],
+       [
+        7,
+        0
+       ],
+       [
+        8,
+        0
+       ],
+       [
+        11,
+        0
+       ],
+       [
+        9,
+        3
+       ],
+       [
+        12,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 25,
+      "items": [
+       [
+        3,
+        5
+       ],
+       [
+        4,
+        1
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 26,
+      "items": [
+       [
+        3,
+        5
+       ],
+       [
+        4,
+        1
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 6,
+      "hp": 23,
+      "items": [
+       [
+        1,
+        0
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "CP10",
+   "description": "Valve fitted at the Saltwell pump: game won",
+   "auxiliary": false,
+   "expected": {
+    "location": 1,
+    "x": 15,
+    "y": 12,
+    "steps": 358,
+    "day": 2,
+    "hour": 7,
+    "minute": 8,
+    "mode": "won",
+    "cell_changes": [
+     [
+      0,
+      30,
+      41,
+      0,
+      0,
+      13
+     ],
+     [
+      0,
+      31,
+      41,
+      0,
+      0,
+      22
+     ],
+     [
+      1,
+      8,
+      17,
+      0,
+      0,
+      28
+     ],
+     [
+      2,
+      18,
+      17,
+      0,
+      0,
+      28
+     ],
+     [
+      2,
+      26,
+      12,
+      0,
+      0,
+      27
+     ],
+     [
+      2,
+      26,
+      14,
+      4,
+      1,
+      29
+     ],
+     [
+      3,
+      9,
+      6,
+      0,
+      0,
+      37
+     ],
+     [
+      3,
+      16,
+      6,
+      4,
+      4,
+      37
+     ],
+     [
+      3,
+      21,
+      4,
+      0,
+      0,
+      37
+     ]
+    ],
+    "party": [
+     {
+      "slot": 1,
+      "name": "Hessa Brand",
+      "npc": 0,
+      "level": 2,
+      "xp": 122,
+      "max_hp": 28,
+      "money": 51,
+      "ac": 5,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 4,
+      "items_excluding_ammo": [
+       3,
+       7,
+       8,
+       9,
+       11,
+       12
+      ]
+     },
+     {
+      "slot": 2,
+      "name": "Tobin Ash",
+      "npc": 0,
+      "level": 2,
+      "xp": 122,
+      "max_hp": 31,
+      "money": 27,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "items_excluding_ammo": [
+       5,
+       7
+      ]
+     },
+     {
+      "slot": 3,
+      "name": "Maro Quill",
+      "npc": 0,
+      "level": 2,
+      "xp": 132,
+      "max_hp": 25,
+      "money": 73,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3
+      ]
+     },
+     {
+      "slot": 4,
+      "name": "Dell Ostrow",
+      "npc": 0,
+      "level": 2,
+      "xp": 122,
+      "max_hp": 26,
+      "money": 63,
+      "ac": 2,
+      "rank": "Hand",
+      "skill_points": 2,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       3,
+       9
+      ]
+     },
+     {
+      "slot": 5,
+      "name": "Orla Penn",
+      "npc": 1,
+      "level": 2,
+      "xp": 232,
+      "max_hp": 27,
+      "money": 25,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "items_excluding_ammo": [
+       5
+      ]
+     },
+     {
+      "slot": 6,
+      "name": "Teodor Lusk",
+      "npc": 1,
+      "level": 2,
+      "xp": 168,
+      "max_hp": 26,
+      "money": 40,
+      "ac": 3,
+      "rank": "Hand",
+      "skill_points": 0,
+      "cond": 0,
+      "weapon_slot": 1,
+      "armour_slot": 2,
+      "items_excluding_ammo": [
+       1,
+       7
+      ],
+      "items": [
+       [
+        1,
+        0
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     }
+    ]
+   },
+   "reference_seeded": {
+    "rng_state": 1205497775,
+    "party": [
+     {
+      "slot": 1,
+      "hp": 28,
+      "items": [
+       [
+        3,
+        4
+       ],
+       [
+        4,
+        1
+       ],
+       [
+        7,
+        0
+       ],
+       [
+        8,
+        0
+       ],
+       [
+        11,
+        0
+       ],
+       [
+        9,
+        3
+       ],
+       [
+        12,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 2,
+      "hp": 31,
+      "items": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        2
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "slot": 3,
+      "hp": 25,
+      "items": [
+       [
+        3,
+        5
+       ],
+       [
+        4,
+        1
+       ]
+      ]
+     },
+     {
+      "slot": 4,
+      "hp": 26,
+      "items": [
+       [
+        3,
+        5
+       ],
+       [
+        4,
+        1
+       ],
+       [
+        9,
+        3
+       ]
+      ]
+     },
+     {
+      "slot": 5,
+      "hp": 27,
+      "items": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "slot": 6,
+      "hp": 26,
+      "items": [
+       [
+        1,
+        0
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

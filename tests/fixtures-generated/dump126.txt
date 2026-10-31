@@ -1,0 +1,294 @@
+==================== action_cells
+[
+ {
+  "x": 15,
+  "y": 31,
+  "tile": 18,
+  "class": 10,
+  "action": 1,
+  "note": "Saltwell gate to overworld (10,41)"
+ },
+ {
+  "x": 16,
+  "y": 31,
+  "tile": 18,
+  "class": 10,
+  "action": 2,
+  "note": "Saltwell gate to overworld (10,41)"
+ },
+ {
+  "x": 15,
+  "y": 29,
+  "tile": 18,
+  "class": 1,
+  "action": 1,
+  "note": "Saltwell sign, paragraph 2"
+ },
+ {
+  "x": 6,
+  "y": 7,
+  "tile": 19,
+  "class": 1,
+  "action": 2,
+  "note": "Dry goods doorway, paragraph 3"
+ },
+ {
+  "x": 23,
+  "y": 7,
+  "tile": 19,
+  "class": 1,
+  "action": 3,
+  "note": "Healer's doorway, paragraph 5"
+ },
+ {
+  "x": 13,
+  "y": 12,
+  "tile": 18,
+  "class": 1,
+  "action": 4,
+  "note": "Trough message"
+ },
+ {
+  "x": 6,
+  "y": 5,
+  "tile": 17,
+  "class": 6,
+  "action": 1,
+  "note": "Shop list 0, Saltwell Dry Goods"
+ },
+ {
+  "x": 8,
+  "y": 17,
+  "tile": 24,
+  "class": 11,
+  "action": 1,
+  "note": "NPC 0 of Saltwell: Orla Penn"
+ },
+ {
+  "x": 22,
+  "y": 4,
+  "tile": 22,
+  "class": 11,
+  "action": 0,
+  "note": "Healer's cot, Saltwell"
+ },
+ {
+  "x": 15,
+  "y": 11,
+  "tile": 23,
+  "class": 11,
+  "action": 0,
+  "note": "Saltwell pump: win hook"
+ }
+]
+==================== records
+{
+ "10": [
+  {
+   "relative": false,
+   "confirm": false,
+   "message": 0,
+   "x": 10,
+   "y": 41,
+   "location": 0,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "relative": false,
+   "confirm": false,
+   "message": 0,
+   "x": 10,
+   "y": 41,
+   "location": 0,
+   "new_class": 255,
+   "new_action": 0
+  }
+ ],
+ "1": [
+  {
+   "messages": [
+    1
+   ],
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "messages": [
+    2
+   ],
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "messages": [
+    3
+   ],
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "messages": [
+    4
+   ],
+   "new_class": 255,
+   "new_action": 0
+  }
+ ],
+ "6": [
+  {
+   "shop": 0,
+   "message": 5,
+   "new_class": 255,
+   "new_action": 0
+  }
+ ],
+ "11": [
+  {
+   "message": 6,
+   "new_class": 255,
+   "new_action": 0
+  }
+ ]
+}
+==================== action_class rows 18..22
+y 18 [11, 0, 0, 0, 0, 0, 0, 0]
+y 19 [11, 0, 0, 0, 0, 0, 0, 0]
+y 20 [11, 0, 0, 11, 0, 0, 0, 0]
+y 21 [11, 0, 0, 0, 0, 0, 0, 0]
+y 22 [11, 0, 0, 0, 0, 0, 0, 0]
+==================== action_value rows 18..22
+y 18 [0, 0, 0, 0, 0, 0, 0, 0]
+y 19 [0, 0, 0, 0, 0, 0, 0, 0]
+y 20 [0, 0, 0, 0, 0, 0, 0, 0]
+y 21 [0, 0, 0, 0, 0, 0, 0, 0]
+y 22 [0, 0, 0, 0, 0, 0, 0, 0]
+==================== tiles rows 18..22
+y 18 [25, 0, 0, 0, 0, 0, 0, 0]
+y 19 [25, 0, 0, 0, 0, 0, 0, 0]
+y 20 [25, 0, 0, 11, 0, 0, 0, 0]
+y 21 [25, 0, 0, 0, 0, 0, 0, 0]
+y 22 [25, 0, 0, 0, 0, 0, 0, 0]
+==================== scenario module API
+['DICT', 'ENDING_SIGNATURE', 'FormatError', 'MAPINFO_FIELDS', 'NO_CHANGE', 'PORTRAIT_BASE_SIZE', 'PORTRAIT_STRIDE', 'Scenario', 'TABLE_ORDER_A', 'TABLE_ORDER_B', 'TITLE_STRIDE', 'annotations', 'build_map', 'codecs', 'compile', 'containers', 'encode_mapinfo', 'encode_mob', 'encode_record', 'graphics', 'huffman', 'json', 'load', 'maps', 'os', 'rules', 'strings']
+==================== test harness head
+   1 """M5: game rules (SPEC-04, lab rules v1). Table-driven cases whose expected
+   2 values come from the SPEC-04 formulas (restated independently in wl_support),
+   3 the worked examples of SPEC-04, and SPEC/scenario/rng-vectors.json; plus short
+   4 headless runs on the engine's compiled Dry Fork data, checked against values
+   5 derived from SPEC-04 and SPEC-05. API: SPEC-07 sections 2.7 to 2.9."""
+   6 
+   7 from __future__ import annotations
+   8 
+   9 import copy
+  10 
+  11 import pytest
+  12 
+  13 import wl_combat_ref as CR
+  14 import wl_support as W
+  15 from wl_support import (RefRng, call, check_bytes, check_eq, expect_error, fail, ref_ac, ref_advance_clock,
+  16                         ref_buy_price, ref_check_need, ref_damage_member, ref_flee_need, ref_jam_chance,
+  17                         ref_level_after, ref_max_hp, ref_melee_need, ref_monster_hp, ref_monster_need, ref_pay,
+  18                         ref_ranged_need, ref_sell_price, ref_skill_check, ref_speed_order, ref_xp_threshold)
+  19 
+  20 pytestmark = pytest.mark.milestone("M5")
+  21 
+  22 VECTORS = W.load_json(W.SCENARIO / "rng-vectors.json")["vectors"]
+  23 VSEEDS = [v["seed"] for v in VECTORS]
+  24 C = W.codecs_oracle()
+  25 
+  26 
+  27 def table(argnames, cases, ids=None):
+  28     """Run one test function over a table of cases inside a single test.
+  29 
+  30     Each SPEC-04 rule is one test; its table rows are checked in order and the
+  31     failure message names the first failing row only."""
+  32     names = [n.strip() for n in argnames.split(",")]
+  33 
+  34     def deco(fn):
+  35         def wrapper():
+  36             for case in cases:
+  37                 fn(**dict(zip(names, case if len(names) > 1 else (case,))))
+  38         wrapper.__name__ = fn.__name__
+  39         wrapper.__qualname__ = fn.__qualname__
+  40         wrapper.__doc__ = fn.__doc__
+  41         wrapper.__module__ = fn.__module__
+  42         return wrapper
+  43     return deco
+  44 
+  45 
+  46 def _rng(seed):
+  47     r = call("rules.Rng", seed)
+  48     return r
+  49 
+  50 
+  51 def _state(r):
+  52     try:
+  53         return r.state
+  54     except NotImplementedError:
+  55         fail("wlengine.rules.Rng.state: not implemented")
+  56     except Exception as e:  # noqa: BLE001
+  57         fail("wlengine.rules.Rng.state raised %s: %s" % (type(e).__name__, e))
+  58 
+  59 
+  60 def _m(obj, name, *args):
+  61     fn = getattr(obj, name, None)
+  62     if fn is None:
+  63         fail("wlengine.rules.Rng has no method %r (SPEC-07 API)" % name)
+  64     try:
+  65         return fn(*args)
+  66     except NotImplementedError:
+  67         fail("wlengine.rules.Rng.%s: not implemented" % name)
+  68     except Exception as e:  # noqa: BLE001
+  69         fail("wlengine.rules.Rng.%s%r raised %s: %s" % (name, args, type(e).__name__, e))
+  70 
+  71 
+  72 # ---- LR-1, LR-2: generator --------------------------------------------------
+  73 
+  74 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+  75 def test_rng_seeding(v):
+  76     check_eq("Rng(%d).state after seeding" % v["seed"], _state(_rng(v["seed"])), v["state_after_seeding"])
+  77 
+  78 
+  79 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+  80 def test_rng_next(v):
+  81     r = _rng(v["seed"])
+  82     for i, want in enumerate(v["next_u32"]):
+  83         check_eq("Rng(%d) next() call %d" % (v["seed"], i + 1), _m(r, "next"), want)
+  84 
+  85 
+  86 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+  87 def test_rng_roll(v):
+  88     r = _rng(v["seed"])
+  89     for i, want in enumerate(v["roll_100"]):
+  90         check_eq("Rng(%d) roll(100) call %d" % (v["seed"], i + 1), _m(r, "roll", 100), want)
+  91 
+  92 
+  93 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+  94 def test_rng_d100(v):
+  95     r = _rng(v["seed"])
+  96     for i, want in enumerate(v["roll_100"][:5]):
+  97         check_eq("Rng(%d) d100() call %d" % (v["seed"], i + 1), _m(r, "d100"), want)
+  98 
+  99 
+ 100 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+ 101 def test_rng_dice(v):
+ 102     r = _rng(v["seed"])
+ 103     for i, want in enumerate(v["dice_2d6"]):
+ 104         check_eq("Rng(%d) dice(2, 6) call %d" % (v["seed"], i + 1), _m(r, "dice", 2, 6), want)
+ 105 
+ 106 
+ 107 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+ 108 def test_rng_rnd(v):
+ 109     r = _rng(v["seed"])
+ 110     for n, want in zip((0, 1, 2, 12, 14, 255), v["rnd_of_0_1_2_12_14_255"]):
+ 111         check_eq("Rng(%d) rnd(%d) in the sequence rnd(0), rnd(1), rnd(2), rnd(12), rnd(14), rnd(255)"
+ 112                  % (v["seed"], n), _m(r, "rnd", n), want)
+ 113 
+ 114 
+ 115 def test_rng_no_draw_cases():
+ 116     r = _rng(4242)
+ 117     before = _state(r)
+ 118     got = [_m(r, "rnd", 0), _m(r, "rnd", 1), _m(r, "dice", 0, 6)]
+ 119     check_eq("rnd(0), rnd(1), dice(0, 6)", got, [0, 1, 0])
+ 120     check_eq("generator state after draws that make no call (LR-2)", _state(r), before)

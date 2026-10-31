@@ -1,0 +1,4243 @@
+==== src/wlengine/rules.py (318 lines) ====
+    1 """Game rules (SPEC-04).
+    2 
+    3 This module holds the lab rules v1 of SPEC-04: the random generator, the
+    4 character formulas, skill checks, movement and time, encounters, combat and
+    5 the shop prices.  ``read_skill_table`` reads the 36-entry skill metadata table
+    6 of LABSKILL.BIN (SPEC-04 LR-6).
+    7 """
+    8 
+    9 from __future__ import annotations
+   10 
+   11 from .errors import FormatError
+   12 
+   13 SKILL_ENTRIES = 36
+   14 MASK32 = 0xFFFFFFFF
+   15 DEFAULT_SEED = 0x6D2B79F5
+   16 
+   17 
+   18 def read_skill_table(path: str) -> list:
+   19     """36 x ``[minimum_iq, cost, attribute_offset]`` (SPEC-04 LR-6)."""
+   20     with open(path, "rb") as fh:
+   21         data = fh.read()
+   22     if len(data) < 2 * SKILL_ENTRIES:
+   23         raise FormatError("LABSKILL: %d bytes, expected at least %d"
+   24                           % (len(data), 2 * SKILL_ENTRIES))
+   25     out = []
+   26     for i in range(SKILL_ENTRIES):
+   27         b0, b1 = data[2 * i], data[2 * i + 1]
+   28         out.append([b0 >> 3, b0 & 7, b1])
+   29     return out
+   30 
+   31 
+   32 # ---------------------------------------------------------------------------
+   33 # LR-1, LR-2: the generator
+   34 # ---------------------------------------------------------------------------
+   35 
+   36 class Rng:
+   37     """xorshift32 generator of SPEC-04 LR-1 and LR-2."""
+   38 
+   39     def __init__(self, seed: int = 0) -> None:
+   40         seed = int(seed) & MASK32
+   41         self.state = seed if seed else DEFAULT_SEED
+   42 
+   43     def next(self) -> int:
+   44         x = self.state
+   45         x ^= (x << 13) & MASK32
+   46         x ^= x >> 17
+   47         x ^= (x << 5) & MASK32
+   48         x &= MASK32
+   49         self.state = x
+   50         return x
+   51 
+   52     def roll(self, n: int) -> int:
+   53         return 1 + self.next() % n
+   54 
+   55     def rnd(self, n: int) -> int:
+   56         if n == 0:
+   57             return 0
+   58         if n == 1:
+   59             return 1
+   60         return self.roll(n)
+   61 
+   62     def dice(self, n: int, sides: int) -> int:
+   63         total = 0
+   64         for _ in range(n):
+   65             total += self.roll(sides)
+   66         return total
+   67 
+   68     def d100(self) -> int:
+   69         return self.roll(100)
+   70 
+   71 
+   72 # ---------------------------------------------------------------------------
+   73 # LR-5 to LR-10: characters
+   74 # ---------------------------------------------------------------------------
+   75 
+   76 def roll_attributes(rng: Rng) -> list:
+   77     """LR-7: six draws, in the order STR, IQ, LCK, SPD, AGL, CHA."""
+   78     return [8 + rng.roll(10) for _ in range(6)]
+   79 
+   80 
+   81 def max_hp(strength: int, level: int) -> int:
+   82     """LR-8, LR-46."""
+   83     return 10 + strength + (level - 1) * (2 + strength // 5)
+   84 
+   85 
+   86 def armour_class(agility: int, armour_bonus: int, evasion_level: int) -> int:
+   87     """LR-8."""
+   88     return agility // 5 + armour_bonus + evasion_level
+   89 
+   90 
+   91 def starting_money(luck: int) -> int:
+   92     """LR-9."""
+   93     return 50 + 5 * luck
+   94 
+   95 
+   96 # ---------------------------------------------------------------------------
+   97 # LR-13, LR-14: checks
+   98 # ---------------------------------------------------------------------------
+   99 
+  100 def check_need(level: int, attribute: int, difficulty: int, tool: bool = False) -> int:
+  101     """LR-13, unclamped."""
+  102     return 20 + 15 * level + 2 * attribute - difficulty + (20 if tool else 0)
+  103 
+  104 
+  105 def skill_check(rng: Rng, level: int, attribute: int, difficulty: int, tool: bool = False) -> dict:
+  106     """LR-13: one d100 unless the need is 100 or more, or 0 or less."""
+  107     need = check_need(level, attribute, difficulty, tool)
+  108     if need >= 100:
+  109         return {"need": need, "roll": None, "success": True}
+  110     if need <= 0:
+  111         return {"need": need, "roll": None, "success": False}
+  112     r = rng.d100()
+  113     return {"need": need, "roll": r, "success": r <= need}
+  114 
+  115 
+  116 def pick_checker(candidates: list):
+  117     """LR-14: highest level, then higher attribute, then lower slot."""
+  118     best = None
+  119     best_key = None
+  120     for c in candidates:
+  121         if c.get("cond", 0) != 0:
+  122             continue
+  123         key = (c.get("level", 0), c.get("attribute", 0), -c.get("slot", 0))
+  124         if best_key is None or key > best_key:
+  125             best_key = key
+  126             best = c.get("slot")
+  127     return best
+  128 
+  129 
+  130 # ---------------------------------------------------------------------------
+  131 # LR-15 to LR-17: movement and time
+  132 # ---------------------------------------------------------------------------
+  133 
+  134 def advance_clock(clock: dict, minutes: int, seconds: int):
+  135     """LR-16, LR-17: returns (clock, hours whose minute 0 was reached)."""
+  136     day = clock.get("day", 1)
+  137     minute = clock.get("minute", 0)
+  138     second = clock.get("second", 0)
+  139     total_s = second + seconds
+  140     second = total_s % 60
+  141     add_min = minutes + total_s // 60
+  142     hours = []
+  143     for _ in range(add_min):
+  144         minute += 1
+  145         if minute == 1440:
+  146             minute = 0
+  147         if minute % 60 == 0:
+  148             h = minute // 60
+  149             hours.append(h)
+  150             if h == 0:
+  151                 day += 1
+  152     return {"day": day, "minute": minute, "second": second}, hours
+  153 
+  154 
+  155 # ---------------------------------------------------------------------------
+  156 # LR-45, LR-46: experience
+  157 # ---------------------------------------------------------------------------
+  158 
+  159 def xp_threshold(level: int) -> int:
+  160     """LR-45."""
+  161     return 50 * level * (level + 1)
+  162 
+  163 
+  164 def level_after(level: int, xp: int) -> int:
+  165     """LR-45."""
+  166     while xp >= xp_threshold(level):
+  167         level += 1
+  168     return level
+  169 
+  170 
+  171 # ---------------------------------------------------------------------------
+  172 # LR-20, LR-53: money and shops
+  173 # ---------------------------------------------------------------------------
+  174 
+  175 def buy_price(price: int, haggling: int) -> int:
+  176     """LR-53."""
+  177     h = min(5, haggling)
+  178     return price * (100 - 5 * h) // 100
+  179 
+  180 
+  181 def sell_price(price: int, haggling: int) -> int:
+  182     """LR-53."""
+  183     h = min(5, haggling)
+  184     return price * (50 + 5 * h) // 100
+  185 
+  186 
+  187 def pay(moneys: list, first_slot: int, price: int):
+  188     """LR-20: new money list, or None when the party cannot pay."""
+  189     if sum(moneys) < price:
+  190         return None
+  191     out = list(moneys)
+  192     order = [first_slot - 1] + [i for i in range(len(moneys)) if i != first_slot - 1]
+  193     left = price
+  194     for i in order:
+  195         take = min(out[i], left)
+  196         out[i] -= take
+  197         left -= take
+  198         if left == 0:
+  199             break
+  200     return out
+  201 
+  202 
+  203 # ---------------------------------------------------------------------------
+  204 # LR-26 to LR-28: monsters and encounters
+  205 # ---------------------------------------------------------------------------
+  206 
+  207 def monster_values(mob: dict) -> dict:
+  208     """LR-27."""
+  209     cr = mob.get("combatRating", 0)
+  210     ac = mob.get("armorClass", 0)
+  211     st = mob.get("sturdiness", 0)
+  212     return {"to_hit_base": 20 + 5 * cr, "speed": cr, "ac": ac,
+  213             "ranged": mob.get("weaponType", 0) >= 3, "xp": st * (ac + 1)}
+  214 
+  215 
+  216 def monster_hp(rng: Rng, sturdiness: int) -> int:
+  217     """SPEC-03 6.6, LR-26: the high byte is drawn first."""
+  218     hi = rng.rnd(sturdiness >> 8)
+  219     lo = rng.rnd(sturdiness & 0xFF)
+  220     return sturdiness // 4 + ((hi << 8) | lo)
+  221 
+  222 
+  223 def monster_damage(rng: Rng, mob: dict) -> int:
+  224     """LR-27."""
+  225     return rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+  226 
+  227 
+  228 def build_groups(rng: Rng, mobs: list, record: dict) -> list:
+  229     """LR-26, LR-28."""
+  230     counts = []
+  231     for entry in record.get("groups", []):
+  232         mob_index, rnd_flag, size = entry[0], entry[1], entry[2]
+  233         if mob_index == 0:
+  234             continue
+  235         mob = mobs[mob_index - 1]
+  236         s = size if size else mob.get("maxGroup", 0)
+  237         counts.append((mob_index, rng.rnd(s) if rnd_flag else s))
+  238     out = []
+  239     for mob_index, count in counts:
+  240         if count <= 0:
+  241             continue
+  242         mob = mobs[mob_index - 1]
+  243         hp = [monster_hp(rng, mob.get("sturdiness", 0)) for _ in range(count)]
+  244         band = 3 if mob.get("weaponType", 0) >= 3 else 2
+  245         out.append({"monster": mob_index, "count": count, "band": band, "hp": hp})
+  246     return out
+  247 
+  248 
+  249 # ---------------------------------------------------------------------------
+  250 # LR-34, LR-35, LR-39, LR-40, LR-43: combat formulas
+  251 # ---------------------------------------------------------------------------
+  252 
+  253 def _clamp(v: int, lo: int, hi: int) -> int:
+  254     return max(lo, min(hi, v))
+  255 
+  256 
+  257 def ranged_need(level: int, agility: int, target_ac: int, band: int) -> int:
+  258     """LR-34."""
+  259     return _clamp(35 + 12 * level + agility - 6 * target_ac - 5 * (band - 1), 5, 95)
+  260 
+  261 
+  262 def melee_need(level: int, agility: int, target_ac: int) -> int:
+  263     """LR-35."""
+  264     return _clamp(35 + 12 * level + agility - 6 * target_ac, 5, 95)
+  265 
+  266 
+  267 def monster_need(combat_rating: int, member_ac: int, band: int) -> int:
+  268     """LR-34, LR-35."""
+  269     return _clamp(20 + 5 * combat_rating - 6 * member_ac - 5 * (band - 1), 5, 95)
+  270 
+  271 
+  272 def flee_need(best_member_speed: int, best_monster_speed: int, command_level: int) -> int:
+  273     """LR-43."""
+  274     return _clamp(40 + 5 * (best_member_speed - best_monster_speed) + 5 * command_level, 5, 95)
+  275 
+  276 
+  277 def jam_chance(gunsmithing_level: int) -> int:
+  278     """LR-34."""
+  279     return max(1, 4 - gunsmithing_level)
+  280 
+  281 
+  282 def unarmed_attacks(grappling_level: int) -> int:
+  283     """LR-35."""
+  284     return 1 + grappling_level // 2
+  285 
+  286 
+  287 def melee_damage_bonus(strength: int) -> int:
+  288     """LR-35."""
+  289     return max(0, (strength - 10) // 2)
+  290 
+  291 
+  292 def damage_member(hp: int, damage: int) -> dict:
+  293     """LR-40."""
+  294     prev = hp
+  295     hp -= damage
+  296     if hp > 0:
+  297         return {"hp": hp, "cond": 0, "last_hp": None}
+  298     over = damage - prev
+  299     return {"hp": 0, "cond": 2 if over >= 5 else 1, "last_hp": prev}
+  300 
+  301 
+  302 def speed_order(actors: list) -> list:
+  303     """LR-35: speed, members before monsters, slot, group, monster."""
+  304     def key(a):
+  305         party = a.get("side") == "party"
+  306         return (-a.get("speed", 0), 0 if party else 1,
+  307                 a.get("slot", 0) if party else 0,
+  308                 0 if party else a.get("group", 0),
+  309                 0 if party else a.get("index", 0))
+  310     return sorted(actors, key=key)
+  311 
+  312 
+  313 __all__ = ["Rng", "read_skill_table", "roll_attributes", "max_hp", "armour_class",
+  314            "starting_money", "check_need", "skill_check", "pick_checker", "advance_clock",
+  315            "xp_threshold", "level_after", "buy_price", "sell_price", "pay", "monster_values",
+  316            "monster_hp", "monster_damage", "build_groups", "ranged_need", "melee_need",
+  317            "monster_need", "flee_need", "jam_chance", "unarmed_attacks", "melee_damage_bonus",
+  318            "damage_member", "speed_order"]
+
+==== tests/wl_support.py (531 lines) ====
+    1 """Shared helpers for the PREREG-W1 acceptance tests (SPEC-07).
+    2 
+    3 This module is test infrastructure, not an oracle for any single answer:
+    4 
+    5 - `api()` / `call()` reach into the builder's `wlengine` package and turn every
+    6   engine-side problem (missing module, missing function, NotImplementedError,
+    7   any other exception) into a clean test failure with a one-line message.
+    8 - `check_eq()` and friends report the first difference only, so a failure never
+    9   prints more of the expected data than the single case being checked.
+   10 - The `ref_*` functions and `RefRng` are independent restatements of SPEC-04
+   11   formulas, used to compute expected values. They are not the engine.
+   12 
+   13 Frozen with the tests. The engine must not import this module.
+   14 """
+   15 
+   16 from __future__ import annotations
+   17 
+   18 import importlib
+   19 import importlib.util
+   20 import json
+   21 import os
+   22 import sys
+   23 from pathlib import Path
+   24 
+   25 import pytest
+   26 
+   27 TESTS = Path(__file__).resolve().parent
+   28 PROJECT = TESTS.parent
+   29 SRC = PROJECT / "src"
+   30 SPEC = PROJECT / "SPEC"
+   31 SCENARIO = SPEC / "scenario"
+   32 REFERENCE = SPEC / "reference"
+   33 REFERENCE_LOG = SCENARIO / "walkthrough-reference-log.json"
+   34 
+   35 # Paths the engine must never open while it is under test (set up by conftest).
+   36 FORBIDDEN_PREFIXES: list[str] = [str(REFERENCE) + os.sep, str(REFERENCE_LOG)]
+   37 
+   38 _STATE = {"armed": 0, "violations": [], "allow_reference_log": False}
+   39 
+   40 
+   41 # ---------------------------------------------------------------------------
+   42 # Failure helpers
+   43 # ---------------------------------------------------------------------------
+   44 
+   45 def fail(msg: str) -> None:
+   46     """Fail the current test with exactly `msg` and no traceback."""
+   47     pytest.fail(msg, pytrace=False)
+   48 
+   49 
+   50 def short(v, limit: int = 160) -> str:
+   51     if isinstance(v, (bytes, bytearray)):
+   52         h = bytes(v).hex(" ").upper()
+   53         s = "bytes[%d] %s" % (len(v), h)
+   54     else:
+   55         s = repr(v)
+   56     return s if len(s) <= limit else s[:limit] + "..."
+   57 
+   58 
+   59 def norm(v):
+   60     """Normalise an engine value for comparison: tuples become lists, integer
+   61     dict keys become strings, bytearray becomes bytes. Values are untouched."""
+   62     if isinstance(v, dict):
+   63         return {(str(k) if isinstance(k, int) else k): norm(x) for k, x in v.items()}
+   64     if isinstance(v, (list, tuple)):
+   65         return [norm(x) for x in v]
+   66     if isinstance(v, bytearray):
+   67         return bytes(v)
+   68     return v
+   69 
+   70 
+   71 def first_diff(got, want, path: str = ""):
+   72     """Return (path, got_part, want_part) of the first difference, or None."""
+   73     if isinstance(want, dict):
+   74         if not isinstance(got, dict):
+   75             return (path or "<root>", got, "a dict")
+   76         for k in want:
+   77             if k not in got:
+   78                 return ("%s.%s" % (path, k) if path else k, "<missing key>", want[k])
+   79             d = first_diff(got[k], want[k], "%s.%s" % (path, k) if path else str(k))
+   80             if d:
+   81                 return d
+   82         extra = [k for k in got if k not in want]
+   83         if extra:
+   84             return ("%s.%s" % (path, extra[0]) if path else str(extra[0]), got[extra[0]], "<no such key>")
+   85         return None
+   86     if isinstance(want, list):
+   87         if not isinstance(got, list):
+   88             return (path or "<root>", got, "a list of %d items" % len(want))
+   89         for i, (g, w) in enumerate(zip(got, want)):
+   90             d = first_diff(g, w, "%s[%d]" % (path, i))
+   91             if d:
+   92                 return d
+   93         if len(got) != len(want):
+   94             return ("%s (length)" % (path or "<root>"), len(got), len(want))
+   95         return None
+   96     return None if got == want else (path or "<root>", got, want)
+   97 
+   98 
+   99 def check_eq(what: str, got, want) -> None:
+  100     """Compare after normalising; report only the first differing element."""
+  101     g = norm(got)
+  102     if g == want:
+  103         return
+  104     d = first_diff(g, want)
+  105     if d is None:  # equal under first_diff's rules but not ==, report whole case
+  106         fail("%s: expected %s, got %s" % (what, short(want), short(g)))
+  107     p, gv, wv = d
+  108     if p in ("<root>", ""):
+  109         fail("%s: expected %s, got %s" % (what, short(wv), short(gv)))
+  110     fail("%s: first difference at %s: expected %s, got %s" % (what, p, short(wv), short(gv)))
+  111 
+  112 
+  113 def check_bytes(what: str, got, want: bytes) -> None:
+  114     if not isinstance(got, (bytes, bytearray)):
+  115         fail("%s: expected bytes, got %s" % (what, type(got).__name__))
+  116     got = bytes(got)
+  117     if got == want:
+  118         return
+  119     n = min(len(got), len(want))
+  120     i = next((k for k in range(n) if got[k] != want[k]), n)
+  121     if i == n:
+  122         fail("%s: expected %d bytes, got %d (common prefix identical)" % (what, len(want), len(got)))
+  123     fail("%s: first differing byte at offset %d: expected %02X, got %02X (lengths: expected %d, got %d)"
+  124          % (what, i, want[i], got[i], len(want), len(got)))
+  125 
+  126 
+  127 # ---------------------------------------------------------------------------
+  128 # Engine access
+  129 # ---------------------------------------------------------------------------
+  130 
+  131 _ENGINE = {"checked": False, "error": None}
+  132 
+  133 ORACLE_NAMES = ("codecs_ref", "fixtures_gen", "_wl_oracle", "oracle_tool", "wl_support",
+  134                 "wl_combat_ref", "walkthrough-reference-log", "reference-log", "reference_log")
+  135 
+  136 
+  137 def _scan_sources() -> str | None:
+  138     """SPEC-07 section 6: src/ must not name the oracle modules or files."""
+  139     if not SRC.is_dir():
+  140         return None
+  141     for p in sorted(SRC.rglob("*.py")):
+  142         try:
+  143             text = p.read_text(encoding="utf-8", errors="replace")
+  144         except OSError:
+  145             continue
+  146         for lineno, line in enumerate(text.splitlines(), 1):
+  147             for name in ORACLE_NAMES:
+  148                 if name in line:
+  149                     return "%s line %d names %r" % (p.relative_to(PROJECT), lineno, name)
+  150     return None
+  151 
+  152 
+  153 def engine_ready() -> None:
+  154     """Fail the test unless `wlengine` imports cleanly and src/ is clean."""
+  155     if not _ENGINE["checked"]:
+  156         _ENGINE["checked"] = True
+  157         bad = _scan_sources()
+  158         if bad:
+  159             _ENGINE["error"] = ("SPEC-07 rule 6.1: src/ must not reference the oracle modules or the "
+  160                                 "reference log (%s)" % bad)
+  161         else:
+  162             try:
+  163                 _armed(lambda: importlib.import_module("wlengine"))
+  164             except Exception as e:  # noqa: BLE001
+  165                 _ENGINE["error"] = "cannot import wlengine from src/: %s: %s" % (type(e).__name__, e)
+  166     if _ENGINE["error"]:
+  167         fail(_ENGINE["error"])
+  168 
+  169 
+  170 def _armed(fn, *a, allow_reference_log=False, **k):
+  171     _STATE["armed"] += 1
+  172     prev = _STATE["allow_reference_log"]
+  173     _STATE["allow_reference_log"] = allow_reference_log
+  174     try:
+  175         return fn(*a, **k)
+  176     finally:
+  177         _STATE["armed"] -= 1
+  178         _STATE["allow_reference_log"] = prev
+  179 
+  180 
+  181 def audit_hook(event, args):
+  182     if not _STATE["armed"] or event != "open" or not args:
+  183         return
+  184     p = args[0]
+  185     if isinstance(p, int):
+  186         return
+  187     try:
+  188         p = os.fspath(p)
+  189         if isinstance(p, bytes):
+  190             p = p.decode("utf-8", "replace")
+  191         p = os.path.abspath(p)
+  192     except Exception:  # noqa: BLE001
+  193         return
+  194     for pref in FORBIDDEN_PREFIXES:
+  195         if _STATE["allow_reference_log"] and pref == str(REFERENCE_LOG):
+  196             continue
+  197         if p == pref.rstrip(os.sep) or p.startswith(pref):
+  198             _STATE["violations"].append(p)
+  199 
+  200 
+  201 def _module_violation() -> str | None:
+  202     spec_dir = str(SPEC) + os.sep
+  203     for name, mod in list(sys.modules.items()):
+  204         f = getattr(mod, "__file__", None)
+  205         if f and str(f).startswith(spec_dir) and not name.startswith("_wl_oracle_"):
+  206             return "module %r loaded from %s" % (name, f)
+  207     return None
+  208 
+  209 
+  210 def api(dotted: str):
+  211     """Resolve 'module.function' inside wlengine, failing cleanly if absent."""
+  212     engine_ready()
+  213     mod_name, _, attr = dotted.rpartition(".")
+  214     full = "wlengine." + mod_name if mod_name else "wlengine"
+  215     try:
+  216         mod = _armed(importlib.import_module, full)
+  217     except Exception as e:  # noqa: BLE001
+  218         fail("cannot import %s (SPEC-07 API): %s: %s" % (full, type(e).__name__, e))
+  219     if not hasattr(mod, attr):
+  220         fail("%s has no attribute %r (SPEC-07 API)" % (full, attr))
+  221     return getattr(mod, attr)
+  222 
+  223 
+  224 def error_class(name: str):
+  225     cls = api("errors." + name)
+  226     if not (isinstance(cls, type) and issubclass(cls, Exception)):
+  227         fail("wlengine.errors.%s must be an exception class" % name)
+  228     if name in ("FormatError", "ChecksumError") and not issubclass(cls, ValueError):
+  229         fail("wlengine.errors.%s must subclass ValueError (SPEC-07 section 3)" % name)
+  230     if name == "ChecksumError" and not issubclass(cls, api("errors.FormatError")):
+  231         fail("wlengine.errors.ChecksumError must subclass FormatError (SPEC-07 section 3)")
+  232     if cls in (Exception, ValueError, BaseException) or issubclass(NotImplementedError, cls):
+  233         fail("wlengine.errors.%s must be a dedicated class (SPEC-07 section 3)" % name)
+  234     return cls
+  235 
+  236 
+  237 def _after_call(label: str) -> None:
+  238     if _STATE["violations"]:
+  239         p = _STATE["violations"][0]
+  240         _STATE["violations"].clear()
+  241         fail("%s opened a file the engine must not read (SPEC-07 rule 6.1): %s" % (label, p))
+  242     bad = _module_violation()
+  243     if bad:
+  244         fail("%s: the engine loaded an oracle module (SPEC-07 rule 6.1): %s" % (label, bad))
+  245 
+  246 
+  247 def call(dotted: str, *args, allow_reference_log=False, **kw):
+  248     """Call wlengine.<dotted>(*args, **kw); any exception becomes a clean failure."""
+  249     fn = api(dotted)
+  250     label = "wlengine." + dotted
+  251     try:
+  252         out = _armed(fn, *args, allow_reference_log=allow_reference_log, **kw)
+  253     except NotImplementedError as e:
+  254         _after_call(label)
+  255         fail("%s: not implemented (%s)" % (label, e or "NotImplementedError"))
+  256     except Exception as e:  # noqa: BLE001
+  257         _after_call(label)
+  258         fail("%s raised %s: %s" % (label, type(e).__name__, short(str(e), 200)))
+  259     _after_call(label)
+  260     return out
+  261 
+  262 
+  263 def call_capture(dotted: str, *args, allow_reference_log=False, **kw):
+  264     """Like call() but returns (value, exception) instead of failing on an
+  265     exception other than NotImplementedError or a missing API."""
+  266     fn = api(dotted)
+  267     label = "wlengine." + dotted
+  268     try:
+  269         out = _armed(fn, *args, allow_reference_log=allow_reference_log, **kw)
+  270     except NotImplementedError as e:
+  271         _after_call(label)
+  272         fail("%s: not implemented (%s)" % (label, e or "NotImplementedError"))
+  273     except Exception as e:  # noqa: BLE001
+  274         _after_call(label)
+  275         return None, e
+  276     _after_call(label)
+  277     return out, None
+  278 
+  279 
+  280 def expect_error(err_name: str, dotted: str, *args, what: str = "", **kw) -> None:
+  281     """Pass only if wlengine.<dotted> raises wlengine.errors.<err_name>."""
+  282     cls = error_class(err_name)
+  283     out, exc = call_capture(dotted, *args, **kw)
+  284     label = "wlengine." + dotted + (" (%s)" % what if what else "")
+  285     if exc is None:
+  286         fail("%s: expected %s, but it returned %s" % (label, err_name, short(out)))
+  287     if not isinstance(exc, cls):
+  288         fail("%s: expected %s, got %s: %s" % (label, err_name, type(exc).__name__, short(str(exc), 160)))
+  289 
+  290 
+  291 # ---------------------------------------------------------------------------
+  292 # Oracle helpers (in-process codecs_ref only; fixtures_gen runs in a subprocess)
+  293 # ---------------------------------------------------------------------------
+  294 
+  295 _ORACLE = {}
+  296 
+  297 
+  298 def codecs_oracle():
+  299     """SPEC/reference/codecs_ref.py loaded under a private module name."""
+  300     if "c" not in _ORACLE:
+  301         sys.dont_write_bytecode = True
+  302         spec = importlib.util.spec_from_file_location("_wl_oracle_codecs_ref", REFERENCE / "codecs_ref.py")
+  303         mod = importlib.util.module_from_spec(spec)
+  304         sys.modules["_wl_oracle_codecs_ref"] = mod
+  305         spec.loader.exec_module(mod)
+  306         _ORACLE["c"] = mod
+  307     return _ORACLE["c"]
+  308 
+  309 
+  310 def load_json(path: Path):
+  311     with open(path, encoding="utf-8") as fh:
+  312         return json.load(fh)
+  313 
+  314 
+  315 # ---------------------------------------------------------------------------
+  316 # Independent restatements of SPEC-04 formulas (expected values only)
+  317 # ---------------------------------------------------------------------------
+  318 
+  319 class RefRng:
+  320     """SPEC-04 LR-1 and LR-2, restated for computing expected values."""
+  321 
+  322     def __init__(self, seed: int) -> None:
+  323         self.state = seed & 0xFFFFFFFF or 0x6D2B79F5
+  324 
+  325     def next(self) -> int:
+  326         x = self.state
+  327         x ^= (x << 13) & 0xFFFFFFFF
+  328         x ^= x >> 17
+  329         x ^= (x << 5) & 0xFFFFFFFF
+  330         self.state = x
+  331         return x
+  332 
+  333     def roll(self, n: int) -> int:
+  334         return 1 + self.next() % n
+  335 
+  336     def rnd(self, n: int) -> int:
+  337         if n == 0:
+  338             return 0
+  339         if n == 1:
+  340             return 1
+  341         return self.roll(n)
+  342 
+  343     def dice(self, n: int, s: int) -> int:
+  344         return sum(self.roll(s) for _ in range(n))
+  345 
+  346     def d100(self) -> int:
+  347         return self.roll(100)
+  348 
+  349 
+  350 def clamp(v: int, lo: int, hi: int) -> int:
+  351     return max(lo, min(hi, v))
+  352 
+  353 
+  354 def ref_check_need(level: int, attr: int, difficulty: int, tool: bool = False) -> int:
+  355     return 20 + 15 * level + 2 * attr - difficulty + (20 if tool else 0)
+  356 
+  357 
+  358 def ref_skill_check(rng: RefRng, level, attr, difficulty, tool=False) -> dict:
+  359     need = ref_check_need(level, attr, difficulty, tool)
+  360     if need >= 100:
+  361         return {"need": need, "roll": None, "success": True}
+  362     if need <= 0:
+  363         return {"need": need, "roll": None, "success": False}
+  364     r = rng.d100()
+  365     return {"need": need, "roll": r, "success": r <= need}
+  366 
+  367 
+  368 def ref_max_hp(strength: int, level: int) -> int:
+  369     return 10 + strength + (level - 1) * (2 + strength // 5)
+  370 
+  371 
+  372 def ref_ac(agility: int, armour_bonus: int, evasion: int) -> int:
+  373     return agility // 5 + armour_bonus + evasion
+  374 
+  375 
+  376 def ref_ranged_need(level, agility, target_ac, band) -> int:
+  377     return clamp(35 + 12 * level + agility - 6 * target_ac - 5 * (band - 1), 5, 95)
+  378 
+  379 
+  380 def ref_melee_need(level, agility, target_ac) -> int:
+  381     return clamp(35 + 12 * level + agility - 6 * target_ac, 5, 95)
+  382 
+  383 
+  384 def ref_monster_need(combat_rating, member_ac, band) -> int:
+  385     return clamp(20 + 5 * combat_rating - 6 * member_ac - 5 * (band - 1), 5, 95)
+  386 
+  387 
+  388 def ref_flee_need(best_spd, best_monster_speed, command) -> int:
+  389     return clamp(40 + 5 * (best_spd - best_monster_speed) + 5 * command, 5, 95)
+  390 
+  391 
+  392 def ref_jam_chance(gunsmithing: int) -> int:
+  393     return max(1, 4 - gunsmithing)
+  394 
+  395 
+  396 def ref_xp_threshold(level: int) -> int:
+  397     return 50 * level * (level + 1)
+  398 
+  399 
+  400 def ref_level_after(level: int, xp: int) -> int:
+  401     while xp >= ref_xp_threshold(level):
+  402         level += 1
+  403     return level
+  404 
+  405 
+  406 def ref_buy_price(price: int, haggling: int) -> int:
+  407     h = min(5, haggling)
+  408     return price * (100 - 5 * h) // 100
+  409 
+  410 
+  411 def ref_sell_price(price: int, haggling: int) -> int:
+  412     h = min(5, haggling)
+  413     return price * (50 + 5 * h) // 100
+  414 
+  415 
+  416 def ref_monster_hp(rng: RefRng, sturdiness: int) -> int:
+  417     hi = rng.rnd(sturdiness >> 8)
+  418     lo = rng.rnd(sturdiness & 0xFF)
+  419     return sturdiness // 4 + ((hi << 8) | lo)
+  420 
+  421 
+  422 def ref_damage_member(hp: int, d: int) -> dict:
+  423     prev = hp
+  424     hp -= d
+  425     if hp > 0:
+  426         return {"hp": hp, "cond": 0, "last_hp": None}
+  427     over = d - prev
+  428     return {"hp": 0, "cond": 2 if over >= 5 else 1, "last_hp": prev}
+  429 
+  430 
+  431 def ref_pay(moneys: list[int], first_slot: int, price: int):
+  432     if sum(moneys) < price:
+  433         return None
+  434     out = list(moneys)
+  435     order = [first_slot - 1] + [i for i in range(len(moneys)) if i != first_slot - 1]
+  436     left = price
+  437     for i in order:
+  438         take = min(out[i], left)
+  439         out[i] -= take
+  440         left -= take
+  441         if left == 0:
+  442             break
+  443     return out
+  444 
+  445 
+  446 def ref_advance_clock(clock: dict, minutes: int, seconds: int):
+  447     day, minute, second = clock["day"], clock["minute"], clock["second"]
+  448     total_s = second + seconds
+  449     second = total_s % 60
+  450     add_min = minutes + total_s // 60
+  451     hours = []
+  452     for _ in range(add_min):
+  453         minute += 1
+  454         if minute == 1440:
+  455             minute = 0
+  456         if minute % 60 == 0:
+  457             h = minute // 60
+  458             hours.append(h)
+  459             if h == 0:
+  460                 day += 1
+  461     return {"day": day, "minute": minute, "second": second}, hours
+  462 
+  463 
+  464 def ref_build_groups(rng: RefRng, mobs: list[dict], record: dict) -> list[dict]:
+  465     counts = []
+  466     for mob_index, rnd_flag, size in record["groups"]:
+  467         if mob_index == 0:
+  468             continue
+  469         mob = mobs[mob_index - 1]
+  470         s = size if size else mob["maxGroup"]
+  471         counts.append((mob_index, rng.rnd(s) if rnd_flag else s))
+  472     out = []
+  473     for mob_index, count in counts:
+  474         if count <= 0:
+  475             continue
+  476         mob = mobs[mob_index - 1]
+  477         hp = [ref_monster_hp(rng, mob["sturdiness"]) for _ in range(count)]
+  478         band = 3 if mob["weaponType"] >= 3 else 2
+  479         out.append({"monster": mob_index, "count": count, "band": band, "hp": hp})
+  480     return out
+  481 
+  482 
+  483 def ref_speed_order(actors: list[dict]) -> list[dict]:
+  484     def key(a):
+  485         party = a["side"] == "party"
+  486         return (-a["speed"], 0 if party else 1,
+  487                 a.get("slot", 0) if party else 0,
+  488                 0 if party else a["group"], 0 if party else a["index"])
+  489     return sorted(actors, key=key)
+  490 
+  491 
+  492 def ref_labstate(blob: bytes) -> dict:
+  493     """Independent LABSTATE.BIN reader (SPEC-04 LR-57)."""
+  494     if blob[:8] != b"WLLABSV1":
+  495         raise ValueError("bad magic")
+  496     n = int.from_bytes(blob[0x14:0x16], "little")
+  497     end = 0x16 + 6 * n
+  498     if len(blob) != end + 2:
+  499         raise ValueError("bad length")
+  500     if sum(blob[:end]) & 0xFFFF != int.from_bytes(blob[end:end + 2], "little"):
+  501         raise ValueError("bad sum")
+  502     cc = [list(blob[0x16 + 6 * i:0x16 + 6 * i + 6]) for i in range(n)]
+  503     return {"steps": int.from_bytes(blob[8:12], "little"), "day": int.from_bytes(blob[12:14], "little"),
+  504             "seconds": blob[14], "pad": blob[15], "rng_state": int.from_bytes(blob[16:20], "little"),
+  505             "cell_changes": cc}
+  506 
+  507 
+  508 def ref_encode_labstate(state: dict) -> bytes:
+  509     cc = sorted(state["cell_changes"], key=lambda c: (c[0], c[2], c[1]))
+  510     b = bytearray(b"WLLABSV1")
+  511     b += state["steps"].to_bytes(4, "little") + state["day"].to_bytes(2, "little")
+  512     b += bytes((state["seconds"], 0)) + state["rng_state"].to_bytes(4, "little")
+  513     b += len(cc).to_bytes(2, "little")
+  514     for c in cc:
+  515         b += bytes(c)
+  516     b += (sum(b) & 0xFFFF).to_bytes(2, "little")
+  517     return bytes(b)
+  518 
+  519 
+  520 def pack4(rows: list[list[int]]) -> bytes:
+  521     out = bytearray()
+  522     for row in rows:
+  523         for x in range(0, len(row), 2):
+  524             out.append((row[x] << 4) | row[x + 1])
+  525     return bytes(out)
+  526 
+  527 
+  528 def unpack4(data: bytes, width: int) -> list[list[int]]:
+  529     stride = width // 2
+  530     return [[v for b in data[y * stride:(y + 1) * stride] for v in (b >> 4, b & 15)]
+  531             for y in range(len(data) // stride)]
+
+==== src/wlengine/combat.py (383 lines) ====
+    1 """SPEC-04 LR-33 to LR-43: combat resolution for the headless driver.
+    2 
+    3 The engine keeps ``self.combat`` as a dict while a fight is running:
+    4 
+    5     {"round": int,          # 0 while the surprise round is pending
+    6      "groups": [...],       # LR-26 groups, each with "hp" per monster
+    7      "surprised": bool,
+    8      "kills": int,
+    9      "pending": [ ... ],    # phase 1 damage, applied together
+   10      "orders": {slot: [order, arg]},
+   11      "over": bool}
+   12 
+   13 This module is a mixin: ``wlengine.headless.Engine`` inherits from
+   14 ``CombatMixin`` so the combat methods can use the engine's helpers
+   15 (``emit``, ``item_record``, ``skill_level``, ``rng`` ...).
+   16 """
+   17 
+   18 from __future__ import annotations
+   19 
+   20 from . import rules
+   21 
+   22 
+   23 def _alive(member):
+   24     return member.get("hp", 0) > 0
+   25 
+   26 
+   27 def _monster_alive(group):
+   28     return any(hp > 0 for hp in group["hp"])
+   29 
+   30 
+   31 class CombatMixin:
+   32     # -- inventory helpers -------------------------------------------------
+   33 
+   34     def member_weapon(self, member):
+   35         """The equipped weapon: item slot 1 (LR-33)."""
+   36         items = member.get("items") or []
+   37         if not items:
+   38             return None, 0
+   39         iid = items[0][0]
+   40         return self.item_record(iid), iid
+   41 
+   42     def weapon_ammo(self, member):
+   43         rec, iid = self.member_weapon(member)
+   44         if rec is None:
+   45             return 0
+   46         return member.get("loaded", rec.get("capacity", 0))
+   47 
+   48     def ammo_boxes(self, member):
+   49         """Total rounds in the member's ammunition items."""
+   50         total = 0
+   51         for iid, count in (member.get("items") or [])[1:]:
+   52             rec = self.item_record(iid)
+   53             if rec and rec.get("ammo"):
+   54                 total += rec["ammo"] * count
+   55         return total
+   56 
+   57     def spend_ammo(self, member):
+   58         member["loaded"] = max(0, self.weapon_ammo(member) - 1)
+   59 
+   60     def reload(self, member):
+   61         rec, _iid = self.member_weapon(member)
+   62         cap = rec.get("capacity", 0) if rec else 0
+   63         need = cap - self.weapon_ammo(member)
+   64         if need <= 0:
+   65             return 0
+   66         got = 0
+   67         items = member.get("items") or []
+   68         for idx in range(1, len(items)):
+   69             iid, count = items[idx]
+   70             irec = self.item_record(iid)
+   71             if not irec or not irec.get("ammo"):
+   72                 continue
+   73             while got < need and count > 0:
+   74                 got += irec["ammo"]
+   75                 count -= 1
+   76             items[idx] = [iid, count]
+   77             if got >= need:
+   78                 break
+   79         member["loaded"] = self.weapon_ammo(member) + got
+   80         return got
+   81 
+   82     # -- orders (LR-33) ----------------------------------------------------
+   83 
+   84     def auto_orders(self):
+   85         """LR-33: the automatic order for every living member."""
+   86         orders = {}
+   87         for i, m in enumerate(self.party):
+   88             slot = i + 1
+   89             if not _alive(m):
+   90                 orders[str(slot)] = ["dead"]
+   91                 continue
+   92             rec, _iid = self.member_weapon(m)
+   93             if m.get("jammed"):
+   94                 orders[str(slot)] = ["unjam"]
+   95                 continue
+   96             if rec is not None and rec.get("skill") in (4, 5, 12):
+   97                 if self.weapon_ammo(m) > 0:
+   98                     orders[str(slot)] = ["fire", 1]
+   99                 elif self.ammo_boxes(m) > 0:
+  100                     orders[str(slot)] = ["reload"]
+  101                 else:
+  102                     orders[str(slot)] = ["melee"]
+  103                 continue
+  104             orders[str(slot)] = ["melee"]
+  105         return orders
+  106 
+  107     # -- phase 1 (LR-34) ---------------------------------------------------
+  108 
+  109     def party_phase1(self):
+  110         """LR-34: every member with a loaded ranged weapon fires once."""
+  111         c = self.combat
+  112         if c is None:
+  113             return
+  114         for i, m in enumerate(self.party):
+  115             if not _alive(m):
+  116                 continue
+  117             rec, iid = self.member_weapon(m)
+  118             if rec is None or rec.get("skill") not in (4, 5, 12):
+  119                 continue
+  120             if self.weapon_ammo(m) <= 0:
+  121                 continue
+  122             target = self.pick_target()
+  123             if target is None:
+  124                 continue
+  125             self.spend_ammo(m)
+  126             level = self.skill_level(m, rec.get("skill", 0))
+  127             agl = (m.get("attrs") or {}).get("AGL", 0)
+  128             need = rules.ranged_need(level, agl, target["ac"], target["band"])
+  129             roll = self.rng.d100()
+  130             hit = roll <= need
+  131             event = {"member": i + 1, "group": target["group"], "index": target["index"],
+  132                      "need": need, "roll": roll, "hit": hit}
+  133             if hit:
+  134                 dmg = self.rng.dice(rec.get("damage", 0), 6) + rec.get("damage_extra", 0)
+  135                 event["damage"] = dmg
+  136                 c["pending"].append(("monster", target, dmg))
+  137             self.emit("shot", **event)
+  138 
+  139     def monster_phase1(self):
+  140         """LR-34: every monster with a ranged weapon fires once."""
+  141         c = self.combat
+  142         if c is None:
+  143             return
+  144         for gi, g in enumerate(c["groups"]):
+  145             mob = g["mob"]
+  146             if mob.get("weaponType", 0) < 3:
+  147                 continue
+  148             for mi, hp in enumerate(g["hp"]):
+  149                 if hp <= 0:
+  150                     continue
+  151                 target = self.pick_member()
+  152                 if target is None:
+  153                     continue
+  154                 need = rules.monster_need(mob.get("combatRating", 0),
+  155                                           target.get("ac", 0), g["band"])
+  156                 roll = self.rng.d100()
+  157                 hit = roll <= need
+  158                 event = {"group": gi, "index": mi, "member": target["slot"],
+  159                          "need": need, "roll": roll, "hit": hit}
+  160                 if hit:
+  161                     dmg = rules.monster_damage(self.rng, mob)
+  162                     event["damage"] = dmg
+  163                     c["pending"].append(("member", target, dmg))
+  164                 self.emit("monster_fire", **event)
+  165 
+  166     def apply_pending(self):
+  167         c = self.combat
+  168         if c is None:
+  169             return
+  170         pending, c["pending"] = c["pending"], []
+  171         for kind, target, dmg in pending:
+  172             if kind == "monster":
+  173                 self.damage_monster(target, dmg)
+  174             else:
+  175                 self.damage_member(target["slot"], dmg)
+  176 
+  177     # -- phase 2 (LR-35) ---------------------------------------------------
+  178 
+  179     def phase2(self):
+  180         c = self.combat
+  181         if c is None:
+  182             return
+  183         actors = []
+  184         for i, m in enumerate(self.party):
+  185             if not _alive(m):
+  186                 continue
+  187             actors.append({"side": "party", "slot": i + 1, "speed": self.member_speed(m)})
+  188         for gi, g in enumerate(c["groups"]):
+  189             for mi, hp in enumerate(g["hp"]):
+  190                 if hp <= 0:
+  191                     continue
+  192                 actors.append({"side": "monster", "group": gi, "index": mi,
+  193                                "speed": g["mob"].get("combatRating", 0)})
+  194         for a in rules.speed_order(actors):
+  195             if c.get("over"):
+  196                 return
+  197             if a["side"] == "party":
+  198                 self.member_attack(a["slot"])
+  199             else:
+  200                 self.monster_attack(a["group"], a["index"])
+  201 
+  202     def member_speed(self, member):
+  203         return (member.get("attrs") or {}).get("SPD", 0)
+  204 
+  205     def member_attack(self, slot):
+  206         m = self.party[slot - 1]
+  207         if not _alive(m):
+  208             return
+  209         rec, _iid = self.member_weapon(m)
+  210         target = self.pick_target()
+  211         if target is None:
+  212             return
+  213         if rec is not None and rec.get("skill") in (4, 5, 12) and self.weapon_ammo(m) > 0:
+  214             self.spend_ammo(m)
+  215             level = self.skill_level(m, rec.get("skill", 0))
+  216             agl = (m.get("attrs") or {}).get("AGL", 0)
+  217             need = rules.ranged_need(level, agl, target["ac"], target["band"])
+  218             roll = self.rng.d100()
+  219             hit = roll <= need
+  220             event = {"member": slot, "group": target["group"], "index": target["index"],
+  221                      "need": need, "roll": roll, "hit": hit}
+  222             if hit:
+  223                 dmg = self.rng.dice(rec.get("damage", 0), 6) + rec.get("damage_extra", 0)
+  224                 event["damage"] = dmg
+  225                 self.damage_monster(target, dmg)
+  226             self.emit("shot", **event)
+  227             return
+  228         # melee
+  229         skill = rec.get("skill", 1) if rec else 1
+  230         level = self.skill_level(m, skill)
+  231         agl = (m.get("attrs") or {}).get("AGL", 0)
+  232         need = rules.melee_need(level, agl, target["ac"])
+  233         roll = self.rng.d100()
+  234         hit = roll <= need
+  235         event = {"member": slot, "group": target["group"], "index": target["index"],
+  236                  "need": need, "roll": roll, "hit": hit}
+  237         if hit:
+  238             base = self.rng.dice(rec.get("damage", 0), 6) if rec else 0
+  239             dmg = base + rules.melee_damage_bonus((m.get("attrs") or {}).get("STR", 0))
+  240             event["damage"] = dmg
+  241             self.damage_monster(target, dmg)
+  242         self.emit("melee", **event)
+  243 
+  244     def monster_attack(self, gi, mi):
+  245         c = self.combat
+  246         g = c["groups"][gi]
+  247         mob = g["mob"]
+  248         target = self.pick_member()
+  249         if target is None:
+  250             return
+  251         need = rules.monster_need(mob.get("combatRating", 0), target.get("ac", 0), g["band"])
+  252         roll = self.rng.d100()
+  253         hit = roll <= need
+  254         event = {"group": gi, "index": mi, "member": target["slot"],
+  255                  "need": need, "roll": roll, "hit": hit}
+  256         if hit:
+  257             dmg = rules.monster_damage(self.rng, mob)
+  258             event["damage"] = dmg
+  259             self.damage_member(target["slot"], dmg)
+  260         self.emit("monster_attack", **event)
+  261 
+  262     # -- damage ------------------------------------------------------------
+  263 
+  264     def damage_monster(self, target, dmg):
+  265         c = self.combat
+  266         g = c["groups"][target["group"]]
+  267         mi = target["index"]
+  268         g["hp"][mi] = max(0, g["hp"][mi] - dmg)
+  269         self.emit("monster_damage", group=target["group"], index=mi,
+  270                   damage=dmg, hp=g["hp"][mi])
+  271         if g["hp"][mi] <= 0:
+  272             c["kills"] += 1
+  273             self.emit("monster_dies", group=target["group"], index=mi,
+  274                       round=c["round"])
+  275             if not _monster_alive(g):
+  276                 self.emit("group_dies", group=target["group"])
+  277 
+  278     def damage_member(self, slot, dmg):
+  279         m = self.party[slot - 1]
+  280         res = rules.damage_member(m.get("hp", 0), dmg)
+  281         m["hp"] = res["hp"]
+  282         m["cond"] = res["cond"]
+  283         self.emit("member_damage", member=slot, damage=dmg, hp=res["hp"],
+  284                   cond=res["cond"])
+  285         if res["hp"] <= 0:
+  286             self.emit("member_dies", member=slot, cond=res["cond"])
+  287 
+  288     # -- targeting ---------------------------------------------------------
+  289 
+  290     def pick_target(self):
+  291         c = self.combat
+  292         for gi, g in enumerate(c["groups"]):
+  293             for mi, hp in enumerate(g["hp"]):
+  294                 if hp > 0:
+  295                     return {"group": gi, "index": mi, "ac": g["mob"].get("armorClass", 0),
+  296                             "band": g["band"]}
+  297         return None
+  298 
+  299     def pick_member(self):
+  300         for i, m in enumerate(self.party):
+  301             if _alive(m):
+  302                 return {"slot": i + 1, "ac": m.get("ac", 0)}
+  303         return None
+  304 
+  305     # -- end of round (LR-39, LR-40) ---------------------------------------
+  306 
+  307     def combat_over(self):
+  308         c = self.combat
+  309         if c is None:
+  310             return True
+  311         if all(not _monster_alive(g) for g in c["groups"]):
+  312             self.combat_victory()
+  313             return True
+  314         if not any(_alive(m) for m in self.party):
+  315             self.combat_defeat()
+  316             return True
+  317         return False
+  318 
+  319     def end_of_round(self):
+  320         c = self.combat
+  321         if c is None:
+  322             return
+  323         self.emit("end_of_round", round=c["round"])
+  324         if self.combat_over():
+  325             return
+  326 
+  327     def combat_victory(self):
+  328         c = self.combat
+  329         c["over"] = True
+  330         self.emit("combat_end", result="victory", rounds=c["round"])
+  331         self.award_xp()
+  332 
+  333     def combat_defeat(self):
+  334         c = self.combat
+  335         c["over"] = True
+  336         self.emit("combat_end", result="defeat", rounds=c["round"])
+  337         self.emit("game_over")
+  338         self.mode = "gameover"
+  339 
+  340     def award_xp(self):
+  341         c = self.combat
+  342         total = 0
+  343         for g in c["groups"]:
+  344             mob = g["mob"]
+  345             total += rules.monster_values(mob)["xp"] * g["count"]
+  346         alive = [i for i, m in enumerate(self.party) if _alive(m)]
+  347         if not alive:
+  348             return
+  349         share = total // len(alive)
+  350         for i in alive:
+  351             m = self.party[i]
+  352             before = m.get("level", 1)
+  353             m["xp"] = m.get("xp", 0) + share
+  354             after = rules.level_after(m["xp"])
+  355             self.emit("xp", member=i + 1, amount=share, total=m["xp"], level=after)
+  356             if after > before:
+  357                 m["level"] = after
+  358                 m["max_hp"] = rules.max_hp((m.get("attrs") or {}).get("STR", 0), after)
+  359                 self.emit("promote", member=i + 1, level=after)
+  360         money = 5 * self.skill_level(self.party[0], 20) * c["kills"]
+  361         if money:
+  362             self.party[0]["money"] = self.party[0].get("money", 0) + money
+  363             self.emit("money", member=1, delta=money, total=self.party[0]["money"])
+  364 
+  365     # -- flight (LR-43) ----------------------------------------------------
+  366 
+  367     def combat_flee(self):
+  368         c = self.combat
+  369         if c is None:
+  370             return
+  371         best_m = max((self.member_speed(m) for m in self.party if _alive(m)), default=0)
+  372         best_x = max((g["mob"].get("combatRating", 0) for g in c["groups"]
+  373                       if _monster_alive(g)), default=0)
+  374         need = rules.flee_need(best_m, best_x, 0)
+  375         roll = self.rng.d100()
+  376         if roll <= need:
+  377             c["over"] = True
+  378             self.emit("flee", need=need, roll=roll, success=True)
+  379             self.emit("combat_end", result="fled", rounds=c["round"])
+  380             self.combat = None
+  381             self.mode = "map"
+  382         else:
+  383             self.emit("flee", need=need, roll=roll, success=False)
+
+==== src/wlengine/headless.py 440-1077 (638 lines) ====
+    1         self.recompute_ac(member)
+    2         ac = self.party[member - 1]["ac"]
+    3         self.emit("equip", member=member, slot=slot + 1, item=iid, ac=ac)
+    4 
+    5     # -- combat ------------------------------------------------------------
+    6 
+    7     def combat_key(self, key, low):
+    8         if low == "a":
+    9             self.combat_round()
+   10             return True
+   11         return False
+   12 
+   13     def build_groups(self, rec):
+   14         """LR-26, LR-28: groups from the map's monster table and the record."""
+   15         m = self.sc.map(self.location)
+   16         mobs = list((m or {}).get("mobs", []))
+   17         groups = rules.build_groups(self.rng, mobs, rec or {})
+   18         for g in groups:
+   19             mob = mobs[g["monster"] - 1]
+   20             name = mob.get("name", b"")
+   21             if isinstance(name, bytes):
+   22                 name = name.split(b"\x0a")[0].decode("latin-1")
+   23             else:
+   24                 name = str(name).split("\n")[0]
+   25             g["mob"] = mob
+   26             g["monster"] = name
+   27         return groups
+   28 
+   29     def group_event(self, g):
+   30         return {k: v for k, v in g.items() if k != "mob"}
+   31 
+   32     ATTR_ORDER = ("STR", "IQ", "LCK", "SPD", "AGL", "CHA")
+   33     ATTR_OFFSETS = {14: 0, 15: 1, 16: 2, 17: 3, 18: 4, 20: 5}
+   34 
+   35     def attr_value(self, member, skill):
+   36         """LR-13: the member's value of the attribute linked to ``skill``."""
+   37         idx = self.skill_attribute(skill)
+   38         attrs = member.get("attrs") or {}
+   39         return attrs.get(self.ATTR_ORDER[idx], 0)
+   40 
+   41     def monster_phase1(self):
+   42         return
+   43 
+   44     def party_phase1(self):
+   45         return
+   46 
+   47     def combat_round(self):
+   48         c = self.combat
+   49         if c is None:
+   50             return
+   51         rnd = c["round"] if c["round"] else 1
+   52         orders = {}
+   53         for i, _m in enumerate(self.party):
+   54             orders[str(i + 1)] = ["fire", 1]
+   55         self.emit("round_orders", round=rnd, orders=orders)
+   56         self.emit("round_start", round=rnd)
+   57         self.party_phase1()
+   58         self.monster_phase1()
+   59         self.end_of_round()
+   60 
+   61     # -- movement ----------------------------------------------------------
+   62 
+   63     def key_down(self):
+   64         self.move(0, 1)
+   65 
+   66     def key_up(self):
+   67         self.move(0, -1)
+   68 
+   69     def key_left(self):
+   70         self.move(-1, 0)
+   71 
+   72     def key_right(self):
+   73         self.move(1, 0)
+   74 
+   75     def move(self, dx, dy):
+   76         nx, ny = self.x + dx, self.y + dy
+   77         m = self.sc.map(self.location)
+   78         size = m["size"]
+   79         if not (0 <= nx < size and 0 <= ny < size):
+   80             self.emit("blocked", x=nx, y=ny)
+   81             return
+   82         if not maps.is_passable(m, nx, ny):
+   83             self.bump(nx, ny)
+   84             return
+   85         self.x, self.y = nx, ny
+   86         self.steps += 1
+   87         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+   88         self.advance_time(self.step_minutes())
+   89         self.after_move()
+   90 
+   91     def step_minutes(self):
+   92         m = self.sc.map(self.location)
+   93         tp = m["info"].get("timePerStep", 256)
+   94         return tp >> 8
+   95 
+   96     def cell_class_action(self, x, y):
+   97         m = self.sc.map(self.location)
+   98         size = m["size"]
+   99         if not (0 <= x < size and 0 <= y < size):
+  100             return 0, 0
+  101         return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+  102 
+  103     def show_message(self, index):
+  104         if not index:
+  105             return
+  106         text = self.sc.map_string(self.location, index)
+  107         if text.startswith("Read paragraph ") and text.endswith("."):
+  108             body = text[len("Read paragraph "):-1]
+  109             if body.isdigit():
+  110                 self.emit("paragraph", n=int(body))
+  111                 return
+  112         self.emit("message", location=self.location, string=index)
+  113 
+  114     def advance_time(self, minutes):
+  115         before_hour = self.hour
+  116         self.minute += minutes
+  117         while self.minute >= 60:
+  118             self.minute -= 60
+  119             self.hour += 1
+  120         while self.hour >= 24:
+  121             self.hour -= 24
+  122             self.day += 1
+  123             self.emit("day", day=self.day)
+  124         if self.hour != before_hour:
+  125             self.natural_heal()
+  126 
+  127     def natural_heal(self):
+  128         healed = []
+  129         for i, m in enumerate(self.party):
+  130             if m.get("hp", 0) < m.get("max_hp", 0):
+  131                 m["hp"] = m.get("max_hp", 0)
+  132                 healed.append(i + 1)
+  133         if healed:
+  134             self.emit("natural_heal", members=healed)
+  135 
+  136     def after_move(self):
+  137         m = self.sc.map(self.location)
+  138         cls, action = self.cell_class_action(self.x, self.y)
+  139         rec = maps.record_at(m, self.x, self.y)
+  140         if cls == 10:
+  141             self.transition(rec)
+  142         elif cls == 6:
+  143             self.open_shop(rec)
+  144         elif cls == 3:
+  145             self.start_encounter(rec)
+  146         elif cls == 1 and rec is not None:
+  147             for msg in rec.get("messages", []):
+  148                 self.show_message(msg)
+  149         elif cls == 5 and rec is not None:
+  150             self.apply_loot(rec, self.x, self.y)
+  151         elif cls == 4 and rec is not None and not rec.get("impassable"):
+  152             self.show_message(rec.get("message", 0))
+  153             self.apply_tail(rec, self.x, self.y)
+  154 
+  155     def transition(self, rec):
+  156         loc, x, y = maps.resolve_transition(self.sc.tables, rec, self.x, self.y,
+  157                                             (self.location, self.x, self.y))
+  158         self.location, self.x, self.y = loc, x, y
+  159         self.emit("map_change", location=loc, x=x, y=y)
+  160 
+  161     def bump(self, nx, ny):
+  162         m = self.sc.map(self.location)
+  163         rec = maps.record_at(m, nx, ny)
+  164         cls, action = self.cell_class_action(nx, ny)
+  165         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+  166         self.bump_effect(rec, nx, ny, cls)
+  167 
+  168     def bump_effect(self, rec, nx, ny, cls=None):
+  169         if cls is None:
+  170             cls, _a = self.cell_class_action(nx, ny)
+  171         if cls == 11:
+  172             self.bump_blocked(rec, nx, ny)
+  173         elif cls == 4:
+  174             if rec is not None and rec.get("impassable"):
+  175                 self.show_message(rec.get("message", 0))
+  176                 self.apply_tail(rec, nx, ny)
+  177                 self.run_hook_at(nx, ny)
+  178             elif rec is not None:
+  179                 self.show_message(rec.get("message", 0))
+  180                 self.apply_tail(rec, nx, ny)
+  181         elif cls == 3:
+  182             self.start_encounter(rec)
+  183 
+  184     def bump_blocked(self, rec, nx, ny):
+  185         if rec is not None:
+  186             self.show_message(rec.get("message", 0))
+  187             self.apply_tail(rec, nx, ny)
+  188         self.run_hook_at(nx, ny)
+  189 
+  190     def run_hook_at(self, nx, ny):
+  191         hook = self.sc.hook(self.location, nx, ny)
+  192         if hook:
+  193             self.run_hook(hook, nx, ny)
+  194 
+  195     def apply_tail(self, rec, x, y):
+  196         tail = maps.apply_tail(rec)
+  197         if tail is None:
+  198             return
+  199         m = self.sc.map(self.location)
+  200         m["cells"]["actionClass"][y][x] = tail[0]
+  201         m["cells"]["action"][y][x] = tail[1]
+  202         self.cell_change(x, y, tail[0], tail[1], maps.image_at(m, x, y))
+  203 
+  204     def apply_loot(self, rec, x, y):
+  205         for item in rec.get("items", []):
+  206             iid = item[0] if isinstance(item, (list, tuple)) else item
+  207             amount = item[1] if isinstance(item, (list, tuple)) and len(item) > 1 else 0
+  208             placed = False
+  209             for i, m in enumerate(self.party):
+  210                 if len(m.get("items", [])) < 30:
+  211                     self.add_item(i + 1, iid, 1)
+  212                     slot = self.item_slot(i + 1, iid)
+  213                     self.emit("item_gain", member=i + 1, item=iid, slot=slot,
+  214                               status=amount)
+  215                     placed = True
+  216                     break
+  217             if not placed:
+  218                 self.emit("item_lost", item=iid)
+  219         cash = rec.get("cash")
+  220         if cash:
+  221             m = self.party[0]
+  222             m["money"] = m.get("money", 0) + cash
+  223             self.emit("money", member=1, delta=cash, total=m["money"])
+  224         self.apply_tail(rec, x, y)
+  225 
+  226     # -- cell changes ------------------------------------------------------
+  227 
+  228     def cell_change(self, x, y, action_class, action, image):
+  229         self.cell_changes.append([self.location, x, y, action_class, action,
+  230                                   image])
+  231         self.emit("cell_change", location=self.location, x=x, y=y,
+  232                   action_class=action_class, action=action, image=image)
+  233 
+  234     # -- hooks -------------------------------------------------------------
+  235 
+  236     def run_hook(self, hook, nx, ny):
+  237         kind = hook.get("kind")
+  238         if kind == "win":
+  239             self.hook_win(hook, nx, ny)
+  240         elif kind == "recruit":
+  241             self.hook_recruit(hook, nx, ny)
+  242         elif kind == "healer":
+  243             self.hook_healer(hook, nx, ny)
+  244         elif kind == "lock":
+  245             self.bump_lock(None, nx, ny)
+  246 
+  247     def hook_win(self, hook, nx, ny):
+  248         item = hook.get("item")
+  249         if item is not None and not self.party_has(item):
+  250             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+  251             if para:
+  252                 self.emit("paragraph", n=para)
+  253             return
+  254         para = self.hook_get(hook, "win_paragraph", "win_para")
+  255         if para:
+  256             self.emit("paragraph", n=para)
+  257         self.mode = "won"
+  258         self.emit("win", steps=self.steps, day=self.day,
+  259                   minutes=self.hour * 60 + self.minute)
+  260 
+  261     def hook_get(self, hook, *names):
+  262         for name in names:
+  263             if name in hook and hook[name] is not None:
+  264                 return hook[name]
+  265         return None
+  266 
+  267     def hook_recruit(self, hook, nx, ny):
+  268         para = self.hook_get(hook, "paragraph")
+  269         if para:
+  270             self.emit("paragraph", n=para)
+  271         self.pending = "recruit"
+  272         self.pending_hook = hook
+  273         self.pending_cell = (nx, ny)
+  274         self.emit("prompt", prompt="recruit")
+  275 
+  276     def hook_healer(self, hook, nx, ny):
+  277         self.pending = "heal"
+  278         self.pending_hook = hook
+  279         self.pending_cell = (nx, ny)
+  280         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+  281 
+  282     # -- locks -------------------------------------------------------------
+  283 
+  284     def bump_lock(self, rec, nx, ny):
+  285         hook = self.sc.hook(self.location, nx, ny)
+  286         if hook is None:
+  287             return
+  288         msg = self.hook_get(hook, "success_message", "message")
+  289         if msg:
+  290             self.emit("message", location=self.location, string=msg)
+  291         key_item = hook.get("key_item")
+  292         if key_item is not None:
+  293             member = self.member_with_item(key_item)
+  294             if member is not None:
+  295                 self.emit("key_used", member=member, item=key_item)
+  296                 self.unlock(nx, ny, hook, member, xp=0)
+  297                 return
+  298         member = self.pick_member(hook.get("skill", 0))
+  299         skill = hook.get("skill", 0)
+  300         level = self.skill_level(self.party[member - 1], skill)
+  301         attr = self.skill_attribute(skill)
+  302         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+  303                                 hook.get("tool_item") is not None)
+  304         roll = self.rng.d100()
+  305         success = roll <= need
+  306         self.emit("check", member=member, skill=skill, level=level, need=need,
+  307                   roll=roll, success=success)
+  308         if success:
+  309             self.unlock(nx, ny, hook, member)
+  310         else:
+  311             self.emit("message", location=self.location,
+  312                       string=hook.get("fail_message", ""))
+  313 
+  314     def unlock(self, nx, ny, hook, member, xp=10):
+  315         self.emit("unlock", x=nx, y=ny)
+  316         m = self.sc.map(self.location)
+  317         rec = maps.record_at(m, nx, ny)
+  318         img = maps.image_at(m, nx, ny)
+  319         tail = maps.apply_tail(rec) if rec is not None else None
+  320         if tail is None:
+  321             tail = (0, 0)
+  322         m["cells"]["actionClass"][ny][nx] = tail[0]
+  323         m["cells"]["action"][ny][nx] = tail[1]
+  324         self.cell_change(nx, ny, tail[0], tail[1], img)
+  325         newimg = maps.image_at(m, nx, ny)
+  326         self.cell_change(nx, ny, tail[0], tail[1], newimg)
+  327         if xp:
+  328             mm = self.party[member - 1]
+  329             mm["xp"] = mm.get("xp", 0) + xp
+  330             self.emit("xp", member=member, delta=xp, total=mm["xp"])
+  331         para = self.hook_get(hook, "paragraph", "success_paragraph")
+  332         if para:
+  333             self.emit("paragraph", n=para)
+  334 
+  335     def member_with_item(self, item):
+  336         for i, m in enumerate(self.party):
+  337             for it in m.get("items", []):
+  338                 if it[0] == item and it[1] > 0:
+  339                     return i + 1
+  340         return None
+  341 
+  342     def pick_member(self, skill):
+  343         idx = self.skill_attribute(skill)
+  344         best = 1
+  345         best_key = None
+  346         for i, m in enumerate(self.party):
+  347             if m.get("cond", 0) != 0:
+  348                 continue
+  349             lvl = self.skill_level(m, skill)
+  350             attrs = m.get("attrs") or {}
+  351             a = attrs.get(self.ATTR_ORDER[idx], 0)
+  352             key = (lvl, a, -i)
+  353             if best_key is None or key > best_key:
+  354                 best_key = key
+  355                 best = i + 1
+  356         return best
+  357 
+  358     def skill_attribute(self, skill):
+  359         """LR-6: LABSKILL byte 1 is a record offset; map it to an attribute."""
+  360         tbl = getattr(self.sc, "skill_table", None)
+  361         if tbl:
+  362             try:
+  363                 off = tbl[skill][2]
+  364             except Exception:  # noqa: BLE001
+  365                 off = None
+  366             if off in self.ATTR_OFFSETS:
+  367                 return self.ATTR_OFFSETS[off]
+  368         return 1
+  369 
+  370     def end_of_round(self):
+  371         """LR-36: living melee groups above band 1 close in, then round += 1."""
+  372         c = self.combat
+  373         if c is None:
+  374             return
+  375         for i, g in enumerate(c["groups"]):
+  376             mob = g.get("mob") or {}
+  377             melee = mob.get("weaponType", 0) < 3
+  378             if melee and g["band"] > 1 and any(h > 0 for h in g["hp"]):
+  379                 g["band"] -= 1
+  380                 self.emit("group_closes", group=i + 1, band=g["band"])
+  381         c["round"] += 1
+  382 
+  383     def party_has(self, item):
+  384         for m in self.party:
+  385             for it in m.get("items", []):
+  386                 if it[0] == item and it[1] > 0:
+  387                     return True
+  388         return False
+  389 
+  390     def skill_level(self, member, skill):
+  391         for sid, lvl in member.get("skills", []):
+  392             if sid == skill:
+  393                 return lvl
+  394         return 0
+  395 
+  396     # -- shops -------------------------------------------------------------
+  397 
+  398     def open_shop(self, rec):
+  399         n = rec.get("shop", 0)
+  400         self.show_message(rec.get("message", 0))
+  401         self.mode = "shop"
+  402         recs = self.sc.shops[n]["items"] if n in self.sc.shops else []
+  403         items = [i + 1 for i, it in enumerate(recs) if 1 <= it.get("stock", 0) <= 255]
+  404         self.shop = {"number": n, "recs": recs, "items": items}
+  405         self.emit("shop_open", shop=n)
+  406 
+  407     def key_b(self):
+  408         if self.mode != "shop":
+  409             return False
+  410         self.pending = "buy_item"
+  411         self.emit("prompt", prompt="buy_item", items=list(self.shop["items"]))
+  412 
+  413     def key_s(self):
+  414         if self.mode == "shop":
+  415             self.pending = "sell_member"
+  416             self.emit("prompt", prompt="member")
+  417             return
+  418         self.serial += 1
+  419         self.save_game()
+  420 
+  421     def key_c(self):
+  422         self.pending = "char_member"
+  423         self.emit("prompt", prompt="member")
+  424 
+  425     def key_e(self):
+  426         if self.mode != "char":
+  427             return False
+  428         self.pending = "equip_item"
+  429         self.emit("prompt", prompt="item_slot")
+  430 
+  431     def key_x(self):
+  432         if self.mode == "shop":
+  433             self.mode = "map"
+  434             self.shop = None
+  435             self.pending = None
+  436             self.emit("shop_close")
+  437             return
+  438         if self.mode == "char":
+  439             self.mode = "map"
+  440             self.pending = None
+  441             self.emit("char_close")
+  442             return
+  443         return False
+  444 
+  445     def key_o(self):
+  446         self.emit("prompt", prompt="load")
+  447         self.pending = "load"
+  448 
+  449     def key_y(self):
+  450         if self.pending == "load":
+  451             self.pending = None
+  452             self.load_game()
+  453             return
+  454         if self.pending == "recruit":
+  455             self.pending = None
+  456             self.do_recruit()
+  457             return
+  458         if self.pending == "heal":
+  459             self.pending = None
+  460             self.do_heal()
+  461             return
+  462         return False
+  463 
+  464     def key_n(self):
+  465         if self.pending in ("recruit", "heal", "load"):
+  466             self.pending = None
+  467             return
+  468         return False
+  469 
+  470     def do_recruit(self):
+  471         hook = self.pending_hook
+  472         nx, ny = self.pending_cell
+  473         m = self.sc.map(self.location)
+  474         img = self.hook_get(hook, "cleared_image", "image")
+  475         m["cells"]["actionClass"][ny][nx] = 0
+  476         m["cells"]["action"][ny][nx] = 0
+  477         m["cells"]["image"][ny][nx] = img
+  478         self.cell_change(nx, ny, 0, 0, img)
+  479         slot = len(self.party) + 1
+  480         idx = hook.get("npc", 0) or 0
+  481         npcs = m.get("npcs", [])
+  482         ch = npcs[idx] if 0 <= idx < len(npcs) else {}
+  483         self.party.append(self.member_from_character(ch, slot))
+  484         self.emit("recruit", location=self.location, npc=idx, slot=slot)
+  485 
+  486     def member_from_character(self, ch, slot):
+  487         aff = ch.get("afflictions", 0)
+  488         cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+  489         return {
+  490             "slot": slot, "name": ch.get("name", ""), "npc": ch.get("npc", 0),
+  491             "level": ch.get("level", 1), "xp": ch.get("experience", 0),
+  492             "max_hp": ch.get("maxCon", 0), "hp": ch.get("curCon", 0),
+  493             "cond": cond, "money": ch.get("money", 0),
+  494             "ac": ch.get("armorClass", 0), "rank": ch.get("rank", ""),
+  495             "skill_points": ch.get("skillPoints", 0),
+  496             "items": [list(x) for x in ch.get("items", [])],
+  497             "skills": [list(x) for x in ch.get("skills", [])],
+  498             "weapon_slot": ch.get("weaponSlot", 0),
+  499             "armour_slot": ch.get("armorSlot", 0),
+  500             "attrs": {"STR": ch.get("strength", 0), "IQ": ch.get("intelligence", 0),
+  501                       "LCK": ch.get("luck", 0), "SPD": ch.get("speed", 0),
+  502                       "AGL": ch.get("agility", 0), "CHA": ch.get("charisma", 0)},
+  503             "gender": ch.get("gender", 0), "nationality": ch.get("nationality", 0),
+  504             "game_won": ch.get("gameWon", 0),
+  505         }
+  506 
+  507     def do_heal(self):
+  508         hook = self.pending_hook
+  509         price = hook.get("price", 0)
+  510         m = self.party[0]
+  511         m["money"] = m.get("money", 0) - price
+  512         self.emit("money", member=1, delta=-price, total=m["money"])
+  513         for mm in self.party:
+  514             mm["hp"] = mm.get("max_hp", 0)
+  515         self.emit("heal_all", price=price)
+  516 
+  517     # -- rest --------------------------------------------------------------
+  518 
+  519     def key_r(self):
+  520         self.advance_time(60)
+  521         self.emit("rest")
+  522 
+  523     # -- save / load -------------------------------------------------------
+  524 
+  525     def save_game(self):
+  526         self.emit("save", serial=self.serial)
+  527         self.saved[self.serial] = self.snapshot()
+  528         try:
+  529             self.write_save_files()
+  530         except Exception:  # noqa: BLE001
+  531             pass
+  532 
+  533     def write_save_files(self):
+  534         pass
+  535 
+  536     def load_game(self):
+  537         self.emit("load", serial=self.serial)
+  538 
+  539     # -- combat ------------------------------------------------------------
+  540 
+  541     def start_encounter(self, rec):
+  542         self.mode = "combat"
+  543         groups = self.build_groups(rec)
+  544         self.combat = {"groups": groups, "round": 0, "rec": rec, "surprised": False}
+  545         self.emit("encounter_start", groups=[self.group_event(g) for g in groups])
+  546         msg = (rec or {}).get("message", 0)
+  547         if msg:
+  548             self.show_message(msg)
+  549         if (rec or {}).get("friendly"):
+  550             self.emit("combat_end", result="friendly")
+  551             self.mode = "map"
+  552             self.apply_tail(rec, self.x, self.y)
+  553             return
+  554         if not groups:
+  555             self.emit("combat_end", result="victory", rounds=0)
+  556             self.mode = "map"
+  557             self.apply_tail(rec, self.x, self.y)
+  558             return
+  559         d_max = max(g["mob"].get("combatRating", 0) for g in groups)
+  560         skill = 18
+  561         member = self.pick_member(skill)
+  562         level = self.skill_level(self.party[member - 1], skill)
+  563         attr = self.attr_value(self.party[member - 1], skill)
+  564         res = rules.skill_check(self.rng, level, attr, d_max)
+  565         self.emit("check", member=member, skill=skill, level=level, **res)
+  566         if not res["success"]:
+  567             self.combat["surprised"] = True
+  568             self.emit("surprised")
+  569             self.emit("round_start", round=0)
+  570             self.monster_phase1()
+  571             self.end_of_round()
+  572 
+  573     def key_a(self):
+  574         if self.mode != "combat":
+  575             return False
+  576         self.combat_round()
+  577         return True
+  578 
+  579     # -- repeat ------------------------------------------------------------
+  580 
+  581     def run_repeat(self, item):
+  582         spec = item["repeat_until"]
+  583         if isinstance(spec, dict):
+  584             script = spec.get("script")
+  585             if script is None:
+  586                 script = spec.get("keys", [])
+  587             until = spec.get("until")
+  588             if until is None:
+  589                 until = spec.get("condition")
+  590             limit = spec.get("limit", spec.get("max", 200))
+  591         else:
+  592             script = spec
+  593             until = None
+  594             limit = 200
+  595         for _ in range(limit):
+  596             self.run_script(script)
+  597             if until is None or self._until_met(until):
+  598                 break
+  599 
+  600     def _until_met(self, until):
+  601         if isinstance(until, str):
+  602             if until.startswith("mode:"):
+  603                 return self.mode == until[len("mode:"):]
+  604             if until.startswith("cell:"):
+  605                 parts = until[len("cell:"):].split(",")
+  606                 if len(parts) == 3:
+  607                     loc, x, y = (int(p) for p in parts)
+  608                     return any(c[0] == loc and c[1] == x and c[2] == y
+  609                                for c in self.cell_changes)
+  610                 return False
+  611             return any(e.get("type") == until for e in self.events)
+  612         if isinstance(until, dict):
+  613             for e in self.events:
+  614                 if all(e.get(k) == v for k, v in until.items()):
+  615                     return True
+  616         return False
+  617 
+  618 
+  619 # ---------------------------------------------------------------------------
+  620 # entry point
+  621 # ---------------------------------------------------------------------------
+  622 
+  623 
+  624 def run(data_dir, options=None, seed=None, *args, **kwargs):
+  625     if isinstance(options, str):
+  626         try:
+  627             options = json.loads(options)
+  628         except ValueError:
+  629             options = {"script": [options]}
+  630     if isinstance(options, (list, tuple)):
+  631         options = {"script": list(options)}
+  632     options = dict(options or {})
+  633     if seed is None:
+  634         seed = kwargs.get("seed", options.get("seed"))
+  635     eng = Engine(data_dir, seed=seed, options=options)
+  636     eng.new_game(seed)
+  637     eng.run_script(options.get("script", []))
+  638     return eng.events
+
+==== tests/test_m5_rules.py (834 lines) ====
+    1 """M5: game rules (SPEC-04, lab rules v1). Table-driven cases whose expected
+    2 values come from the SPEC-04 formulas (restated independently in wl_support),
+    3 the worked examples of SPEC-04, and SPEC/scenario/rng-vectors.json; plus short
+    4 headless runs on the engine's compiled Dry Fork data, checked against values
+    5 derived from SPEC-04 and SPEC-05. API: SPEC-07 sections 2.7 to 2.9."""
+    6 
+    7 from __future__ import annotations
+    8 
+    9 import copy
+   10 
+   11 import pytest
+   12 
+   13 import wl_combat_ref as CR
+   14 import wl_support as W
+   15 from wl_support import (RefRng, call, check_bytes, check_eq, expect_error, fail, ref_ac, ref_advance_clock,
+   16                         ref_buy_price, ref_check_need, ref_damage_member, ref_flee_need, ref_jam_chance,
+   17                         ref_level_after, ref_max_hp, ref_melee_need, ref_monster_hp, ref_monster_need, ref_pay,
+   18                         ref_ranged_need, ref_sell_price, ref_skill_check, ref_speed_order, ref_xp_threshold)
+   19 
+   20 pytestmark = pytest.mark.milestone("M5")
+   21 
+   22 VECTORS = W.load_json(W.SCENARIO / "rng-vectors.json")["vectors"]
+   23 VSEEDS = [v["seed"] for v in VECTORS]
+   24 C = W.codecs_oracle()
+   25 
+   26 
+   27 def table(argnames, cases, ids=None):
+   28     """Run one test function over a table of cases inside a single test.
+   29 
+   30     Each SPEC-04 rule is one test; its table rows are checked in order and the
+   31     failure message names the first failing row only."""
+   32     names = [n.strip() for n in argnames.split(",")]
+   33 
+   34     def deco(fn):
+   35         def wrapper():
+   36             for case in cases:
+   37                 fn(**dict(zip(names, case if len(names) > 1 else (case,))))
+   38         wrapper.__name__ = fn.__name__
+   39         wrapper.__qualname__ = fn.__qualname__
+   40         wrapper.__doc__ = fn.__doc__
+   41         wrapper.__module__ = fn.__module__
+   42         return wrapper
+   43     return deco
+   44 
+   45 
+   46 def _rng(seed):
+   47     r = call("rules.Rng", seed)
+   48     return r
+   49 
+   50 
+   51 def _state(r):
+   52     try:
+   53         return r.state
+   54     except NotImplementedError:
+   55         fail("wlengine.rules.Rng.state: not implemented")
+   56     except Exception as e:  # noqa: BLE001
+   57         fail("wlengine.rules.Rng.state raised %s: %s" % (type(e).__name__, e))
+   58 
+   59 
+   60 def _m(obj, name, *args):
+   61     fn = getattr(obj, name, None)
+   62     if fn is None:
+   63         fail("wlengine.rules.Rng has no method %r (SPEC-07 API)" % name)
+   64     try:
+   65         return fn(*args)
+   66     except NotImplementedError:
+   67         fail("wlengine.rules.Rng.%s: not implemented" % name)
+   68     except Exception as e:  # noqa: BLE001
+   69         fail("wlengine.rules.Rng.%s%r raised %s: %s" % (name, args, type(e).__name__, e))
+   70 
+   71 
+   72 # ---- LR-1, LR-2: generator --------------------------------------------------
+   73 
+   74 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+   75 def test_rng_seeding(v):
+   76     check_eq("Rng(%d).state after seeding" % v["seed"], _state(_rng(v["seed"])), v["state_after_seeding"])
+   77 
+   78 
+   79 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+   80 def test_rng_next(v):
+   81     r = _rng(v["seed"])
+   82     for i, want in enumerate(v["next_u32"]):
+   83         check_eq("Rng(%d) next() call %d" % (v["seed"], i + 1), _m(r, "next"), want)
+   84 
+   85 
+   86 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+   87 def test_rng_roll(v):
+   88     r = _rng(v["seed"])
+   89     for i, want in enumerate(v["roll_100"]):
+   90         check_eq("Rng(%d) roll(100) call %d" % (v["seed"], i + 1), _m(r, "roll", 100), want)
+   91 
+   92 
+   93 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+   94 def test_rng_d100(v):
+   95     r = _rng(v["seed"])
+   96     for i, want in enumerate(v["roll_100"][:5]):
+   97         check_eq("Rng(%d) d100() call %d" % (v["seed"], i + 1), _m(r, "d100"), want)
+   98 
+   99 
+  100 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+  101 def test_rng_dice(v):
+  102     r = _rng(v["seed"])
+  103     for i, want in enumerate(v["dice_2d6"]):
+  104         check_eq("Rng(%d) dice(2, 6) call %d" % (v["seed"], i + 1), _m(r, "dice", 2, 6), want)
+  105 
+  106 
+  107 @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+  108 def test_rng_rnd(v):
+  109     r = _rng(v["seed"])
+  110     for n, want in zip((0, 1, 2, 12, 14, 255), v["rnd_of_0_1_2_12_14_255"]):
+  111         check_eq("Rng(%d) rnd(%d) in the sequence rnd(0), rnd(1), rnd(2), rnd(12), rnd(14), rnd(255)"
+  112                  % (v["seed"], n), _m(r, "rnd", n), want)
+  113 
+  114 
+  115 def test_rng_no_draw_cases():
+  116     r = _rng(4242)
+  117     before = _state(r)
+  118     got = [_m(r, "rnd", 0), _m(r, "rnd", 1), _m(r, "dice", 0, 6)]
+  119     check_eq("rnd(0), rnd(1), dice(0, 6)", got, [0, 1, 0])
+  120     check_eq("generator state after draws that make no call (LR-2)", _state(r), before)
+  121 
+  122 
+  123 # ---- characters (LR-5 to LR-10) ---------------------------------------------
+  124 
+  125 @table("seed", [20261021, 1, 7, 99])
+  126 def test_roll_attributes(seed):
+  127     ref = RefRng(seed)
+  128     want = [8 + ref.roll(10) for _ in range(6)]
+  129     r = _rng(seed)
+  130     check_eq("roll_attributes with seed %d (LR-7: STR IQ LCK SPD AGL CHA)" % seed, call("rules.roll_attributes", r), want)
+  131     check_eq("generator state after roll_attributes with seed %d" % seed, _state(r), ref.state)
+  132 
+  133 
+  134 MAXHP = [(14, 1), (16, 1), (11, 1), (12, 1), (13, 2), (12, 2), (10, 2), (17, 1), (14, 2), (16, 2), (18, 5), (3, 3)]
+  135 
+  136 
+  137 @table("st,lvl", MAXHP, ids=["STR%d-L%d" % c for c in MAXHP])
+  138 def test_max_hp(st, lvl):
+  139     check_eq("max_hp(strength=%d, level=%d) (LR-8, LR-46)" % (st, lvl), call("rules.max_hp", st, lvl), ref_max_hp(st, lvl))
+  140 
+  141 
+  142 ACS = [(14, 1, 0), (12, 1, 0), (15, 0, 0), (13, 0, 0), (14, 3, 0), (16, 0, 2), (4, 0, 0), (19, 3, 3)]
+  143 
+  144 
+  145 @table("agl,bonus,ev", ACS, ids=["AGL%d-A%d-E%d" % c for c in ACS])
+  146 def test_armour_class(agl, bonus, ev):
+  147     check_eq("armour_class(agility=%d, armour_bonus=%d, evasion_level=%d) (LR-8)" % (agl, bonus, ev),
+  148              call("rules.armour_class", agl, bonus, ev), ref_ac(agl, bonus, ev))
+  149 
+  150 
+  151 @table("lck", [3, 11, 18])
+  152 def test_starting_money(lck):
+  153     check_eq("starting_money(luck=%d) (LR-9)" % lck, call("rules.starting_money", lck), 50 + 5 * lck)
+  154 
+  155 
+  156 def test_skill_table_reader(tmp_path):
+  157     raw = bytes([0, 0]) + bytes(b for i in range(1, 36) for b in (((3 + i % 9) << 3) | (1 + i % 2), 0x0E + i % 7))
+  158     p = tmp_path / "LABSKILL.BIN"
+  159     p.write_bytes(raw)
+  160     want = [[raw[2 * i] >> 3, raw[2 * i] & 7, raw[2 * i + 1]] for i in range(36)]
+  161     check_eq("read_skill_table of a 72-byte table (LR-6)", call("rules.read_skill_table", str(p)), want)
+  162 
+  163 
+  164 # ---- checks (LR-13, LR-14) --------------------------------------------------
+  165 
+  166 NEEDS = [(2, 15, 30, False, "worked example: Maro Quill at the storehouse"), (2, 11, 6, False, "Lookout 2, IQ 11, D 6"),
+  167          (0, 13, 0, False, "unjam with Gunsmithing 0, IQ 13"), (1, 12, 35, True, "Scaling 1 with the rope coil"),
+  168          (3, 18, 0, False, "need above 100"), (0, 3, 60, False, "need below 0")]
+  169 
+  170 
+  171 @table("lvl,attr,d,tool,what", NEEDS, ids=["need-%d" % i for i in range(len(NEEDS))])
+  172 def test_check_need(lvl, attr, d, tool, what):
+  173     check_eq("check_need(level=%d, attribute=%d, difficulty=%d, tool=%s) (%s)" % (lvl, attr, d, tool, what),
+  174              call("rules.check_need", lvl, attr, d, tool), ref_check_need(lvl, attr, d, tool))
+  175 
+  176 
+  177 SKILLCHECKS = [(20261021, 2, 15, 30, False), (1, 0, 13, 0, False), (5, 3, 18, 0, False), (6, 0, 3, 60, False),
+  178                (77, 1, 12, 35, True), (12345, 2, 11, 6, False)]
+  179 
+  180 
+  181 @table("seed,lvl,attr,d,tool", SKILLCHECKS, ids=["check-%d" % i for i in range(len(SKILLCHECKS))])
+  182 def test_skill_check(seed, lvl, attr, d, tool):
+  183     ref = RefRng(seed)
+  184     want = ref_skill_check(ref, lvl, attr, d, tool)
+  185     r = _rng(seed)
+  186     got = call("rules.skill_check", r, lvl, attr, d, tool)
+  187     check_eq("skill_check(seed %d, level=%d, attribute=%d, difficulty=%d, tool=%s)" % (seed, lvl, attr, d, tool),
+  188              {k: (got or {}).get(k, "<missing>") for k in want} if isinstance(got, dict) else got, want)
+  189     check_eq("generator state after that check (one d100 unless need >= 100 or <= 0)", _state(r), ref.state)
+  190 
+  191 
+  192 PICKS = [([(1, 0, 1, 13), (5, 0, 2, 11), (4, 0, 1, 15)], 5, "highest level"),
+  193          ([(1, 0, 1, 13), (4, 0, 1, 15)], 4, "level tie: higher attribute"),
+  194          ([(3, 0, 1, 12), (2, 0, 1, 12)], 2, "full tie: lower slot"),
+  195          ([(5, 1, 3, 18), (1, 0, 0, 10)], 1, "unconscious member skipped"),
+  196          ([(1, 0, 0, 10), (2, 0, 0, 14)], 2, "nobody has the skill"),
+  197          ([(1, 2, 2, 10), (2, 1, 2, 14)], None, "nobody conscious")]
+  198 
+  199 
+  200 @table("cands,want,what", PICKS, ids=[p[2].replace(" ", "-").replace(":", "") for p in PICKS])
+  201 def test_pick_checker(cands, want, what):
+  202     c = [{"slot": s, "cond": cd, "level": l, "attribute": a} for s, cd, l, a in cands]
+  203     check_eq("pick_checker (%s, LR-14)" % what, call("rules.pick_checker", c), want)
+  204 
+  205 
+  206 # ---- time (LR-15 to LR-17) --------------------------------------------------
+  207 
+  208 CLOCKS = [((1, 480, 0), 1, 0), ((1, 539, 0), 1, 0), ((1, 1435, 0), 10, 0), ((1, 600, 50), 0, 30),
+  209           ((1, 659, 50), 0, 10), ((1, 1380, 0), 130, 0), ((1, 480, 0), 60, 0), ((3, 1439, 59), 0, 1)]
+  210 
+  211 
+  212 @table("start,mins,secs", CLOCKS, ids=["clock-%d" % i for i in range(len(CLOCKS))])
+  213 def test_advance_clock(start, mins, secs):
+  214     clock = {"day": start[0], "minute": start[1], "second": start[2]}
+  215     want_clock, want_hours = ref_advance_clock(clock, mins, secs)
+  216     got = call("rules.advance_clock", dict(clock), mins, secs)
+  217     if not (isinstance(got, (tuple, list)) and len(got) == 2):
+  218         fail("advance_clock must return (clock, hours), got %s" % W.short(got))
+  219     check_eq("advance_clock(%r, %d min, %d s): clock" % (clock, mins, secs), got[0], want_clock)
+  220     check_eq("advance_clock(%r, %d min, %d s): hours crossed, in order" % (clock, mins, secs), got[1], want_hours)
+  221 
+  222 
+  223 # ---- experience (LR-45, LR-46) ----------------------------------------------
+  224 
+  225 @table("lvl", [1, 2, 3, 4, 9])
+  226 def test_xp_threshold(lvl):
+  227     check_eq("xp_threshold(%d) (LR-45)" % lvl, call("rules.xp_threshold", lvl), ref_xp_threshold(lvl))
+  228 
+  229 
+  230 LEVELS = [(1, 104), (1, 99), (2, 214), (1, 300), (1, 1000), (3, 599), (2, 300)]
+  231 
+  232 
+  233 @table("lvl,xp", LEVELS, ids=["L%d-xp%d" % c for c in LEVELS])
+  234 def test_level_after(lvl, xp):
+  235     check_eq("level_after(level=%d, xp=%d) (LR-45)" % (lvl, xp), call("rules.level_after", lvl, xp), ref_level_after(lvl, xp))
+  236 
+  237 
+  238 # ---- shops (LR-53) ---------------------------------------------------------
+  239 
+  240 PRICES = [(30, 1), (8, 1), (140, 0), (110, 1), (14, 1), (100, 7), (60, 0), (1, 5)]
+  241 
+  242 
+  243 @table("price,h", PRICES, ids=["p%d-h%d" % c for c in PRICES])
+  244 def test_buy_price(price, h):
+  245     check_eq("buy_price(%d, haggling=%d) (LR-53)" % (price, h), call("rules.buy_price", price, h), ref_buy_price(price, h))
+  246 
+  247 
+  248 @table("price,h", [(15, 1), (100, 9), (60, 0), (140, 2), (1, 0)])
+  249 def test_sell_price(price, h):
+  250     check_eq("sell_price(%d, haggling=%d) (LR-53)" % (price, h), call("rules.sell_price", price, h), ref_sell_price(price, h))
+  251 
+  252 
+  253 @table("moneys,first,price", [([120, 60, 80, 70], 1, 30), ([20, 60, 80, 70], 1, 50),
+  254                                                 ([10, 5], 2, 12), ([10, 5], 1, 16), ([10, 5], 1, 15),
+  255                                                 ([0, 0, 40], 2, 40)], ids=["pay-%d" % i for i in range(6)])
+  256 def test_pay(moneys, first, price):
+  257     check_eq("pay(%r, first_slot=%d, price=%d) (LR-20)" % (moneys, first, price),
+  258              call("rules.pay", list(moneys), first, price), ref_pay(moneys, first, price))
+  259 
+  260 
+  261 # ---- monsters and encounters (LR-26 to LR-28) --------------------------------
+  262 
+  263 MOBS = W.load_json(W.SCENARIO / "encounters.json")["monsters"]
+  264 
+  265 
+  266 def _mob(js):
+  267     return {"name": js["name"], "sturdiness": js["sturdiness"], "combatRating": js["combat_rating"],
+  268             "randomDamage": js["random_damage"], "maxGroup": js["max_group"], "armorClass": js["armor_class"],
+  269             "fixedDamage": js["fixed_damage"], "weaponType": js["weapon_type"], "type": js["type"],
+  270             "portrait": js["portrait"]}
+  271 
+  272 
+  273 @table("js", MOBS, ids=[m["name"].replace(" ", "-") for m in MOBS])
+  274 def test_monster_values(js):
+  275     m = _mob(js)
+  276     want = {"to_hit_base": 20 + 5 * m["combatRating"], "speed": m["combatRating"], "ac": m["armorClass"],
+  277             "ranged": m["weaponType"] >= 3, "xp": m["sturdiness"] * (m["armorClass"] + 1)}
+  278     got = call("rules.monster_values", m)
+  279     check_eq("monster_values(%s) (LR-27)" % m["name"], {k: (got or {}).get(k, "<missing>") for k in want}
+  280              if isinstance(got, dict) else got, want)
+  281 
+  282 
+  283 @table("seed,st", [(20261021, 12), (1, 900), (7, 4), (99, 255), (5, 1), (3, 513)])
+  284 def test_monster_hp(seed, st):
+  285     ref = RefRng(seed)
+  286     want = ref_monster_hp(ref, st)
+  287     r = _rng(seed)
+  288     check_eq("monster_hp(seed %d, sturdiness %d) (SPEC-03 6.6, high byte drawn first)" % (seed, st),
+  289              call("rules.monster_hp", r, st), want)
+  290     check_eq("generator state after monster_hp(seed %d, sturdiness %d)" % (seed, st), _state(r), ref.state)
+  291 
+  292 
+  293 @table("seed,idx", [(11, 2), (12, 4), (13, 1)])
+  294 def test_monster_damage(seed, idx):
+  295     m = _mob(MOBS[idx])
+  296     ref = RefRng(seed)
+  297     want = ref.dice(m["randomDamage"], 6) + m["fixedDamage"]
+  298     check_eq("monster_damage(seed %d, %s) (LR-27)" % (seed, m["name"]), call("rules.monster_damage", _rng(seed), m), want)
+  299 
+  300 
+  301 def _scenario_encounters():
+  302     out = []
+  303     for f in ("map0-overworld.json", "map3-pumphouse.json"):
+  304         mj = W.load_json(W.SCENARIO / f)
+  305         mobs = [_mob(x) for x in mj["mobs"]]
+  306         for i, r in enumerate(mj["records"].get("3", [])):
+  307             out.append(("%s-enc%d" % (f.split("-")[0], i + 1), mobs, {"groups": r["groups"]}))
+  308     out.append(("size0-uses-maxgroup", [_mob(MOBS[1])], {"groups": [[1, False, 0], [0, False, 0], [0, False, 0]]}))
+  309     out.append(("random-size0", [_mob(MOBS[2])], {"groups": [[1, True, 0], [0, False, 0], [0, False, 0]]}))
+  310     return out
+  311 
+  312 
+  313 ENCS = _scenario_encounters()
+  314 
+  315 
+  316 @table("name,mobs,rec,seed", [e + (s,) for e in ENCS for s in (20261021, 3)])
+  317 def test_build_groups(name, mobs, rec, seed):
+  318     ref = RefRng(seed)
+  319     want = W.ref_build_groups(ref, mobs, rec)
+  320     r = _rng(seed)
+  321     got = call("rules.build_groups", r, copy.deepcopy(mobs), copy.deepcopy(rec))
+  322     check_eq("build_groups(%s, seed %d) (LR-26, LR-28)" % (name, seed), got, want)
+  323     check_eq("generator state after build_groups(%s, seed %d)" % (name, seed), _state(r), ref.state)
+  324 
+  325 
+  326 # ---- combat formulas (LR-34, LR-35, LR-39, LR-40, LR-43) ---------------------
+  327 
+  328 RANGED = [(2, 14, 1, 3), (5, 18, 0, 1), (0, 3, 9, 5), (1, 15, 1, 3), (2, 12, 1, 1), (2, 15, 1, 2)]
+  329 
+  330 
+  331 @table("args", RANGED, ids=["r%d" % i for i in range(len(RANGED))])
+  332 def test_ranged_need(args):
+  333     check_eq("ranged_need(level, agility, target_ac, band)=%r (LR-34)" % (args,), call("rules.ranged_need", *args),
+  334              ref_ranged_need(*args))
+  335 
+  336 
+  337 MELEE = [(1, 11, 1), (0, 10, 0), (9, 18, 0), (0, 3, 9)]
+  338 
+  339 
+  340 @table("args", MELEE, ids=["m%d" % i for i in range(len(MELEE))])
+  341 def test_melee_need(args):
+  342     check_eq("melee_need(level, agility, target_ac)=%r (LR-35)" % (args,), call("rules.melee_need", *args),
+  343              ref_melee_need(*args))
+  344 
+  345 
+  346 MONNEED = [(6, 3, 3), (6, 2, 3), (7, 3, 1), (7, 5, 1), (1, 9, 5), (20, 0, 1)]
+  347 
+  348 
+  349 @table("args", MONNEED, ids=["n%d" % i for i in range(len(MONNEED))])
+  350 def test_monster_need(args):
+  351     check_eq("monster_need(combat_rating, member_ac, band)=%r (LR-34, LR-35)" % (args,),
+  352              call("rules.monster_need", *args), ref_monster_need(*args))
+  353 
+  354 
+  355 FLEE = [(14, 6, 0), (10, 12, 2), (3, 20, 0), (20, 0, 5)]
+  356 
+  357 
+  358 @table("args", FLEE, ids=["f%d" % i for i in range(len(FLEE))])
+  359 def test_flee_need(args):
+  360     check_eq("flee_need(best_member_speed, best_monster_speed, command_level)=%r (LR-43)" % (args,),
+  361              call("rules.flee_need", *args), ref_flee_need(*args))
+  362 
+  363 
+  364 @table("gs", [0, 1, 2, 3, 5])
+  365 def test_jam_chance(gs):
+  366     check_eq("jam_chance(gunsmithing=%d) (LR-34)" % gs, call("rules.jam_chance", gs), ref_jam_chance(gs))
+  367 
+  368 
+  369 @table("g", [0, 1, 2, 3, 4])
+  370 def test_unarmed_attacks(g):
+  371     check_eq("unarmed_attacks(grappling=%d) (LR-35)" % g, call("rules.unarmed_attacks", g), 1 + g // 2)
+  372 
+  373 
+  374 @table("st", [3, 10, 11, 12, 17])
+  375 def test_melee_damage_bonus(st):
+  376     check_eq("melee_damage_bonus(strength=%d) (LR-35)" % st, call("rules.melee_damage_bonus", st), max(0, (st - 10) // 2))
+  377 
+  378 
+  379 DMG = [(24, 5), (10, 10), (10, 14), (10, 15), (3, 20), (1, 1), (5, 0)]
+  380 
+  381 
+  382 @table("hp,d", DMG, ids=["hp%d-d%d" % c for c in DMG])
+  383 def test_damage_member(hp, d):
+  384     got = call("rules.damage_member", hp, d)
+  385     want = ref_damage_member(hp, d)
+  386     check_eq("damage_member(hp=%d, damage=%d) (LR-40)" % (hp, d),
+  387              {k: (got or {}).get(k, "<missing>") for k in want} if isinstance(got, dict) else got, want)
+  388 
+  389 
+  390 def _actors():
+  391     return [{"side": "monsters", "speed": 7, "group": 1, "index": 3}, {"side": "party", "speed": 9, "slot": 6},
+  392             {"side": "monsters", "speed": 7, "group": 1, "index": 2}, {"side": "party", "speed": 12, "slot": 1},
+  393             {"side": "party", "speed": 7, "slot": 4}, {"side": "monsters", "speed": 7, "group": 2, "index": 1},
+  394             {"side": "party", "speed": 7, "slot": 2}, {"side": "monsters", "speed": 13, "group": 2, "index": 2}]
+  395 
+  396 
+  397 def test_speed_order():
+  398     got = call("rules.speed_order", _actors())
+  399     check_eq("speed_order (LR-35: speed, members before monsters, slot, group, monster)", got,
+  400              ref_speed_order(_actors()))
+  401 
+  402 
+  403 # ---- LABSTATE.BIN (LR-57) ---------------------------------------------------
+  404 
+  405 LABSTATE = {"steps": 145, "day": 1, "seconds": 0, "rng_state": 2973743393,
+  406             "cell_changes": [[1, 8, 17, 0, 0, 28], [0, 31, 41, 0, 0, 22], [0, 30, 41, 0, 0, 13], [2, 3, 1, 4, 1, 29]]}
+  407 
+  408 
+  409 def test_labstate_encode():
+  410     check_bytes("encode_labstate (LR-57, cell changes sorted by location, y, x)",
+  411                 call("labstate.encode_labstate", copy.deepcopy(LABSTATE)), W.ref_encode_labstate(LABSTATE))
+  412 
+  413 
+  414 def test_labstate_decode():
+  415     blob = W.ref_encode_labstate(LABSTATE)
+  416     want = dict(LABSTATE, cell_changes=sorted(LABSTATE["cell_changes"], key=lambda c: (c[0], c[2], c[1])))
+  417     got = call("labstate.decode_labstate", blob)
+  418     check_eq("decode_labstate (LR-57)", {k: (got or {}).get(k, "<missing>") for k in want}
+  419              if isinstance(got, dict) else got, want)
+  420 
+  421 
+  422 def test_labstate_bad_sum():
+  423     blob = bytearray(W.ref_encode_labstate(LABSTATE))
+  424     blob[-1] ^= 0x01
+  425     expect_error("FormatError", "labstate.decode_labstate", bytes(blob), what="checksum off by one bit")
+  426 
+  427 
+  428 def test_labstate_bad_magic():
+  429     blob = bytearray(W.ref_encode_labstate(LABSTATE))
+  430     blob[7] = ord("2")
+  431     expect_error("FormatError", "labstate.decode_labstate", bytes(blob), what="magic WLLABSV2")
+  432 
+  433 
+  434 # ===========================================================================
+  435 # Engine behaviour through headless runs on the compiled Dry Fork data
+  436 # ===========================================================================
+  437 
+  438 SEED = 20261021
+  439 
+  440 
+  441 def prefix(walkthrough, upto: str) -> list:
+  442     out = []
+  443     for item in walkthrough["script"]:
+  444         out.append(item)
+  445         if isinstance(item, dict) and item.get("checkpoint") == upto:
+  446             return out
+  447     raise AssertionError("no checkpoint %s in walkthrough.json" % upto)
+  448 
+  449 
+  450 def opening_script(walkthrough) -> list:
+  451     out = []
+  452     for item in walkthrough["script"]:
+  453         if isinstance(item, dict) and "repeat_until" in item:
+  454             return out + ["A"]
+  455         out.append(item)
+  456     raise AssertionError("walkthrough.json has no repeat_until macro")
+  457 
+  458 
+  459 def ckpt(events, name):
+  460     for e in events:
+  461         if e.get("type") == "checkpoint" and e.get("name") == name:
+  462             st = e.get("state")
+  463             if not isinstance(st, dict):
+  464                 fail("checkpoint %s has no state object" % name)
+  465             return st
+  466     fail("the engine log has no checkpoint %r" % name)
+  467 
+  468 
+  469 def strip(e):
+  470     return {k: v for k, v in e.items() if k != "seq"}
+  471 
+  472 
+  473 def between(events, a, b):
+  474     ia = next((i for i, e in enumerate(events) if e.get("type") == "checkpoint" and e.get("name") == a), None)
+  475     ib = next((i for i, e in enumerate(events) if e.get("type") == "checkpoint" and e.get("name") == b), None)
+  476     if ia is None or ib is None:
+  477         fail("the engine log lacks checkpoint %s or %s" % (a, b))
+  478     return [strip(e) for e in events[ia + 1:ib]]
+  479 
+  480 
+  481 def subset(what, state, want):
+  482     check_eq(what, {k: state.get(k, "<missing>") for k in want}, want)
+  483 
+  484 
+  485 def test_new_game(runner):
+  486     ev, _ = runner.run("newgame", {"seed": SEED, "script": [{"checkpoint": "a"}]})
+  487     check_eq("first two events of a new game (SPEC-06 6.1, LR-25)", [strip(e) for e in ev[:2]],
+  488              [{"type": "new_game", "seed": SEED}, {"type": "paragraph", "n": 1}])
+  489     subset("new-game snapshot (SPEC-05 section 2, LR-4)", ckpt(ev, "a"),
+  490            {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map",
+  491             "cell_changes": [], "rng_state": SEED})
+  492 
+  493 
+  494 def test_seed_override(runner):
+  495     ev, _ = runner.run("override", {"seed": SEED, "script": [{"checkpoint": "a"}]}, 77)
+  496     check_eq("new_game with --seed 77 overriding the script seed", strip(ev[0]), {"type": "new_game", "seed": 77})
+  497     check_eq("generator state at the start with seed 77", ckpt(ev, "a").get("rng_state"), 77)
+  498 
+  499 
+  500 def test_steps_clock_and_transition(runner):
+  501     ev, _ = runner.run("exit", {"seed": SEED, "script": ["DOWN"] * 11 + [{"checkpoint": "a"}, "RIGHT",
+  502                                                                          {"checkpoint": "b"}]})
+  503     subset("after 11 steps out of Saltwell (LR-15, LR-16, L-TR5)", ckpt(ev, "a"),
+  504            {"location": 0, "x": 10, "y": 41, "steps": 11, "day": 1, "hour": 8, "minute": 11})
+  505     subset("one overworld step later (10 minutes per step)", ckpt(ev, "b"),
+  506            {"location": 0, "x": 11, "y": 41, "steps": 12, "hour": 8, "minute": 21})
+  507     types = [strip(e) for e in ev if e.get("type") in ("map_change", "paragraph", "message")]
+  508     check_eq("paragraph and transition events on the way out (LR-25: no message event for a paragraph)", types,
+  509              [{"type": "paragraph", "n": 1}, {"type": "paragraph", "n": 2},
+  510               {"type": "map_change", "location": 0, "x": 10, "y": 41}])
+  511 
+  512 
+  513 def test_bump_is_not_a_step(runner):
+  514     ev, _ = runner.run("bump", {"seed": SEED, "script": ["LEFT"] * 13 + [{"checkpoint": "a"}]})
+  515     subset("after 12 steps west and one bump (LR-15)", ckpt(ev, "a"),
+  516            {"location": 1, "x": 3, "y": 20, "steps": 12, "hour": 8, "minute": 12})
+  517     tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-2:]
+  518     check_eq("events of the bump into the cactus at (2, 20)", tail,
+  519              [{"type": "input", "key": "LEFT"}, {"type": "bump", "x": 2, "y": 20, "action_class": 11, "action": 0}])
+  520 
+  521 
+  522 def test_rest(runner):
+  523     ev, _ = runner.run("rest", {"seed": SEED, "script": ["R", {"checkpoint": "a"}]})
+  524     subset("after one rest (LR-17)", ckpt(ev, "a"), {"steps": 0, "day": 1, "hour": 9, "minute": 0, "rng_state": SEED})
+  525     i = next((k for k, e in enumerate(ev) if e.get("type") == "input"), None)
+  526     check_eq("events after the R token (full HP, no Foraging)",
+  527              [strip(e) for e in ev[i:] if e.get("type") != "checkpoint"],
+  528              [{"type": "input", "key": "R"}, {"type": "rest"}])
+  529 
+  530 
+  531 def test_win_hook_without_item(runner):
+  532     ev, _ = runner.run("pump", {"seed": SEED, "script": ["UP"] * 9 + [{"checkpoint": "a"}]})
+  533     tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-3:]
+  534     check_eq("bumping the Saltwell pump without the valve (LR-18, LR-24)", tail,
+  535              [{"type": "input", "key": "UP"}, {"type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0},
+  536               {"type": "paragraph", "n": 4}])
+  537     subset("mode after the pump bump", ckpt(ev, "a"), {"mode": "map", "steps": 8})
+  538 
+  539 
+  540 # ---- shop, equip, recruit (walkthrough to CP2 and CP3; no random draws) -----
+  541 
+  542 ITEMS = {it["id"]: it for it in W.load_json(W.SCENARIO / "items.json")["items"]}
+  543 SHOPS = W.load_json(W.SCENARIO / "shops.json")["shops"]
+  544 
+  545 
+  546 def _cp2(runner, walkthrough):
+  547     ev, _ = runner.run("cp2", {"seed": SEED, "script": prefix(walkthrough, "CP2")})
+  548     return between(ev, "CP1", "CP2")
+  549 
+  550 
+  551 def test_shop_buy_list(runner, walkthrough):
+  552     seg = _cp2(runner, walkthrough)
+  553     p = next((e for e in seg if e.get("type") == "prompt" and e.get("prompt") == "buy_item"), None)
+  554     want = sorted(int(k) for k, v in SHOPS[0]["stock"].items() if 1 <= v <= 255)
+  555     check_eq("buy list of shop list 0 (LR-50, SPEC-06 6.1 prompt)", p and p.get("items"), want)
+  556 
+  557 
+  558 def test_shop_buy_prices(runner, walkthrough):
+  559     seg = _cp2(runner, walkthrough)
+  560     buys = [e for e in seg if e.get("type") == "buy"]
+  561     check_eq("number of purchases before CP2", len(buys), 3)
+  562     for b in buys:
+  563         want = ref_buy_price(ITEMS[b.get("item", 0)]["price"] if b.get("item") in ITEMS else 0, 1)
+  564         check_eq("price of item %r bought by member %r (LR-53, best Haggling 1)" % (b.get("item"), b.get("member")),
+  565                  b.get("price"), want)
+  566     money = [e for e in seg if e.get("type") == "money"]
+  567     pay = [[m.get("member"), m.get("delta")] for m in money if m.get("delta", 0) < 0]
+  568     check_eq("payments (LR-20, LR-51: the buyer pays first)", pay,
+  569              [[b.get("member"), -b.get("price", 0)] for b in buys])
+  570 
+  571 
+  572 def test_ammo_stacking(runner, walkthrough):
+  573     seg = _cp2(runner, walkthrough)
+  574     ammo = [[e.get("member"), e.get("item"), e.get("slot"), e.get("status")] for e in seg
+  575             if e.get("type") == "buy" and e.get("item") == 4]
+  576     check_eq("pistol rounds bought by members 3 and 4 stack on their box in slot 2 (LR-51)", ammo,
+  577              [[3, 4, 2, 2], [4, 4, 2, 2]])
+  578 
+  579 
+  580 def test_shop_sell(runner, walkthrough):
+  581     seg = _cp2(runner, walkthrough)
+  582     i = next((k for k, e in enumerate(seg) if e.get("type") == "sell"), None)
+  583     if i is None:
+  584         fail("no sell event before CP2")
+  585     check_eq("sale of the pipe club and the money that follows (LR-52, LR-53, SPEC-06 6 order)", seg[i:i + 2],
+  586              [{"type": "sell", "member": 2, "item": 1, "price": ref_sell_price(15, 1), "slot": 3},
+  587               {"type": "money", "member": 2, "delta": ref_sell_price(15, 1), "total": 60 + ref_sell_price(15, 1)}])
+  588 
+  589 
+  590 def test_equip_ac(runner, walkthrough):
+  591     seg = _cp2(runner, walkthrough)
+  592     eq = [e for e in seg if e.get("type") == "equip"]
+  593     check_eq("Tobin equips the hide vest (LR-8, LR-47)", eq,
+  594              [{"type": "equip", "member": 2, "slot": 3, "item": 7, "ac": ref_ac(12, 1, 0)}])
+  595 
+  596 
+  597 def test_recruit(runner, walkthrough):
+  598     ev, _ = runner.run("cp3", {"seed": SEED, "script": prefix(walkthrough, "CP3")})
+  599     seg = between(ev, "CP2", "CP3")
+  600     picks = [e for e in seg if e.get("type") in ("cell_change", "recruit")]
+  601     check_eq("recruiting Orla Penn (LR-19, LR-22)", picks,
+  602              [{"type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28},
+  603               {"type": "recruit", "location": 1, "npc": 0, "slot": 5}])
+  604     party = ckpt(ev, "CP3").get("party") or []
+  605     if len(party) != 5:
+  606         fail("CP3: expected 5 members after the recruit, got %d" % len(party))
+  607     subset("CP3 slot 5 (SPEC-05 10.2, LR-8, LR-46 rank)", party[4],
+  608            {"slot": 5, "name": "Orla Penn", "npc": 1, "level": 2, "xp": 200, "max_hp": ref_max_hp(13, 2),
+  609             "hp": ref_max_hp(13, 2), "cond": 0, "money": 25, "ac": ref_ac(15, 0, 0), "rank": "Hand",
+  610             "items": [[5, 8], [6, 2]], "weapon_slot": 1, "armour_slot": 0, "skill_points": 0})
+  611 
+  612 
+  613 # ---- the first fight (raiders at (30, 41)), seeded -------------------------
+  614 
+  615 OPEN_SEEDS = [20261021, 1, 2, 3]
+  616 
+  617 
+  618 def _opening(runner, walkthrough, seed):
+  619     ev, _ = runner.run("opening", {"seed": seed, "script": opening_script(walkthrough)}, seed)
+  620     return ev, CR.opening(seed)
+  621 
+  622 
+  623 @pytest.mark.parametrize("seed", OPEN_SEEDS)
+  624 def test_encounter_start(runner, walkthrough, seed):
+  625     ev, ref = _opening(runner, walkthrough, seed)
+  626     got = next((strip(e) for e in ev if e.get("type") == "encounter_start"), None)
+  627     check_eq("encounter_start of the road raiders, seed %d (LR-26, LR-28, LR-29)" % seed, got, ref["encounter"])
+  628 
+  629 
+  630 @pytest.mark.parametrize("seed", OPEN_SEEDS)
+  631 def test_surprise_check(runner, walkthrough, seed):
+  632     ev, ref = _opening(runner, walkthrough, seed)
+  633     i = next((k for k, e in enumerate(ev) if e.get("type") == "encounter_start"), None)
+  634     got = next((strip(e) for e in ev[i or 0:] if e.get("type") == "check"), None)
+  635     check_eq("surprise check after the raiders appear, seed %d (LR-14, LR-30)" % seed, got, ref["check"])
+  636 
+  637 
+  638 @pytest.mark.parametrize("seed", OPEN_SEEDS)
+  639 def test_surprise_round(runner, walkthrough, seed):
+  640     ev, ref = _opening(runner, walkthrough, seed)
+  641     surprised = any(e.get("type") == "surprised" for e in ev)
+  642     check_eq("surprised event present, seed %d (LR-30)" % seed, surprised, ref["surprised"])
+  643     if ref["surprised"]:
+  644         got = CR.combat_window(ev, 0)
+  645         if got is None:
+  646             fail("seed %d: no round_start with round 0 after the failed surprise check" % seed)
+  647         check_eq("surprise round attacks, seed %d (LR-30, LR-34)" % seed, got, ref["round0"])
+  648 
+  649 
+  650 @pytest.mark.parametrize("seed", OPEN_SEEDS)
+  651 def test_round1_phase1(runner, walkthrough, seed):
+  652     ev, ref = _opening(runner, walkthrough, seed)
+  653     orders = next((strip(e) for e in ev if e.get("type") == "round_orders"), None)
+  654     check_eq("round 1 auto orders, seed %d (LR-33)" % seed, orders,
+  655              {"type": "round_orders", "round": 1, "orders": {str(s): ["fire", 1] for s in range(1, 6)}})
+  656     got = CR.combat_window(ev, 1)
+  657     if got is None:
+  658         fail("seed %d: no round_start with round 1" % seed)
+  659     check_eq("round 1 phase 1 resolution, seed %d (LR-34: shots, monster fire, deaths)" % seed, got, ref["round1"])
+  660 
+  661 
+  662 FIGHT_SEEDS = [1, 2, 3, 4, 5]
+  663 
+  664 
+  665 def _fight(runner, walkthrough, seed):
+  666     ev, _ = runner.run("cp4", {"seed": seed, "script": prefix(walkthrough, "CP4")}, seed)
+  667     return ev
+  668 
+  669 
+  670 @pytest.mark.parametrize("cat", ["orders", "need", "target", "jam", "victory"])
+  671 def test_raider_fight_rules(runner, walkthrough, cat):
+  672     for seed in FIGHT_SEEDS:
+  673         ev = _fight(runner, walkthrough, seed)
+  674         issues = [m for c, m in CR.consistency(ev) if c in (cat, "all")]
+  675         if issues:
+  676             fail("seed %d, %s: %s" % (seed, cat, issues[0]))
+  677 
+  678 
+  679 def test_victory_loot(runner, walkthrough):
+  680     for seed in [SEED] + FIGHT_SEEDS[:2]:
+  681         ev = _fight(runner, walkthrough, seed)
+  682         i = next((k for k, e in enumerate(ev) if e.get("type") == "combat_end"), None)
+  683         if i is None:
+  684             fail("seed %d: no combat_end in the raider fight" % seed)
+  685         got = [strip(e) for e in ev[i:] if e.get("type") in ("cell_change", "money")][:3]
+  686         check_eq("seed %d: tail (5, 1) then loot of 75 coins after the victory (LR-44, SPEC-03 9.6)" % seed, got,
+  687                  [{"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13},
+  688                   {"type": "money", "member": 1, "delta": 75, "total": 195},
+  689                   {"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}])
+  690 
+  691 
+  692 # ---- locks, healer, key (walkthrough to CP6, CP7, CP9) -----------------------
+  693 
+  694 @pytest.mark.parametrize("seed", [SEED, 1, 2])
+  695 def test_storehouse_lock(runner, walkthrough, seed):
+  696     ev, _ = runner.run("cp6", {"seed": seed, "script": prefix(walkthrough, "CP6")}, seed)
+  697     seg = between(ev, "CP5", "CP6")
+  698     checks = [e for e in seg if e.get("type") == "check"]
+  699     if not checks:
+  700         fail("seed %d: no check event at the storehouse door" % seed)
+  701     for c in checks:
+  702         exp = {"type": "check", "member": 3, "skill": 14, "level": 2, "need": 50}
+  703         check_eq("seed %d: storehouse check (LR-13, LR-14, worked example need 50)" % seed,
+  704                  {k: c.get(k) for k in exp}, exp)
+  705         if c.get("success") != (isinstance(c.get("roll"), int) and 1 <= c["roll"] <= 50):
+  706             fail("seed %d: check roll %r with need 50 but success=%r" % (seed, c.get("roll"), c.get("success")))
+  707     if any(c.get("success") for c in checks[:-1]) or not checks[-1].get("success"):
+  708         fail("seed %d: the bumps must repeat until the first success (repeat_until cell:2,26,14)" % seed)
+  709     i = seg.index(checks[-1])
+  710     check_eq("seed %d: events after the successful check (LR-21 order)" % seed, seg[i + 1:i + 6],
+  711              [{"type": "unlock", "x": 26, "y": 14},
+  712               {"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30},
+  713               {"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29},
+  714               {"type": "xp", "member": 3, "delta": 10, "total": 114},
+  715               {"type": "paragraph", "n": 12}])
+  716     for c in checks[:-1]:
+  717         j = seg.index(c)
+  718         check_eq("seed %d: failed check is followed by the fail message (string 9)" % seed, seg[j + 1],
+  719                  {"type": "message", "location": 2, "string": 9})
+  720 
+  721 
+  722 def test_healer(runner, walkthrough):
+  723     ev, _ = runner.run("cp7", {"seed": SEED, "script": prefix(walkthrough, "CP7")})
+  724     seg = between(ev, "CP6", "CP7")
+  725     i = next((k for k, e in enumerate(seg) if e.get("type") == "bump" and e.get("x") == 25 and e.get("y") == 21), None)
+  726     if i is None:
+  727         fail("no bump of the Ninemile healer's cot (25, 21) before CP7")
+  728     got = [e for e in seg[i:] if e.get("type") in ("prompt", "money", "heal_all")]
+  729     check_eq("Ninemile healer (LR-20, LR-23)", got,
+  730              [{"type": "prompt", "prompt": "heal", "price": 40}, {"type": "money", "member": 1, "delta": -40, "total": 51},
+  731               {"type": "heal_all", "price": 40}])
+  732     for m in ckpt(ev, "CP7").get("party") or []:
+  733         if m.get("hp") != m.get("max_hp") or m.get("cond") != 0:
+  734             fail("CP7 slot %r: hp %r of max %r, cond %r after the healer" % (m.get("slot"), m.get("hp"),
+  735                                                                            m.get("max_hp"), m.get("cond")))
+  736 
+  737 
+  738 def test_key_lock(runner, walkthrough):
+  739     ev, _ = runner.run("cp9", {"seed": SEED, "script": prefix(walkthrough, "CP9")})
+  740     seg = between(ev, "CP8", "CP9")
+  741     i = next((k for k, e in enumerate(seg) if e.get("type") == "bump" and e.get("x") == 16 and e.get("y") == 6), None)
+  742     if i is None:
+  743         fail("no bump of the vault gate (16, 6) before CP9")
+  744     check_eq("vault gate opened with the Gate card (LR-21: key, no check, no experience)", seg[i + 1:i + 7],
+  745              [{"type": "message", "location": 3, "string": 10}, {"type": "key_used", "member": 1, "item": 11},
+  746               {"type": "unlock", "x": 16, "y": 6},
+  747               {"type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39},
+  748               {"type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37},
+  749               {"type": "paragraph", "n": 21}])
+  750 
+  751 
+  752 # ---- save and load (LR-54 to LR-57) -----------------------------------------
+  753 
+  754 def _saved(runner, walkthrough):
+  755     script = prefix(walkthrough, "CP5-pre-save") + ["S"]
+  756     return runner.run("saved", {"seed": SEED, "script": script})
+  757 
+  758 
+  759 def _payload(dd):
+  760     t = call("containers.read_tables", str(dd / "LABTABLES.BIN"))
+  761     g = (dd / "GAME1").read_bytes()
+  762     off = t["savegameOffsets"][0]
+  763     try:
+  764         return C.rxor_decode_whole(g, 0x800, off + 4)
+  765     except ValueError as e:
+  766         fail("the saved GAME1 savegame block fails the reference checksum: %s" % e)
+  767 
+  768 
+  769 def test_save_labstate(runner, walkthrough):
+  770     ev, dd = _saved(runner, walkthrough)
+  771     st = ckpt(ev, "CP5-pre-save")
+  772     p = dd / "LABSTATE.BIN"
+  773     if not p.is_file():
+  774         fail("no LABSTATE.BIN next to GAME1 after S (LR-54)")
+  775     try:
+  776         ls = W.ref_labstate(p.read_bytes())
+  777     except ValueError as e:
+  778         fail("LABSTATE.BIN does not follow LR-57: %s" % e)
+  779     want_cc = sorted(st.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+  780     check_eq("LABSTATE.BIN after the save (LR-57)", ls,
+  781              {"steps": st.get("steps"), "day": st.get("day"), "seconds": 0, "pad": 0, "rng_state": st.get("rng_state"),
+  782               "cell_changes": want_cc})
+  783 
+  784 
+  785 def test_save_savegame_fields(runner, walkthrough):
+  786     ev, dd = _saved(runner, walkthrough)
+  787     p = _payload(dd)
+  788     got = {"order": list(p[1:8]), "x": p[8], "y": p[9], "map": p[10], "prevX": p[11], "prevY": p[12], "prevMap": p[13],
+  789            "groups1to3": list(p[14:56]), "viewport": [p[0x78], p[0x79]], "members": [p[0x7D], p[0x80]],
+  790            "party": p[0x7E], "location": p[0x7F], "extra": p[0x81], "clock": [p[0x83], p[0x84]], "scroll": p[0x85],
+  791            "serial": int.from_bytes(p[0xF5:0xF9], "little")}
+  792     want = {"order": [1, 2, 3, 4, 5, 0, 0], "x": 25, "y": 5, "map": 2, "prevX": 43, "prevY": 28, "prevMap": 0,
+  793             "groups1to3": [0] * 42, "viewport": [25, 5], "members": [5, 5], "party": 0, "location": 2, "extra": 0,
+  794             "clock": [28, 17], "scroll": 0, "serial": 1}
+  795     check_eq("savegame payload after the save at CP5 (LR-55, L-TR4)", got, want)
+  796     names = [bytes(p[0x100 * (s + 1):0x100 * (s + 1) + 14]).split(b"\x00")[0].decode("latin-1") for s in range(7)]
+  797     check_eq("character record names (LR-55)", names, ["Hessa Brand", "Tobin Ash", "Maro Quill", "Dell Ostrow",
+  798                                                        "Orla Penn", "", ""])
+  799     check_eq("slots 6 and 7 all zero (LR-55)", any(p[0x600:0x800]), False)
+  800 
+  801 
+  802 def test_load_restores_state(runner, walkthrough):
+  803     ev, dd = _saved(runner, walkthrough)
+  804     want = ckpt(ev, "CP5-pre-save")
+  805     ev2, _ = runner.run("reload", {"seed": 5, "script": ["O", "Y", {"checkpoint": "loaded"}]}, None, data_dir=dd)
+  806     check_eq("a fresh run that loads the save sees the saved state (LR-4, LR-56)", ckpt(ev2, "loaded"), want)
+  807 
+  808 
+  809 def test_save_load_save(runner, walkthrough):
+  810     _, dd1 = _saved(runner, walkthrough)
+  811     p1 = _payload(dd1)
+  812     l1 = (dd1 / "LABSTATE.BIN").read_bytes()
+  813     _, dd2 = runner.run("saveloadsave", {"seed": SEED, "script": prefix(walkthrough, "CP5") + ["S"]})
+  814     p2 = _payload(dd2)
+  815     diff = [i for i in range(0x800) if p1[i] != p2[i]]
+  816     if any(not (0xF5 <= i < 0xF9) for i in diff):
+  817         j = next(i for i in diff if not (0xF5 <= i < 0xF9))
+  818         fail("save, load, save: payload byte 0x%03X differs (%02X then %02X); only the serial may change (LR-56)"
+  819              % (j, p1[j], p2[j]))
+  820     check_eq("save, load, save: serial", int.from_bytes(p2[0xF5:0xF9], "little"),
+  821              int.from_bytes(p1[0xF5:0xF9], "little") + 1)
+  822     check_bytes("save, load, save: LABSTATE.BIN identical (LR-56)", (dd2 / "LABSTATE.BIN").read_bytes(), l1)
+  823 
+  824 
+  825 def test_load_bad_labstate(runner, walkthrough, tmp_path_factory):
+  826     _, dd = _saved(runner, walkthrough)
+  827     bad = tmp_path_factory.mktemp("badsave")
+  828     import shutil
+  829     shutil.copytree(dd, bad, dirs_exist_ok=True)
+  830     b = bytearray((bad / "LABSTATE.BIN").read_bytes())
+  831     b[-1] ^= 0x01
+  832     (bad / "LABSTATE.BIN").write_bytes(bytes(b))
+  833     expect_error("FormatError", "headless.run", str(bad), {"seed": SEED, "script": ["O", "Y"]}, None,
+  834                  what="load with a wrong LABSTATE.BIN sum (LR-57, SPEC-06 exit code 3)")
+
+==== tests/conftest.py (238 lines) ====
+    1 """Acceptance-test configuration for PREREG-W1 (SPEC-07).
+    2 
+    3 - Registers the `milestone(name)` marker; every test carries exactly one.
+    4 - Adds `--group M1` ... `--group M6` to select one milestone group.
+    5 - Puts the project's src/ first on sys.path so `import wlengine` finds the
+    6   builder's package.
+    7 - Provides the session fixtures: the SPEC-02/SPEC-03 fixture set, the engine's
+    8   compiled Dry Fork data, the oracle decoding of that data, and cached headless
+    9   runs.
+   10 
+   11 Frozen with the tests (SPEC-07 section 6).
+   12 """
+   13 
+   14 from __future__ import annotations
+   15 
+   16 import json
+   17 import os
+   18 import shutil
+   19 import subprocess
+   20 import sys
+   21 from pathlib import Path
+   22 
+   23 import pytest
+   24 
+   25 sys.dont_write_bytecode = True
+   26 _TESTS = Path(__file__).resolve().parent
+   27 _SRC = _TESTS.parent / "src"
+   28 for p in (str(_TESTS), str(_SRC)):
+   29     if p in sys.path:
+   30         sys.path.remove(p)
+   31 sys.path.insert(0, str(_TESTS))
+   32 sys.path.insert(0, str(_SRC))
+   33 
+   34 import wl_support as W  # noqa: E402
+   35 
+   36 MILESTONES = ("M1", "M2", "M3", "M4", "M5", "M6")
+   37 sys.addaudithook(W.audit_hook)
+   38 
+   39 
+   40 def pytest_addoption(parser):
+   41     parser.addoption("--group", action="store", default=None, metavar="M",
+   42                      help="run only the tests of one milestone group (M1 to M6), SPEC-07")
+   43 
+   44 
+   45 def pytest_configure(config):
+   46     config.addinivalue_line("markers", "milestone(name): PREREG-W1 milestone group, M1 to M6 (SPEC-07)")
+   47 
+   48 
+   49 def pytest_collection_modifyitems(config, items):
+   50     group = config.getoption("--group")
+   51     if group is not None and group not in MILESTONES:
+   52         raise pytest.UsageError("--group must be one of %s, got %r" % (", ".join(MILESTONES), group))
+   53     keep, drop = [], []
+   54     for it in items:
+   55         marks = [m.args[0] if m.args else None for m in it.iter_markers("milestone")]
+   56         if len(marks) != 1 or marks[0] not in MILESTONES:
+   57             raise pytest.UsageError("%s must carry exactly one milestone marker (got %r)" % (it.nodeid, marks))
+   58         (keep if group is None or marks[0] == group else drop).append(it)
+   59     if drop:
+   60         config.hook.pytest_deselected(items=drop)
+   61         items[:] = keep
+   62 
+   63 
+   64 # ---------------------------------------------------------------------------
+   65 # Session fixtures
+   66 # ---------------------------------------------------------------------------
+   67 
+   68 def _oracle(args: list[str], timeout: int = 300) -> subprocess.CompletedProcess:
+   69     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+   70     env.pop("PYTHONPATH", None)
+   71     return subprocess.run([sys.executable, str(_TESTS / "oracle_tool.py")] + args, capture_output=True,
+   72                           text=True, timeout=timeout, env=env, stdin=subprocess.DEVNULL)
+   73 
+   74 
+   75 class FixtureSet:
+   76     def __init__(self, d: Path, manifest: dict) -> None:
+   77         self.dir = d
+   78         self.manifest = manifest
+   79 
+   80     def path(self, name: str) -> str:
+   81         return str(self.dir / name)
+   82 
+   83     def read(self, name: str) -> bytes:
+   84         return (self.dir / name).read_bytes()
+   85 
+   86 
+   87 def _make_fixture_set(tmp_path_factory, seed: int) -> FixtureSet:
+   88     d = tmp_path_factory.mktemp("fixtures")
+   89     mand = tmp_path_factory.mktemp("manifest")
+   90     r = _oracle(["fixtures", str(d), str(mand), str(seed)])
+   91     if r.returncode != 0:
+   92         raise RuntimeError("fixture generator failed (test infrastructure): %s %s" % (r.stdout[-500:], r.stderr[-500:]))
+   93     W.FORBIDDEN_PREFIXES.append(str(mand) + os.sep)
+   94     return FixtureSet(d, json.loads((mand / "manifest.json").read_text()))
+   95 
+   96 
+   97 @pytest.fixture(scope="session")
+   98 def fixture_set(tmp_path_factory) -> FixtureSet:
+   99     """SPEC-02 section 12.8 / SPEC-03 section 12 fixtures (seed 19880101), manifest kept apart."""
+  100     return _make_fixture_set(tmp_path_factory, 19880101)
+  101 
+  102 
+  103 @pytest.fixture(scope="session")
+  104 def fixture_set_alt(tmp_path_factory) -> FixtureSet:
+  105     """The same generator with seed 20261022: same structure, different content (SPEC-07 section 5)."""
+  106     return _make_fixture_set(tmp_path_factory, 20261022)
+  107 
+  108 
+  109 class Compiled:
+  110     def __init__(self, d: Path | None, error: str | None) -> None:
+  111         self.dir = d
+  112         self.error = error
+  113 
+  114     def need(self) -> Path:
+  115         if self.error:
+  116             W.fail("scenario compile failed, so this check cannot run: " + self.error)
+  117         return self.dir
+  118 
+  119     def copy(self, tmp_path_factory) -> Path:
+  120         src = self.need()
+  121         dst = tmp_path_factory.mktemp("data")
+  122         shutil.copytree(src, dst, dirs_exist_ok=True)
+  123         return dst
+  124 
+  125 
+  126 @pytest.fixture(scope="session")
+  127 def compiled(tmp_path_factory) -> Compiled:
+  128     """The engine's own compilation of SPEC/scenario (SPEC-05 section 13)."""
+  129     d = tmp_path_factory.mktemp("compiled")
+  130     try:
+  131         W.engine_ready()
+  132         fn = W.api("scenario.compile")
+  133     except pytest.fail.Exception as e:
+  134         return Compiled(None, str(e))
+  135     try:
+  136         W._armed(fn, str(W.SCENARIO), str(d), allow_reference_log=True)
+  137     except NotImplementedError as e:
+  138         return Compiled(None, "wlengine.scenario.compile: not implemented (%s)" % (e or "NotImplementedError"))
+  139     except Exception as e:  # noqa: BLE001
+  140         return Compiled(None, "wlengine.scenario.compile raised %s: %s" % (type(e).__name__, W.short(str(e), 200)))
+  141     if W._STATE["violations"]:
+  142         v = W._STATE["violations"][0]
+  143         W._STATE["violations"].clear()
+  144         if not v.startswith(str(W.SCENARIO)):
+  145             return Compiled(None, "wlengine.scenario.compile opened a file the engine must not read: %s" % v)
+  146     return Compiled(d, None)
+  147 
+  148 
+  149 class OracleView:
+  150     def __init__(self, data: dict | None, error: str | None) -> None:
+  151         self.data = data or {}
+  152         self.error = error
+  153 
+  154     def oracle(self, section: str):
+  155         if self.error:
+  156             W.fail(self.error)
+  157         errs = self.data.get("errors", {})
+  158         if section in errs:
+  159             W.fail("reference reader rejected the compiled data (%s): %s" % (section, errs[section]))
+  160         if section not in self.data.get("oracle", {}):
+  161             W.fail("reference reader found no %s in the compiled data" % section)
+  162         return self.data["oracle"][section]
+  163 
+  164     def expected(self, section: str):
+  165         if self.error and not self.data.get("expected"):
+  166             W.fail(self.error)
+  167         return self.data["expected"][section]
+  168 
+  169 
+  170 @pytest.fixture(scope="session")
+  171 def oracle_view(compiled) -> OracleView:
+  172     if compiled.error:
+  173         return OracleView(None, "scenario compile failed, so this check cannot run: " + compiled.error)
+  174     r = _oracle(["compiled", str(compiled.dir), str(W.SCENARIO)])
+  175     try:
+  176         data = json.loads(r.stdout)
+  177     except ValueError:
+  178         raise RuntimeError("oracle tool failed (test infrastructure): %s" % r.stderr[-800:])
+  179     if "fatal" in data:
+  180         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+  181     return OracleView(data, None)
+  182 
+  183 
+  184 @pytest.fixture(scope="session")
+  185 def expected_view(tmp_path_factory) -> dict:
+  186     """Expected structures from the scenario JSON alone (no engine involved)."""
+  187     d = tmp_path_factory.mktemp("empty")
+  188     r = _oracle(["compiled", str(d), str(W.SCENARIO)])
+  189     data = json.loads(r.stdout)
+  190     if "fatal" in data:
+  191         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+  192     return data["expected"]
+  193 
+  194 
+  195 class Runner:
+  196     """Cached headless runs on fresh copies of the compiled data."""
+  197 
+  198     def __init__(self, compiled: Compiled, tmp_path_factory) -> None:
+  199         self.compiled = compiled
+  200         self.tpf = tmp_path_factory
+  201         self.cache: dict = {}
+  202 
+  203     def run(self, key: str, script: dict, seed: int | None = None, data_dir: Path | None = None):
+  204         """Return (events, data_dir). Fails the test cleanly on any engine problem."""
+  205         ck = (key, seed, str(data_dir) if data_dir else None)
+  206         if ck in self.cache:
+  207             ev, dd, err = self.cache[ck]
+  208             if err:
+  209                 W.fail(err)
+  210             return ev, dd
+  211         dd = data_dir or self.compiled.copy(self.tpf)
+  212         err = None
+  213         ev = None
+  214         try:
+  215             ev = W.call("headless.run", str(dd), json.loads(json.dumps(script)), seed)
+  216             if not isinstance(ev, list) or not all(isinstance(e, dict) for e in ev):
+  217                 err = "wlengine.headless.run must return a list of event dicts, got %s" % type(ev).__name__
+  218         except pytest.fail.Exception as e:
+  219             err = str(e)
+  220         self.cache[ck] = (ev, dd, err)
+  221         if err:
+  222             W.fail(err)
+  223         return ev, dd
+  224 
+  225 
+  226 @pytest.fixture(scope="session")
+  227 def runner(compiled, tmp_path_factory) -> Runner:
+  228     return Runner(compiled, tmp_path_factory)
+  229 
+  230 
+  231 @pytest.fixture(scope="session")
+  232 def walkthrough() -> dict:
+  233     return W.load_json(W.SCENARIO / "walkthrough.json")
+  234 
+  235 
+  236 @pytest.fixture(scope="session")
+  237 def reference_log() -> list[dict]:
+  238     return W.load_json(W.REFERENCE_LOG)["events"]
+
+==== tests/wl_combat_ref.py (346 lines) ====
+    1 """Independent restatement of SPEC-04 combat rules for the first Dry Fork fight.
+    2 
+    3 Used by test_m5_rules.py to compute expected events for the road-raider
+    4 encounter at overworld (30,41) (SPEC-05 section 6, type 1) from the spec text
+    5 alone. The party state is the walkthrough state at CP3 (SPEC-05 sections 7,
+    6 10.1, 10.2 and 14.1): no random draw happens before this encounter, so the
+    7 first draw of the fight is the first draw of the stream.
+    8 
+    9 This is not the engine and is not a general combat implementation: it covers
+   10 the encounter start, the surprise check, the surprise round and the phase 1 of
+   11 round 1 (SPEC-04 LR-26 to LR-30, LR-34, LR-40), plus a rule-consistency checker
+   12 for a whole fight against this group (LR-33 to LR-44).
+   13 """
+   14 
+   15 from __future__ import annotations
+   16 
+   17 from wl_support import (RefRng, ref_build_groups, ref_damage_member, ref_jam_chance,
+   18                         ref_level_after, ref_max_hp, ref_monster_need, ref_ranged_need,
+   19                         ref_skill_check)
+   20 
+   21 # Party at CP3, from SPEC-05 tables (slot: stats). Weapon data from SPEC-05
+   22 # section 7: Ranch pistol capacity 6, skill byte 4, damage 1d8, ammo item 4;
+   23 # Lever rifle capacity 8, skill byte 5, damage 2d6, ammo item 6.
+   24 PISTOL = {"item": 3, "cap": 6, "skill": 4, "n": 1, "s": 8, "ammo": 4}
+   25 RIFLE = {"item": 5, "cap": 8, "skill": 5, "n": 2, "s": 6, "ammo": 6}
+   26 
+   27 PARTY_CP3 = {
+   28     # slot: name, STR, IQ, SPD, AGL, skills {id: level}, weapon, load, ammo boxes, AC, max HP
+   29     1: {"name": "Hessa Brand", "STR": 14, "IQ": 13, "SPD": 12, "AGL": 14,
+   30         "skills": {4: 2, 20: 1, 21: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+   31     2: {"name": "Tobin Ash", "STR": 16, "IQ": 10, "SPD": 11, "AGL": 12,
+   32         "skills": {5: 2, 1: 1, 17: 1, 3: 1}, "weapon": RIFLE, "load": 8, "boxes": 1, "ac": 3, "xp": 90},
+   33     3: {"name": "Maro Quill", "STR": 11, "IQ": 16, "SPD": 13, "AGL": 15,
+   34         "skills": {14: 2, 23: 1, 22: 1, 4: 1, 12: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+   35     4: {"name": "Dell Ostrow", "STR": 12, "IQ": 15, "SPD": 12, "AGL": 13,
+   36         "skills": {12: 2, 13: 1, 4: 1, 29: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 2, "xp": 90},
+   37     5: {"name": "Orla Penn", "STR": 13, "IQ": 11, "SPD": 14, "AGL": 15,
+   38         "skills": {5: 2, 18: 2, 19: 1}, "weapon": RIFLE, "load": 8, "boxes": 2, "ac": 3, "xp": 200, "level": 2},
+   39 }
+   40 
+   41 # Overworld monster 1, SPEC-05 section 5.1 (manifest-style keys).
+   42 RAIDER = {"name": "raider", "sturdiness": 12, "combatRating": 6, "randomDamage": 1, "maxGroup": 4,
+   43           "armorClass": 1, "fixedDamage": 0, "weaponType": 3, "type": 3, "portrait": 1}
+   44 RAIDER_RECORD = {"groups": [[1, False, 3], [0, False, 0], [0, False, 0]]}
+   45 LOOKOUT = 18
+   46 GUNSMITHING = 22
+   47 
+   48 COMBAT_TYPES = {"attack", "jam", "click", "monster_dies", "unconscious", "death"}
+   49 
+   50 
+   51 def _lookout_checker():
+   52     """LR-14: highest Lookout level, then higher linked attribute (IQ), then lower slot."""
+   53     best = None
+   54     for slot, m in PARTY_CP3.items():
+   55         lvl = m["skills"].get(LOOKOUT, 0)
+   56         key = (lvl, m["IQ"], -slot)
+   57         if best is None or key > best[0]:
+   58             best = (key, slot)
+   59     return best[1]
+   60 
+   61 
+   62 def opening(seed: int) -> dict:
+   63     """Expected events of the raider fight up to the end of round 1, phase 1."""
+   64     rng = RefRng(seed)
+   65     groups = ref_build_groups(rng, [RAIDER], RAIDER_RECORD)
+   66     enc = {"type": "encounter_start",
+   67            "groups": [{"monster": "raider", "count": g["count"], "band": g["band"], "hp": g["hp"]}
+   68                       for g in groups]}
+   69     hp = list(groups[0]["hp"])
+   70     band = groups[0]["band"]
+   71     d_max = RAIDER["combatRating"]
+   72     cs = _lookout_checker()
+   73     m = PARTY_CP3[cs]
+   74     c = ref_skill_check(rng, m["skills"].get(LOOKOUT, 0), m["IQ"], d_max)
+   75     check = {"type": "check", "member": cs, "skill": LOOKOUT, "level": m["skills"].get(LOOKOUT, 0), **c}
+   76     member_hp = {s: ref_max_hp(p["STR"], p.get("level", 1)) for s, p in PARTY_CP3.items()}
+   77     cond = {s: 0 for s in PARTY_CP3}
+   78 
+   79     def monster_phase1(events):
+   80         pending = {s: 0 for s in PARTY_CP3}
+   81         conscious = [s for s in sorted(PARTY_CP3) if cond[s] == 0]
+   82         for i in range(len(hp)):
+   83             if hp[i] <= 0:
+   84                 continue
+   85             t = conscious[rng.roll(len(conscious)) - 1]
+   86             need = ref_monster_need(RAIDER["combatRating"], PARTY_CP3[t]["ac"], band)
+   87             r = rng.d100()
+   88             ev = {"type": "attack", "side": "monsters", "group": 1, "attacker": i + 1, "member": t,
+   89                   "need": need, "roll": r, "hit": r <= need}
+   90             if r <= need:
+   91                 d = rng.dice(RAIDER["randomDamage"], 6) + RAIDER["fixedDamage"]
+   92                 ev["damage"] = d
+   93                 pending[t] += d
+   94             events.append(ev)
+   95         return pending
+   96 
+   97     def apply_members(pending, events):
+   98         for s in sorted(PARTY_CP3):
+   99             if pending[s] and cond[s] == 0:
+  100                 res = ref_damage_member(member_hp[s], pending[s])
+  101                 member_hp[s] = res["hp"]
+  102                 if res["cond"]:
+  103                     cond[s] = res["cond"]
+  104                     events.append({"type": "death" if res["cond"] == 2 else "unconscious", "member": s})
+  105 
+  106     round0 = []
+  107     if not c["success"]:
+  108         p = monster_phase1(round0)
+  109         apply_members(p, round0)
+  110 
+  111     round1 = []
+  112     loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+  113     pend = [0] * len(hp)
+  114     for s in sorted(PARTY_CP3):
+  115         if cond[s]:
+  116             continue
+  117         mm = PARTY_CP3[s]
+  118         w = mm["weapon"]
+  119         if loads[s] == 0:
+  120             round1.append({"type": "click", "member": s})
+  121             continue
+  122         r = rng.d100()
+  123         j = ref_jam_chance(mm["skills"].get(GUNSMITHING, 0))
+  124         if r <= j:
+  125             round1.append({"type": "jam", "member": s, "roll": r, "chance": j})
+  126             continue
+  127         loads[s] -= 1
+  128         tgt = next((i for i in range(len(hp)) if hp[i] - pend[i] > 0), None)
+  129         if tgt is None:
+  130             tgt = next(i for i in range(len(hp)) if hp[i] > 0)
+  131         need = ref_ranged_need(mm["skills"].get(w["skill"], 0), mm["AGL"], RAIDER["armorClass"], band)
+  132         r = rng.d100()
+  133         ev = {"type": "attack", "side": "party", "member": s, "group": 1, "target": tgt + 1,
+  134               "need": need, "roll": r, "hit": r <= need}
+  135         if r <= need:
+  136             d = rng.dice(w["n"], w["s"])
+  137             ev["damage"] = d
+  138             pend[tgt] += d
+  139         round1.append(ev)
+  140     pm = monster_phase1(round1)
+  141     for i in range(len(hp)):
+  142         if hp[i] > 0 and pend[i]:
+  143             hp[i] -= pend[i]
+  144             if hp[i] <= 0:
+  145                 round1.append({"type": "monster_dies", "group": 1, "index": i + 1})
+  146     apply_members(pm, round1)
+  147     return {"encounter": enc, "check": check, "surprised": not c["success"],
+  148             "round0": round0, "round1": round1}
+  149 
+  150 
+  151 def combat_window(events: list[dict], round_no: int) -> list[dict] | None:
+  152     """Events after round_start(round_no) while they are combat resolution events."""
+  153     for i, e in enumerate(events):
+  154         if e.get("type") == "round_start" and e.get("round") == round_no:
+  155             out = []
+  156             for f in events[i + 1:]:
+  157                 if f.get("type") not in COMBAT_TYPES:
+  158                     break
+  159                 out.append({k: v for k, v in f.items() if k != "seq"})
+  160             return out
+  161     return None
+  162 
+  163 
+  164 def consistency(events: list[dict]) -> list[tuple[str, str]]:
+  165     """Rule-consistency issues for the raider fight in an engine log.
+  166 
+  167     Categories: orders (LR-33), need (LR-34 party and monster need), jam
+  168     (LR-34 step 2, LR-39), target (LR-34 step 4), victory (LR-44, LR-45, LR-46).
+  169     """
+  170     issues: list[tuple[str, str]] = []
+  171     try:
+  172         start = next(i for i, e in enumerate(events) if e.get("type") == "encounter_start")
+  173     except StopIteration:
+  174         return [("all", "no encounter_start event in the log")]
+  175     end = next((i for i in range(start, len(events)) if events[i].get("type") == "combat_end"), None)
+  176     if end is None:
+  177         return [("all", "no combat_end event after encounter_start")]
+  178     groups = events[start].get("groups") or []
+  179     if len(groups) != 1 or groups[0].get("count") != 3:
+  180         return [("all", "encounter_start groups: expected one group of 3 raiders, got %r" % groups)]
+  181     hp = list(groups[0].get("hp", []))
+  182     band = groups[0].get("band", 3)
+  183     loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+  184     boxes = {s: PARTY_CP3[s]["boxes"] for s in PARTY_CP3}
+  185     jammed: set[int] = set()
+  186     pend = [0] * 3
+  187     in_phase1 = False
+  188     last_death_round = None
+  189     cur_round = None
+  190     rounds_started = []
+  191 
+  192     def finalize():
+  193         nonlocal in_phase1
+  194         if in_phase1:
+  195             for i in range(3):
+  196                 hp[i] -= pend[i]
+  197                 pend[i] = 0
+  198             in_phase1 = False
+  199 
+  200     for e in events[start + 1:end + 1]:
+  201         t = e.get("type")
+  202         if t == "round_orders":
+  203             exp = {}
+  204             for s in sorted(PARTY_CP3):
+  205                 alive = any(h > 0 for h in hp)
+  206                 if not alive:
+  207                     exp[str(s)] = ["wait"]
+  208                 elif s in jammed:
+  209                     exp[str(s)] = ["unjam"]
+  210                 elif loads[s] > 0:
+  211                     exp[str(s)] = ["fire", 1]
+  212                 elif boxes[s] > 0:
+  213                     exp[str(s)] = ["reload"]
+  214                 else:
+  215                     exp[str(s)] = ["unarmed", 1] if band == 1 else ["advance", 1]
+  216             got = {str(k): list(v) for k, v in (e.get("orders") or {}).items()}
+  217             if got != exp:
+  218                 diff = next((k for k in exp if got.get(k) != exp[k]), None)
+  219                 issues.append(("orders", "round %s: slot %s order expected %r, got %r"
+  220                                % (e.get("round"), diff, exp.get(diff), got.get(diff))))
+  221         elif t == "round_start":
+  222             finalize()
+  223             cur_round = e.get("round")
+  224             rounds_started.append(cur_round)
+  225             in_phase1 = True
+  226             pend = [0] * 3
+  227         elif t == "attack" and e.get("side") == "party":
+  228             s = e.get("member")
+  229             mm = PARTY_CP3.get(s)
+  230             if mm is None:
+  231                 issues.append(("need", "party attack by unknown member %r" % s))
+  232                 continue
+  233             w = mm["weapon"]
+  234             need = ref_ranged_need(mm["skills"].get(w["skill"], 0), mm["AGL"], RAIDER["armorClass"], band)
+  235             if e.get("need") != need:
+  236                 issues.append(("need", "party attack by member %d at band %d: need expected %d, got %r"
+  237                                % (s, band, need, e.get("need"))))
+  238             hit = e.get("roll") is not None and e.get("roll") <= e.get("need", -1)
+  239             if e.get("hit") != hit or (("damage" in e) != hit):
+  240                 issues.append(("need", "party attack by member %d: roll %r need %r but hit=%r damage=%r"
+  241                                % (s, e.get("roll"), e.get("need"), e.get("hit"), e.get("damage"))))
+  242             if hit and not (w["n"] <= e.get("damage", 0) <= w["n"] * w["s"]):
+  243                 issues.append(("need", "party attack by member %d: damage %r outside %dd%d"
+  244                                % (s, e.get("damage"), w["n"], w["s"])))
+  245             if in_phase1:
+  246                 exp_t = next((i for i in range(3) if hp[i] - pend[i] > 0), None)
+  247                 if exp_t is None:
+  248                     exp_t = next((i for i in range(3) if hp[i] > 0), None)
+  249                 if exp_t is not None and e.get("target") != exp_t + 1:
+  250                     issues.append(("target", "round %s member %d: target expected %d, got %r"
+  251                                    % (cur_round, s, exp_t + 1, e.get("target"))))
+  252                 tg = (e.get("target") or 1) - 1
+  253                 if hit and 0 <= tg < 3:
+  254                     pend[tg] += e.get("damage", 0)
+  255             loads[s] = max(0, loads[s] - 1)
+  256         elif t == "attack" and e.get("side") == "monsters":
+  257             s = e.get("member")
+  258             mm = PARTY_CP3.get(s)
+  259             if mm is None:
+  260                 issues.append(("need", "monster attack on unknown member %r" % s))
+  261                 continue
+  262             need = ref_monster_need(RAIDER["combatRating"], mm["ac"], band)
+  263             if e.get("need") != need:
+  264                 issues.append(("need", "monster attack on member %d at band %d: need expected %d, got %r"
+  265                                % (s, band, need, e.get("need"))))
+  266             hit = e.get("roll") is not None and e.get("roll") <= e.get("need", -1)
+  267             if e.get("hit") != hit or (("damage" in e) != hit):
+  268                 issues.append(("need", "monster attack on member %d: roll %r need %r but hit=%r"
+  269                                % (s, e.get("roll"), e.get("need"), e.get("hit"))))
+  270             if hit and not (1 <= e.get("damage", 0) <= 6):
+  271                 issues.append(("need", "monster attack damage %r outside 1d6" % e.get("damage")))
+  272         elif t == "jam":
+  273             s = e.get("member")
+  274             mm = PARTY_CP3.get(s, {"skills": {}})
+  275             j = ref_jam_chance(mm["skills"].get(GUNSMITHING, 0))
+  276             if e.get("chance") != j or not (isinstance(e.get("roll"), int) and 1 <= e["roll"] <= j):
+  277                 issues.append(("jam", "jam of member %r: chance expected %d with roll <= chance, got chance %r roll %r"
+  278                                % (s, j, e.get("chance"), e.get("roll"))))
+  279             jammed.add(s)
+  280             loads[s] = 0
+  281         elif t == "check" and e.get("skill") == GUNSMITHING:
+  282             s = e.get("member")
+  283             mm = PARTY_CP3.get(s, {"skills": {}, "IQ": 0})
+  284             lvl = mm["skills"].get(GUNSMITHING, 0)
+  285             need = 20 + 15 * lvl + 2 * mm["IQ"]
+  286             if e.get("need") != need or e.get("level") != lvl:
+  287                 issues.append(("jam", "unjam check of member %r: need expected %d (level %d), got need %r level %r"
+  288                                % (s, need, lvl, e.get("need"), e.get("level"))))
+  289             ok = need >= 100 or (need > 0 and e.get("roll") is not None and e["roll"] <= need)
+  290             if e.get("success") != ok:
+  291                 issues.append(("jam", "unjam check of member %r: roll %r need %d but success=%r"
+  292                                % (s, e.get("roll"), need, e.get("success"))))
+  293         elif t == "unjammed":
+  294             jammed.discard(e.get("member"))
+  295             loads[e.get("member")] = 0
+  296         elif t == "reload":
+  297             s = e.get("member")
+  298             cap = PARTY_CP3.get(s, {"weapon": PISTOL})["weapon"]["cap"]
+  299             if e.get("status") != cap:
+  300                 issues.append(("jam", "reload of member %r: status expected %d, got %r" % (s, cap, e.get("status"))))
+  301             loads[s] = cap
+  302             boxes[s] -= 1
+  303         elif t == "group_closes":
+  304             finalize()
+  305             band = e.get("band", band)
+  306         elif t == "advance":
+  307             band = e.get("band", band)
+  308         elif t == "monster_dies":
+  309             finalize()
+  310             last_death_round = cur_round
+  311         elif t in ("unconscious", "death"):
+  312             finalize()
+  313     # victory checks
+  314     ce = events[end]
+  315     if ce.get("result") != "victory":
+  316         issues.append(("victory", "combat_end result expected 'victory', got %r" % ce.get("result")))
+  317     elif ce.get("rounds") != last_death_round:
+  318         issues.append(("victory", "combat_end rounds expected %r (round of the last monster_dies), got %r"
+  319                        % (last_death_round, ce.get("rounds"))))
+  320     total_xp = 3 * RAIDER["sturdiness"] * (RAIDER["armorClass"] + 1)
+  321     share = total_xp // 5
+  322     after = events[end + 1:]
+  323     xps = [e for e in after[:20] if e.get("type") == "xp"]
+  324     if [x.get("member") for x in xps] != [1, 2, 3, 4, 5]:
+  325         issues.append(("victory", "xp events after victory: expected members [1, 2, 3, 4, 5], got %r"
+  326                        % [x.get("member") for x in xps]))
+  327     for x in xps:
+  328         s = x.get("member")
+  329         if s in PARTY_CP3:
+  330             if x.get("delta") != share or x.get("total") != PARTY_CP3[s]["xp"] + share:
+  331                 issues.append(("victory", "xp of member %d: expected delta %d total %d, got delta %r total %r"
+  332                                % (s, share, PARTY_CP3[s]["xp"] + share, x.get("delta"), x.get("total"))))
+  333     promos = [e for e in after[:20] if e.get("type") == "promote"]
+  334     exp_p = []
+  335     for s, mm in sorted(PARTY_CP3.items()):
+  336         lvl0 = mm.get("level", 1)
+  337         lvl = ref_level_after(lvl0, mm["xp"] + share)
+  338         if lvl > lvl0:
+  339             exp_p.append({"type": "promote", "member": s, "level": lvl, "max_hp": ref_max_hp(mm["STR"], lvl),
+  340                           "rank": ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"][min(lvl, 7) - 1]})
+  341     got_p = [{k: v for k, v in p.items() if k != "seq"} for p in promos]
+  342     if got_p != exp_p:
+  343         i = next((k for k in range(min(len(got_p), len(exp_p))) if got_p[k] != exp_p[k]), min(len(got_p), len(exp_p)))
+  344         issues.append(("victory", "promote event %d: expected %r, got %r"
+  345                        % (i, exp_p[i] if i < len(exp_p) else None, got_p[i] if i < len(got_p) else None)))
+  346     return issues
+
+==== src/wlengine/scenario.py (887 lines) ====
+    1 """The scenario compiler (SPEC-05 section 13).
+    2 
+    3 ``compile(scenario_dir, out_dir)`` reads ``scenario.json`` and the files it
+    4 lists and writes the lab data set of SPEC-02 section 12.1: GAME1 (four maps,
+    5 the new-game savegame, three shop lists), LABTABLES.BIN, LABSTR.BIN,
+    6 LABSKILL.BIN, LABHOOKS.JSON, PARAGRAPHS.JSON, ALLHTDS1, ALLPICS1, IC0_9.WLF,
+    7 MASKS.WLF, COLORF.FNT, CURS, TITLE.PIC and END.CPA.
+    8 
+    9 Everything is written with the engine's own encoders, so reading the output
+   10 back through the engine's loaders returns the JSON content again.
+   11 """
+   12 
+   13 from __future__ import annotations
+   14 
+   15 import json
+   16 import os
+   17 
+   18 from . import codecs, containers, graphics, huffman, maps, rules, strings
+   19 from .errors import FormatError
+   20 
+   21 # The 60-byte dictionary D of SPEC-02 section 9.3.
+   22 DICT = (b" e\x00tanoisrhdlucmfwygpb.,'v!k?\r"
+   23         b"0123456789xjqz:\x0a\x0b\x0c\x0e\x0f\x10\x11\x06/()\"%+;")
+   24 
+   25 # Section order inside the map-data body (SPEC-03 section 6.1).
+   26 TABLE_ORDER_A = [0, 1, 2, 3, 4, 5, 6, 7, 15]
+   27 TABLE_ORDER_B = [8, 9, 10, 11, 12, 13, 14]
+   28 
+   29 NO_CHANGE = 255
+   30 
+   31 MAPINFO_FIELDS = ("encounterFrequency", "tileset", "randomMonsterTypes",
+   32                   "maxRandomEncounters", "borderImage")
+   33 
+   34 PORTRAIT_BASE_SIZE = graphics.PORTRAIT_BASE_SIZE
+   35 PORTRAIT_STRIDE = graphics.PORTRAIT_STRIDE
+   36 TITLE_STRIDE = graphics.TITLE_STRIDE
+   37 ENDING_SIGNATURE = graphics.ENDING_SIGNATURE
+   38 
+   39 
+   40 # ---------------------------------------------------------------------------
+   41 # Small helpers
+   42 # ---------------------------------------------------------------------------
+   43 
+   44 def _u16(v: int) -> bytes:
+   45     return (v & 0xFFFF).to_bytes(2, "little")
+   46 
+   47 
+   48 def _u32(v: int) -> bytes:
+   49     return (v & 0xFFFFFFFF).to_bytes(4, "little")
+   50 
+   51 
+   52 def _fixed(text, n: int) -> bytes:
+   53     raw = text.encode("latin-1") if isinstance(text, str) else bytes(text)
+   54     return raw[:n] + bytes(max(0, n - len(raw)))
+   55 
+   56 
+   57 def _load_json(path: str):
+   58     with open(path, "r", encoding="utf-8") as fh:
+   59         return json.load(fh)
+   60 
+   61 
+   62 def _write(out_dir: str, name: str, data: bytes) -> None:
+   63     with open(os.path.join(out_dir, name), "wb") as fh:
+   64         fh.write(data)
+   65 
+   66 
+   67 def _pad4(lst: list) -> list:
+   68     return list(lst) + [""] * ((-len(lst)) % 4)
+   69 
+   70 
+   71 # ---------------------------------------------------------------------------
+   72 # Action records (SPEC-03 section 9.2, lab layouts)
+   73 # ---------------------------------------------------------------------------
+   74 
+   75 def _tail(nc: int, na: int) -> bytes:
+   76     return bytes((nc,)) if nc >= 253 else bytes((nc, na))
+   77 
+   78 
+   79 def encode_record(cls: int, r: dict) -> bytes:
+   80     nc, na = r.get("newClass", NO_CHANGE), r.get("newAction", 0)
+   81     if cls == 1:  # PRINT
+   82         msgs = r["messages"]
+   83         b = bytes(m | (0x80 if i == len(msgs) - 1 else 0) for i, m in enumerate(msgs))
+   84         return b + _tail(nc, na)
+   85     if cls == 3:  # FIXED_ENCOUNTER
+   86         b = bytes((r["visibleDistance"], r["hitDistance"], r["message"]))
+   87         for mob, rnd, grp in r["groups"]:
+   88             b += bytes((mob, (0x80 if rnd else 0) | grp))
+   89         flags = r["properName"] | (r["friendly"] << 1) | (r["immobile"] << 2) | (r["npc"] << 4)
+   90         return b + bytes((flags,)) + _tail(nc, na)
+   91     if cls == 4:  # MASK (lab door)
+   92         return bytes((r["message"], (0x80 if r["impassable"] else 0) | r["tile"])) + _tail(nc, na)
+   93     if cls == 5:  # LOOT (wllib layout)
+   94         b = bytes((nc if nc != NO_CHANGE else 0, na))
+   95         for iid, fixed_, amt in r["items"]:
+   96             b += bytes(((0x80 if fixed_ else 0) | iid, amt))
+   97         if r.get("cash") is not None:
+   98             fixed_, amt = r["cash"]
+   99             b += bytes((0xDE if fixed_ else 0x5E,)) + _u16(amt)
+  100         return b + b"\xFF"
+  101     if cls == 6:  # SHOP (lab)
+  102         return bytes((r["shop"], r["message"])) + _tail(nc, na)
+  103     if cls == 10:  # TRANSITION
+  104         flags = (0x80 if r["relative"] else 0) | (0x40 if r["confirm"] else 0) | r["message"]
+  105         return bytes((flags, r["x"] & 0xFF, r["y"] & 0xFF, r["location"])) + _tail(nc, na)
+  106     if cls == 11:  # BLOCKED
+  107         return bytes((r["message"],)) + _tail(nc, na)
+  108     raise FormatError("scenario: lab rules define no record for class %d" % cls)
+  109 
+  110 
+  111 def encode_mapinfo(size: int, mi: dict) -> bytes:
+  112     b = bytearray(50)
+  113     b[2] = size
+  114     for i, k in enumerate(MAPINFO_FIELDS):
+  115         b[5 + i] = mi[k]
+  116     b[0x0A:0x0C] = _u16(mi["timePerStep"])
+  117     b[0x0C] = mi["healRate"]
+  118     return bytes(b)
+  119 
+  120 
+  121 def encode_mob(m: dict) -> bytes:
+  122     return (_u16(m["sturdiness"])
+  123             + bytes((m["combatRating"], m["randomDamage"],
+  124                      (m["maxGroup"] << 4) | m["armorClass"],
+  125                      (m["fixedDamage"] << 4) | m["weaponType"],
+  126                      m["type"], m["portrait"])))
+  127 
+  128 
+  129 # ---------------------------------------------------------------------------
+  130 # Map block (SPEC-03 sections 3 to 9)
+  131 # ---------------------------------------------------------------------------
+  132 
+  133 def build_map(m: dict, disk: int = 0):
+  134     """Return ``(block, tile_map_offset, facts)`` for one map dict."""
+  135     S = m["size"]
+  136     cls, act, img = m["class"], m["action"], m["image"]
+  137     body = bytearray()
+  138     for y in range(S):
+  139         for x in range(0, S, 2):
+  140             body.append((cls[y][x] << 4) | cls[y][x + 1])  # high nibble = even x
+  141     for y in range(S):
+  142         body += bytes(act[y])
+  143     cd_at = len(body)
+  144     body += bytes(42)
+  145     body += encode_mapinfo(S, m["info"])
+  146 
+  147     offsets = [0] * 16
+  148 
+  149     def emit_table(c: int) -> None:
+  150         recs = m["actions"].get(c)
+  151         if not recs:
+  152             return
+  153         start = len(body)
+  154         offsets[c] = start
+  155         encs = [None] + [encode_record(c, r) for r in recs]  # slot 0 is null
+  156         pos = start + 2 * len(encs)
+  157         ptrs = []
+  158         for e in encs:
+  159             if e is None:
+  160                 ptrs.append(0)
+  161             else:
+  162                 ptrs.append(pos)
+  163                 pos += len(e)
+  164         for p in ptrs:
+  165             body.extend(_u16(p))
+  166         for e in encs:
+  167             if e is not None:
+  168                 body.extend(e)
+  169 
+  170     for c in TABLE_ORDER_A:
+  171         emit_table(c)
+  172     npc_off = None
+  173     if m["npcs"]:
+  174         npc_off = len(body)
+  175         n = len(m["npcs"])
+  176         body.extend(_u16(0))
+  177         first = npc_off + 2 + 2 * n
+  178         for i in range(n):
+  179             body.extend(_u16(first + i * 0x100))
+  180         for ch in m["npcs"]:
+  181             body.extend(containers.encode_character(ch))
+  182     for c in TABLE_ORDER_B:
+  183         emit_table(c)
+  184     specials_off = 0  # lab rule: no special-action table
+  185     names_off = len(body)
+  186     for mob in m["mobs"]:
+  187         body.extend(mob["name"] + b"\x00")
+  188     data_off = len(body)
+  189     for mob in m["mobs"]:
+  190         body.extend(encode_mob(mob))
+  191     strings_off = len(body)
+  192     if npc_off is None:
+  193         npc_off = strings_off  # lab rule: no NPCs -> npcOffset = stringsOffset
+  194     body.extend(strings.encode_table(m["dictionary"], m["strings"]))
+  195 
+  196     cd = _u16(strings_off) + _u16(names_off) + _u16(data_off)
+  197     for o in offsets:
+  198         cd += _u16(o)
+  199     cd += _u16(specials_off) + _u16(npc_off)
+  200     body[cd_at:cd_at + 42] = cd
+  201 
+  202     prefix = bytes(body[:strings_off])
+  203     if not codecs.rotating_xor_prefix_is_unambiguous(prefix):
+  204         raise FormatError("scenario: map %r has an ambiguous encrypted prefix"
+  205                           % m.get("name", "?"))
+  206     enc = codecs.rotating_xor_encode(prefix)
+  207     data_section = enc + bytes(body[strings_off:]) + b"\x00"  # final byte: unknown, lab 0
+  208     tile_map = bytes(v for row in img for v in row)
+  209     tsec = _u32(S * S) + _u32(0) + huffman.encode(tile_map)
+  210     header = b"msq" + bytes(((0x30 + disk) & 0xFF,))
+  211     block = header + data_section + tsec
+  212     tmo = len(header) + len(data_section)
+  213     facts = {"bodySize": len(body), "encryptedPrefixLength": strings_off,
+  214              "centralDirectory": {"stringsOffset": strings_off, "mobNamesOffset": names_off,
+  215                                   "mobDataOffset": data_off, "actionClassOffsets": offsets,
+  216                                   "specialsOffset": specials_off, "npcOffset": npc_off}}
+  217     return block, tmo, facts
+  218 
+  219 
+  220 # ---------------------------------------------------------------------------
+  221 # JSON to engine-record conversion
+  222 # ---------------------------------------------------------------------------
+  223 
+  224 def _record_from_json(c: int, r: dict) -> dict:
+  225     if c == 1:
+  226         d = {"messages": r["messages"]}
+  227     elif c == 3:
+  228         d = {"visibleDistance": r["visible_distance"], "hitDistance": r["hit_distance"],
+  229              "message": r["message"], "groups": r["groups"], "properName": r["proper_name"],
+  230              "friendly": r["friendly"], "immobile": r["immobile"], "npc": 0}
+  231     elif c == 4:
+  232         d = {"message": r["message"], "impassable": r["impassable"], "tile": r["tile"]}
+  233     elif c == 5:
+  234         d = {"items": r["items"], "cash": r["cash"]}
+  235     elif c == 6:
+  236         d = {"shop": r["shop"], "message": r["message"]}
+  237     elif c == 10:
+  238         d = {k: r[k] for k in ("relative", "confirm", "message", "x", "y", "location")}
+  239     elif c == 11:
+  240         d = {"message": r["message"]}
+  241     else:
+  242         raise FormatError("scenario: lab rules define no record for class %d" % c)
+  243     d["newClass"], d["newAction"] = r["new_class"], r["new_action"]
+  244     return d
+  245 
+  246 
+  247 def _character_from_json(p: dict, npc: int, catalog: dict, ranks: list) -> dict:
+  248     a = p["attrs"]
+  249     level = p["level"]
+  250     hp = 10 + a["STR"] + (level - 1) * (2 + a["STR"] // 5)
+  251     bonus = 0
+  252     if p["armour_slot"]:
+  253         bonus = catalog[p["items"][p["armour_slot"] - 1][0]]["damage"]
+  254     evasion = dict((s, l) for s, l in p["skills"]).get(11, 0)
+  255     return {
+  256         "name": p["name"].encode("latin-1"), "strength": a["STR"], "intelligence": a["IQ"],
+  257         "luck": a["LCK"], "speed": a["SPD"], "agility": a["AGL"], "dexterity": 0,
+  258         "charisma": a["CHA"], "money": p["money"], "gender": p["gender"],
+  259         "nationality": p["nationality"], "armorClass": a["AGL"] // 5 + bonus + evasion,
+  260         "maxCon": hp, "curCon": hp, "weaponSlot": p["weapon_slot"], "skillPoints": 0,
+  261         "experience": p["xp"], "level": level, "armorSlot": p["armour_slot"], "lastCon": 0,
+  262         "afflictions": 0, "npc": npc, "itemRefuse": 0, "skillRefuse": 0, "attribRefuse": 0,
+  263         "tradeRefuse": 0, "joinString": 0, "willingness": 0,
+  264         "rank": ranks[min(level, 7) - 1].encode("latin-1"), "gameWon": 0,
+  265         "specialPromotion": 0, "skills": [list(x) for x in p["skills"]],
+  266         "items": [list(x) for x in p["items"]],
+  267     }
+  268 
+  269 
+  270 def _map_from_json(m: dict, size: int, catalog: dict, ranks: list) -> dict:
+  271     info = m["info"]
+  272     mi = {"encounterFrequency": info["encounter_frequency"], "tileset": info["tileset"],
+  273           "randomMonsterTypes": info["random_monster_types"],
+  274           "maxRandomEncounters": info["max_random_encounters"],
+  275           "borderImage": info["border_image"], "timePerStep": info["time_per_step"],
+  276           "healRate": info["heal_rate"]}
+  277     mobs = []
+  278     for mob in m["mobs"]:
+  279         name = mob["name"].encode("latin-1")
+  280         if mob.get("plural_suffix"):
+  281             name += b"\x0a\x0a" + mob["plural_suffix"].encode("latin-1") + b"\x0a"
+  282         mobs.append({"name": name, "sturdiness": mob["sturdiness"],
+  283                      "combatRating": mob["combat_rating"], "randomDamage": mob["random_damage"],
+  284                      "maxGroup": mob["max_group"], "armorClass": mob["armor_class"],
+  285                      "fixedDamage": mob["fixed_damage"], "weaponType": mob["weapon_type"],
+  286                      "type": mob["type"], "portrait": mob["portrait"]})
+  287     actions = {}
+  288     for c, recs in m["records"].items():
+  289         if recs:
+  290             actions[int(c)] = [_record_from_json(int(c), r) for r in recs]
+  291     return {"size": size, "class": m["action_class"], "action": m["action_value"],
+  292             "image": [[t + 10 for t in row] for row in m["tiles"]],
+  293             "info": mi, "actions": actions,
+  294             "npcs": [_character_from_json(n, 1, catalog, ranks) for n in m["npcs"]],
+  295             "mobs": mobs, "dictionary": DICT,
+  296             "strings": [s.encode("latin-1") for s in m["strings"]]}
+  297 
+  298 
+  299 # ---------------------------------------------------------------------------
+  300 # Savegame and shop lists
+  301 # ---------------------------------------------------------------------------
+  302 
+  303 def _build_savegame(scenario_dir: str, scen: dict, catalog: dict, ranks: list) -> bytes:
+  304     party = _load_json(os.path.join(scenario_dir, "party.json"))["party"]
+  305     st = scen["start"]
+  306     n = len(party)
+  307     chars = [_character_from_json(p, 0, catalog, ranks) for p in party]
+  308     empty = containers.decode_character(bytes(0x100))
+  309     groups = [{"order": list(range(1, n + 1)) + [0] * (7 - n), "x": st["x"], "y": st["y"],
+  310                "map": st["location"], "prevX": 0, "prevY": 0, "prevMap": 0}]
+  311     groups += [{"order": [0] * 7, "x": 0, "y": 0, "map": 0,
+  312                 "prevX": 0, "prevY": 0, "prevMap": 0}] * 3
+  313     sg = {"groups": groups, "viewportX": st["x"], "viewportY": st["y"],
+  314           "currentMembers": n, "currentParty": 0, "currentMap": st["location"],
+  315           "totalMembers": n, "extraGroups": 0, "minute": 0, "hour": st["hour"],
+  316           "combatScrollSpeed": 0, "serial": 0, "characters": chars + [empty] * (7 - n)}
+  317     return containers.encode_savegame(sg, 0)
+  318 
+  319 
+  320 def _shop_items(sh: dict, catalog: dict) -> list:
+  321     recs = []
+  322     for i in range(94):
+  323         it = catalog.get(i + 1)
+  324         if it is None:
+  325             recs.append({"price": 0, "stock": 0, "type": 0, "lowFlags": 0,
+  326                          "capacity": 0, "skill": 0, "damage": 0, "ammo": 0})
+  327         else:
+  328             recs.append({"price": it["price"], "stock": sh["stock"].get(str(it["id"]), 0),
+  329                          "type": it["type_byte"] >> 3, "lowFlags": it["type_byte"] & 7,
+  330                          "capacity": it["capacity"], "skill": it["skill"],
+  331                          "damage": it["damage"], "ammo": it["ammo"]})
+  332     return recs
+  333 
+  334 
+  335 # ---------------------------------------------------------------------------
+  336 # LABTABLES.BIN (SPEC-02 section 12.2)
+  337 # ---------------------------------------------------------------------------
+  338 
+  339 def _encode_labtables(t: dict) -> bytes:
+  340     out = bytearray(containers.LABTABLES_SIZE)
+  341     out[0:8] = containers.LABTABLES_MAGIC
+  342     for k, (off, fmt, n) in containers.LT.items():
+  343         vals = t[k] if isinstance(t[k], list) else [t[k]]
+  344         if len(vals) != n:
+  345             raise FormatError("LABTABLES: %s has %d values, expected %d" % (k, len(vals), n))
+  346         w = containers._WIDTH[fmt]
+  347         for i, v in enumerate(vals):
+  348             out[off + i * w:off + (i + 1) * w] = (v & ((1 << (8 * w)) - 1)).to_bytes(w, "little")
+  349     return bytes(out)
+  350 
+  351 
+  352 def _build_labtables(map_facts: list, sg_off: int, tileset_size: int,
+  353                      portrait_offsets: list) -> bytes:
+  354     n = len(map_facts)
+  355     t = {
+  356         "mapOffsets": [mf[0] for mf in map_facts] + [0] * (42 - n),
+  357         "tileMapOffsets": [mf[1] for mf in map_facts] + [0] * (50 - n),
+  358         "locationMapping": [(2 << 6) | i for i in range(n)] + [0] * (50 - n),
+  359         "mapSizes": [mf[3]["size"] for mf in map_facts] + [0] * (50 - n),
+  360         "sharedLocations": [2] * 125,
+  361         "mobSpriteMap": [0, 6, 3, 4, 2, 1],
+  362         "savegameOffsets": [sg_off, 0xFFFFFFFF],
+  363         "savegameSize": containers.SAVEGAME_RESERVED,
+  364         "shopListRelOffsets": [i * containers.SHOP_BLOCK for i in range(4)],
+  365         "mapCounts": [n, 0],
+  366         "shopListCounts": [3, 0],
+  367         "tilesetOffsets": [0] * 9,
+  368         "tilesetSizes": [tileset_size] + [0] * 8,
+  369         "portraitOffsets1": list(portrait_offsets) + [0] * (34 - len(portrait_offsets)),
+  370         "portraitOffsets2": [0] * 49,
+  371         "portraitIndices1": [0x80, 0, 1, 2, 3] + [0x80] * 75,
+  372         "portraitIndices2": [0x80] * 80,
+  373     }
+  374     return _encode_labtables(t)
+  375 
+  376 
+  377 # ---------------------------------------------------------------------------
+  378 # LABSTR.BIN (SPEC-02 section 12.3) and LABSKILL.BIN (SPEC-04 section 3.2)
+  379 # ---------------------------------------------------------------------------
+  380 
+  381 def _labstr_file(tables: list) -> bytes:
+  382     n = len(tables)
+  383     head = strings.LABSTR_MAGIC + _u16(n) + _u16(0)
+  384     pos = len(head) + 8 * n
+  385     offs, sizes = b"", b""
+  386     for t in tables:
+  387         offs += _u32(pos)
+  388         sizes += _u32(len(t))
+  389         pos += len(t)
+  390     return head + offs + sizes + b"".join(tables)
+  391 
+  392 
+  393 def _build_labstr(scenario_dir: str, scen: dict) -> bytes:
+  394     strs = _load_json(os.path.join(scenario_dir, "strings.json"))["strings"]
+  395     skills = _load_json(os.path.join(scenario_dir, "skills.json"))["skills"]
+  396     items = _load_json(os.path.join(scenario_dir, "items.json"))["items"]
+  397     lt = scen["labstr_tables"]
+  398     t1 = [""] * (max(s["id"] for s in strs) + 1)
+  399     for s in strs:
+  400         t1[s["id"]] = s["text"].replace("{name}", "\x0b").replace("{num}", "\x0f")
+  401     t2 = [""] + [s["name"] for s in sorted(skills, key=lambda k: k["id"])]
+  402     t2 += [it["name"] for it in sorted(items, key=lambda k: k["id"])]
+  403     tables = [lt["0"]["strings"], t1, t2, lt["3"]["strings"], lt["4"]["strings"],
+  404               lt["5"]["strings"]]
+  405     enc = [strings.encode_table(DICT, [s.encode("latin-1") for s in _pad4(t)]) for t in tables]
+  406     return _labstr_file(enc)
+  407 
+  408 
+  409 def _build_labskill(scenario_dir: str) -> bytes:
+  410     d = _load_json(os.path.join(scenario_dir, "skills.json"))
+  411     e0 = d["entry0"]
+  412     out = bytearray()
+  413     out += bytes(((e0["iq_req"] << 3) | e0["cost"], e0["attr_offset"]))
+  414     for s in sorted(d["skills"], key=lambda k: k["id"]):
+  415         out += bytes(s["labskill_bytes"])
+  416     return bytes(out)
+  417 
+  418 
+  419 # ---------------------------------------------------------------------------
+  420 # Graphics (SPEC-02 sections 6 to 8, 12.6, 12.7)
+  421 # ---------------------------------------------------------------------------
+  422 
+  423 def _planes_encode(pix: list, bytes_per_row: int) -> bytes:
+  424     """Four 1-bit planes (blue, green, red, intensity), MSB = leftmost pixel."""
+  425     out = bytearray()
+  426     for bit in range(4):
+  427         for row in pix:
+  428             for bx in range(bytes_per_row):
+  429                 v = 0
+  430                 for i in range(8):
+  431                     v |= ((row[bx * 8 + i] >> bit) & 1) << (7 - i)
+  432                 out.append(v)
+  433     return bytes(out)
+  434 
+  435 
+  436 def _mask_encode(mask: list) -> bytes:
+  437     out = bytearray()
+  438     for row in mask:
+  439         for bx in range(2):
+  440             v = 0
+  441             for i in range(8):
+  442                 v |= (row[bx * 8 + i] & 1) << (7 - i)
+  443             out.append(v)
+  444     return bytes(out)
+  445 
+  446 
+  447 def _cursor_encode(pix: list, vis: list) -> bytes:
+  448     out = bytearray()
+  449     for bit in range(4):
+  450         for y in range(16):
+  451             def byte(src, x0, fn):
+  452                 v = 0
+  453                 for i in range(8):
+  454                     v |= (fn(src[y][x0 + i]) & 1) << (7 - i)
+  455                 return v
+  456             out += bytes((byte(vis, 8, int), byte(vis, 0, int),
+  457                           byte(pix, 8, lambda p: p >> bit), byte(pix, 0, lambda p: p >> bit)))
+  458     return bytes(out)
+  459 
+  460 
+  461 def _portrait_anim_encode(scripts: list, updates: list) -> bytes:
+  462     sb = bytearray()
+  463     for sc in scripts:
+  464         for d, u in sc:
+  465             sb += bytes((d, u))
+  466         sb.append(0xFF)
+  467     ub = bytearray()
+  468     for upd in updates:
+  469         for off, data in upd:
+  470             ub += _u16(((len(data) - 1) << 12) | off) + data
+  471         ub += _u16(0xFFFF)
+  472     return _u16(len(sb)) + bytes(sb) + _u16(len(ub)) + bytes(ub)
+  473 
+  474 
+  475 def _ending_anim_encode(updates: list) -> bytes:
+  476     st = bytearray()
+  477     for delay, patches in updates:
+  478         st += _u16(delay)
+  479         for off, data in patches:
+  480             st += _u16(off) + data
+  481         st += _u16(0xFFFF)
+  482     st += _u16(0xFFFF)
+  483     return _u16(len(st)) + bytes(st) + _u16(0)
+  484 
+  485 
+  486 def _placeholder_tile(t: int) -> list:
+  487     """Tile ``t``: fill ``t mod 16``, one-pixel border ``(t + 8) mod 16``."""
+  488     pix = [[t % 16 for _ in range(16)] for _ in range(16)]
+  489     border = (t + 8) % 16
+  490     for x in range(16):
+  491         pix[0][x] = border
+  492         pix[15][x] = border
+  493     for y in range(16):
+  494         pix[y][0] = border
+  495         pix[y][15] = border
+  496     return pix
+  497 
+  498 
+  499 def _placeholder_portrait(p: int) -> list:
+  500     """Portrait ``p``: fill ``4 + p``, centred 48 x 42 rectangle of colour 15."""
+  501     pix = [[4 + p for _ in range(96)] for _ in range(84)]
+  502     for y in range(21, 63):
+  503         for x in range(24, 72):
+  504             pix[y][x] = 15
+  505     return pix
+  506 
+  507 
+  508 def _build_allhtds(scenario_dir: str) -> bytes:
+  509     tiles = _load_json(os.path.join(scenario_dir, "tiles.json"))["tiles"]
+  510     raw = b"".join(codecs.vertical_xor_encode(graphics.pack4(_placeholder_tile(t["id"])), 8)
+  511                    for t in sorted(tiles, key=lambda k: k["id"]))
+  512     return huffman.encode_msq(raw, 0)
+  513 
+  514 
+  515 def _build_allpics(scenario_dir: str):
+  516     portraits = _load_json(os.path.join(scenario_dir, "portraits.json"))["portraits"]
+  517     out = bytearray()
+  518     offsets = []
+  519     for p in sorted(portraits, key=lambda k: k["raw_id"]):
+  520         base = graphics.pack4(_placeholder_portrait(p["raw_id"] - 1))
+  521         upd = [(2000, b"\xff" * 8)]
+  522         anim = _portrait_anim_encode([[(20, 0), (20, 0)]], [upd])
+  523         offsets.append(len(out))
+  524         out += huffman.encode_msq(codecs.vertical_xor_encode(base, PORTRAIT_STRIDE), 0)
+  525         out += huffman.encode_msq(anim, 0)
+  526     return bytes(out), offsets
+  527 
+  528 
+  529 def _build_sprites():
+  530     sprites, masks = bytearray(), bytearray()
+  531     for n in range(10):
+  532         pix = [[(n + x // 4 + y // 4) % 16 for x in range(16)] for y in range(16)]
+  533         msk = [[1 if (x - 7.5) ** 2 + (y - 7.5) ** 2 > 56 else 0
+  534                 for x in range(16)] for y in range(16)]
+  535         sprites += _planes_encode(pix, 2)
+  536         masks += _mask_encode(msk)
+  537     return bytes(sprites), bytes(masks)
+  538 
+  539 
+  540 def _build_font() -> bytes:
+  541     out = bytearray()
+  542     for g in range(32):
+  543         pix = [[((g >> (x % 5)) & 1) * ((g + y) % 15 + 1) for x in range(8)]
+  544                for y in range(8)]
+  545         out += _planes_encode(pix, 1)
+  546     return bytes(out)
+  547 
+  548 
+  549 def _build_cursors() -> bytes:
+  550     out = bytearray()
+  551     for k in range(2):
+  552         pix = [[(x + y + k) % 16 for x in range(16)] for y in range(16)]
+  553         vis = [[1 if x <= y + k * 3 else 0 for x in range(16)] for y in range(16)]
+  554         out += _cursor_encode(pix, vis)
+  555     return bytes(out)
+  556 
+  557 
+  558 def _build_title() -> bytes:
+  559     pix = [[((x // 18) ^ (y // 16)) % 16 for x in range(288)] for y in range(128)]
+  560     return codecs.vertical_xor_encode(graphics.pack4(pix), TITLE_STRIDE)
+  561 
+  562 
+  563 def _build_ending() -> bytes:
+  564     base = graphics.pack4([[((x + y) // 24) % 16 for x in range(288)] for y in range(128)])
+  565     updates = [(5, [(41, bytes.fromhex("11223344")), (40 * 100 + 35, bytes.fromhex("FFEEDDCC"))]),
+  566                (9, [(0, bytes.fromhex("0F0F0F0F"))])]
+  567     anim = _ending_anim_encode(updates)
+  568     return (huffman.encode_msq(codecs.vertical_xor_encode(base, TITLE_STRIDE), 0)
+  569             + huffman.encode_msq(anim, 0, ENDING_SIGNATURE))
+  570 
+  571 
+  572 # ---------------------------------------------------------------------------
+  573 # The compiler
+  574 # ---------------------------------------------------------------------------
+  575 
+  576 def compile(scenario_dir: str, out_dir: str) -> None:
+  577     """Compile a scenario directory into a lab data set (SPEC-05 section 13)."""
+  578     _compile(scenario_dir, out_dir)
+  579 
+  580 
+  581 # ---------------------------------------------------------------------------
+  582 # Loading a compiled lab data set (SPEC-02 section 12, SPEC-05)
+  583 # ---------------------------------------------------------------------------
+  584 
+  585 
+  586 def _call(mod, names, *args, **kwargs):
+  587     for n in names:
+  588         fn = getattr(mod, n, None)
+  589         if callable(fn):
+  590             return fn(*args, **kwargs)
+  591     raise FormatError("scenario: %s has none of %r" % (mod.__name__, names))
+  592 
+  593 
+  594 class Scenario:
+  595     """A compiled lab data set, read back through the engine's own loaders."""
+  596 
+  597     def __init__(self, data_dir):
+  598         self.dir = data_dir
+  599         self.maps = {}
+  600         self.hooks = []
+  601         self.paragraphs = {}
+  602         self.skills = {}
+  603         self.shops = {}
+  604         self.savegame = None
+  605         self.start = {"location": 0, "x": 0, "y": 0, "hour": 8, "minute": 0,
+  606                       "day": 1, "paragraph": 1}
+  607         self._load()
+  608 
+  609     # -- raw file access ---------------------------------------------------
+  610 
+  611     def _read(self, name):
+  612         path = os.path.join(self.dir, name)
+  613         if not os.path.exists(path):
+  614             return None
+  615         with open(path, "rb") as fh:
+  616             return fh.read()
+  617 
+  618     def _json(self, name):
+  619         path = os.path.join(self.dir, name)
+  620         if not os.path.exists(path):
+  621             return None
+  622         return _load_json(path)
+  623 
+  624     # -- loading -----------------------------------------------------------
+  625 
+  626     def _load(self):
+  627         self.tables = containers.read_tables(os.path.join(self.dir, "LABTABLES.BIN"))
+  628         self.game1 = self._read("GAME1")
+  629         self._load_maps()
+  630         self._load_savegame()
+  631         self._load_shops()
+  632         labstr = os.path.join(self.dir, "LABSTR.BIN")
+  633         if os.path.exists(labstr):
+  634             self.labstr = strings.read_labstr(labstr)
+  635         skills = os.path.join(self.dir, "LABSKILL.BIN")
+  636         if os.path.exists(skills):
+  637             self.skill_table = rules.read_skill_table(skills)
+  638         hooks = self._json("LABHOOKS.JSON")
+  639         if hooks is not None:
+  640             self.hooks = hooks if isinstance(hooks, list) else hooks.get("hooks", [])
+  641         paras = self._json("PARAGRAPHS.JSON")
+  642         if paras is not None:
+  643             self.paragraphs = paras.get("paragraphs", paras) if isinstance(paras, dict) else paras
+  644 
+  645     def _load_maps(self):
+  646         counts = self.tables["mapCounts"]
+  647         for loc in range(len(self.tables["locationMapping"])):
+  648             code = self.tables["locationMapping"][loc]
+  649             if code == 0:
+  650                 continue
+  651             disk = code >> 6
+  652             if disk == 2 and counts[0] == 0:
+  653                 continue
+  654             if disk == 1 and counts[1] == 0:
+  655                 continue
+  656             try:
+  657                 self.maps[loc] = maps.load_map(self.dir, loc)
+  658             except FormatError:
+  659                 continue
+  660 
+  661     def _load_savegame(self):
+  662         offs = self.tables["savegameOffsets"]
+  663         if not offs or offs[0] == 0xFFFFFFFF:
+  664             return
+  665         self.savegame = containers.decode_savegame(self.game1, offs[0])
+  666         sg = self.savegame
+  667         g0 = sg["groups"][0]
+  668         self.start = {"location": g0["map"], "x": g0["x"], "y": g0["y"],
+  669                       "hour": sg["hour"], "minute": sg["minute"], "day": 1,
+  670                       "paragraph": 1}
+  671 
+  672     def _load_shops(self):
+  673         offs = self.tables["savegameOffsets"]
+  674         if not offs or offs[0] == 0xFFFFFFFF:
+  675             return
+  676         base = offs[0] + self.tables["savegameSize"]
+  677         rel = self.tables["shopListRelOffsets"]
+  678         for i in range(self.tables["shopListCounts"][0]):
+  679             self.shops[i] = containers.decode_shop_list(self.game1, base + rel[i])
+  680 
+  681     def party_from_savegame(self):
+  682         sg = self.savegame
+  683         if sg is None:
+  684             return []
+  685         out = []
+  686         n = sg["currentMembers"]
+  687         for i in range(n):
+  688             c = sg["characters"][i]
+  689             aff = c["afflictions"]
+  690             cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+  691             out.append({
+  692                 "slot": i + 1, "name": c["name"], "npc": c["npc"],
+  693                 "level": c["level"], "xp": c["experience"],
+  694                 "max_hp": c["maxCon"], "hp": c["curCon"], "cond": cond,
+  695                 "money": c["money"], "ac": c["armorClass"], "rank": c["rank"],
+  696                 "skill_points": c["skillPoints"],
+  697                 "items": [list(x) for x in c["items"]],
+  698                 "skills": [list(x) for x in c["skills"]],
+  699                 "weapon_slot": c["weaponSlot"], "armour_slot": c["armorSlot"],
+  700                 "attrs": {"STR": c["strength"], "IQ": c["intelligence"],
+  701                           "LCK": c["luck"], "SPD": c["speed"],
+  702                           "AGL": c["agility"], "CHA": c["charisma"]},
+  703                 "gender": c["gender"], "nationality": c["nationality"],
+  704                 "game_won": c["gameWon"],
+  705             })
+  706         return out
+  707 
+  708     def _load_game1(self, raw):
+  709         res = _call(containers, ("decode_game1", "decode_game", "read_game1",
+  710                                  "parse_game1", "load_game1", "decode_game_file"),
+  711                     raw)
+  712         if isinstance(res, dict):
+  713             for key, val in res.items():
+  714                 if key in ("maps", "map"):
+  715                     if isinstance(val, dict):
+  716                         self.maps.update(val)
+  717                     else:
+  718                         for i, m in enumerate(val):
+  719                             self.maps[i] = m
+  720                 elif key in ("savegame", "save"):
+  721                     self.savegame = val
+  722                 elif key in ("shops", "shop_lists"):
+  723                     if isinstance(val, dict):
+  724                         self.shops.update(val)
+  725                     else:
+  726                         for i, s in enumerate(val):
+  727                             self.shops[i] = s
+  728         elif isinstance(res, (list, tuple)):
+  729             for i, m in enumerate(res):
+  730                 self.maps[i] = m
+  731 
+  732     def _load_labtables(self, raw):
+  733         res = _call(containers, ("decode_labtables", "read_labtables",
+  734                                  "parse_labtables", "labtables_decode"), raw)
+  735         if isinstance(res, dict):
+  736             for key, val in res.items():
+  737                 if key in ("maps", "map_offsets"):
+  738                     if isinstance(val, dict):
+  739                         self.maps.update(val)
+  740                 elif key in ("savegame", "save"):
+  741                     self.savegame = val
+  742                 elif key in ("shops", "shop_lists"):
+  743                     if isinstance(val, dict):
+  744                         self.shops.update(val)
+  745                     else:
+  746                         for i, s in enumerate(val):
+  747                             self.shops[i] = s
+  748 
+  749     def _load_labstr(self, raw):
+  750         res = _call(strings, ("decode_labstr", "read_labstr", "parse_labstr",
+  751                               "decode_tables", "decode_table"), raw)
+  752         if isinstance(res, dict):
+  753             for key, val in res.items():
+  754                 if isinstance(val, dict):
+  755                     self.paragraphs.setdefault(key, val)
+  756 
+  757     def _load_labskill(self, raw):
+  758         res = _call(rules, ("decode_labskill", "read_labskill", "parse_labskill",
+  759                             "decode_skills"), raw)
+  760         if isinstance(res, dict):
+  761             self.skills = res
+  762         elif isinstance(res, list):
+  763             self.skills = {i: s for i, s in enumerate(res)}
+  764 
+  765     # -- accessors ---------------------------------------------------------
+  766 
+  767     def map(self, location):
+  768         return self.maps.get(location)
+  769 
+  770     def hook(self, location, x, y):
+  771         for h in self.hooks:
+  772             if h.get("location") == location and h.get("x") == x and h.get("y") == y:
+  773                 return h
+  774         return None
+  775 
+  776     def paragraph(self, n):
+  777         return self.paragraphs.get(n) or self.paragraphs.get(str(n))
+  778 
+  779     def premade_party(self):
+  780         return self.party_from_savegame()
+  781 
+  782     def shop_items(self, n):
+  783         """The 94 decoded records of shop list ``n`` (SPEC-02 section 5)."""
+  784         return self.shops[n]["items"]
+  785 
+  786     def item(self, item_id):
+  787         """Item id N is record N - 1 of shop list 0 (LR-47)."""
+  788         if item_id < 1:
+  789             return None
+  790         recs = self.shop_items(0)
+  791         if item_id - 1 >= len(recs):
+  792             return None
+  793         return recs[item_id - 1]
+  794 
+  795     def skill(self, skill_id):
+  796         """``(min_iq, cost, attr_offset)`` for skill id 1 to 35 (LR-6)."""
+  797         if skill_id < 1 or skill_id >= len(self.skill_table):
+  798             return (0, 0, 0)
+  799         b0, b1 = self.skill_table[skill_id]
+  800         return (b0 >> 3, b0 & 7, b1)
+  801 
+  802     def skill_name(self, skill_id):
+  803         t2 = self.labstr[2] if len(self.labstr) > 2 else []
+  804         if 0 <= skill_id < len(t2):
+  805             return t2[skill_id]
+  806         return ""
+  807 
+  808     def rank(self, level):
+  809         t3 = self.labstr[3] if len(self.labstr) > 3 else []
+  810         i = min(level, 7) - 1
+  811         if 0 <= i < len(t3):
+  812             return t3[i]
+  813         return ""
+  814 
+  815     def ui(self, n):
+  816         t1 = self.labstr[1] if len(self.labstr) > 1 else []
+  817         if 0 <= n < len(t1):
+  818             return t1[n]
+  819         return ""
+  820 
+  821     def map_string(self, location, n):
+  822         m = self.maps.get(location)
+  823         if m is None or n >= len(m["strings"]):
+  824             return ""
+  825         return m["strings"][n]
+  826 
+  827 
+  828 def load(data_dir):
+  829     """Load a compiled lab data set from ``data_dir``."""
+  830     return Scenario(data_dir)
+  831 
+  832 
+  833 def _compile(scenario_dir: str, out_dir: str) -> None:
+  834     """Compile the scenario in ``scenario_dir`` into ``out_dir`` (SPEC-05 13)."""
+  835     scen = _load_json(os.path.join(scenario_dir, "scenario.json"))
+  836     items = _load_json(os.path.join(scenario_dir, "items.json"))["items"]
+  837     catalog = {it["id"]: it for it in items}
+  838     ranks = scen["labstr_tables"]["3"]["strings"]
+  839     os.makedirs(out_dir, exist_ok=True)
+  840 
+  841     game = bytearray()
+  842     map_facts = []
+  843     for loc in scen["locations"]:
+  844         m = _load_json(os.path.join(scenario_dir, loc["file"]))
+  845         mm = _map_from_json(m, loc["size"], catalog, ranks)
+  846         mm["name"] = loc["name"]
+  847         block, tmo, facts = build_map(mm, 0)
+  848         map_facts.append((len(game), tmo, facts, loc))
+  849         game += block
+  850 
+  851     sg_off = len(game)
+  852     game += _build_savegame(scenario_dir, scen, catalog, ranks)
+  853 
+  854     shops = _load_json(os.path.join(scenario_dir, "shops.json"))["shops"]
+  855     for sh in shops:
+  856         game += containers.encode_shop_list(_shop_items(sh, catalog), 0)
+  857     _write(out_dir, "GAME1", bytes(game))
+  858 
+  859     allhtds = _build_allhtds(scenario_dir)
+  860     allpics, portrait_offsets = _build_allpics(scenario_dir)
+  861     _write(out_dir, "ALLHTDS1", allhtds)
+  862     _write(out_dir, "ALLPICS1", allpics)
+  863 
+  864     sprites, masks = _build_sprites()
+  865     _write(out_dir, "IC0_9.WLF", sprites)
+  866     _write(out_dir, "MASKS.WLF", masks)
+  867     _write(out_dir, "COLORF.FNT", _build_font())
+  868     _write(out_dir, "CURS", _build_cursors())
+  869     _write(out_dir, "TITLE.PIC", _build_title())
+  870     _write(out_dir, "END.CPA", _build_ending())
+  871 
+  872     _write(out_dir, "LABTABLES.BIN",
+  873            _build_labtables(map_facts, sg_off, len(allhtds), portrait_offsets))
+  874     _write(out_dir, "LABSTR.BIN", _build_labstr(scenario_dir, scen))
+  875     _write(out_dir, "LABSKILL.BIN", _build_labskill(scenario_dir))
+  876 
+  877     for src, dst in (("hooks.json", "LABHOOKS.JSON"), ("paragraphs.json", "PARAGRAPHS.JSON")):
+  878         with open(os.path.join(scenario_dir, src), "rb") as fh:
+  879             _write(out_dir, dst, fh.read())
+  880 
+  881 
+  882 # Late binding of the maps module: some helpers below reference ``maps`` at
+  883 # call time, so the import only has to exist by the time the module is loaded.
+  884 from . import maps  # noqa: E402,F401
+  885 
+  886 
+  887 __all__ = ["compile", "build_map", "encode_record", "encode_mapinfo", "encode_mob"]
+
+==== src/wlengine/labstate.py (50 lines) ====
+    1 """LABSTATE.BIN (SPEC-04 LR-57).
+    2 
+    3 Little-endian file: magic ``WLLABSV1``, step counter, day, clock seconds, a
+    4 pad byte, the generator state, the cell-change count and the cell changes
+    5 sorted by (location, y, x), then a u16 sum of all earlier bytes.
+    6 """
+    7 
+    8 from __future__ import annotations
+    9 
+   10 from .errors import FormatError
+   11 
+   12 MAGIC = b"WLLABSV1"
+   13 
+   14 
+   15 def encode_labstate(state: dict) -> bytes:
+   16     """LR-57: cell changes written sorted by (location, y, x)."""
+   17     cc = sorted(state.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+   18     b = bytearray(MAGIC)
+   19     b += int(state.get("steps", 0)).to_bytes(4, "little")
+   20     b += int(state.get("day", 1)).to_bytes(2, "little")
+   21     b += bytes((int(state.get("seconds", 0)) & 0xFF, 0))
+   22     b += int(state.get("rng_state", 0)).to_bytes(4, "little")
+   23     b += len(cc).to_bytes(2, "little")
+   24     for c in cc:
+   25         b += bytes(int(v) & 0xFF for v in c)
+   26     b += (sum(b) & 0xFFFF).to_bytes(2, "little")
+   27     return bytes(b)
+   28 
+   29 
+   30 def decode_labstate(data: bytes) -> dict:
+   31     """LR-57; ``FormatError`` on a wrong magic or sum."""
+   32     if len(data) < 0x16 + 2:
+   33         raise FormatError("LABSTATE: %d bytes, too short" % len(data))
+   34     if data[:8] != MAGIC:
+   35         raise FormatError("LABSTATE: bad magic %r" % (bytes(data[:8]),))
+   36     n = int.from_bytes(data[0x14:0x16], "little")
+   37     end = 0x16 + 6 * n
+   38     if len(data) != end + 2:
+   39         raise FormatError("LABSTATE: %d bytes, expected %d" % (len(data), end + 2))
+   40     if sum(data[:end]) & 0xFFFF != int.from_bytes(data[end:end + 2], "little"):
+   41         raise FormatError("LABSTATE: bad checksum")
+   42     cc = [list(data[0x16 + 6 * i:0x16 + 6 * i + 6]) for i in range(n)]
+   43     return {"steps": int.from_bytes(data[8:12], "little"),
+   44             "day": int.from_bytes(data[12:14], "little"),
+   45             "seconds": data[14], "pad": data[15],
+   46             "rng_state": int.from_bytes(data[16:20], "little"),
+   47             "cell_changes": cc}
+   48 
+   49 
+   50 __all__ = ["encode_labstate", "decode_labstate", "MAGIC"]
+

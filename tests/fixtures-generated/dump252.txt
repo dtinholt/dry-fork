@@ -1,0 +1,135 @@
+--- bump at index 127: {"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+    121 {"seq": 121, "type": "move", "location": 1, "x": 7, "y": 17, "steps": 37}
+    122 {"seq": 122, "type": "input", "key": "DOWN"}
+    123 {"seq": 123, "type": "move", "location": 1, "x": 7, "y": 18, "steps": 38}
+    124 {"seq": 124, "type": "input", "key": "RIGHT"}
+    125 {"seq": 125, "type": "move", "location": 1, "x": 8, "y": 18, "steps": 39}
+    126 {"seq": 126, "type": "input", "key": "UP"}
+    127 {"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+    128 {"seq": 128, "type": "paragraph", "n": 6}
+    129 {"seq": 129, "type": "prompt", "prompt": "recruit"}
+    130 {"seq": 130, "type": "input", "key": "Y"}
+    131 {"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+    132 {"seq": 132, "type": "recruit", "location": 1, "npc": 0, "slot": 5}
+
+--- bump at index 503: {"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    497 {"seq": 497, "type": "move", "location": 2, "x": 24, "y": 15, "steps": 160}
+    498 {"seq": 498, "type": "input", "key": "RIGHT"}
+    499 {"seq": 499, "type": "move", "location": 2, "x": 25, "y": 15, "steps": 161}
+    500 {"seq": 500, "type": "input", "key": "RIGHT"}
+    501 {"seq": 501, "type": "move", "location": 2, "x": 26, "y": 15, "steps": 162}
+    502 {"seq": 502, "type": "input", "key": "UP"}
+    503 {"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    504 {"seq": 504, "type": "message", "location": 2, "string": 7}
+    505 {"seq": 505, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 69, "success": false}
+    506 {"seq": 506, "type": "message", "location": 2, "string": 9}
+    507 {"seq": 507, "type": "input", "key": "UP"}
+    508 {"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+
+--- bump at index 508: {"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    502 {"seq": 502, "type": "input", "key": "UP"}
+    503 {"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    504 {"seq": 504, "type": "message", "location": 2, "string": 7}
+    505 {"seq": 505, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 69, "success": false}
+    506 {"seq": 506, "type": "message", "location": 2, "string": 9}
+    507 {"seq": 507, "type": "input", "key": "UP"}
+    508 {"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    509 {"seq": 509, "type": "message", "location": 2, "string": 7}
+    510 {"seq": 510, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+    511 {"seq": 511, "type": "message", "location": 2, "string": 9}
+    512 {"seq": 512, "type": "input", "key": "UP"}
+    513 {"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+
+--- bump at index 513: {"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    507 {"seq": 507, "type": "input", "key": "UP"}
+    508 {"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    509 {"seq": 509, "type": "message", "location": 2, "string": 7}
+    510 {"seq": 510, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+    511 {"seq": 511, "type": "message", "location": 2, "string": 9}
+    512 {"seq": 512, "type": "input", "key": "UP"}
+    513 {"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    514 {"seq": 514, "type": "message", "location": 2, "string": 7}
+    515 {"seq": 515, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+    516 {"seq": 516, "type": "message", "location": 2, "string": 9}
+    517 {"seq": 517, "type": "input", "key": "UP"}
+    518 {"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+
+--- bump at index 518: {"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    512 {"seq": 512, "type": "input", "key": "UP"}
+    513 {"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    514 {"seq": 514, "type": "message", "location": 2, "string": 7}
+    515 {"seq": 515, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+    516 {"seq": 516, "type": "message", "location": 2, "string": 9}
+    517 {"seq": 517, "type": "input", "key": "UP"}
+    518 {"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+    519 {"seq": 519, "type": "message", "location": 2, "string": 7}
+    520 {"seq": 520, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 21, "success": true}
+    521 {"seq": 521, "type": "unlock", "x": 26, "y": 14}
+    522 {"seq": 522, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+    523 {"seq": 523, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+
+--- bump at index 562: {"seq": 562, "type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+    556 {"seq": 556, "type": "move", "location": 2, "x": 20, "y": 16, "steps": 175}
+    557 {"seq": 557, "type": "input", "key": "LEFT"}
+    558 {"seq": 558, "type": "move", "location": 2, "x": 19, "y": 16, "steps": 176}
+    559 {"seq": 559, "type": "input", "key": "LEFT"}
+    560 {"seq": 560, "type": "move", "location": 2, "x": 18, "y": 16, "steps": 177}
+    561 {"seq": 561, "type": "input", "key": "DOWN"}
+    562 {"seq": 562, "type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+    563 {"seq": 563, "type": "paragraph", "n": 13}
+    564 {"seq": 564, "type": "prompt", "prompt": "recruit"}
+    565 {"seq": 565, "type": "input", "key": "Y"}
+    566 {"seq": 566, "type": "cell_change", "location": 2, "x": 18, "y": 17, "action_class": 0, "action": 0, "image": 28}
+    567 {"seq": 567, "type": "recruit", "location": 2, "npc": 0, "slot": 6}
+
+--- bump at index 603: {"seq": 603, "type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+    597 {"seq": 597, "type": "move", "location": 2, "x": 25, "y": 24, "steps": 192}
+    598 {"seq": 598, "type": "input", "key": "UP"}
+    599 {"seq": 599, "type": "move", "location": 2, "x": 25, "y": 23, "steps": 193}
+    600 {"seq": 600, "type": "input", "key": "UP"}
+    601 {"seq": 601, "type": "move", "location": 2, "x": 25, "y": 22, "steps": 194}
+    602 {"seq": 602, "type": "input", "key": "UP"}
+    603 {"seq": 603, "type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+    604 {"seq": 604, "type": "prompt", "prompt": "heal", "price": 40}
+    605 {"seq": 605, "type": "input", "key": "Y"}
+    606 {"seq": 606, "type": "money", "member": 1, "delta": -40, "total": 51}
+    607 {"seq": 607, "type": "heal_all", "price": 40}
+    608 {"seq": 608, "type": "checkpoint", "name": "CP7", "state": {"location": 2, "x": 25, "y": 22, "steps": 194, "day": 1, "hour": 18, "minute": 17, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22],
+
+--- bump at index 807: {"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+    801 {"seq": 801, "type": "move", "location": 3, "x": 13, "y": 6, "steps": 263}
+    802 {"seq": 802, "type": "input", "key": "RIGHT"}
+    803 {"seq": 803, "type": "move", "location": 3, "x": 14, "y": 6, "steps": 264}
+    804 {"seq": 804, "type": "input", "key": "RIGHT"}
+    805 {"seq": 805, "type": "move", "location": 3, "x": 15, "y": 6, "steps": 265}
+    806 {"seq": 806, "type": "input", "key": "RIGHT"}
+    807 {"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+    808 {"seq": 808, "type": "message", "location": 3, "string": 10}
+    809 {"seq": 809, "type": "key_used", "member": 1, "item": 11}
+    810 {"seq": 810, "type": "unlock", "x": 16, "y": 6}
+    811 {"seq": 811, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39}
+    812 {"seq": 812, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+
+--- bump at index 1018: {"seq": 1018, "type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0}
+   1012 {"seq": 1012, "type": "move", "location": 1, "x": 15, "y": 14, "steps": 356}
+   1013 {"seq": 1013, "type": "input", "key": "UP"}
+   1014 {"seq": 1014, "type": "move", "location": 1, "x": 15, "y": 13, "steps": 357}
+   1015 {"seq": 1015, "type": "input", "key": "UP"}
+   1016 {"seq": 1016, "type": "move", "location": 1, "x": 15, "y": 12, "steps": 358}
+   1017 {"seq": 1017, "type": "input", "key": "UP"}
+   1018 {"seq": 1018, "type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0}
+   1019 {"seq": 1019, "type": "paragraph", "n": 24}
+   1020 {"seq": 1020, "type": "win", "steps": 358, "day": 2, "minutes": 428}
+   1021 {"seq": 1021, "type": "checkpoint", "name": "CP10", "state": {"location": 1, "x": 15, "y": 12, "steps": 358, "day": 2, "hour": 7, "minute": 8, "mode": "won", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22],
+
+checkpoint CP1: {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map", "cell_changes": [], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "cond": 0, "money": 120, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 2], [7, 0]], "weapon_slot": 1, "armour_slot": 3}, {"slot": 2, "name": "Tobin Ash", "npc": 
+checkpoint CP2: {"location": 1, "x": 6, "y": 5, "steps": 24, "day": 1, "hour": 8, "minute": 24, "mode": "map", "cell_changes": [], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "cond": 0, "money": 120, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 2], [7, 0]], "weapon_slot": 1, "armour_slot": 3}, {"slot": 2, "name": "Tobin Ash", "npc": 
+checkpoint CP3: {"location": 1, "x": 8, "y": 18, "steps": 39, "day": 1, "hour": 8, "minute": 39, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "cond": 0, "money": 120, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 2], [7, 0]], "weapon_slot": 1, "armour_slot": 3}, {"slot": 2, "name":
+checkpoint CP4: {"location": 0, "x": 30, "y": 41, "steps": 79, "day": 1, "hour": 12, "minute": 19, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "max_hp": 28, "hp": 25, "cond": 0, "money": 195, "ac": 3, "rank": "Hand", "skill_points": 2, "items": [[3, 0], [4, 2], [7, 0]], "weapon_slot": 1, "armour_slot": 
+checkpoint CP5-pre-save: {"location": 2, "x": 25, "y": 5, "steps": 145, "day": 1, "hour": 17, "minute": 28, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "max_hp": 28, "hp": 28, "cond": 0, "money": 91, "ac": 5, "rank": "Hand", "skill_points": 2, "items": [[3, 0], [4, 2], [7, 0], [8, 0]], "we
+checkpoint CP5: {"location": 2, "x": 25, "y": 5, "steps": 145, "day": 1, "hour": 17, "minute": 28, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "max_hp": 28, "hp": 28, "cond": 0, "money": 91, "ac": 5, "rank": "Hand", "skill_points": 2, "items": [[3, 0], [4, 2], [7, 0], [8, 0]], "we
+checkpoint CP6: {"location": 2, "x": 26, "y": 12, "steps": 165, "day": 1, "hour": 17, "minute": 48, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "max_hp": 28, "hp": 28, "cond": 0, "money": 91, "ac": 5, "rank": "Hand", "skill_points": 2,
+checkpoint CP7: {"location": 2, "x": 25, "y": 22, "steps": 194, "day": 1, "hour": 18, "minute": 17, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "max_hp": 28, "hp": 28, "cond": 0, "money": 51, "ac": 5, "rank": "Ha
+checkpoint CP8: {"location": 3, "x": 9, "y": 6, "steps": 259, "day": 1, "hour": 22, "minute": 32, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29], [3, 9, 6, 0, 0, 37]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 122, "max_hp": 28, "hp": 28, "cond": 0, "money": 51, "
+checkpoint CP9: {"location": 3, "x": 21, "y": 4, "steps": 273, "day": 1, "hour": 23, "minute": 0, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29], [3, 9, 6, 0, 0, 37], [3, 16, 6, 4, 4, 37], [3, 21, 4, 0, 0, 37]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 122, "max_
+checkpoint CP10: {"location": 1, "x": 15, "y": 12, "steps": 358, "day": 2, "hour": 7, "minute": 8, "mode": "won", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29], [3, 9, 6, 0, 0, 37], [3, 16, 6, 4, 4, 37], [3, 21, 4, 0, 0, 37]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 122, "max_

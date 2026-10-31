@@ -1,0 +1,116 @@
+--- ref events with y==20 ---
+{"seq": 2, "type": "checkpoint", "name": "CP1", "state": {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map", "cell_changes": [], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "cond": 0, "money": 120, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 2], [7, 0]], "weapon_slot": 1, "a
+{"seq": 151, "type": "move", "location": 1, "x": 15, "y": 20, "steps": 48}
+{"seq": 583, "type": "move", "location": 2, "x": 22, "y": 20, "steps": 185}
+{"seq": 626, "type": "move", "location": 2, "x": 22, "y": 20, "steps": 203}
+{"seq": 1000, "type": "move", "location": 1, "x": 15, "y": 20, "steps": 350}
+
+--- ref events seq 0..40 ---
+{"seq": 0, "type": "new_game", "seed": 20261021}
+{"seq": 1, "type": "paragraph", "n": 1}
+{"seq": 2, "type": "checkpoint", "name": "CP1", "state": {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map", "cell_changes": [], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "cond": 0, "money": 120, "a
+{"seq": 3, "type": "input", "key": "UP"}
+{"seq": 4, "type": "move", "location": 1, "x": 15, "y": 19, "steps": 1}
+{"seq": 5, "type": "input", "key": "UP"}
+{"seq": 6, "type": "move", "location": 1, "x": 15, "y": 18, "steps": 2}
+{"seq": 7, "type": "input", "key": "UP"}
+{"seq": 8, "type": "move", "location": 1, "x": 15, "y": 17, "steps": 3}
+{"seq": 9, "type": "input", "key": "UP"}
+{"seq": 10, "type": "move", "location": 1, "x": 15, "y": 16, "steps": 4}
+{"seq": 11, "type": "input", "key": "UP"}
+{"seq": 12, "type": "move", "location": 1, "x": 15, "y": 15, "steps": 5}
+{"seq": 13, "type": "input", "key": "UP"}
+{"seq": 14, "type": "move", "location": 1, "x": 15, "y": 14, "steps": 6}
+{"seq": 15, "type": "input", "key": "UP"}
+{"seq": 16, "type": "move", "location": 1, "x": 15, "y": 13, "steps": 7}
+{"seq": 17, "type": "input", "key": "UP"}
+{"seq": 18, "type": "move", "location": 1, "x": 15, "y": 12, "steps": 8}
+{"seq": 19, "type": "input", "key": "LEFT"}
+{"seq": 20, "type": "move", "location": 1, "x": 14, "y": 12, "steps": 9}
+{"seq": 21, "type": "input", "key": "UP"}
+{"seq": 22, "type": "move", "location": 1, "x": 14, "y": 11, "steps": 10}
+{"seq": 23, "type": "input", "key": "UP"}
+{"seq": 24, "type": "move", "location": 1, "x": 14, "y": 10, "steps": 11}
+{"seq": 25, "type": "input", "key": "UP"}
+{"seq": 26, "type": "move", "location": 1, "x": 14, "y": 9, "steps": 12}
+{"seq": 27, "type": "input", "key": "UP"}
+{"seq": 28, "type": "move", "location": 1, "x": 14, "y": 8, "steps": 13}
+{"seq": 29, "type": "input", "key": "LEFT"}
+{"seq": 30, "type": "move", "location": 1, "x": 13, "y": 8, "steps": 14}
+{"seq": 31, "type": "input", "key": "LEFT"}
+{"seq": 32, "type": "move", "location": 1, "x": 12, "y": 8, "steps": 15}
+{"seq": 33, "type": "input", "key": "LEFT"}
+{"seq": 34, "type": "move", "location": 1, "x": 11, "y": 8, "steps": 16}
+{"seq": 35, "type": "input", "key": "LEFT"}
+{"seq": 36, "type": "move", "location": 1, "x": 10, "y": 8, "steps": 17}
+{"seq": 37, "type": "input", "key": "LEFT"}
+{"seq": 38, "type": "move", "location": 1, "x": 9, "y": 8, "steps": 18}
+{"seq": 39, "type": "input", "key": "LEFT"}
+
+--- walkthrough script tokens 0..60 ---
+  0 {"checkpoint": "CP1"}
+  1 "UP"
+  2 "UP"
+  3 "UP"
+  4 "UP"
+  5 "UP"
+  6 "UP"
+  7 "UP"
+  8 "UP"
+  9 "LEFT"
+ 10 "UP"
+ 11 "UP"
+ 12 "UP"
+ 13 "UP"
+ 14 "LEFT"
+ 15 "LEFT"
+ 16 "LEFT"
+ 17 "LEFT"
+ 18 "LEFT"
+ 19 "LEFT"
+ 20 "LEFT"
+ 21 "LEFT"
+ 22 "UP"
+ 23 "UP"
+ 24 "UP"
+ 25 "B"
+ 26 "c"
+ 27 "3"
+ 28 "B"
+ 29 "c"
+ 30 "4"
+ 31 "S"
+ 32 "2"
+ 33 "c"
+ 34 "B"
+ 35 "d"
+ 36 "2"
+ 37 "X"
+ 38 "C"
+ 39 "2"
+ 40 "E"
+ 41 "c"
+ 42 "X"
+ 43 {"checkpoint": "CP2"}
+ 44 "DOWN"
+ 45 "DOWN"
+ 46 "DOWN"
+ 47 "RIGHT"
+ 48 "DOWN"
+ 49 "DOWN"
+ 50 "DOWN"
+ 51 "DOWN"
+ 52 "DOWN"
+ 53 "DOWN"
+ 54 "DOWN"
+ 55 "DOWN"
+ 56 "DOWN"
+ 57 "DOWN"
+ 58 "RIGHT"
+ 59 "UP"
+
+--- token_rules ---
+{"key": "UP, DOWN, LEFT, RIGHT, ESC, or one printable character", "repeat_until": "test the condition; while false, send 'keys' in order and test again; fail the run after 'max' rounds", "conditions": "mode:NAME is true when the engine mode is NAME; cell:L,X,Y is true when cell (X,Y) of location L has a cell change", "checkpoint": "emit a checkpoint event carrying the state snapshot; consumes no input"}
+
+--- start ---
+"new game: party.json at scenario.json start"

@@ -1,0 +1,151 @@
+{
+  "record": "item id N = record N - 1 of every shop list; records 12 to 93 are eight zero bytes",
+  "type_byte": "itemType = byte >> 3 (lab: 1 melee, 2 ranged, 3 ammo, 4 armour, 5 medical, 6 tool, 7 quest, 8 burst); lowFlags = 0",
+  "damage_byte": "melee, ranged, burst, medical: high nibble = dice count, low nibble = die sides; armour: AC bonus",
+  "items": [
+    {
+      "id": 1,
+      "name": "Pipe club",
+      "price": 15,
+      "class": "melee",
+      "type_byte": 8,
+      "capacity": 0,
+      "skill": 1,
+      "damage": 22,
+      "ammo": 0,
+      "description": "A length of iron pipe with tape wound round one end."
+    },
+    {
+      "id": 2,
+      "name": "Hook knife",
+      "price": 12,
+      "class": "melee",
+      "type_byte": 8,
+      "capacity": 0,
+      "skill": 2,
+      "damage": 20,
+      "ammo": 0,
+      "description": "A short curved blade for cutting rope and hide."
+    },
+    {
+      "id": 3,
+      "name": "Ranch pistol",
+      "price": 60,
+      "class": "ranged",
+      "type_byte": 16,
+      "capacity": 6,
+      "skill": 4,
+      "damage": 24,
+      "ammo": 4,
+      "description": "A revolver that holds six rounds."
+    },
+    {
+      "id": 4,
+      "name": "Pistol rounds",
+      "price": 8,
+      "class": "ammo",
+      "type_byte": 24,
+      "capacity": 6,
+      "skill": 0,
+      "damage": 0,
+      "ammo": 0,
+      "description": "One box of six pistol rounds. One box fills the pistol once."
+    },
+    {
+      "id": 5,
+      "name": "Lever rifle",
+      "price": 140,
+      "class": "ranged",
+      "type_byte": 16,
+      "capacity": 8,
+      "skill": 5,
+      "damage": 38,
+      "ammo": 6,
+      "description": "A lever-action rifle that holds eight rounds."
+    },
+    {
+      "id": 6,
+      "name": "Rifle rounds",
+      "price": 14,
+      "class": "ammo",
+      "type_byte": 24,
+      "capacity": 8,
+      "skill": 0,
+      "damage": 0,
+      "ammo": 0,
+      "description": "One box of eight rifle rounds. One box fills the rifle once."
+    },
+    {
+      "id": 7,
+      "name": "Hide vest",
+      "price": 30,
+      "class": "armour",
+      "type_byte": 32,
+      "capacity": 0,
+      "skill": 0,
+      "damage": 1,
+      "ammo": 0,
+      "description": "Stitched goat hide over a canvas lining. AC 1."
+    },
+    {
+      "id": 8,
+      "name": "Plate jacket",
+      "price": 110,
+      "class": "armour",
+      "type_byte": 32,
+      "capacity": 0,
+      "skill": 0,
+      "damage": 3,
+      "ammo": 0,
+      "description": "Canvas jacket with flattened can lids sewn in rows. AC 3."
+    },
+    {
+      "id": 9,
+      "name": "Field kit",
+      "price": 25,
+      "class": "medical",
+      "type_byte": 40,
+      "capacity": 3,
+      "skill": 12,
+      "damage": 36,
+      "ammo": 0,
+      "description": "Bandages, splints and a bottle of spirit. Three uses, heals 2d4."
+    },
+    {
+      "id": 10,
+      "name": "Rope coil",
+      "price": 10,
+      "class": "tool",
+      "type_byte": 48,
+      "capacity": 0,
+      "skill": 16,
+      "damage": 0,
+      "ammo": 0,
+      "description": "Fifty feet of braided rope. Adds 20 to Scaling checks for the member who carries it."
+    },
+    {
+      "id": 11,
+      "name": "Gate card",
+      "price": 0,
+      "class": "quest",
+      "type_byte": 56,
+      "capacity": 0,
+      "skill": 0,
+      "damage": 0,
+      "ammo": 0,
+      "description": "A punched steel card stamped with the pumping company's mark."
+    },
+    {
+      "id": 12,
+      "name": "Governor valve",
+      "price": 0,
+      "class": "quest",
+      "type_byte": 56,
+      "capacity": 0,
+      "skill": 0,
+      "damage": 0,
+      "ammo": 0,
+      "description": "A brass valve the size of a fist, its spindle still greased."
+    }
+  ]
+}

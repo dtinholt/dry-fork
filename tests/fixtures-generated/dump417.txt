@@ -1,0 +1,18 @@
+compiled dir /Users/dtinholt/wasteland-build/runs/w1-2026-10-21/scratch/probe417-u3l35jxr
+rc 0
+errors: {}
+oracle keys: ['files', 'gameLength', 'labskill', 'labstr', 'map0', 'map1', 'map2', 'map3', 'portraits', 'savegame', 'shop0', 'shop1', 'shop2', 'tables', 'tilesets']
+map1 keys: ['actions', 'blockEnd', 'bodySize', 'cells', 'centralDirectory', 'encryptedPrefixLength', 'info', 'mobs', 'npcs', 'size', 'strings', 'wllibPrefixLength']
+  actions = {'1': [None, {'messages': [1], 'newClass': 255, 'newAction': 0}, {'messages': [2], 'newClass': 255, 'newAction': 0}, {'messages': [3], 'newClass': 255, 'newAction': 0}, {'messages': [4], 'newClass': 2
+  blockEnd = 2406
+  bodySize = 2144
+  cells = {'actionClass': [[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  centralDirectory = {'stringsOffset': 1957, 'mobNamesOffset': 1935, 'mobDataOffset': 1949, 'actionClassOffsets': [0, 1628, 0, 0, 0, 0, 1646, 0, 0, 0, 1913, 1929, 0, 0, 0, 0], 'specialsOffset': 0, 'npcOffset': 1653}
+  encryptedPrefixLength = 1957
+  info = {'unknown00': 0, 'unknown01': 0, 'mapSize': 32, 'unknown03': 0, 'unknown04': 0, 'encounterFrequency': 0, 'tileset': 0, 'randomMonsterTypes': 0, 'maxRandomEncounters': 0, 'borderImage': 35, 'timePerSte
+  mobs = [{'name': 'stray dog\n\ns\n', 'sturdiness': 4, 'combatRating': 2, 'randomDamage': 1, 'maxGroup': 2, 'armorClass': 0, 'fixedDamage': 0, 'weaponType': 1, 'type': 1, 'portrait': 1}]
+  npcs = [{'name': 'Orla Penn', 'strength': 13, 'intelligence': 11, 'luck': 14, 'speed': 14, 'agility': 15, 'dexterity': 0, 'charisma': 11, 'money': 25, 'gender': 1, 'nationality': 1, 'armorClass': 3, 'maxCon'
+  size = 32
+  strings = ['', 'Read paragraph 2.', 'Read paragraph 3.', 'Read paragraph 5.', 'The trough is green at the edges and nearly empty.', 'Saltwell Dry Goods.', 'Read paragraph 6.', 'Orla shrugs. Some other time, the
+  wllibPrefixLength = 1957
+expected keys: ['files', 'hooks', 'labskill', 'labstr', 'maps', 'paragraphs', 'savegame', 'shops']

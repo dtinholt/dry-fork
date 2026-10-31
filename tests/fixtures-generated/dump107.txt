@@ -1,0 +1,63 @@
+len(tiles)=32 len(tiles[0])=32
+len(action_class)=32 len(action_class[0])=32
+tiles[17][8]=24 tiles[8][17]=0
+ac[17][8]=11 ac[8][17]=0
+tiles[20][15]=18 tiles[15][20]=0
+ac[20][15]=0 ac[15][20]=0
+tiles[20][2]=0 tiles[2][20]=16
+ac[20][2]=0 ac[2][20]=11
+tiles[20][3]=11 tiles[3][20]=17
+ac[20][3]=11 ac[3][20]=0
+tiles[20][0]=25 tiles[0][20]=25
+ac[20][0]=11 ac[0][20]=11
+tiles[20][1]=0 tiles[1][20]=0
+ac[20][1]=0 ac[1][20]=0
+tiles[20][4]=0 tiles[4][20]=17
+ac[20][4]=0 ac[4][20]=0
+tiles[20][5]=0 tiles[5][20]=17
+ac[20][5]=0 ac[5][20]=0
+tiles[20][6]=0 tiles[6][20]=17
+ac[20][6]=0 ac[6][20]=0
+tiles[20][7]=0 tiles[7][20]=16
+ac[20][7]=0 ac[7][20]=11
+tiles[20][8]=0 tiles[8][20]=0
+ac[20][8]=0 ac[8][20]=0
+tiles[20][9]=0 tiles[9][20]=18
+ac[20][9]=0 ac[9][20]=0
+tiles[20][10]=0 tiles[10][20]=0
+ac[20][10]=0 ac[10][20]=0
+tiles[20][11]=0 tiles[11][20]=0
+ac[20][11]=0 ac[11][20]=0
+tiles[20][12]=0 tiles[12][20]=0
+ac[20][12]=0 ac[12][20]=0
+tiles[20][13]=0 tiles[13][20]=0
+ac[20][13]=0 ac[13][20]=0
+tiles[20][14]=0 tiles[14][20]=0
+ac[20][14]=0 ac[14][20]=0
+tiles[20][15]=18 tiles[15][20]=0
+ac[20][15]=0 ac[15][20]=0
+tiles[20][16]=0 tiles[16][20]=0
+ac[20][16]=0 ac[16][20]=0
+tiles[20][17]=0 tiles[17][20]=0
+ac[20][17]=0 ac[17][20]=0
+tiles[20][18]=0 tiles[18][20]=0
+ac[20][18]=0 ac[18][20]=0
+tiles[20][19]=0 tiles[19][20]=0
+ac[20][19]=0 ac[19][20]=0
+tiles[20][20]=0
+ac[20][20]=0
+
+### compiled map
+size 32
+cell (8,17) class=11 action=1 image=34 passable=False
+cell (15,20) class=0 action=0 image=28 passable=True
+cell (2,20) class=0 action=0 image=10 passable=True
+cell (3,20) class=11 action=0 image=21 passable=False
+cell (0,20) class=11 action=0 image=35 passable=False
+cell (1,20) class=0 action=0 image=10 passable=True
+cell (4,20) class=0 action=0 image=10 passable=True
+cell (5,20) class=0 action=0 image=10 passable=True
+row20 classes: [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+row20 images: [35, 10, 10, 21, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28, 10, 10, 10, 10]
+col20 classes: [11, 0, 11, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+col20 images: [35, 10, 26, 27, 27, 27, 27, 26, 10, 28, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]

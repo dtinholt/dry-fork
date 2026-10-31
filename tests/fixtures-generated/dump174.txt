@@ -1,0 +1,37 @@
+compiled to /Users/dtinholt/wasteland-build/runs/w1-2026-10-21/scratch/probe174-45ekk2t8
+{"seed": 20261021, "seq": 0, "type": "new_game"}
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"key": "LEFT", "seq": 2, "type": "input"}
+{"location": 1, "seq": 3, "steps": 1, "type": "move", "x": 14, "y": 20}
+{"key": "LEFT", "seq": 4, "type": "input"}
+{"location": 1, "seq": 5, "steps": 2, "type": "move", "x": 13, "y": 20}
+{"key": "LEFT", "seq": 6, "type": "input"}
+{"location": 1, "seq": 7, "steps": 3, "type": "move", "x": 12, "y": 20}
+{"key": "LEFT", "seq": 8, "type": "input"}
+{"location": 1, "seq": 9, "steps": 4, "type": "move", "x": 11, "y": 20}
+{"key": "LEFT", "seq": 10, "type": "input"}
+{"location": 1, "seq": 11, "steps": 5, "type": "move", "x": 10, "y": 20}
+{"key": "LEFT", "seq": 12, "type": "input"}
+{"location": 1, "seq": 13, "steps": 6, "type": "move", "x": 9, "y": 20}
+{"key": "LEFT", "seq": 14, "type": "input"}
+{"location": 1, "seq": 15, "steps": 7, "type": "move", "x": 8, "y": 20}
+{"key": "LEFT", "seq": 16, "type": "input"}
+{"location": 1, "seq": 17, "steps": 8, "type": "move", "x": 7, "y": 20}
+{"key": "LEFT", "seq": 18, "type": "input"}
+{"location": 1, "seq": 19, "steps": 9, "type": "move", "x": 6, "y": 20}
+{"key": "LEFT", "seq": 20, "type": "input"}
+{"location": 1, "seq": 21, "steps": 10, "type": "move", "x": 5, "y": 20}
+{"key": "LEFT", "seq": 22, "type": "input"}
+{"location": 1, "seq": 23, "steps": 11, "type": "move", "x": 4, "y": 20}
+{"key": "LEFT", "seq": 24, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 25, "type": "bump", "x": 3, "y": 20}
+{"key": "LEFT", "seq": 26, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 27, "type": "bump", "x": 3, "y": 20}
+{"name": "a", "seq": 28, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 11, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond":
+start: {'location': 1, 'x': 15, 'y': 20, 'hour': 8, 'minute': 0, 'day': 1, 'paragraph': 1}
+size 32 info {'unknown00': 0, 'unknown01': 0, 'mapSize': 32, 'unknown03': 0, 'unknown04': 0, 'encounterFrequency': 0, 'tileset': 0, 'randomMonsterTypes': 0, 'maxRandomEncounters': 0, 'borderImage': 35, 'timePerStep': 256, 'healRate': 0, 'combatStringIds': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+y=18 11/0 0/0 0/0 0/0 0/0 0/0 0/0 0/0
+y=19 11/0 0/0 0/0 0/0 0/0 0/0 0/0 0/0
+y=20 11/0 0/0 0/0 11/0 0/0 0/0 0/0 0/0
+y=21 11/0 0/0 0/0 0/0 0/0 0/0 0/0 0/0
+y=22 11/0 0/0 0/0 0/0 0/0 0/0 0/0 0/0

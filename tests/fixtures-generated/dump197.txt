@@ -1,0 +1,187 @@
+=== ref_labstate source ===
+def ref_labstate(blob: bytes) -> dict:
+    """Independent LABSTATE.BIN reader (SPEC-04 LR-57)."""
+    if blob[:8] != b"WLLABSV1":
+        raise ValueError("bad magic")
+    n = int.from_bytes(blob[0x14:0x16], "little")
+    end = 0x16 + 6 * n
+    if len(blob) != end + 2:
+        raise ValueError("bad length")
+    if sum(blob[:end]) & 0xFFFF != int.from_bytes(blob[end:end + 2], "little"):
+        raise ValueError("bad sum")
+    cc = [list(blob[0x16 + 6 * i:0x16 + 6 * i + 6]) for i in range(n)]
+    return {"steps": int.from_bytes(blob[8:12], "little"), "day": int.from_bytes(blob[12:14], "little"),
+            "seconds": blob[14], "pad": blob[15], "rng_state": int.from_bytes(blob[16:20], "little"),
+            "cell_changes": cc}
+
+=== headless names ===
+  labstate
+=== Engine.snapshot ===
+    def snapshot(self):
+        return {
+            "location": self.location,
+            "x": self.x,
+            "y": self.y,
+            "steps": self.steps,
+            "day": self.day,
+            "hour": self.hour,
+            "minute": self.minute,
+            "mode": self.mode,
+            "cell_changes": self.sorted_cell_changes(),
+            "rng_state": self.rng.state if self.rng is not None else None,
+            "party": [self.member_snapshot(i + 1)
+                      for i in range(len(self.party))],
+        }
+
+=== Engine.sorted_cell_changes ===
+    def sorted_cell_changes(self):
+        """LR-57: the snapshot's cell changes are sorted by (location, y, x)
+        and a cell that changed more than once keeps only its last change."""
+        last = {}
+        for c in self.cell_changes:
+            last[(c[0], c[1], c[2])] = list(c)
+        return [last[k] for k in sorted(last, key=lambda k: (k[0], k[2], k[1]))]
+
+=== Engine.write_save_files ===
+    def write_save_files(self):
+        dd = Path(self.data_dir)
+        # LABSTATE.BIN next to GAME1 (LR-54, LR-57)
+        cc = sorted([list(c) for c in self.cell_changes], key=lambda c: (c[0], c[2], c[1]))
+        blob = labstate.encode_labstate({
+            "steps": self.steps, "day": self.day, "seconds": 0, "pad": 0,
+            "rng_state": self.rng.state if self.rng is not None else 0,
+            "cell_changes": cc,
+        })
+        try:
+            (dd / "LABSTATE.BIN").write_bytes(blob)
+        except OSError:
+            pass
+        # GAME1 savegame block (LR-55)
+        try:
+            block = self.build_savegame_payload()
+            path = dd / "GAME1"
+            data = bytearray(path.read_bytes())
+            off = self.sc.tables["savegameOffsets"][0]
+            data[off:off + len(block)] = block
+            path.write_bytes(bytes(data))
+        except Exception:  # noqa: BLE001
+            pass
+
+=== Engine.save_game ===
+    def save_game(self):
+        self.emit("save", serial=self.serial)
+        self.saved[self.serial] = self.snapshot()
+        try:
+            self.write_save_files()
+        except Exception:  # noqa: BLE001
+            pass
+
+=== walkthrough script up to CP5-pre-save ===
+[{"checkpoint": "CP1"}, "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "B", "c", "3", "B", "c", "4", "S", "2", "c", "B", "d", "2", "X", "C", "2", "E", "c", "X", {"checkpoint": "CP2"}, "DOWN", "DOWN", "DOWN", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "UP", "Y", {"checkpoint": "CP3"}, "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", {"repeat_until": "mode:map", "keys": ["A"], "max": 30}, {"checkpoint": "CP4"}, "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "B", "d", "2", "X", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "RIGHT", "RIGHT", "B", "c", "1", "X", "C", "1", "E", "d", "X", {"checkpoint": "CP5-pre-save"}]
+=== CP5-pre-save cell_changes ===
+[[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]]
+=== cell_change events ===
+{"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+{"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 278, "type": "cell_change", "x": 30, "y": 41}
+{"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 280, "type": "cell_change", "x": 30, "y": 41}
+=== all checkpoint names ===
+["CP1", "CP2", "CP3", "CP4", "CP5-pre-save"]
+=== bump events ===
+{"seed": 5, "seq": 0, "type": "new_game"}
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"key": "LEFT", "seq": 2, "type": "input"}
+{"location": 1, "seq": 3, "steps": 1, "type": "move", "x": 14, "y": 20}
+{"key": "LEFT", "seq": 4, "type": "input"}
+{"location": 1, "seq": 5, "steps": 2, "type": "move", "x": 13, "y": 20}
+{"key": "LEFT", "seq": 6, "type": "input"}
+{"location": 1, "seq": 7, "steps": 3, "type": "move", "x": 12, "y": 20}
+{"key": "LEFT", "seq": 8, "type": "input"}
+{"location": 1, "seq": 9, "steps": 4, "type": "move", "x": 11, "y": 20}
+{"key": "LEFT", "seq": 10, "type": "input"}
+{"location": 1, "seq": 11, "steps": 5, "type": "move", "x": 10, "y": 20}
+{"key": "LEFT", "seq": 12, "type": "input"}
+{"location": 1, "seq": 13, "steps": 6, "type": "move", "x": 9, "y": 20}
+{"key": "LEFT", "seq": 14, "type": "input"}
+{"location": 1, "seq": 15, "steps": 7, "type": "move", "x": 8, "y": 20}
+{"key": "LEFT", "seq": 16, "type": "input"}
+{"location": 1, "seq": 17, "steps": 8, "type": "move", "x": 7, "y": 20}
+{"key": "LEFT", "seq": 18, "type": "input"}
+{"location": 1, "seq": 19, "steps": 9, "type": "move", "x": 6, "y": 20}
+{"key": "LEFT", "seq": 20, "type": "input"}
+{"location": 1, "seq": 21, "steps": 10, "type": "move", "x": 5, "y": 20}
+{"key": "LEFT", "seq": 22, "type": "input"}
+{"location": 1, "seq": 23, "steps": 11, "type": "move", "x": 4, "y": 20}
+{"key": "LEFT", "seq": 24, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 25, "type": "bump", "x": 3, "y": 20}
+{"key": "LEFT", "seq": 26, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 27, "type": "bump", "x": 3, "y": 20}
+{"name": "a", "seq": 28, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 11, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drif
+=== bump checkpoint a ===
+{"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 11, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [1, 0]], "level": 1, "max_hp": 26, "money": 60, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 1]], "level": 1, "max_hp": 21, "money": 80, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 1], [9, 3]], "level": 1, "max_hp": 22, "money": 70, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}], "rng_state": 5, "steps": 11, "x": 4, "y": 20}
+=== raider fight seed 3 events ===
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"name": "CP1", "seq": 2, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 0, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond":
+{"n": 3, "seq": 47, "type": "paragraph"}
+{"delta": -7, "member": 3, "seq": 59, "total": 73, "type": "money"}
+{"delta": -7, "member": 4, "seq": 66, "total": 63, "type": "money"}
+{"delta": 8, "member": 2, "seq": 74, "total": 68, "type": "money"}
+{"delta": -28, "member": 2, "seq": 80, "total": 40, "type": "money"}
+{"name": "CP2", "seq": 94, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 24, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 3, "cond
+{"n": 3, "seq": 99, "type": "paragraph"}
+{"n": 6, "seq": 128, "type": "paragraph"}
+{"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+{"name": "CP3", "seq": 133, "state": {"cell_changes": [[1, 8, 17, 0, 0, 28]], "day": 1, "hour": 8, "location": 1, "minute": 39, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 3, "a
+{"n": 2, "seq": 170, "type": "paragraph"}
+{"n": 7, "seq": 208, "type": "paragraph"}
+{"groups": [{"band": 3, "count": 3, "hp": [7, 15, 7], "monster": "raider"}], "seq": 217, "type": "encounter_start"}
+{"n": 8, "seq": 218, "type": "paragraph"}
+{"level": 2, "member": 5, "need": 66, "roll": 54, "seq": 219, "skill": 18, "success": true, "type": "check"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 1, "seq": 221, "type": "round_orders"}
+{"round": 1, "seq": 222, "type": "round_start"}
+{"chance": 4, "member": 1, "roll": 4, "seq": 223, "type": "jam"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 64, "seq": 224, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 56, "seq": 225, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 54, "seq": 226, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 5, "need": 58, "roll": 60, "seq": 227, "side": "party", "target": 1, "type": "attack"}
+{"attacker": 1, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 56, "seq": 228, "side": "monsters", "type": "attack"}
+{"attacker": 2, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 48, "seq": 229, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 3, "need": 22, "roll": 89, "seq": 230, "side": "monsters", "type": "attack"}
+{"level": 0, "member": 1, "need": 46, "roll": 27, "seq": 231, "skill": 22, "success": true, "type": "check"}
+{"member": 1, "seq": 232, "type": "unjammed"}
+{"orders": {"1": ["advance", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 2, "seq": 234, "type": "round_orders"}
+{"round": 2, "seq": 235, "type": "round_start"}
+{"member": 1, "seq": 236, "type": "click"}
+{"damage": 9, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 46, "seq": 237, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 66, "seq": 238, "side": "party", "target": 2, "type": "attack"}
+{"damage": 4, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 10, "seq": 239, "side": "party", "target": 2, "type": "attack"}
+{"damage": 5, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 33, "seq": 240, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 1, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 50, "seq": 241, "side": "monsters", "type": "attack"}
+{"attacker": 2, "damage": 6, "group": 1, "hit": true, "member": 4, "need": 28, "roll": 17, "seq": 242, "side": "monsters", "type": "attack"}
+{"attacker": 3, "damage": 4, "group": 1, "hit": true, "member": 1, "need": 22, "roll": 3, "seq": 243, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 1, "seq": 244, "type": "monster_dies"}
+{"band": 2, "seq": 245, "type": "advance"}
+{"orders": {"1": ["advance", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 3, "seq": 247, "type": "round_orders"}
+{"round": 3, "seq": 248, "type": "round_start"}
+{"member": 1, "seq": 249, "type": "click"}
+{"damage": 8, "group": 1, "hit": true, "member": 2, "need": 60, "roll": 3, "seq": 250, "side": "party", "target": 2, "type": "attack"}
+{"damage": 1, "group": 1, "hit": true, "member": 3, "need": 51, "roll": 26, "seq": 251, "side": "party", "target": 3, "type": "attack"}
+{"damage": 2, "group": 1, "hit": true, "member": 4, "need": 49, "roll": 39, "seq": 252, "side": "party", "target": 3, "type": "attack"}
+{"damage": 10, "group": 1, "hit": true, "member": 5, "need": 63, "roll": 9, "seq": 253, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 2, "group": 1, "hit": false, "member": 5, "need": 27, "roll": 45, "seq": 254, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 4, "need": 33, "roll": 87, "seq": 255, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 2, "seq": 256, "type": "monster_dies"}
+{"group": 1, "index": 3, "seq": 257, "type": "monster_dies"}
+{"result": "victory", "rounds": 3, "seq": 258, "type": "combat_end"}
+{"delta": 14, "member": 1, "seq": 259, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 28, "member": 1, "rank": "Hand", "seq": 260, "type": "promote"}
+{"delta": 14, "member": 2, "seq": 261, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 31, "member": 2, "rank": "Hand", "seq": 262, "type": "promote"}
+{"delta": 14, "member": 3, "seq": 263, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 25, "member": 3, "rank": "Hand", "seq": 264, "type": "promote"}
+{"delta": 14, "member": 4, "seq": 265, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 26, "member": 4, "rank": "Hand", "seq": 266, "type": "promote"}
+{"delta": 14, "member": 5, "seq": 267, "total": 214, "type": "xp"}
+{"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 268, "type": "cell_change", "x": 30, "y": 41}
+{"delta": 75, "member": 1, "seq": 269, "total": 195, "type": "money"}
+{"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 270, "type": "cell_change", "x": 30, "y": 41}
+{"name": "CP4", "seq": 271, "state": {"cell_changes": [[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]], "day": 1, "hour": 12, "location": 0, "minute": 19, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 20, "items": [[3, 6], [4, 2], [7, 0]], "level": 2, "max_hp": 28, "money": 195, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1,

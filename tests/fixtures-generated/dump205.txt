@@ -1,0 +1,322 @@
+=== src/wlengine/combat.py lines 1..130 ===
+1: """SPEC-04 LR-26 to LR-46: combat resolution for the headless driver.
+2: 
+3: The engine keeps ``self.combat`` as a dict while a fight is running:
+4: 
+5:     {"round": int,            # 0 while the surprise round is pending
+6:      "groups": [...],         # LR-26 groups, each with "hp" per monster
+7:      "band": int,             # LR-28 range band (1 = melee)
+8:      "surprised": bool,
+9:      "kills": int,
+10:      "fired": set(),          # slots that fired in phase 1
+11:      "pending_monsters": [[int]],   # phase 1 damage per group/index
+12:      "pending_members": {slot: int},
+13:      "over": bool,
+14:      "last_death_round": int}
+15: 
+16: This module is a mixin: ``wlengine.headless.Engine`` inherits from
+17: ``CombatMixin`` so the combat methods can use the engine's helpers
+18: (``emit``, ``item_record``, ``skill_level``, ``rng`` ...).
+19: """
+20: 
+21: from __future__ import annotations
+22: 
+23: from . import maps, rules
+24: 
+25: RANGED_SKILLS = (4, 5, 12)
+26: GUNSMITHING = 22
+27: LOOKOUT = 18
+28: SALVAGE = 26
+29: RANKS = ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"]
+30: 
+31: 
+32: def _alive(member):
+33:     return member.get("hp", 0) > 0 and not member.get("cond")
+34: 
+35: 
+36: def weapon_dice(rec):
+37:     """(n, s) of a weapon's damage: high nibble dice, low nibble sides."""
+38:     if rec is None:
+39:         return 1, 6
+40:     if "damage_n" in rec:
+41:         return rec.get("damage_n", 1), rec.get("damage_s", 6)
+42:     byte = rec.get("damage", 0) or 0
+43:     n = (byte >> 4) & 0x0F
+44:     s = byte & 0x0F
+45:     if n <= 0:
+46:         n = 1
+47:     if s <= 0:
+48:         s = 6
+49:     return n, s
+50: 
+51: 
+52: class CombatMixin:
+53:     # -- inventory helpers -------------------------------------------------
+54: 
+55:     def member_weapon(self, member):
+56:         """The equipped weapon: item slot 1 (LR-33)."""
+57:         items = member.get("items") or []
+58:         if not items:
+59:             return None, 0
+60:         iid = items[0][0]
+61:         return self.item_record(iid), iid
+62: 
+63:     def weapon_ammo(self, member):
+64:         rec, _iid = self.member_weapon(member)
+65:         if rec is None:
+66:             return 0
+67:         return member.get("loaded", rec.get("capacity", 0))
+68: 
+69:     def ammo_boxes(self, member):
+70:         """Total rounds in the member's ammunition items."""
+71:         total = 0
+72:         for iid, count in (member.get("items") or [])[1:]:
+73:             rec = self.item_record(iid)
+74:             if rec and rec.get("ammo"):
+75:                 total += rec["ammo"] * count
+76:         return total
+77: 
+78:     def spend_ammo(self, member):
+79:         member["loaded"] = max(0, self.weapon_ammo(member) - 1)
+80: 
+81:     def reload(self, member):
+82:         """LR-33: one ammunition item refills the weapon to capacity."""
+83:         rec, _iid = self.member_weapon(member)
+84:         cap = rec.get("capacity", 0) if rec else 0
+85:         items = member.get("items") or []
+86:         for idx in range(1, len(items)):
+87:             iid, count = items[idx]
+88:             irec = self.item_record(iid)
+89:             if not irec or not irec.get("ammo") or count <= 0:
+90:                 continue
+91:             items[idx] = [iid, count - 1]
+92:             member["loaded"] = cap
+93:             return cap
+94:         return 0
+95: 
+96:     # -- orders (LR-33) ----------------------------------------------------
+97: 
+98:     def auto_orders(self):
+99:         c = self.combat
+100:         orders = {}
+101:         any_alive = any(hp > 0 for g in c["groups"] for hp in g["hp"])
+102:         band = c["band"]
+103:         for i, m in enumerate(self.party):
+104:             slot = str(i + 1)
+105:             if not _alive(m):
+106:                 orders[slot] = ["dead"]
+107:                 continue
+108:             if not any_alive:
+109:                 orders[slot] = ["wait"]
+110:                 continue
+111:             if m.get("jammed"):
+112:                 orders[slot] = ["unjam"]
+113:                 continue
+114:             rec, _iid = self.member_weapon(m)
+115:             if rec is not None and rec.get("skill") in RANGED_SKILLS:
+116:                 if self.weapon_ammo(m) > 0:
+117:                     orders[slot] = ["fire", 1]
+118:                     continue
+119:                 if self.ammo_boxes(m) > 0:
+120:                     orders[slot] = ["reload"]
+121:                     continue
+122:             orders[slot] = ["unarmed", 1] if band == 1 else ["advance", 1]
+123:         return orders
+124: 
+125:     # -- targeting ---------------------------------------------------------
+126: 
+127:     def pick_monster_target(self, pending=None):
+128:         """LR-34 step 4: first monster that is still standing after pending damage."""
+129:         c = self.combat
+130:         if pending is None:
+=== src/wlengine/headless.py lines 42..170 ===
+42: class Engine(CombatMixin):
+43:     """One engine instance driven by a script of input tokens."""
+44: 
+45:     def __init__(self, data_dir, seed=None, options=None):
+46:         self.data_dir = data_dir
+47:         self.options = dict(options or {})
+48:         self.sc = _load_scenario(data_dir)
+49:         self.events = []
+50:         self._seq = 0
+51:         self.mode = "map"
+52:         self.location = 0
+53:         self.x = 0
+54:         self.y = 0
+55:         self.steps = 0
+56:         self.day = 1
+57:         self.hour = 0
+58:         self.minute = 0
+59:         self.prev_x = 0
+60:         self.prev_y = 0
+61:         self.prev_location = 0
+62:         self.cell_changes = []
+63:         self.rng = None
+64:         self.seed = seed
+65:         self.party = []
+66:         self.serial = 0
+67:         self.paragraph = 0
+68:         self.shop = None
+69:         self.pending = None
+70:         self.pending_member = None
+71:         self.pending_item = None
+72:         self.pending_hook = None
+73:         self.pending_cell = (0, 0)
+74:         self.combat = None
+75:         self.saved = {}
+76:         self.script_seed = None
+77:         self._items = None
+78: 
+79:     # -- event log ---------------------------------------------------------
+80: 
+81:     def emit(self, type_, **kw):
+82:         ev = {"seq": self._seq, "type": type_}
+83:         ev.update(kw)
+84:         self._seq += 1
+85:         self.events.append(ev)
+86:         return ev
+87: 
+88:     def checkpoint(self, name):
+89:         self.emit("checkpoint", name=name, state=self.snapshot())
+90: 
+91:     def snapshot(self):
+92:         return {
+93:             "location": self.location,
+94:             "x": self.x,
+95:             "y": self.y,
+96:             "steps": self.steps,
+97:             "day": self.day,
+98:             "hour": self.hour,
+99:             "minute": self.minute,
+100:             "mode": self.mode,
+101:             "cell_changes": self.sorted_cell_changes(),
+102:             "rng_state": self.rng.state if self.rng is not None else None,
+103:             "party": [self.member_snapshot(i + 1)
+104:                       for i in range(len(self.party))],
+105:         }
+106: 
+107:     def sorted_cell_changes(self):
+108:         """LR-57: the snapshot's cell changes are sorted by (location, y, x)
+109:         and a cell that changed more than once keeps only its last change."""
+110:         last = {}
+111:         for c in self.cell_changes:
+112:             last[(c[0], c[1], c[2])] = list(c)
+113:         return [last[k] for k in sorted(last, key=lambda k: (k[0], k[2], k[1]))]
+114: 
+115:     def member_snapshot(self, member):
+116:         m = self.party[member - 1]
+117:         return {
+118:             "slot": member,
+119:             "name": m.get("name", ""),
+120:             "npc": m.get("npc", 0),
+121:             "level": m.get("level", 1),
+122:             "xp": m.get("xp", 0),
+123:             "max_hp": m.get("max_hp", 0),
+124:             "hp": m.get("hp", 0),
+125:             "cond": m.get("cond", 0),
+126:             "money": m.get("money", 0),
+127:             "ac": m.get("ac", 0),
+128:             "rank": m.get("rank", 0),
+129:             "skill_points": m.get("skill_points", 0),
+130:             "items": [list(it) for it in m.get("items", [])],
+131:             "weapon_slot": m.get("weapon_slot", -1),
+132:             "armour_slot": m.get("armour_slot", -1),
+133:         }
+134: 
+135:     # -- item table --------------------------------------------------------
+136: 
+137:     def item_table(self):
+138:         if self._items is not None:
+139:             return self._items
+140:         tbl = getattr(self.sc, "items", None)
+141:         if tbl is None:
+142:             fn = getattr(self.sc, "item_table", None)
+143:             if fn is not None:
+144:                 tbl = fn()
+145:         if tbl is None:
+146:             tbl = {}
+147:         if isinstance(tbl, list):
+148:             tbl = {i + 1: v for i, v in enumerate(tbl)}
+149:         self._items = tbl
+150:         return tbl
+151: 
+152:     def item(self, iid):
+153:         return self.item_table().get(iid, {})
+154: 
+155:     def item_price(self, iid):
+156:         it = self.item(iid)
+157:         if isinstance(it, dict):
+158:             return it.get("price", 0)
+159:         return 0
+160: 
+161:     def item_name(self, iid):
+162:         it = self.item(iid)
+163:         if isinstance(it, dict):
+164:             return it.get("name", "")
+165:         return ""
+166: 
+167:     # -- new game ----------------------------------------------------------
+168: 
+169:     def new_game(self, seed):
+170:         self.seed = seed
+=== scenario.py 779 ===
+779:     def premade_party(self):
+780:         return self.party_from_savegame()
+781: 
+782:     def shop_items(self, n):
+783:         """The 94 decoded records of shop list ``n`` (SPEC-02 section 5)."""
+784:         return self.shops[n]["items"]
+785: 
+786:     def item(self, item_id):
+787:         """Item id N is record N - 1 of shop list 0 (LR-47)."""
+788:         if item_id < 1:
+789:             return None
+790:         recs = self.shop_items(0)
+791:         if item_id - 1 >= len(recs):
+792:             return None
+793:         return recs[item_id - 1]
+794: 
+795:     def skill(self, skill_id):
+796:         """``(min_iq, cost, attr_offset)`` for skill id 1 to 35 (LR-6)."""
+797:         if skill_id < 1 or skill_id >= len(self.skill_table):
+798:             return (0, 0, 0)
+799:         b0, b1 = self.skill_table[skill_id]
+800:         return (b0 >> 3, b0 & 7, b1)
+801: 
+802:     def skill_name(self, skill_id):
+803:         t2 = self.labstr[2] if len(self.labstr) > 2 else []
+804:         if 0 <= skill_id < len(t2):
+805:             return t2[skill_id]
+806:         return ""
+807: 
+808:     def rank(self, level):
+809:         t3 = self.labstr[3] if len(self.labstr) > 3 else []
+810:         i = min(level, 7) - 1
+811:         if 0 <= i < len(t3):
+812:             return t3[i]
+813:         return ""
+814: 
+815:     def ui(self, n):
+816:         t1 = self.labstr[1] if len(self.labstr) > 1 else []
+817:         if 0 <= n < len(t1):
+818:             return t1[n]
+819:         return ""
+820: 
+821:     def map_string(self, location, n):
+822:         m = self.maps.get(location)
+823:         if m is None or n >= len(m["strings"]):
+=== map1 keys: ['location', 'name', 'width', 'height', 'tileset', 'info', 'conventions', 'strings', 'mobs', 'npcs', 'records', 'action_cells', 'tiles', 'action_class', 'action_value']
+tiles row 20: [25, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25]
+action_class row 20: [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+action_value row 20: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+tiles row 19: [25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 25]
+action_class row 19: [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 11]
+records: {"10": [{"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "new_class": 255, "new_action": 0}, {"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "new_class": 255, "new_action": 0}], "1": [{"messages": [1], "new_class": 255, "new_action": 0}, {"messages": [2], "new_class": 255, "new_action": 0}, {"messages": [3], "new_class": 255, "new_action": 0}, {"messages": [4], "new_class": 255, "new_action": 0}], "6": [{"shop": 0, "message": 5, "new_class": 255, "new_action": 0}], "11": [{"message": 6, "new_class": 255, "new_action": 0}]}
+start: null
+=== walkthrough keys: ['seed', 'start', 'token_rules', 'summary', 'expected_rule', 'script', 'checkpoints']
+RUN FAILED: run() got multiple values for argument 'data_dir'
+Traceback (most recent call last):
+  File "/Users/dtinholt/wasteland-build/project/tests/fixtures-generated/probe205.py", line 66, in <module>
+    ev, dd2 = headless.run("cp4", {"seed": 3, "script": prefix(wt, "CP4")}, 3, data_dir=dd)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: run() got multiple values for argument 'data_dir'

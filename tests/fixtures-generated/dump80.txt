@@ -1,0 +1,55 @@
+SPEC-01-codecs.md:220|     left  = readNode()
+SPEC-01-codecs.md:223|     return Node(left, right)
+SPEC-01-codecs.md:231| - The separator bit between the left and right subtrees is present in the
+SPEC-01-codecs.md:247|         node = readBit() == 0 ? node.left : node.right
+SPEC-01-codecs.md:265| the first node popped becomes the left child. Empty input produces the
+SPEC-01-codecs.md:286| - bits 1 to 9 = `1 00000001`: left child is leaf `01`.
+SPEC-02-containers.md:347| - Pixels: row-major, high nibble = left pixel, low nibble = right pixel.
+SPEC-02-containers.md:370|    Vertical-XOR decode with stride 48, then high nibble = left pixel.
+SPEC-02-containers.md:413|   MSB = leftmost pixel. `colorIndex = blue | green << 1 | red << 2 |
+SPEC-02-containers.md:424| green, red, intensity), one byte per row, MSB = leftmost. No mask; every pixel
+SPEC-04-rules.md:166| "active member" is the conscious member with the lowest slot. Recruited NPCs
+SPEC-04-rules.md:212| cell; arriving on the target of a transition is not a step. A bump (class 11,
+SPEC-04-rules.md:240| record. When the party bumps that cell (or interacts with it, SPEC-06 section
+SPEC-04-rules.md:274| tool. `key_used` names the lowest-slot carrier. On success, in this order: emit
+SPEC-04-rules.md:280| `success_message`. On failure: show `fail_message`. Every bump retries; a retry
+SPEC-04-rules.md:402| 3. Ranged or burst weapon with load above 0: attack the lowest-numbered
+SPEC-04-rules.md:406| 5. Melee weapon, or unarmed: attack the lowest-numbered living group in band 1
+SPEC-04-rules.md:407|    if there is one, else close in on the lowest-numbered living group.
+SPEC-04-rules.md:459| the lowest-numbered living group in band 1; if there is none, `no_target`.
+SPEC-04-rules.md:660| class. For a bump: `input`, `bump`, the record message, the tail's
+SPEC-05-scenario.md:65| | 11 | 21 | cactus | no | Single green column cactus with two arms. |
+SPEC-05-scenario.md:66| | 12 | 22 | plank bridge | yes | Weathered boards running left to right, rope rails top and bottom. |
+SPEC-05-scenario.md:79| | 25 | 35 | fence | no | Split-rail fence running left to right. |
+SPEC-05-scenario.md:103| - Raw id 1, Orla Penn: Head and shoulders, three-quarter view facing left. Narrow face, sun-creased eyes, short grey-streaked hair under a flat-brimmed hat pushed back. A rifle sling crosses the right shoulder. Background: a pale sky band over a dark horizon line. Palette: tans, a faded blue scarf, dark brown hat. Animation: the eyes blink every 40 frames; the scarf end lifts in two frames of wind.
+SPEC-05-scenario.md:105| - Raw id 3, Wren Abara: Head and shoulders, profile facing right. Close-cropped dark hair, a thin scar along the jaw, one silver ring in the ear, chin slightly raised. Collar of a sand-coloured duster turned up. Background: plain ochre wall with a shadow cast from the left. Palette: deep brown skin tones, ochre, cream, one silver highlight. Animation: the head turns to the viewer over four frames and back.
+SPEC-05-scenario.md:114| Notation: cells are (x, y), x from the left, y from the top, both from 0.
+SPEC-05-scenario.md:124| x = 29, 30, 32 and 33. The plank bridge is at (31,41) on the east-west road
+SPEC-05-scenario.md:125| (y = 41). The ford is at (31,55). The dry branch runs from (30,30) north-west
+SPEC-05-scenario.md:260| A fenced town. The dry goods store is the north-west building, the healer the
+SPEC-05-scenario.md:339| A walled town entered from the west gate (x = 0, y = 15 to 17). The gunsmith is
+SPEC-05-scenario.md:340| the north-west building, the outfitter the north-east building, the storehouse
+SPEC-05-scenario.md:342| south-west.
+SPEC-05-scenario.md:392| | 0 | 15 | 18 | 10 | 1 | absolute, no confirm, message 0, target location 0 (43,28) | Ninemile west gate to overworld (43,28) |
+SPEC-05-scenario.md:393| | 0 | 16 | 18 | 10 | 2 | absolute, no confirm, message 0, target location 0 (43,28) | Ninemile west gate to overworld (43,28) |
+SPEC-05-scenario.md:395| | 0 | 17 | 18 | 10 | 3 | absolute, no confirm, message 0, target location 0 (43,28) | Ninemile west gate to overworld (43,28) |
+SPEC-05-scenario.md:440| A west gallery along y = 20 lies behind a rubble heap at (4,20).
+SPEC-05-scenario.md:798| **13.** A broad man in a grease-black apron sits on an upturned bucket, taking apart a clock with a bent nail. He introduces himself as Teodor Lusk, mechanic, and says he worked at the pumphouse as a boy before the company left. He remembers the consoles and the gates and roughly where the spare parts were kept. He wants to see it again, and he wants paying.
+SPEC-05-scenario.md:804| **16.** The dry fork of the river runs north-west here, a broad bed of rounded stones with not a drop between them. Old flood marks stain a boulder higher than your head. Your boots find a rusted length of pipe half buried in the gravel, stamped with the same company mark you saw on the signpost. The company ran water through here once.
+SPEC-05-scenario.md:822| Where each entry is triggered: 1 new game; 2 Saltwell gate (15,29); 3 dry goods doorway (6,7); 4 Saltwell pump bumped without the valve; 5 healer's doorway (23,7); 6 Orla Penn; 7 signpost (26,41); 8 raiders' encounter message; 9 plank bridge (31,41), once (the PRINT tail turns the cell into class 0); 10 Ninemile entry (2,16); 11 gunsmith doorway (7,6); 12 storehouse unlock; 13 Teodor Lusk; 14 Wren Abara; 15 dining hall doorway (7,25); 16 dry fork riverbed (24,25); 17 ford unlock; 18 foot of the Pumphouse stairs (3,3); 19 crawlers' encounter message; 20 console unlock; 21 vault gate unlock; 22 governor chamber (17,6); 23 Sallow Kett; 24 the win.
+SPEC-05-scenario.md:840| auto orders, and `repeat [UP] until cell:2,26,14` bumps the storehouse door
+SPEC-05-scenario.md:857| **To CP2** (step 24): UP x8, LEFT, UP x4, LEFT x8, UP (paragraph 3), UP, UP (message 5; shop list 0 opens), B, c, 3 (slot 3 buys item 4 for 7), B, c, 4 (slot 4 buys item 4 for 7), S, 2, c (slot 2 sells item 1 for 8), B, d, 2 (slot 2 buys item 7 for 28), X, C, 2, E, c (slot 2 equips item 7, AC 3), X
+SPEC-05-scenario.md:867| **To CP6** (step 165): LEFT x2, DOWN x4, LEFT, DOWN x6, RIGHT x4, repeat [UP] until cell:2,26,14 (max 40; reference seed: 4 rounds), UP x2, UP (slot 1 gains item 11)
+SPEC-05-scenario.md:869| **To CP7** (step 194): DOWN x4, LEFT x8, DOWN (paragraph 13; prompt recruit), Y (recruit into slot 6), RIGHT x4, DOWN x8, RIGHT x3, UP x2, UP (prompt heal), Y (healed for 40)
+SPEC-05-scenario.md:871| **To CP8** (step 259): DOWN x2, LEFT x3, UP x8, LEFT x19, LEFT (paragraph 10), LEFT, LEFT (enter location 0 at (43,28)), DOWN, RIGHT, DOWN x17, DOWN (enter location 3 at (3,2)), DOWN (paragraph 18), DOWN x3, RIGHT x5, RIGHT (encounter: 4 pump crawler; paragraph 19), repeat [A] until mode:map (max 30; reference seed: 3 rounds)
+SPEC-05-scenario.md:875| **To CP10** (step 358): DOWN, LEFT x3, DOWN, LEFT (paragraph 22), LEFT x14, UP x2, UP (paragraph 18), UP, UP (enter location 0 at (44,48)), LEFT, UP x7, LEFT x13, UP, LEFT x19, LEFT (enter location 1 at (15,30)), UP (paragraph 2), UP x17, UP (paragraph 24; win)
+SPEC-06-ui.md:18| A token is one of `UP`, `DOWN`, `LEFT`, `RIGHT`, `ESC`, `ENTER`, or a single
+SPEC-06-ui.md:33| | Message log | 12 to 22 | 0 to 79 | the last 11 log lines, newest at the bottom |
+SPEC-06-ui.md:56| | 3 road | `=` | 11 cactus | `Y` | 19 doorway | `/` | 27 concrete floor | `` ` `` |
+SPEC-06-ui.md:94| | arrow keys, keypad 8 2 4 6 | `UP` `DOWN` `LEFT` `RIGHT` | move or bump (SPEC-03 section 9.6) |
+SPEC-06-ui.md:96| | `T` then a direction | `T` + direction | talk or trade: if the cell is class 11, or class 4 with an impassable record, do exactly what a bump does (without the `bump` event); else UI string 6 |
+SPEC-06-ui.md:266| | `bump` | `x, y, action_class, action` | the move hits class 11 or an impassable class 4 |
+SPEC-06-ui.md:292| | `train` | `member, skill, level, points_left` |
+SPEC-06-ui.md:373|   is `@`; row 6 column 18 is the glyph of the cell west of the party (`.`,
+SPEC-07-acceptance.md:261| | M5 | `test_m5_rules.py` | 82 | SPEC-04 rules: 38 rule tables (generator, characters, checks, time, experience, prices, payments, monsters, combat formulas, LABSTATE) and 44 engine behaviours (new game, steps and clock, bumps, rest, hooks, shop, recruit, the first fight for several seeds, locks, healer, save and load) | SPEC-04 formulas and worked examples, `rng-vectors.json`, SPEC-05 data |
+SPEC-07-acceptance.md:371| - Read one way by the tests, stated here so the builder is not left guessing:

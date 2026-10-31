@@ -1,0 +1,199 @@
+=== headless: save / labstate / victory / loot ===
+src/wlengine/headless.py:10: import os
+src/wlengine/headless.py:11: from pathlib import Path
+src/wlengine/headless.py:12: 
+src/wlengine/headless.py:13: from . import containers, labstate, maps, rules, strings
+src/wlengine/headless.py:14: from .combat import CombatMixin
+src/wlengine/headless.py:15: from .errors import FormatError, ScriptError
+src/wlengine/headless.py:16: 
+src/wlengine/headless.py:17: # ---------------------------------------------------------------------------
+src/wlengine/headless.py:18: # scenario loading
+src/wlengine/headless.py:19: # ---------------------------------------------------------------------------
+src/wlengine/headless.py:20: 
+src/wlengine/headless.py:21: 
+src/wlengine/headless.py:22: def _load_scenario(data_dir):
+src/wlengine/headless.py:23:     from . import scenario as scenario_mod
+src/wlengine/headless.py:24:     loader = getattr(scenario_mod, "load", None)
+src/wlengine/headless.py:25:     if loader is not None:
+src/wlengine/headless.py:26:         return loader(data_dir)
+src/wlengine/headless.py:27:     cls = getattr(scenario_mod, "Scenario", None)
+src/wlengine/headless.py:28:     if cls is not None:
+src/wlengine/headless.py:29:         for name in ("from_dir", "read", "load"):
+src/wlengine/headless.py:30:             fn = getattr(cls, name, None)
+src/wlengine/headless.py:31:             if fn is not None:
+src/wlengine/headless.py:32:                 return fn(data_dir)
+src/wlengine/headless.py:33:         return cls(data_dir)
+src/wlengine/headless.py:34:     raise FormatError("wlengine.scenario has no loader")
+src/wlengine/headless.py:35: 
+src/wlengine/headless.py:36: 
+src/wlengine/headless.py:37: # ---------------------------------------------------------------------------
+src/wlengine/headless.py:38: # engine
+src/wlengine/headless.py:39: # ---------------------------------------------------------------------------
+src/wlengine/headless.py:40: 
+src/wlengine/headless.py:41: 
+src/wlengine/headless.py:42: class Engine(CombatMixin):
+src/wlengine/headless.py:43:     """One engine instance driven by a script of input tokens."""
+---
+src/wlengine/headless.py:986: 
+src/wlengine/headless.py:987:     # -- save / load -------------------------------------------------------
+src/wlengine/headless.py:988: 
+src/wlengine/headless.py:989:     def save_game(self):
+src/wlengine/headless.py:990:         self.emit("save", serial=self.serial)
+src/wlengine/headless.py:991:         self.saved[self.serial] = self.snapshot()
+src/wlengine/headless.py:992:         try:
+src/wlengine/headless.py:993:             self.write_save_files()
+src/wlengine/headless.py:994:         except Exception:  # noqa: BLE001
+src/wlengine/headless.py:995:             pass
+src/wlengine/headless.py:996: 
+src/wlengine/headless.py:997:     def write_save_files(self):
+src/wlengine/headless.py:998:         dd = Path(self.data_dir)
+src/wlengine/headless.py:999:         # LABSTATE.BIN next to GAME1 (LR-54, LR-57)
+src/wlengine/headless.py:1000:         cc = sorted([list(c) for c in self.cell_changes], key=lambda c: (c[0], c[2], c[1]))
+src/wlengine/headless.py:1001:         blob = labstate.encode_labstate({
+src/wlengine/headless.py:1002:             "steps": self.steps, "day": self.day, "seconds": 0, "pad": 0,
+src/wlengine/headless.py:1003:             "rng_state": self.rng.state if self.rng is not None else 0,
+src/wlengine/headless.py:1004:             "cell_changes": cc,
+src/wlengine/headless.py:1005:         })
+src/wlengine/headless.py:1006:         try:
+src/wlengine/headless.py:1007:             (dd / "LABSTATE.BIN").write_bytes(blob)
+src/wlengine/headless.py:1008:         except OSError:
+src/wlengine/headless.py:1009:             pass
+src/wlengine/headless.py:1010:         # GAME1 savegame block (LR-55)
+src/wlengine/headless.py:1011:         try:
+src/wlengine/headless.py:1012:             block = self.build_savegame_payload()
+src/wlengine/headless.py:1013:             path = dd / "GAME1"
+src/wlengine/headless.py:1014:             data = bytearray(path.read_bytes())
+src/wlengine/headless.py:1015:             off = self.sc.tables["savegameOffsets"][0]
+src/wlengine/headless.py:1016:             data[off:off + len(block)] = block
+src/wlengine/headless.py:1017:             path.write_bytes(bytes(data))
+src/wlengine/headless.py:1018:         except Exception:  # noqa: BLE001
+src/wlengine/headless.py:1019:             pass
+---
+src/wlengine/headless.py:1020: 
+src/wlengine/headless.py:1021:     def build_savegame_payload(self):
+src/wlengine/headless.py:1022:         order = [m.get("slot", i + 1) for i, m in enumerate(self.party)]
+src/wlengine/headless.py:1023:         order = order + [0] * (7 - len(order))
+src/wlengine/headless.py:1024:         chars = [self.character_dict(m) for m in self.party]
+src/wlengine/headless.py:1025:         sg = {
+src/wlengine/headless.py:1026:             "groups": [{
+src/wlengine/headless.py:1027:                 "order": order[:7], "x": self.x, "y": self.y, "map": self.location,
+---
+src/wlengine/headless.py:1028:                 "prevX": self.prev_x, "prevY": self.prev_y, "prevMap": self.prev_location,
+src/wlengine/headless.py:1029:             }],
+src/wlengine/headless.py:1030:             "viewportX": self.x, "viewportY": self.y,
+src/wlengine/headless.py:1031:             "currentMembers": len(self.party), "currentParty": 0,
+---
+src/wlengine/headless.py:1059:         dd = Path(self.data_dir)
+src/wlengine/headless.py:1060:         ls_path = dd / "LABSTATE.BIN"
+src/wlengine/headless.py:1061:         if ls_path.is_file():
+src/wlengine/headless.py:1062:             st = labstate.decode_labstate(ls_path.read_bytes())
+src/wlengine/headless.py:1063:             self.steps = st.get("steps", self.steps)
+src/wlengine/headless.py:1064:             self.day = st.get("day", self.day)
+src/wlengine/headless.py:1065:             if self.rng is not None:
+src/wlengine/headless.py:1066:                 self.rng.state = st.get("rng_state", self.rng.state)
+src/wlengine/headless.py:1067:             self.cell_changes = [tuple(c) for c in st.get("cell_changes", [])]
+src/wlengine/headless.py:1068:         try:
+src/wlengine/headless.py:1069:             data = (dd / "GAME1").read_bytes()
+src/wlengine/headless.py:1070:             off = self.sc.tables["savegameOffsets"][0]
+src/wlengine/headless.py:1071:             sg = containers.decode_savegame(data, off)
+src/wlengine/headless.py:1072:             g = sg["groups"][0]
+src/wlengine/headless.py:1073:             self.x = g["x"]
+src/wlengine/headless.py:1074:             self.y = g["y"]
+src/wlengine/headless.py:1075:             self.location = g["map"]
+src/wlengine/headless.py:1076:             self.prev_x = g["prevX"]
+src/wlengine/headless.py:1077:             self.prev_y = g["prevY"]
+src/wlengine/headless.py:1078:             self.prev_location = g["prevMap"]
+src/wlengine/headless.py:1079:             self.minute = sg["minute"]
+src/wlengine/headless.py:1080:             self.hour = sg["hour"]
+src/wlengine/headless.py:1081:             self.serial = sg["serial"]
+src/wlengine/headless.py:1082:             self.restore_party(sg)
+src/wlengine/headless.py:1083:         except Exception:  # noqa: BLE001
+src/wlengine/headless.py:1084:             pass
+src/wlengine/headless.py:1085:         self.emit("load", serial=self.serial)
+src/wlengine/headless.py:1086: 
+src/wlengine/headless.py:1087:     def restore_party(self, sg):
+src/wlengine/headless.py:1088:         order = sg["groups"][0]["order"]
+src/wlengine/headless.py:1089:         chars = sg["characters"]
+src/wlengine/headless.py:1090:         party = []
+src/wlengine/headless.py:1091:         for slot in order:
+src/wlengine/headless.py:1092:             if not slot:
+---
+=== reference events 430..480 ===
+425: {"seq": 425, "type": "input", "key": "RIGHT"}
+426: {"seq": 426, "type": "move", "location": 2, "x": 21, "y": 7, "steps": 139}
+427: {"seq": 427, "type": "input", "key": "RIGHT"}
+428: {"seq": 428, "type": "move", "location": 2, "x": 22, "y": 7, "steps": 140}
+429: {"seq": 429, "type": "input", "key": "RIGHT"}
+430: {"seq": 430, "type": "move", "location": 2, "x": 23, "y": 7, "steps": 141}
+431: {"seq": 431, "type": "input", "key": "UP"}
+432: {"seq": 432, "type": "move", "location": 2, "x": 23, "y": 6, "steps": 142}
+433: {"seq": 433, "type": "input", "key": "UP"}
+434: {"seq": 434, "type": "move", "location": 2, "x": 23, "y": 5, "steps": 143}
+435: {"seq": 435, "type": "input", "key": "RIGHT"}
+436: {"seq": 436, "type": "move", "location": 2, "x": 24, "y": 5, "steps": 144}
+437: {"seq": 437, "type": "input", "key": "RIGHT"}
+438: {"seq": 438, "type": "move", "location": 2, "x": 25, "y": 5, "steps": 145}
+439: {"seq": 439, "type": "message", "location": 2, "string": 6}
+440: {"seq": 440, "type": "shop_open", "shop": 2}
+441: {"seq": 441, "type": "input", "key": "B"}
+442: {"seq": 442, "type": "prompt", "prompt": "buy_item", "items": [2, 7, 8, 9, 10]}
+443: {"seq": 443, "type": "input", "key": "c"}
+444: {"seq": 444, "type": "prompt", "prompt": "member"}
+445: {"seq": 445, "type": "input", "key": "1"}
+446: {"seq": 446, "type": "money", "member": 1, "delta": -104, "total": 91}
+447: {"seq": 447, "type": "buy", "member": 1, "item": 8, "price": 104, "slot": 4, "status": 0}
+448: {"seq": 448, "type": "input", "key": "X"}
+449: {"seq": 449, "type": "shop_close"}
+450: {"seq": 450, "type": "input", "key": "C"}
+451: {"seq": 451, "type": "prompt", "prompt": "member"}
+452: {"seq": 452, "type": "input", "key": "1"}
+453: {"seq": 453, "type": "char_open", "member": 1}
+454: {"seq": 454, "type": "input", "key": "E"}
+455: {"seq": 455, "type": "prompt", "prompt": "item_slot"}
+456: {"seq": 456, "type": "input", "key": "d"}
+457: {"seq": 457, "type": "equip", "member": 1, "slot": 4, "item": 8, "ac": 5}
+458: {"seq": 458, "type": "input", "key": "X"}
+459: {"seq": 459, "type": "char_close"}
+460: {"seq": 460, "type": "checkpoint", "name": "CP5-pre-save", "state": {"location": 2, "x": 25, "y": 5, "steps": 145, "day": 1, "hour": 17, "minute": 28, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "max_hp": 28, "hp": 28, "cond": 0, "money": 91, "ac": 5, "rank": "Hand
+461: {"seq": 461, "type": "input", "key": "S"}
+462: {"seq": 462, "type": "save", "serial": 1}
+463: {"seq": 463, "type": "input", "key": "O"}
+464: {"seq": 464, "type": "prompt", "prompt": "load"}
+465: {"seq": 465, "type": "input", "key": "Y"}
+466: {"seq": 466, "type": "load", "serial": 1}
+467: {"seq": 467, "type": "checkpoint", "name": "CP5", "state": {"location": 2, "x": 25, "y": 5, "steps": 145, "day": 1, "hour": 17, "minute": 28, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "max_hp": 28, "hp": 28, "cond": 0, "money": 91, "ac": 5, "rank": "Hand", "skill
+468: {"seq": 468, "type": "input", "key": "LEFT"}
+469: {"seq": 469, "type": "move", "location": 2, "x": 24, "y": 5, "steps": 146}
+470: {"seq": 470, "type": "input", "key": "LEFT"}
+471: {"seq": 471, "type": "move", "location": 2, "x": 23, "y": 5, "steps": 147}
+472: {"seq": 472, "type": "input", "key": "DOWN"}
+473: {"seq": 473, "type": "move", "location": 2, "x": 23, "y": 6, "steps": 148}
+474: {"seq": 474, "type": "input", "key": "DOWN"}
+475: {"seq": 475, "type": "move", "location": 2, "x": 23, "y": 7, "steps": 149}
+476: {"seq": 476, "type": "input", "key": "DOWN"}
+477: {"seq": 477, "type": "move", "location": 2, "x": 23, "y": 8, "steps": 150}
+478: {"seq": 478, "type": "input", "key": "DOWN"}
+479: {"seq": 479, "type": "move", "location": 2, "x": 23, "y": 9, "steps": 151}
+480: {"seq": 480, "type": "input", "key": "LEFT"}
+=== reference events 120..140 (first cell change) ===
+120: {"seq": 120, "type": "input", "key": "DOWN"}
+121: {"seq": 121, "type": "move", "location": 1, "x": 7, "y": 17, "steps": 37}
+122: {"seq": 122, "type": "input", "key": "DOWN"}
+123: {"seq": 123, "type": "move", "location": 1, "x": 7, "y": 18, "steps": 38}
+124: {"seq": 124, "type": "input", "key": "RIGHT"}
+125: {"seq": 125, "type": "move", "location": 1, "x": 8, "y": 18, "steps": 39}
+126: {"seq": 126, "type": "input", "key": "UP"}
+127: {"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+128: {"seq": 128, "type": "paragraph", "n": 6}
+129: {"seq": 129, "type": "prompt", "prompt": "recruit"}
+130: {"seq": 130, "type": "input", "key": "Y"}
+131: {"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+132: {"seq": 132, "type": "recruit", "location": 1, "npc": 0, "slot": 5}
+133: {"seq": 133, "type": "checkpoint", "name": "CP3", "state": {"location": 1, "x": 8, "y": 18, "steps": 39, "day": 1, "hour": 8, "minute": 39, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "con
+134: {"seq": 134, "type": "input", "key": "RIGHT"}
+135: {"seq": 135, "type": "move", "location": 1, "x": 9, "y": 18, "steps": 40}
+136: {"seq": 136, "type": "input", "key": "RIGHT"}
+137: {"seq": 137, "type": "move", "location": 1, "x": 10, "y": 18, "steps": 41}
+138: {"seq": 138, "type": "input", "key": "RIGHT"}
+139: {"seq": 139, "type": "move", "location": 1, "x": 11, "y": 18, "steps": 42}
+140: {"seq": 140, "type": "input", "key": "RIGHT"}

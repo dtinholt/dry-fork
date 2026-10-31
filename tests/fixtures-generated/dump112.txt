@@ -1,0 +1,2444 @@
+SCENARIO DIR /Users/dtinholt/wasteland-build/project/SPEC/scenario
+files: ['encounters.json', 'hooks.json', 'items.json', 'map0-overworld.json', 'map1-saltwell.json', 'map2-ninemile.json', 'map3-pumphouse.json', 'npcs.json', 'paragraphs.json', 'party.json', 'portraits.json', 'rng-vectors.json', 'scenario.json', 'shops.json', 'skills.json', 'strings.json', 'tiles.json', 'walkthrough-reference-log.json', 'walkthrough.json']
+=== hooks.json ===
+{
+  "note": "Lab cell hooks (SPEC-04 section 6). Each hook sits on a class 11 cell or on a class 4 cell whose record is impassable, and runs after the SPEC-03 bump effect of that cell.",
+  "hooks": [
+    {
+      "kind": "lock",
+      "location": 2,
+      "x": 26,
+      "y": 14,
+      "skill": 14,
+      "difficulty": 30,
+      "key_item": 0,
+      "tool_item": 0,
+      "success_message": 8,
+      "fail_message": 9,
+      "remote": null,
+      "note": "Lock: storehouse door, Tumblers 30"
+    },
+    {
+      "kind": "lock",
+      "location": 0,
+      "x": 31,
+      "y": 55,
+      "skill": 17,
+      "difficulty": 25,
+      "key_item": 0,
+      "tool_item": 0,
+      "success_message": 11,
+      "fail_message": 12,
+      "remote": null,
+      "note": "Lock: ford, Fording 25"
+    },
+    {
+      "kind": "lock",
+      "location": 3,
+      "x": 26,
+      "y": 11,
+      "skill": 29,
+      "difficulty": 30,
+      "key_item": 0,
+      "tool_item": 0,
+      "success_message": 8,
+      "fail_message": 9,
+      "remote": {
+        "x": 14,
+        "y": 12,
+        "new_class": 4,
+        "new_action": 1
+      },
+      "note": "Lock: console, Terminals 30; opens the cage gate (14,12)"
+    },
+    {
+      "kind": "lock",
+      "location": 3,
+      "x": 16,
+      "y": 6,
+      "skill": 23,
+      "difficulty": 60,
+      "key_item": 11,
+      "tool_item": 0,
+      "success_message": 11,
+      "fail_message": 12,
+      "remote": null,
+      "note": "Lock: vault gate, key Gate card or Circuitry 60"
+    },
+    {
+      "kind": "lock",
+      "location": 3,
+      "x": 4,
+      "y": 20,
+      "skill": 16,
+      "difficulty": 35,
+      "key_item": 0,
+      "tool_item": 10,
+      "success_message": 14,
+      "fail_message": 15,
+      "remote": null,
+      "note": "Lock: rubble, Scaling 35, tool Rope coil"
+    },
+    {
+      "kind": "recruit",
+      "location": 1,
+      "x": 8,
+      "y": 17,
+      "npc": 0,
+      "min_leader_cha": 0,
+      "refuse_message": 7,
+      "cleared_image": 28,
+      "note": "NPC 0 of Saltwell: Orla Penn"
+    },
+    {
+      "kind": "recruit",
+      "location": 2,
+      "x": 18,
+      "y": 17,
+      "npc": 0,
+      "min_leader_cha": 10,
+      "refuse_message": 11,
+      "cleared_image": 28,
+      "note": "NPC 0 of Ninemile: Teodor Lusk"
+    },
+    {
+      "kind": "recruit",
+      "location": 2,
+      "x": 20,
+      "y": 4,
+      "npc": 1,
+      "min_leader_cha": 17,
+      "refuse_message": 13,
+      "cleared_image": 27,
+      "note": "NPC 1 of Ninemile: Wren Abara (leader CHA 17)"
+    },
+    {
+      "kind": "recruit",
+      "location": 3,
+      "x": 14,
+      "y": 14,
+      "npc": 0,
+      "min_leader_cha": 0,
+      "refuse_message": 17,
+      "cleared_image": 37,
+      "note": "NPC 0 of Pumphouse Deep: Sallow Kett"
+    },
+    {
+      "kind": "healer",
+      "location": 1,
+      "x": 22,
+      "y": 4,
+      "price": 30,
+      "note": "Saltwell healer, 30 coins"
+    },
+    {
+      "kind": "healer",
+      "location": 2,
+      "x": 25,
+      "y": 21,
+      "price": 40,
+      "note": "Ninemile healer, 40 coins"
+    },
+    {
+      "kind": "win",
+      "location": 1,
+      "x": 15,
+      "y": 11,
+      "item": 12,
+      "win_paragraph": 24,
+      "not_yet_paragraph": 4,
+      "note": "Fit the Governor valve"
+    }
+  ]
+}
+
+=== skills.json ===
+{
+  "note": "Entry 0 of the 36-entry table is a dummy (SPEC-02 section 3.3); skills use ids 1 to 35.",
+  "entry0": {
+    "id": 0,
+    "iq_req": 0,
+    "cost": 0,
+    "attr_offset": 0
+  },
+  "skills": [
+    {
+      "id": 1,
+      "name": "Bludgeon",
+      "iq_req": 3,
+      "attr": "STR",
+      "cost": 1,
+      "kind": "weapon",
+      "effect": "To-hit level for items whose skill byte is 1 (clubs, bars).",
+      "attr_offset": 14,
+      "labskill_bytes": [25, 14]
+    },
+    {
+      "id": 2,
+      "name": "Edged arms",
+      "iq_req": 3,
+      "attr": "AGL",
+      "cost": 1,
+      "kind": "weapon",
+      "effect": "To-hit level for items whose skill byte is 2 (knives, hatchets).",
+      "attr_offset": 18,
+      "labskill_bytes": [25, 18]
+    },
+    {
+      "id": 3,
+      "name": "Grappling",
+      "iq_req": 3,
+      "attr": "STR",
+      "cost": 1,
+      "kind": "weapon",
+      "effect": "To-hit level when no weapon is equipped; unarmed attacks per action = 1 + floor(level / 2).",
+      "attr_offset": 14,
+      "labskill_bytes": [25, 14]
+    },
+    {
+      "id": 4,
+      "name": "Handgun",
+      "iq_req": 5,
+      "attr": "AGL",
+      "cost": 1,
+      "kind": "weapon",
+      "effect": "To-hit level for items whose skill byte is 4 (pistols).",
+      "attr_offset": 18,
+      "labskill_bytes": [41, 18]
+    },
+    {
+      "id": 5,
+      "name": "Longarm",
+      "iq_req": 6,
+      "attr": "AGL",
+      "cost": 1,
+      "kind": "weapon",
+      "effect": "To-hit level for items whose skill byte is 5 (rifles).",
+      "attr_offset": 18,
+      "labskill_bytes": [49, 18]
+    },
+    {
+      "id": 6,
+      "name": "Spreadgun",
+      "iq_req": 6,
+      "attr": "AGL",
+      "cost": 1,
+      "kind": "weapon",
+      "effect": "To-hit level for items whose skill byte is 6 (shotguns). No such item in Dry Fork.",
+      "attr_offset": 18,
+      "labskill_bytes": [49, 18]
+    },
+    {
+      "id": 7,
+      "name": "Autofire",
+      "iq_req": 9,
+      "attr": "AGL",
+      "cost": 2,
+      "kind": "weapon",
+      "effect": "To-hit level for items whose skill byte is 7 (burst weapons). No such item in Dry Fork.",
+      "attr_offset": 18,
+      "labskill_bytes": [74, 18]
+    },
+    {
+      "id": 8,
+      "name": "Hurling",
+      "iq_req": 4,
+      "attr": "AGL",
+      "cost": 1,
+      "kind": "weapon",
+      "effect": "To-hit level for items whose skill byte is 8 (thrown). No such item in Dry Fork.",
+      "attr_offset": 18,
+      "labskill_bytes": [33, 18]
+    },
+    {
+      "id": 9,
+      "name": "Tube launcher",
+      "iq_req": 10,
+      "attr": "AGL",
+      "cost": 2,
+      "kind": "weapon",
+      "effect": "To-hit level for items whose skill byte is 9. No such item in Dry Fork.",
+      "attr_offset": 18,
+      "labskill_bytes": [82, 18]
+    },
+    {
+      "id": 10,
+      "name": "Archery",
+      "iq_req": 6,
+      "attr": "AGL",
+      "cost": 1,
+      "kind": "weapon",
+      "effect": "To-hit level for items whose skill byte is 10. No such item in Dry Fork.",
+      "attr_offset": 18,
+      "labskill_bytes": [49, 18]
+    },
+    {
+      "id": 11,
+      "name": "Evasion",
+      "iq_req": 8,
+      "attr": "AGL",
+      "cost": 2,
+      "kind": "combat",
+      "effect": "Adds its level to the member's AC.",
+      "attr_offset": 18,
+      "labskill_bytes": [66, 18]
+    },
+    {
+      "id": 12,
+      "name": "First aid",
+      "iq_req": 10,
+      "attr": "IQ",
+      "cost": 1,
+      "kind": "use",
+      "effect": "When the member uses a medical item, the heal adds 2 x level.",
+      "attr_offset": 15,
+      "labskill_bytes": [81, 15]
+    },
+    {
+      "id": 13,
+      "name": "Bonesetting",
+      "iq_req": 14,
+      "attr": "IQ",
+      "cost": 2,
+      "kind": "use",
+      "effect": "Use on an unconscious member: skill check, difficulty 20; success sets the target to 1 HP and conscious.",
+      "attr_offset": 15,
+      "labskill_bytes": [114, 15]
+    },
+    {
+      "id": 14,
+      "name": "Tumblers",
+      "iq_req": 9,
+      "attr": "AGL",
+      "cost": 1,
+      "kind": "barrier",
+      "effect": "Named by barrier checks (locks).",
+      "attr_offset": 18,
+      "labskill_bytes": [73, 18]
+    },
+    {
+      "id": 15,
+      "name": "Strongbox",
+      "iq_req": 12,
+      "attr": "IQ",
+      "cost": 2,
+      "kind": "barrier",
+      "effect": "Named by barrier checks (safes).",
+      "attr_offset": 15,
+      "labskill_bytes": [98, 15]
+    },
+    {
+      "id": 16,
+      "name": "Scaling",
+      "iq_req": 3,
+      "attr": "STR",
+      "cost": 1,
+      "kind": "barrier",
+      "effect": "Named by barrier checks (cliffs, walls).",
+      "attr_offset": 14,
+      "labskill_bytes": [25, 14]
+    },
+    {
+      "id": 17,
+      "name": "Fording",
+      "iq_req": 3,
+      "attr": "STR",
+      "cost": 1,
+      "kind": "barrier",
+      "effect": "Named by barrier checks (water).",
+      "attr_offset": 14,
+      "labskill_bytes": [25, 14]
+    },
+    {
+      "id": 18,
+      "name": "Lookout",
+      "iq_req": 8,
+      "attr": "IQ",
+      "cost": 1,
+      "kind": "party",
+      "effect": "Surprise check at encounter start uses the best Lookout in the party.",
+      "attr_offset": 15,
+      "labskill_bytes": [65, 15]
+    },
+    {
+      "id": 19,
+      "name": "Trailcraft",
+      "iq_req": 8,
+      "attr": "IQ",
+      "cost": 1,
+      "kind": "party",
+      "effect": "Random encounter chance on map 0 falls by 5 per level of the best member.",
+      "attr_offset": 15,
+      "labskill_bytes": [65, 15]
+    },
+    {
+      "id": 20,
+      "name": "Haggling",
+      "iq_req": 7,
+      "attr": "CHA",
+      "cost": 1,
+      "kind": "party",
+      "effect": "Buy and sell prices use the best Haggling in the party.",
+      "attr_offset": 20,
+      "labskill_bytes": [57, 20]
+    },
+    {
+      "id": 21,
+      "name": "Smooth talk",
+      "iq_req": 9,
+      "attr": "CHA",
+      "cost": 1,
+      "kind": "party",
+      "effect": "Lowers an NPC's leader-CHA requirement by 2 per level of the slot-1 member.",
+      "attr_offset": 20,
+      "labskill_bytes": [7
+=== party.json ===
+{
+  "note": "Premade party, savegame slots 1 to 4. weapon_slot and armour_slot are 1-based item slots, 0 = none (SPEC-02 section 4.4). DEX is written as 0.",
+  "party": [
+    {
+      "name": "Hessa Brand",
+      "gender": 1,
+      "nationality": 0,
+      "attrs": {
+        "STR": 14,
+        "IQ": 13,
+        "LCK": 11,
+        "SPD": 12,
+        "AGL": 14,
+        "CHA": 15
+      },
+      "money": 120,
+      "skills": [
+        [4, 2],
+        [20, 1],
+        [21, 1],
+        [18, 1]
+      ],
+      "items": [
+        [3, 6],
+        [4, 2],
+        [7, 0]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "xp": 90,
+      "level": 1,
+      "portrait": 0
+    },
+    {
+      "name": "Tobin Ash",
+      "gender": 0,
+      "nationality": 1,
+      "attrs": {
+        "STR": 16,
+        "IQ": 10,
+        "LCK": 12,
+        "SPD": 11,
+        "AGL": 12,
+        "CHA": 9
+      },
+      "money": 60,
+      "skills": [
+        [5, 2],
+        [1, 1],
+        [17, 1],
+        [3, 1]
+      ],
+      "items": [
+        [5, 8],
+        [6, 1],
+        [1, 0]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "xp": 90,
+      "level": 1,
+      "portrait": 0
+    },
+    {
+      "name": "Maro Quill",
+      "gender": 0,
+      "nationality": 0,
+      "attrs": {
+        "STR": 11,
+        "IQ": 16,
+        "LCK": 13,
+        "SPD": 13,
+        "AGL": 15,
+        "CHA": 10
+      },
+      "money": 80,
+      "skills": [
+        [14, 2],
+        [23, 1],
+        [22, 1],
+        [4, 1],
+        [12, 1]
+      ],
+      "items": [
+        [3, 6],
+        [4, 1]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "xp": 90,
+      "level": 1,
+      "portrait": 0
+    },
+    {
+      "name": "Dell Ostrow",
+      "gender": 1,
+      "nationality": 2,
+      "attrs": {
+        "STR": 12,
+        "IQ": 15,
+        "LCK": 12,
+        "SPD": 12,
+        "AGL": 13,
+        "CHA": 12
+      },
+      "money": 70,
+      "skills": [
+        [12, 2],
+        [13, 1],
+        [4, 1],
+        [29, 1],
+        [18, 1]
+      ],
+      "items": [
+        [3, 6],
+        [4, 1],
+        [9, 3]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "xp": 90,
+      "level": 1,
+      "portrait": 0
+    }
+  ]
+}
+
+=== items.json ===
+{
+  "record": "item id N = record N - 1 of every shop list; records 12 to 93 are eight zero bytes",
+  "type_byte": "itemType = byte >> 3 (lab: 1 melee, 2 ranged, 3 ammo, 4 armour, 5 medical, 6 tool, 7 quest, 8 burst); lowFlags = 0",
+  "damage_byte": "melee, ranged, burst, medical: high nibble = dice count, low nibble = die sides; armour: AC bonus",
+  "items": [
+    {
+      "id": 1,
+      "name": "Pipe club",
+      "price": 15,
+      "class": "melee",
+      "type_byte": 8,
+      "capacity": 0,
+      "skill": 1,
+      "damage": 22,
+      "ammo": 0,
+      "description": "A length of iron pipe with tape wound round one end."
+    },
+    {
+      "id": 2,
+      "name": "Hook knife",
+      "price": 12,
+      "class": "melee",
+      "type_byte": 8,
+      "capacity": 0,
+      "skill": 2,
+      "damage": 20,
+      "ammo": 0,
+      "description": "A short curved blade for cutting rope and hide."
+    },
+    {
+      "id": 3,
+      "name": "Ranch pistol",
+      "price": 60,
+      "class": "ranged",
+      "type_byte": 16,
+      "capacity": 6,
+      "skill": 4,
+      "damage": 24,
+      "ammo": 4,
+      "description": "A revolver that holds six rounds."
+    },
+    {
+      "id": 4,
+      "name": "Pistol rounds",
+      "price": 8,
+      "class": "ammo",
+      "type_byte": 24,
+      "capacity": 6,
+      "skill": 0,
+      "damage": 0,
+      "ammo": 0,
+      "description": "One box of six pistol rounds. One box fills the pistol once."
+    },
+    {
+      "id": 5,
+      "name": "Lever rifle",
+      "price": 140,
+      "class": "ranged",
+      "type_byte": 16,
+      "capacity": 8,
+      "skill": 5,
+      "damage": 38,
+      "ammo": 6,
+      "description": "A lever-action rifle that holds eight rounds."
+    },
+    {
+      "id": 6,
+      "name": "Rifle rounds",
+      "price": 14,
+      "class": "ammo",
+      "type_byte": 24,
+      "capacity": 8,
+      "skill": 0,
+      "damage": 0,
+      "ammo": 0,
+      "description": "One box of eight rifle rounds. One box fills the rifle once."
+    },
+    {
+      "id": 7,
+      "name": "Hide vest",
+      "price": 30,
+      "class": "armour",
+      "type_byte": 32,
+      "capacity": 0,
+      "skill": 0,
+      "damage": 1,
+      "ammo": 0,
+      "description": "Stitched goat hide over a canvas lining. AC 1."
+    },
+    {
+      "id": 8,
+      "name": "Plate jacket",
+      "price": 110,
+      "class": "armour",
+      "type_byte": 32,
+      "capacity": 0,
+      "skill": 0,
+      "damage": 3,
+      "ammo": 0,
+      "description": "Canvas jacket with flattened can lids sewn in rows. AC 3."
+    },
+    {
+      "id": 9,
+      "name": "Field kit",
+      "price": 25,
+      "class": "medical",
+      "type_byte": 40,
+      "capacity": 3,
+      "skill": 12,
+      "damage": 36,
+      "ammo": 0,
+      "description": "Bandages, splints and a bottle of spirit. Three uses, heals 2d4."
+    },
+    {
+      "id": 10,
+      "name": "Rope coil",
+      "price": 10,
+      "class": "tool",
+      "type_byte": 48,
+      "capacity": 0,
+      "skill": 16,
+      "damage": 0,
+      "ammo": 0,
+      "description": "Fifty feet of braided rope. Adds 20 to Scaling checks for the member who carries it."
+    },
+    {
+      "id": 11,
+      "name": "Gate card",
+      "price": 0,
+      "class": "quest",
+      "type_byte": 56,
+      "capacity": 0,
+      "skill": 0,
+      "damage": 0,
+      "ammo": 0,
+      "description": "A punched steel card stamped with the pumping company's mark."
+    },
+    {
+      "id": 12,
+      "name": "Governor valve",
+      "price": 0,
+      "class": "quest",
+      "type_byte": 56,
+      "capacity": 0,
+      "skill": 0,
+      "damage": 0,
+      "ammo": 0,
+      "description": "A brass valve the size of a fist, its spindle still greased."
+    }
+  ]
+}
+
+=== walkthrough.json ===
+{
+  "seed": 20261021,
+  "start": "new game: party.json at scenario.json start",
+  "token_rules": {
+    "key": "UP, DOWN, LEFT, RIGHT, ESC, or one printable character",
+    "repeat_until": "test the condition; while false, send 'keys' in order and test again; fail the run after 'max' rounds",
+    "conditions": "mode:NAME is true when the engine mode is NAME; cell:L,X,Y is true when cell (X,Y) of location L has a cell change",
+    "checkpoint": "emit a checkpoint event carrying the state snapshot; consumes no input"
+  },
+  "summary": {
+    "steps_to_win": 358,
+    "tokens": 414,
+    "direction_tokens": 363,
+    "checkpoints": 10,
+    "auxiliary_checkpoints": 1,
+    "seeds_checked": "5000 seeds (1 to 5000) replayed by the lab reference: all 10 checkpoints match 'expected', no member ever falls"
+  },
+  "expected_rule": "Every field under 'expected' must match exactly for any seed. items_excluding_ammo is sorted; 'hp' and 'items' (slot order, with status bytes) appear only where the lab reference found them independent of the random stream over seeds 1 to 300. CP5 must equal CP5-pre-save in every snapshot field, generator state included. 'reference_seeded' holds the lab reference values for seed 20261021; an independent clean-room implementation built from SPEC-03, SPEC-04 and SPEC-06 alone reproduced it exactly on 21 Oct 2026; SPEC-07 decides whether to assert it.",
+  "script": [
+    {
+      "checkpoint": "CP1"
+    },
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "B",
+    "c",
+    "3",
+    "B",
+    "c",
+    "4",
+    "S",
+    "2",
+    "c",
+    "B",
+    "d",
+    "2",
+    "X",
+    "C",
+    "2",
+    "E",
+    "c",
+    "X",
+    {
+      "checkpoint": "CP2"
+    },
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "UP",
+    "Y",
+    {
+      "checkpoint": "CP3"
+    },
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    {
+      "repeat_until": "mode:map",
+      "keys": ["A"],
+      "max": 30
+    },
+    {
+      "checkpoint": "CP4"
+    },
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "B",
+    "d",
+    "2",
+    "X",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "B",
+    "c",
+    "1",
+    "X",
+    "C",
+    "1",
+    "E",
+    "d",
+    "X",
+    {
+      "checkpoint": "CP5-pre-save"
+    },
+    "S",
+    "O",
+    "Y",
+    {
+      "checkpoint": "CP5"
+    },
+    "LEFT",
+    "LEFT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "LEFT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    {
+      "repeat_until": "cell:2,26,14",
+      "keys": ["UP"],
+      "max": 40
+    },
+    "UP",
+    "UP",
+    "UP",
+    {
+      "checkpoint": "CP6"
+    },
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "DOWN",
+    "Y",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "UP",
+    "Y",
+    {
+      "checkpoint": "CP7"
+    },
+    "DOWN",
+    "DOWN",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "DOWN",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    {
+      "repeat_until": "mode:map",
+      "keys": ["A"],
+      "max": 30
+    },
+    {
+      "checkpoint": "CP8"
+    },
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    {
+      "checkpoint": "CP9"
+    },
+    "DOWN",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "DOWN",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    
+=== shops.json ===
+{
+  "stock_byte": "0 not sold here; 1 to 255 sold here, never decremented in v1",
+  "note": "Shop lists are numbered from 0 (SPEC-02 L-SH3). Every list carries the same 12 item records; only the stock byte differs.",
+  "shops": [
+    {
+      "number": 0,
+      "name": "Saltwell Dry Goods",
+      "stock": {
+        "1": 255,
+        "3": 4,
+        "4": 255,
+        "7": 3,
+        "9": 255,
+        "10": 255
+      }
+    },
+    {
+      "number": 1,
+      "name": "Ninemile Gunsmith",
+      "stock": {
+        "3": 2,
+        "4": 255,
+        "5": 2,
+        "6": 255
+      }
+    },
+    {
+      "number": 2,
+      "name": "Ninemile Outfitter",
+      "stock": {
+        "2": 255,
+        "7": 255,
+        "8": 2,
+        "9": 255,
+        "10": 255
+      }
+    }
+  ]
+}
+
+=== encounters.json ===
+{
+  "note": "Derived index of the six encounter types. The map files are authoritative.",
+  "derived_monster_values": "hp = floor(sturdiness / 4) + rnd(sturdiness) for sturdiness < 256; xp = sturdiness x (armor_class + 1); to-hit base = 20 + 5 x combat_rating; speed = combat_rating; ranged when weapon_type >= 3",
+  "monsters": [
+    {
+      "armor_class": 0,
+      "combat_rating": 2,
+      "fixed_damage": 0,
+      "max_group": 2,
+      "name": "stray dog",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 4,
+      "type": 1,
+      "weapon_type": 1
+    },
+    {
+      "armor_class": 0,
+      "combat_rating": 8,
+      "fixed_damage": 0,
+      "max_group": 6,
+      "name": "dust hound",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 8,
+      "type": 1,
+      "weapon_type": 1
+    },
+    {
+      "armor_class": 1,
+      "combat_rating": 6,
+      "fixed_damage": 0,
+      "max_group": 4,
+      "name": "raider",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 12,
+      "type": 3,
+      "weapon_type": 3
+    },
+    {
+      "armor_class": 1,
+      "combat_rating": 6,
+      "fixed_damage": 1,
+      "max_group": 4,
+      "name": "scavenger",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 12,
+      "type": 3,
+      "weapon_type": 2
+    },
+    {
+      "armor_class": 1,
+      "combat_rating": 7,
+      "fixed_damage": 0,
+      "max_group": 6,
+      "name": "pump crawler",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 14,
+      "type": 2,
+      "weapon_type": 1
+    },
+    {
+      "armor_class": 2,
+      "combat_rating": 7,
+      "fixed_damage": 1,
+      "max_group": 3,
+      "name": "scrap drone",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 10,
+      "type": 5,
+      "weapon_type": 4
+    },
+    {
+      "armor_class": 3,
+      "combat_rating": 5,
+      "fixed_damage": 1,
+      "max_group": 3,
+      "name": "glass beetle",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 16,
+      "type": 1,
+      "weapon_type": 1
+    }
+  ],
+  "encounters": [
+    {
+      "location": 0,
+      "x": 30,
+      "y": 41,
+      "slot": 1,
+      "note": "Encounter 1: road raiders, 3 raiders; then loot 75 coins",
+      "groups": [
+        ["raider", false, 3]
+      ],
+      "tail": [5, 1]
+    },
+    {
+      "location": 0,
+      "x": 18,
+      "y": 12,
+      "slot": 2,
+      "note": "Encounter 2: dust hounds, rnd(4)",
+      "groups": [
+        ["dust hound", true, 4]
+      ],
+      "tail": [0, 0]
+    },
+    {
+      "location": 0,
+      "x": 52,
+      "y": 35,
+      "slot": 3,
+      "note": "Encounter 3: glass beetles, 2",
+      "groups": [
+        ["glass beetle", false, 2]
+      ],
+      "tail": [0, 0]
+    },
+    {
+      "location": 0,
+      "x": 22,
+      "y": 22,
+
+=== map0-overworld.json ===
+{
+  "location": 0,
+  "name": "Dry Fork overworld",
+  "width": 64,
+  "height": 64,
+  "tileset": 0,
+  "info": {
+    "encounter_frequency": 0,
+    "tileset": 0,
+    "random_monster_types": 0,
+    "max_random_encounters": 0,
+    "border_image": 18,
+    "time_per_step": 2560,
+    "heal_rate": 0
+  },
+  "conventions": "arrays are [y][x]; tiles hold tile ids (image = id + 10); action_value is the 1-based slot in records[class] (SPEC-03 L-AC2, L-AC3); records[c][i] is slot i + 1",
+  "strings": ["", "Read paragraph 7.", "Read paragraph 9.", "Read paragraph 16.", "Bleached cattle bones lie in a ring around a dry waterhole.", "Wheel ruts from a heavy wagon run off into the scrub and stop.", "Read paragraph 8.", "Dust hounds come loping out of the scrub.", "Glass beetles boil up out of the salt.", "Scavengers rise from the riverbed stones.", "Dark water, too deep to wade without care.", "Read paragraph 17.", "The current pushes you back to the bank.", "", "", ""],
+  "mobs": [
+    {
+      "name": "raider",
+      "plural_suffix": "s",
+      "sturdiness": 12,
+      "combat_rating": 6,
+      "random_damage": 1,
+      "max_group": 4,
+      "armor_class": 1,
+      "fixed_damage": 0,
+      "weapon_type": 3,
+      "type": 3,
+      "portrait": 1
+    },
+    {
+      "name": "dust hound",
+      "plural_suffix": "s",
+      "sturdiness": 8,
+      "combat_rating": 8,
+      "random_damage": 1,
+      "max_group": 6,
+      "armor_class": 0,
+      "fixed_damage": 0,
+      "weapon_type": 1,
+      "type": 1,
+      "portrait": 1
+    },
+    {
+      "name": "glass beetle",
+      "plural_suffix": "s",
+      "sturdiness": 16,
+      "combat_rating": 5,
+      "random_damage": 1,
+      "max_group": 3,
+      "armor_class": 3,
+      "fixed_damage": 1,
+      "weapon_type": 1,
+      "type": 1,
+      "portrait": 1
+    },
+    {
+      "name": "scavenger",
+      "plural_suffix": "s",
+      "sturdiness": 12,
+      "combat_rating": 6,
+      "random_damage": 1,
+      "max_group": 4,
+      "armor_class": 1,
+      "fixed_damage": 1,
+      "weapon_type": 2,
+      "type": 3,
+      "portrait": 1
+    }
+  ],
+  "npcs": [],
+  "records": {
+    "10": [
+      {
+        "relative": false,
+        "confirm": false,
+        "message": 0,
+        "x": 15,
+        "y": 30,
+        "location": 1,
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "relative": false,
+        "confirm": false,
+        "message": 0,
+        "x": 1,
+        "y": 16,
+        "location": 2,
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "relative": false,
+        "confirm": false,
+        "message": 0,
+        "x": 3,
+        "y": 2,
+        "location": 3,
+        "new_class": 255,
+        "new_action": 0
+      }
+    ],
+    "1": [
+      {
+        "messages": [1],
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "messages": [2],
+        "new_class": 0,
+        "new_action": 0
+      },
+      {
+        "messages": [3],
+        "new_class": 255,
+        "new_action":
+=== map1-saltwell.json ===
+{
+  "location": 1,
+  "name": "Saltwell",
+  "width": 32,
+  "height": 32,
+  "tileset": 0,
+  "info": {
+    "encounter_frequency": 0,
+    "tileset": 0,
+    "random_monster_types": 0,
+    "max_random_encounters": 0,
+    "border_image": 35,
+    "time_per_step": 256,
+    "heal_rate": 0
+  },
+  "conventions": "arrays are [y][x]; tiles hold tile ids (image = id + 10); action_value is the 1-based slot in records[class] (SPEC-03 L-AC2, L-AC3); records[c][i] is slot i + 1",
+  "strings": ["", "Read paragraph 2.", "Read paragraph 3.", "Read paragraph 5.", "The trough is green at the edges and nearly empty.", "Saltwell Dry Goods.", "Read paragraph 6.", "Orla shrugs. Some other time, then."],
+  "mobs": [
+    {
+      "name": "stray dog",
+      "plural_suffix": "s",
+      "sturdiness": 4,
+      "combat_rating": 2,
+      "random_damage": 1,
+      "max_group": 2,
+      "armor_class": 0,
+      "fixed_damage": 0,
+      "weapon_type": 1,
+      "type": 1,
+      "portrait": 1
+    }
+  ],
+  "npcs": [
+    {
+      "name": "Orla Penn",
+      "gender": 1,
+      "nationality": 1,
+      "attrs": {
+        "STR": 13,
+        "IQ": 11,
+        "LCK": 14,
+        "SPD": 14,
+        "AGL": 15,
+        "CHA": 11
+      },
+      "money": 25,
+      "skills": [
+        [5, 2],
+        [18, 2],
+        [19, 1]
+      ],
+      "items": [
+        [5, 8],
+        [6, 2]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "xp": 200,
+      "level": 2,
+      "portrait": 1
+    }
+  ],
+  "records": {
+    "10": [
+      {
+        "relative": false,
+        "confirm": false,
+        "message": 0,
+        "x": 10,
+        "y": 41,
+        "location": 0,
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "relative": false,
+        "confirm": false,
+        "message": 0,
+        "x": 10,
+        "y": 41,
+        "location": 0,
+        "new_class": 255,
+        "new_action": 0
+      }
+    ],
+    "1": [
+      {
+        "messages": [1],
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "messages": [2],
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "messages": [3],
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "messages": [4],
+        "new_class": 255,
+        "new_action": 0
+      }
+    ],
+    "6": [
+      {
+        "shop": 0,
+        "message": 5,
+        "new_class": 255,
+        "new_action": 0
+      }
+    ],
+    "11": [
+      {
+        "message": 6,
+        "new_class": 255,
+        "new_action": 0
+      }
+    ]
+  },
+  "action_cells": [
+    {
+      "x": 15,
+      "y": 31,
+      "tile": 18,
+      "class": 10,
+      "action": 1,
+      "note": "Saltwell gate to overworld (10,41)"
+    },
+    {
+      "x": 16,
+      "y": 31,
+      "tile": 18,
+      "class": 10,
+      "action": 2,
+      "note": "Saltwell gate to overworld (10,41)"
+    },
+    {
+      "x": 15,
+      "y": 29,
+      "tile": 18,
+      "class": 1,
+      "action": 1,
+      "note": "Saltwell sign, paragraph 2"
+    },
+    {
+      "x": 6,
+=== map2-ninemile.json ===
+{
+  "location": 2,
+  "name": "Ninemile",
+  "width": 32,
+  "height": 32,
+  "tileset": 0,
+  "info": {
+    "encounter_frequency": 0,
+    "tileset": 0,
+    "random_monster_types": 0,
+    "max_random_encounters": 0,
+    "border_image": 26,
+    "time_per_step": 256,
+    "heal_rate": 0
+  },
+  "conventions": "arrays are [y][x]; tiles hold tile ids (image = id + 10); action_value is the 1-based slot in records[class] (SPEC-03 L-AC2, L-AC3); records[c][i] is slot i + 1",
+  "strings": ["", "Read paragraph 10.", "Read paragraph 11.", "Read paragraph 15.", "A dog asleep in the shade opens one eye and closes it again.", "Ninemile Gunsmith.", "Ninemile Outfitter.", "A padlock hangs from the storehouse hasp.", "Read paragraph 12.", "The padlock holds.", "Read paragraph 13.", "Teodor squints at your leader and goes back to his clock.", "Read paragraph 14.", "Wren looks your leader up and down and laughs.", "", ""],
+  "mobs": [
+    {
+      "name": "stray dog",
+      "plural_suffix": "s",
+      "sturdiness": 4,
+      "combat_rating": 2,
+      "random_damage": 1,
+      "max_group": 2,
+      "armor_class": 0,
+      "fixed_damage": 0,
+      "weapon_type": 1,
+      "type": 1,
+      "portrait": 1
+    }
+  ],
+  "npcs": [
+    {
+      "name": "Teodor Lusk",
+      "gender": 0,
+      "nationality": 0,
+      "attrs": {
+        "STR": 12,
+        "IQ": 15,
+        "LCK": 10,
+        "SPD": 9,
+        "AGL": 11,
+        "CHA": 10
+      },
+      "money": 40,
+      "skills": [
+        [25, 2],
+        [29, 2],
+        [1, 1],
+        [22, 1]
+      ],
+      "items": [
+        [1, 0],
+        [7, 0]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 2,
+      "xp": 150,
+      "level": 2,
+      "portrait": 2
+    },
+    {
+      "name": "Wren Abara",
+      "gender": 1,
+      "nationality": 2,
+      "attrs": {
+        "STR": 10,
+        "IQ": 14,
+        "LCK": 15,
+        "SPD": 15,
+        "AGL": 16,
+        "CHA": 13
+      },
+      "money": 15,
+      "skills": [
+        [4, 2],
+        [27, 2],
+        [26, 1]
+      ],
+      "items": [
+        [3, 6],
+        [4, 2]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "xp": 150,
+      "level": 2,
+      "portrait": 3
+    }
+  ],
+  "records": {
+    "10": [
+      {
+        "relative": false,
+        "confirm": false,
+        "message": 0,
+        "x": 43,
+        "y": 28,
+        "location": 0,
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "relative": false,
+        "confirm": false,
+        "message": 0,
+        "x": 43,
+        "y": 28,
+        "location": 0,
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "relative": false,
+        "confirm": false,
+        "message": 0,
+        "x": 43,
+        "y": 28,
+        "location": 0,
+        "new_class": 255,
+        "new_action": 0
+      }
+    ],
+    "1": [
+      {
+        "messages": [1],
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "messages": [2],
+        "new_class": 255,
+        "new_actio
+=== map3-pumphouse.json ===
+{
+  "location": 3,
+  "name": "Pumphouse Deep",
+  "width": 32,
+  "height": 32,
+  "tileset": 0,
+  "info": {
+    "encounter_frequency": 0,
+    "tileset": 0,
+    "random_monster_types": 0,
+    "max_random_encounters": 0,
+    "border_image": 38,
+    "time_per_step": 512,
+    "heal_rate": 0
+  },
+  "conventions": "arrays are [y][x]; tiles hold tile ids (image = id + 10); action_value is the 1-based slot in records[class] (SPEC-03 L-AC2, L-AC3); records[c][i] is slot i + 1",
+  "strings": ["", "Read paragraph 18.", "Read paragraph 22.", "Old pipes run along this gallery, sweating rust.", "Read paragraph 19.", "Two scrap drones lift off the pipes, whirring.", "The way is shut.", "A console with a dim green screen hums faintly.", "Read paragraph 20.", "The screen fills with symbols and then goes dark again.", "A steel gate with a lock box at its centre.", "Read paragraph 21.", "The lock box clicks and stays shut.", "A heap of rubble chokes the side passage.", "You scramble over the rubble.", "The rubble shifts under your hands and you slide back down.", "Read paragraph 23.", "Sallow shakes his head slowly.", "", ""],
+  "mobs": [
+    {
+      "name": "pump crawler",
+      "plural_suffix": "s",
+      "sturdiness": 14,
+      "combat_rating": 7,
+      "random_damage": 1,
+      "max_group": 6,
+      "armor_class": 1,
+      "fixed_damage": 0,
+      "weapon_type": 1,
+      "type": 2,
+      "portrait": 1
+    },
+    {
+      "name": "scrap drone",
+      "plural_suffix": "s",
+      "sturdiness": 10,
+      "combat_rating": 7,
+      "random_damage": 1,
+      "max_group": 3,
+      "armor_class": 2,
+      "fixed_damage": 1,
+      "weapon_type": 4,
+      "type": 5,
+      "portrait": 1
+    }
+  ],
+  "npcs": [
+    {
+      "name": "Sallow Kett",
+      "gender": 0,
+      "nationality": 1,
+      "attrs": {
+        "STR": 17,
+        "IQ": 9,
+        "LCK": 11,
+        "SPD": 10,
+        "AGL": 11,
+        "CHA": 8
+      },
+      "money": 5,
+      "skills": [
+        [1, 2],
+        [3, 2],
+        [16, 1]
+      ],
+      "items": [
+        [1, 0]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "xp": 120,
+      "level": 1,
+      "portrait": 4
+    }
+  ],
+  "records": {
+    "10": [
+      {
+        "relative": false,
+        "confirm": false,
+        "message": 0,
+        "x": 44,
+        "y": 48,
+        "location": 0,
+        "new_class": 255,
+        "new_action": 0
+      }
+    ],
+    "1": [
+      {
+        "messages": [1],
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "messages": [2],
+        "new_class": 255,
+        "new_action": 0
+      },
+      {
+        "messages": [3],
+        "new_class": 255,
+        "new_action": 0
+      }
+    ],
+    "5": [
+      {
+        "new_class": 0,
+        "new_action": 0,
+        "items": [
+          [9, true, 3]
+        ],
+        "cash": null
+      },
+      {
+        "new_class": 0,
+        "new_action": 0,
+        "items": [
+          [12, true, 0]
+        ],
+        "cash": null
+      },
+      {
+    
+=== npcs.json ===
+{
+  "note": "Derived index of the four recruits. Records live in each map's NPC section.",
+  "npcs": [
+    {
+      "name": "Orla Penn",
+      "location": 1,
+      "x": 8,
+      "y": 17,
+      "npc_index": 0,
+      "min_leader_cha": 0,
+      "portrait": 1
+    },
+    {
+      "name": "Teodor Lusk",
+      "location": 2,
+      "x": 18,
+      "y": 17,
+      "npc_index": 0,
+      "min_leader_cha": 10,
+      "portrait": 2
+    },
+    {
+      "name": "Wren Abara",
+      "location": 2,
+      "x": 20,
+      "y": 4,
+      "npc_index": 1,
+      "min_leader_cha": 17,
+      "portrait": 3
+    },
+    {
+      "name": "Sallow Kett",
+      "location": 3,
+      "x": 14,
+      "y": 14,
+      "npc_index": 0,
+      "min_leader_cha": 0,
+      "portrait": 4
+    }
+  ]
+}
+
+=== paragraphs.json ===
+{
+  "note": "The Dry Fork paragraph book. A PRINT message 'Read paragraph N.' shows entry N (SPEC-03 L-MS2, SPEC-04 section 7).",
+  "paragraphs": [
+    {
+      "n": 1,
+      "words": 83,
+      "text": "Saltwell has one pump and the pump is dying. For three weeks the handle has brought up less water each morning, and now it coughs air by noon. The town council, which is four people and a dog, has pooled what coin it has and hired you. Somewhere east of the wet branch of the Dry Fork stands the old company pumphouse. Its governor valve, if it still exists, would set the Saltwell pump right. Bring it back before the trough goes dry."
+    },
+    {
+      "n": 2,
+      "words": 58,
+      "text": "A board nailed to the fence post reads SALTWELL, POPULATION ENOUGH. Someone has scratched out ENOUGH and written FEWER. Below it, in fresher paint, a second board lists the town rules. No shooting inside the fence. No drinking from the trough before the animals. No credit at the store. The paint on the last rule is the thickest."
+    },
+    {
+      "n": 3,
+      "words": 65,
+      "text": "The dry goods store smells of lamp oil and dust. Shelves run to the ceiling, though most of them hold empty jars kept for the day there is something to put in them. The owner watches you from behind a counter worn pale by elbows. A slate by the door says rounds come six to a box and are sold one box at a time."
+    },
+    {
+      "n": 4,
+      "words": 60,
+      "text": "The pump handle moves with a dry rasp. A thin dribble wets the trough and stops. Underneath the head a gap shows where the governor valve should sit; someone has jammed a carved wooden plug in its place, and the plug is splitting. Nothing here will hold for long without the real part from the pumphouse across the wet branch."
+    },
+    {
+      "n": 5,
+      "words": 55,
+      "text": "A woman with rolled sleeves and a wet cloth over one shoulder looks up from a cot. Bottles stand in rows on a plank shelf, each labelled in a careful hand. She sets bones, stitches cuts and asks for payment up front, because, as she puts it, patients who wake up fixed have short memories."
+    },
+    {
+      "n": 6,
+      "words": 76,
+      "text": "A lean woman leans on a rifle by the well road, watching the gate as if she expects it to move. She says her name is Orla Penn and that she has walked the Dry Fork more times than the riverbed has flooded. She heard about the pump. She will ride with you to the pumphouse and back for a share of whatever the council pays, and she will keep watch at night without being asked."
+    },
+    {
+      "n": 7,
+      "words": 59,
+      "text": "A leaning signpost stands where the track from Saltwell nears the gravel of the old river. One arm points north-east and reads NINEMILE. A second arm, newer, points south-east and reads PUMPHOUSE, CLOSED. A third arm once pointed somewhere else, but only a nail remains. The wind has sanded the letters so thin you read them partly by touch."
+    },
+   
+=== portraits.json ===
+{
+  "size": [96, 84],
+  "bpp": 4,
+  "note": "Raw portrait ids 1 to 4. NPC records and monster records reference them; the curses front end draws none of them.",
+  "portraits": [
+    {
+      "raw_id": 1,
+      "subject": "Orla Penn",
+      "description": "Head and shoulders, three-quarter view facing left. Narrow face, sun-creased eyes, short grey-streaked hair under a flat-brimmed hat pushed back. A rifle sling crosses the right shoulder. Background: a pale sky band over a dark horizon line. Palette: tans, a faded blue scarf, dark brown hat. Animation: the eyes blink every 40 frames; the scarf end lifts in two frames of wind."
+    },
+    {
+      "raw_id": 2,
+      "subject": "Teodor Lusk",
+      "description": "Head and shoulders, facing the viewer. Broad face, heavy black beard, round wire spectacles pushed up on the forehead, grease smear on one cheek. Apron strap over a collarless shirt. Background: a workbench wall with three hanging spanners as dark silhouettes. Palette: dark greys, black, one warm orange highlight on the spectacles. Animation: the spectacles drop onto the nose and back in three frames."
+    },
+    {
+      "raw_id": 3,
+      "subject": "Wren Abara",
+      "description": "Head and shoulders, profile facing right. Close-cropped dark hair, a thin scar along the jaw, one silver ring in the ear, chin slightly raised. Collar of a sand-coloured duster turned up. Background: plain ochre wall with a shadow cast from the left. Palette: deep brown skin tones, ochre, cream, one silver highlight. Animation: the head turns to the viewer over four frames and back."
+    },
+    {
+      "raw_id": 4,
+      "subject": "Sallow Kett",
+      "description": "Head and shoulders, facing the viewer, filling the frame. Large bald head, split lower lip, a broken nose, small eyes under a heavy brow, smiling. A coil of copper wire over one shoulder. Background: steel cage bars in dark grey behind him. Palette: pale skin, copper orange, steel greys. Animation: the smile widens in two frames; the wire coil glints in one frame."
+    }
+  ]
+}
+
+=== rng-vectors.json ===
+{
+  "generator": "xorshift32: x ^= x << 13; x ^= x >> 17; x ^= x << 5 (32-bit); seed 0 becomes 0x6D2B79F5",
+  "roll": "roll(n) = 1 + next() mod n",
+  "rnd": "rnd(0) = 0 and rnd(1) = 1 with no call; rnd(n >= 2) = roll(n)",
+  "dice": "NdS = sum of N calls roll(S), in order",
+  "vectors": [
+    {
+      "seed": 20261021,
+      "state_after_seeding": 20261021,
+      "next_u32": [553487182, 2736026372, 2213040766, 3176989453, 3131645939, 3014744152, 2415432869, 820197491, 2856518437, 2396979446],
+      "roll_100": [83, 73, 67, 54, 40, 53, 70, 92, 38, 47],
+      "dice_2d6": [8, 7, 11, 12, 5],
+      "rnd_of_0_1_2_12_14_255": [0, 1, 1, 9, 7, 44]
+    },
+    {
+      "seed": 1,
+      "state_after_seeding": 1,
+      "next_u32": [270369, 67634689, 2647435461, 307599695, 2398689233, 745495504, 632435482, 435756210, 2005365029, 2916098932],
+      "roll_100": [70, 90, 62, 96, 34, 5, 83, 11, 30, 33],
+      "dice_2d6": [6, 10, 11, 6, 11],
+      "rnd_of_0_1_2_12_14_255": [0, 1, 2, 2, 14, 81]
+    },
+    {
+      "seed": 0,
+      "state_after_seeding": 1831565813,
+      "next_u32": [1085196063, 2447379481, 2618286376, 1701901981, 265159372, 1030440423, 4012273292, 2080899351, 4184948546, 230363598],
+      "roll_100": [64, 82, 77, 82, 73, 24, 93, 52, 47, 99],
+      "dice_2d6": [6, 7, 9, 7, 4],
+      "rnd_of_0_1_2_12_14_255": [0, 1, 2, 2, 7, 107]
+    }
+  ]
+}
+
+=== scenario.json ===
+{
+  "scenario": "Dry Fork",
+  "version": "1.1",
+  "authored": "2026-10-21",
+  "content": "lab-original; no Interplay content",
+  "rules": "SPEC-04 lab rules v1 (non-parity); map encoding per SPEC-03 section 9; containers per SPEC-02 section 12",
+  "files": ["tiles.json", "portraits.json", "map0-overworld.json", "map1-saltwell.json", "map2-ninemile.json", "map3-pumphouse.json", "hooks.json", "strings.json", "paragraphs.json", "skills.json", "items.json", "shops.json", "encounters.json", "npcs.json", "party.json", "walkthrough.json", "rng-vectors.json", "walkthrough-reference-log.json"],
+  "locations": [
+    {
+      "location": 0,
+      "name": "Dry Fork overworld",
+      "size": 64,
+      "file": "map0-overworld.json",
+      "location_code": 128,
+      "game_file": "GAME1",
+      "map_index": 0
+    },
+    {
+      "location": 1,
+      "name": "Saltwell",
+      "size": 32,
+      "file": "map1-saltwell.json",
+      "location_code": 129,
+      "game_file": "GAME1",
+      "map_index": 1
+    },
+    {
+      "location": 2,
+      "name": "Ninemile",
+      "size": 32,
+      "file": "map2-ninemile.json",
+      "location_code": 130,
+      "game_file": "GAME1",
+      "map_index": 2
+    },
+    {
+      "location": 3,
+      "name": "Pumphouse Deep",
+      "size": 32,
+      "file": "map3-pumphouse.json",
+      "location_code": 131,
+      "game_file": "GAME1",
+      "map_index": 3
+    }
+  ],
+  "start": {
+    "location": 1,
+    "x": 15,
+    "y": 20,
+    "hour": 8,
+    "paragraph": 1,
+    "seed": 20261021
+  },
+  "labstr_tables": {
+    "0": {
+      "use": "intro and title (SPEC-02 L-ST4)",
+      "strings": ["", "Dry Fork", "A lab scenario for the clean room engine.", "Press any key."]
+    },
+    "1": {
+      "use": "general messages (SPEC-02 L-ST4); index = id in strings.json, gaps are empty strings"
+    },
+    "2": {
+      "use": "inventory: index 0 empty, 1 to 35 skill names by skill id, 35 + N item name of item id N"
+    },
+    "3": {
+      "use": "rank names, index = level - 1",
+      "strings": ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"]
+    },
+    "4": {
+      "use": "attribute names in record order",
+      "strings": ["Strength", "IQ", "Luck", "Speed", "Agility", "Dexterity", "Charisma"]
+    },
+    "5": {
+      "use": "nationality names, index = nationality byte",
+      "strings": ["Basin", "Upland", "Coast", "Delta", "Plateau"]
+    }
+  },
+  "compiled_files": {
+    "GAME1": "maps for locations 0 to 3 (map indexes 0 to 3), then the savegame built from party.json and start, then shop lists 0 to 2",
+    "LABTABLES.BIN": "SPEC-02 section 12.2; mapCounts [4, 0], shopListCounts [3, 0]",
+    "LABSTR.BIN": "SPEC-02 section 12.3, tables 0 to 5 above, dictionary D of SPEC-02 section 9.3",
+    "LABSKILL.BIN": "SPEC-04 section 3.2: 36 entries of 2 bytes in the WL.EXE skill-metadata format",
+    "LABHOOKS.JSON": "copy of hooks.json (SPEC-04 section 6)",
+    "PARAGRAPHS.JSON": "copy of paragraphs.json (SPEC-03 L-MS2: the paragraph book sits ou
+=== strings.json ===
+{
+  "table": 1,
+  "control_tokens": {
+    "{name}": "byte 0x0B, the acting member's name",
+    "{num}": "byte 0x0F, the event's number"
+  },
+  "strings": [
+    {
+      "id": 1,
+      "text": "There is no room in the party."
+    },
+    {
+      "id": 2,
+      "text": "Not enough money."
+    },
+    {
+      "id": 3,
+      "text": "{name} has no room for that."
+    },
+    {
+      "id": 4,
+      "text": "The way is shut."
+    },
+    {
+      "id": 5,
+      "text": "That cannot be equipped."
+    },
+    {
+      "id": 6,
+      "text": "Nothing happens."
+    },
+    {
+      "id": 7,
+      "text": "{name} is now level {num}."
+    },
+    {
+      "id": 8,
+      "text": "{name} gains {num} experience."
+    },
+    {
+      "id": 9,
+      "text": "{name} is unconscious."
+    },
+    {
+      "id": 10,
+      "text": "{name} is dead."
+    },
+    {
+      "id": 11,
+      "text": "{name}'s weapon jams."
+    },
+    {
+      "id": 12,
+      "text": "{name} clears the jam."
+    },
+    {
+      "id": 13,
+      "text": "{name} reloads."
+    },
+    {
+      "id": 14,
+      "text": "Click."
+    },
+    {
+      "id": 15,
+      "text": "The party is surprised!"
+    },
+    {
+      "id": 16,
+      "text": "The party wins the fight."
+    },
+    {
+      "id": 17,
+      "text": "The party has fallen."
+    },
+    {
+      "id": 18,
+      "text": "The party gets away."
+    },
+    {
+      "id": 19,
+      "text": "The party cannot get away."
+    },
+    {
+      "id": 20,
+      "text": "Game saved."
+    },
+    {
+      "id": 21,
+      "text": "Game loaded."
+    },
+    {
+      "id": 22,
+      "text": "Load the saved game? (Y/N)"
+    },
+    {
+      "id": 23,
+      "text": "Heal the party for {num}? (Y/N)"
+    },
+    {
+      "id": 24,
+      "text": "Take this one into the party? (Y/N)"
+    },
+    {
+      "id": 25,
+      "text": "Buy, Sell, or eXit?"
+    },
+    {
+      "id": 26,
+      "text": "Which member? (1 to 7)"
+    },
+    {
+      "id": 27,
+      "text": "Which item?"
+    },
+    {
+      "id": 28,
+      "text": "No one has room."
+    },
+    {
+      "id": 29,
+      "text": "The party finds {num} coins."
+    },
+    {
+      "id": 30,
+      "text": "The party is healed."
+    },
+    {
+      "id": 31,
+      "text": "That cannot be sold."
+    },
+    {
+      "id": 32,
+      "text": "No ammunition for that weapon."
+    },
+    {
+      "id": 33,
+      "text": "{name} is not conscious."
+    },
+    {
+      "id": 40,
+      "text": "A padlock hangs from the storehouse hasp."
+    },
+    {
+      "id": 41,
+      "text": "The padlock holds."
+    },
+    {
+      "id": 42,
+      "text": "Dark water, too deep to wade without care."
+    },
+    {
+      "id": 43,
+      "text": "The current pushes you back to the bank."
+    },
+    {
+      "id": 44,
+      "text": "A console with a dim green screen hums faintly."
+    },
+    {
+      "id": 45,
+      "text": "The screen fills with symbols and then goes dark again."
+    },
+    {
+      "id": 46,
+      "text": "A steel gate with a lock box at its centre."
+    },
+    {
+      "id": 4
+=== tiles.json ===
+{
+  "tileset": 0,
+  "tile_size": [16, 16],
+  "bpp": 4,
+  "image_index": "map image = tile id + 10 (SPEC-03 section 7)",
+  "walkable_note": "Passability comes from the action class only (SPEC-03 L-MV2). 'walkable' says which tiles the scenario leaves at class 0; every cell showing a non-walkable tile carries class 11 unless another class is listed for it.",
+  "tiles": [
+    {
+      "id": 0,
+      "image": 10,
+      "name": "sand",
+      "walkable": true,
+      "description": "Pale wind-rippled sand, the default ground of the overworld."
+    },
+    {
+      "id": 1,
+      "image": 11,
+      "name": "hardpan",
+      "walkable": true,
+      "description": "Cracked grey clay flat with hairline fissures."
+    },
+    {
+      "id": 2,
+      "image": 12,
+      "name": "scrub",
+      "walkable": true,
+      "description": "Low grey-green brush in clumps on sand."
+    },
+    {
+      "id": 3,
+      "image": 13,
+      "name": "road",
+      "walkable": true,
+      "description": "Two rutted wheel tracks with a hump of weeds between them."
+    },
+    {
+      "id": 4,
+      "image": 14,
+      "name": "gravel bed",
+      "walkable": true,
+      "description": "Rounded river stones in a dry channel, lighter than sand."
+    },
+    {
+      "id": 5,
+      "image": 15,
+      "name": "salt crust",
+      "walkable": true,
+      "description": "White salt plate with a faint hexagonal crack pattern."
+    },
+    {
+      "id": 6,
+      "image": 16,
+      "name": "ford stones",
+      "walkable": true,
+      "description": "Flat stepping stones laid across dark water."
+    },
+    {
+      "id": 7,
+      "image": 17,
+      "name": "deep water",
+      "walkable": false,
+      "description": "Slow dark-green water with a single highlight ripple."
+    },
+    {
+      "id": 8,
+      "image": 18,
+      "name": "mesa rock",
+      "walkable": false,
+      "description": "Layered red-brown cliff face with a shadowed lower third."
+    },
+    {
+      "id": 9,
+      "image": 19,
+      "name": "boulder",
+      "walkable": false,
+      "description": "One round tan boulder with a dark crack, on sand."
+    },
+    {
+      "id": 10,
+      "image": 20,
+      "name": "dead tree",
+      "walkable": false,
+      "description": "Bare grey trunk with three forked branches."
+    },
+    {
+      "id": 11,
+      "image": 21,
+      "name": "cactus",
+      "walkable": false,
+      "description": "Single green column cactus with two arms."
+    },
+    {
+      "id": 12,
+      "image": 22,
+      "name": "plank bridge",
+      "walkable": true,
+      "description": "Weathered boards running left to right, rope rails top and bottom."
+    },
+    {
+      "id": 13,
+      "image": 23,
+      "name": "town marker",
+      "walkable": true,
+      "description": "Overworld icon: three small flat-roofed huts in a cluster."
+    },
+    {
+      "id": 14,
+      "image": 24,
+      "name": "cave mouth",
+      "walkable": true,
+      "description": "Overworld icon: a black arch cut into a rock hump."
+    },
+    {
+      "id": 15,
+ 
+=== walkthrough-reference-log.json ===
+{
+  "note": "Event log of the lab reference implementation for walkthrough.json with seed 20261021 (SPEC-06 section 6 schema). Reproduced event for event (1022 events) by an independent implementation built from the spec text on 21 Oct 2026.",
+  "events": [
+    {
+      "seq": 0,
+      "type": "new_game",
+      "seed": 20261021
+    },
+    {
+      "seq": 1,
+      "type": "paragraph",
+      "n": 1
+    },
+    {
+      "seq": 2,
+      "type": "checkpoint",
+      "name": "CP1",
+      "state": {
+        "location": 1,
+        "x": 15,
+        "y": 20,
+        "steps": 0,
+        "day": 1,
+        "hour": 8,
+        "minute": 0,
+        "mode": "map",
+        "cell_changes": [],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "hp": 24,
+            "cond": 0,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 60,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [1, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "hp": 21,
+            "cond": 0,
+            "money": 80,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 1]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "hp": 22,
+            "cond": 0,
+            "money": 70,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 1],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 20261021
+      }
+    },
+    {
+      "seq": 3,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 4,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 19,
+      "steps": 1
+    },
+    {
+      "seq": 5,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 6,
+      "type": "move",
+

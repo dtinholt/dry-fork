@@ -1,0 +1,275 @@
+{"ts": "2026-10-21T16:52:06-05:00", "event": "run_start", "run_id": "w1-2026-10-21", "project": "/Users/dtinholt/wasteland-build/project", "model": "deepseek-v41-flash-exl3", "endpoint": "http://192.168.4.201:8888/v1", "sandbox": "seatbelt", "git_init": false}
+{"ts": "2026-10-21T16:52:08-05:00", "event": "iteration_start", "iteration": 1, "attempt": 1}
+{"ts": "2026-10-21T17:15:44-05:00", "event": "iteration_done", "iteration": 1, "end": "end_iteration", "turns": 40, "ptok": 2302171, "ctok": 24871, "wall_s": 1415, "tests": "M1=89/89 M2=107/107 M3=0/94 M4=0/76 M5=0/82 M6=0/55", "commit": "27d2a77fd0"}
+{"ts": "2026-10-21T17:15:44-05:00", "event": "review_requested", "iteration": 1, "file": "/Users/dtinholt/wasteland-build/runs/w1-2026-10-21/review-request-1.md", "required": false}
+{"ts": "2026-10-21T17:15:44-05:00", "event": "iteration_start", "iteration": 2, "attempt": 1}
+{"ts": "2026-10-21T17:30:25-05:00", "event": "iteration_done", "iteration": 2, "end": "end_iteration", "turns": 40, "ptok": 1943276, "ctok": 29892, "wall_s": 881, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=0/76 M5=0/82 M6=0/55", "commit": "0f1d6d7f8b"}
+{"ts": "2026-10-21T17:30:25-05:00", "event": "review_requested", "iteration": 2, "file": "/Users/dtinholt/wasteland-build/runs/w1-2026-10-21/review-request-2.md", "required": false}
+{"ts": "2026-10-21T17:30:25-05:00", "event": "iteration_start", "iteration": 3, "attempt": 1}
+{"ts": "2026-10-21T17:46:02-05:00", "event": "iteration_done", "iteration": 3, "end": "end_iteration", "turns": 36, "ptok": 1659955, "ctok": 30364, "wall_s": 937, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=0/76 M5=0/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T17:46:02-05:00", "event": "iteration_start", "iteration": 4, "attempt": 1}
+{"ts": "2026-10-21T18:02:37-05:00", "event": "iteration_done", "iteration": 4, "end": "turn_cap", "turns": 40, "ptok": 1948923, "ctok": 32000, "wall_s": 996, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=0/76 M5=0/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T18:02:37-05:00", "event": "iteration_start", "iteration": 5, "attempt": 1}
+{"ts": "2026-10-21T18:19:02-05:00", "event": "iteration_done", "iteration": 5, "end": "token_cap", "turns": 34, "ptok": 1518292, "ctok": 32000, "wall_s": 985, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=0/76 M5=0/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T18:19:02-05:00", "event": "iteration_start", "iteration": 6, "attempt": 1}
+{"ts": "2026-10-21T18:26:48-05:00", "event": "protected_files_restored", "iteration": 6, "files": ["STOP"]}
+{"ts": "2026-10-21T18:26:50-05:00", "event": "iteration_done", "iteration": 6, "end": "end_iteration", "turns": 40, "ptok": 1796694, "ctok": 13742, "wall_s": 468, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=0/76 M5=0/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T18:26:50-05:00", "event": "iteration_start", "iteration": 7, "attempt": 1}
+{"ts": "2026-10-21T18:31:02-05:00", "event": "run_resume", "run_id": "w1-2026-10-21", "last_completed": 6, "in_progress": 7, "config_sha": "4ea8656cf3eca872", "config_changed": true}
+{"ts": "2026-10-21T18:31:02-05:00", "event": "resume_interrupted_iteration", "iteration": 7, "note": "restarting this iteration from current project state"}
+{"ts": "2026-10-21T18:31:04-05:00", "event": "iteration_start", "iteration": 7, "attempt": 2}
+{"ts": "2026-10-21T18:31:39-05:00", "event": "run_interrupted", "iteration": 7}
+{"ts": "2026-10-21T18:32:55-05:00", "event": "iteration_done", "iteration": 7, "end": "stop_file", "turns": 25, "ptok": 934450, "ctok": 9656, "wall_s": 365, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=0/76 M5=0/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T18:32:55-05:00", "event": "run_stop", "reason": "stop_file", "iterations": 7, "tokens": {"prompt": 12103761, "completion": 172525}, "session_s": 6046}
+{"ts": "2026-10-21T18:33:06-05:00", "event": "run_resume", "run_id": "w1-2026-10-21", "last_completed": 7, "in_progress": null, "config_sha": "4ea8656cf3eca872", "config_changed": true}
+{"ts": "2026-10-21T18:33:08-05:00", "event": "iteration_start", "iteration": 8, "attempt": 1}
+{"ts": "2026-10-21T19:01:37-05:00", "event": "iteration_done", "iteration": 8, "end": "model_done", "turns": 41, "ptok": 1959291, "ctok": 58352, "wall_s": 1709, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=0/76 M5=1/82 M6=0/55", "commit": "0e36f22467"}
+{"ts": "2026-10-21T19:01:37-05:00", "event": "iteration_start", "iteration": 9, "attempt": 1}
+{"ts": "2026-10-21T19:04:21-05:00", "event": "iteration_done", "iteration": 9, "end": "stop_file", "turns": 24, "ptok": 623840, "ctok": 2397, "wall_s": 164, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=0/76 M5=1/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T19:04:21-05:00", "event": "run_stop", "reason": "stop_file", "iterations": 9, "tokens": {"prompt": 14686892, "completion": 233274}, "session_s": 1873}
+{"ts": "2026-10-21T19:04:25-05:00", "event": "run_resume", "run_id": "w1-2026-10-21", "last_completed": 9, "in_progress": null, "config_sha": "dabab033a8e452b0", "config_changed": true}
+{"ts": "2026-10-21T19:04:27-05:00", "event": "iteration_start", "iteration": 10, "attempt": 1}
+{"ts": "2026-10-21T19:48:34-05:00", "event": "iteration_done", "iteration": 10, "end": "end_iteration", "turns": 60, "ptok": 3976911, "ctok": 67568, "wall_s": 2647, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=0/76 M5=1/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T19:48:34-05:00", "event": "iteration_start", "iteration": 11, "attempt": 1}
+{"ts": "2026-10-21T20:24:58-05:00", "event": "iteration_done", "iteration": 11, "end": "end_iteration", "turns": 60, "ptok": 3389761, "ctok": 59224, "wall_s": 2185, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=1/82 M6=0/55", "commit": "60ad41bdb6"}
+{"ts": "2026-10-21T20:24:58-05:00", "event": "review_requested", "iteration": 11, "file": "/Users/dtinholt/wasteland-build/runs/w1-2026-10-21/review-request-11.md", "required": false}
+{"ts": "2026-10-21T20:24:58-05:00", "event": "iteration_start", "iteration": 12, "attempt": 1}
+{"ts": "2026-10-21T21:08:01-05:00", "event": "iteration_done", "iteration": 12, "end": "end_iteration", "turns": 60, "ptok": 4052932, "ctok": 18190, "wall_s": 2582, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "7587906f83"}
+{"ts": "2026-10-21T21:08:01-05:00", "event": "iteration_start", "iteration": 13, "attempt": 1}
+{"ts": "2026-10-21T21:56:33-05:00", "event": "iteration_done", "iteration": 13, "end": "end_iteration", "turns": 60, "ptok": 4290789, "ctok": 12141, "wall_s": 2912, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T21:56:33-05:00", "event": "iteration_start", "iteration": 14, "attempt": 1}
+{"ts": "2026-10-21T22:42:52-05:00", "event": "iteration_done", "iteration": 14, "end": "end_iteration", "turns": 60, "ptok": 4235474, "ctok": 11806, "wall_s": 2779, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T22:42:52-05:00", "event": "iteration_start", "iteration": 15, "attempt": 1}
+{"ts": "2026-10-21T23:31:01-05:00", "event": "iteration_done", "iteration": 15, "end": "end_iteration", "turns": 60, "ptok": 4274594, "ctok": 15660, "wall_s": 2889, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-21T23:31:01-05:00", "event": "iteration_start", "iteration": 16, "attempt": 1}
+{"ts": "2026-10-22T00:13:46-05:00", "event": "iteration_done", "iteration": 16, "end": "end_iteration", "turns": 60, "ptok": 4200044, "ctok": 11572, "wall_s": 2565, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T00:13:46-05:00", "event": "iteration_start", "iteration": 17, "attempt": 1}
+{"ts": "2026-10-22T01:02:57-05:00", "event": "iteration_done", "iteration": 17, "end": "end_iteration", "turns": 60, "ptok": 4345353, "ctok": 12528, "wall_s": 2951, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T01:02:57-05:00", "event": "iteration_start", "iteration": 18, "attempt": 1}
+{"ts": "2026-10-22T01:42:11-05:00", "event": "iteration_done", "iteration": 18, "end": "end_iteration", "turns": 60, "ptok": 4212699, "ctok": 9505, "wall_s": 2353, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T01:42:11-05:00", "event": "iteration_start", "iteration": 19, "attempt": 1}
+{"ts": "2026-10-22T02:23:29-05:00", "event": "iteration_done", "iteration": 19, "end": "turn_cap", "turns": 60, "ptok": 4052428, "ctok": 23152, "wall_s": 2478, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T02:23:29-05:00", "event": "iteration_start", "iteration": 20, "attempt": 1}
+{"ts": "2026-10-22T03:02:20-05:00", "event": "iteration_done", "iteration": 20, "end": "end_iteration", "turns": 60, "ptok": 4064899, "ctok": 10272, "wall_s": 2331, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T03:02:20-05:00", "event": "iteration_start", "iteration": 21, "attempt": 1}
+{"ts": "2026-10-22T03:51:45-05:00", "event": "iteration_done", "iteration": 21, "end": "end_iteration", "turns": 60, "ptok": 4312117, "ctok": 14495, "wall_s": 2965, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T03:51:45-05:00", "event": "iteration_start", "iteration": 22, "attempt": 1}
+{"ts": "2026-10-22T04:30:03-05:00", "event": "iteration_done", "iteration": 22, "end": "end_iteration", "turns": 60, "ptok": 4003226, "ctok": 11568, "wall_s": 2297, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T04:30:03-05:00", "event": "iteration_start", "iteration": 23, "attempt": 1}
+{"ts": "2026-10-22T05:09:16-05:00", "event": "iteration_done", "iteration": 23, "end": "turn_cap", "turns": 60, "ptok": 4165189, "ctok": 11124, "wall_s": 2354, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T05:09:16-05:00", "event": "iteration_start", "iteration": 24, "attempt": 1}
+{"ts": "2026-10-22T05:49:09-05:00", "event": "iteration_done", "iteration": 24, "end": "end_iteration", "turns": 60, "ptok": 4145486, "ctok": 18325, "wall_s": 2393, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T05:49:09-05:00", "event": "iteration_start", "iteration": 25, "attempt": 1}
+{"ts": "2026-10-22T06:30:48-05:00", "event": "iteration_done", "iteration": 25, "end": "end_iteration", "turns": 60, "ptok": 4101331, "ctok": 8940, "wall_s": 2499, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T06:30:48-05:00", "event": "review_requested", "iteration": 25, "file": "/Users/dtinholt/wasteland-build/runs/w1-2026-10-21/review-request-25.md", "required": false}
+{"ts": "2026-10-22T06:30:48-05:00", "event": "iteration_start", "iteration": 26, "attempt": 1}
+{"ts": "2026-10-22T07:17:12-05:00", "event": "iteration_done", "iteration": 26, "end": "end_iteration", "turns": 60, "ptok": 4134394, "ctok": 12117, "wall_s": 2784, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T07:17:12-05:00", "event": "iteration_start", "iteration": 27, "attempt": 1}
+{"ts": "2026-10-22T08:07:40-05:00", "event": "iteration_done", "iteration": 27, "end": "turn_cap", "turns": 60, "ptok": 4146485, "ctok": 44870, "wall_s": 3028, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T08:07:40-05:00", "event": "iteration_start", "iteration": 28, "attempt": 1}
+{"ts": "2026-10-22T08:43:16-05:00", "event": "iteration_done", "iteration": 28, "end": "end_iteration", "turns": 60, "ptok": 4034790, "ctok": 18739, "wall_s": 2136, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T08:43:16-05:00", "event": "iteration_start", "iteration": 29, "attempt": 1}
+{"ts": "2026-10-22T09:24:13-05:00", "event": "iteration_done", "iteration": 29, "end": "end_iteration", "turns": 60, "ptok": 3958102, "ctok": 11655, "wall_s": 2458, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T09:24:13-05:00", "event": "iteration_start", "iteration": 30, "attempt": 1}
+{"ts": "2026-10-22T10:11:29-05:00", "event": "iteration_done", "iteration": 30, "end": "end_iteration", "turns": 60, "ptok": 4030137, "ctok": 14970, "wall_s": 2835, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T10:11:29-05:00", "event": "iteration_start", "iteration": 31, "attempt": 1}
+{"ts": "2026-10-22T10:55:36-05:00", "event": "iteration_done", "iteration": 31, "end": "end_iteration", "turns": 60, "ptok": 3988020, "ctok": 27466, "wall_s": 2648, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T10:55:36-05:00", "event": "iteration_start", "iteration": 32, "attempt": 1}
+{"ts": "2026-10-22T11:35:27-05:00", "event": "iteration_done", "iteration": 32, "end": "end_iteration", "turns": 60, "ptok": 4079730, "ctok": 14408, "wall_s": 2390, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T11:35:27-05:00", "event": "iteration_start", "iteration": 33, "attempt": 1}
+{"ts": "2026-10-22T11:36:17-05:00", "event": "iteration_done", "iteration": 33, "end": "stop_file", "turns": 7, "ptok": 115952, "ctok": 707, "wall_s": 50, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T11:36:17-05:00", "event": "run_stop", "reason": "stop_file", "iterations": 33, "tokens": {"prompt": 108997735, "completion": 694276}, "session_s": 59510}
+{"ts": "2026-10-22T11:36:21-05:00", "event": "run_resume", "run_id": "w1-2026-10-21", "last_completed": 33, "in_progress": null, "config_sha": "e5724d0e74a1100f", "config_changed": true}
+{"ts": "2026-10-22T11:36:23-05:00", "event": "iteration_start", "iteration": 34, "attempt": 1}
+{"ts": "2026-10-22T12:08:57-05:00", "event": "iteration_done", "iteration": 34, "end": "stop_file", "turns": 45, "ptok": 2888523, "ctok": 17622, "wall_s": 1954, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T12:08:57-05:00", "event": "run_stop", "reason": "stop_file", "iterations": 34, "tokens": {"prompt": 111886258, "completion": 711898}, "session_s": 1954}
+{"ts": "2026-10-22T12:09:00-05:00", "event": "run_resume", "run_id": "w1-2026-10-21", "last_completed": 34, "in_progress": null, "config_sha": "e5724d0e74a1100f", "config_changed": false}
+{"ts": "2026-10-22T12:09:02-05:00", "event": "iteration_start", "iteration": 35, "attempt": 1}
+{"ts": "2026-10-22T12:40:08-05:00", "event": "iteration_done", "iteration": 35, "end": "turn_cap", "turns": 60, "ptok": 3432864, "ctok": 14995, "wall_s": 1866, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T12:40:08-05:00", "event": "iteration_start", "iteration": 36, "attempt": 1}
+{"ts": "2026-10-22T13:35:56-05:00", "event": "iteration_done", "iteration": 36, "end": "end_iteration", "turns": 60, "ptok": 4063979, "ctok": 44903, "wall_s": 3347, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T13:35:56-05:00", "event": "iteration_start", "iteration": 37, "attempt": 1}
+{"ts": "2026-10-22T14:17:21-05:00", "event": "iteration_done", "iteration": 37, "end": "turn_cap", "turns": 60, "ptok": 3722829, "ctok": 23356, "wall_s": 2485, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=38/82 M6=0/55", "commit": "-"}
+{"ts": "2026-10-22T14:17:21-05:00", "event": "iteration_start", "iteration": 38, "attempt": 1}
+{"ts": "2026-10-22T14:39:48-05:00", "event": "iteration_done", "iteration": 38, "end": "turn_cap", "turns": 60, "ptok": 2639509, "ctok": 42041, "wall_s": 1347, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=44/82 M6=1/55", "commit": "733e9c7b46"}
+{"ts": "2026-10-22T14:39:48-05:00", "event": "iteration_start", "iteration": 39, "attempt": 1}
+{"ts": "2026-10-22T15:02:37-05:00", "event": "iteration_done", "iteration": 39, "end": "turn_cap", "turns": 60, "ptok": 3235879, "ctok": 45901, "wall_s": 1369, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=42/82 M6=1/55", "commit": "6e45fb1b89"}
+{"ts": "2026-10-22T15:02:37-05:00", "event": "iteration_start", "iteration": 40, "attempt": 1}
+{"ts": "2026-10-22T15:22:39-05:00", "event": "iteration_done", "iteration": 40, "end": "end_iteration", "turns": 60, "ptok": 2961964, "ctok": 38750, "wall_s": 1201, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=42/82 M6=1/55", "commit": "-"}
+{"ts": "2026-10-22T15:22:39-05:00", "event": "iteration_start", "iteration": 41, "attempt": 1}
+{"ts": "2026-10-22T15:47:51-05:00", "event": "iteration_done", "iteration": 41, "end": "turn_cap", "turns": 60, "ptok": 3151621, "ctok": 37672, "wall_s": 1512, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "54a9e91073"}
+{"ts": "2026-10-22T15:47:51-05:00", "event": "iteration_start", "iteration": 42, "attempt": 1}
+{"ts": "2026-10-22T16:42:59-05:00", "event": "iteration_done", "iteration": 42, "end": "token_cap", "turns": 51, "ptok": 2549969, "ctok": 96000, "wall_s": 3308, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-22T16:42:59-05:00", "event": "iteration_start", "iteration": 43, "attempt": 1}
+{"ts": "2026-10-22T17:18:27-05:00", "event": "iteration_done", "iteration": 43, "end": "turn_cap", "turns": 60, "ptok": 3735512, "ctok": 62434, "wall_s": 2129, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-22T17:18:27-05:00", "event": "iteration_start", "iteration": 44, "attempt": 1}
+{"ts": "2026-10-22T17:48:13-05:00", "event": "iteration_done", "iteration": 44, "end": "turn_cap", "turns": 60, "ptok": 3070948, "ctok": 56748, "wall_s": 1786, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-22T17:48:13-05:00", "event": "iteration_start", "iteration": 45, "attempt": 1}
+{"ts": "2026-10-22T18:33:32-05:00", "event": "iteration_done", "iteration": 45, "end": "end_iteration", "turns": 53, "ptok": 2721280, "ctok": 96064, "wall_s": 2719, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-22T18:33:32-05:00", "event": "iteration_start", "iteration": 46, "attempt": 1}
+{"ts": "2026-10-22T19:28:01-05:00", "event": "iteration_done", "iteration": 46, "end": "end_iteration", "turns": 56, "ptok": 2155388, "ctok": 86608, "wall_s": 3268, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-22T19:28:01-05:00", "event": "iteration_start", "iteration": 47, "attempt": 1}
+{"ts": "2026-10-22T20:29:20-05:00", "event": "iteration_done", "iteration": 47, "end": "time_limit", "turns": 53, "ptok": 2836153, "ctok": 47673, "wall_s": 3679, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-22T20:29:20-05:00", "event": "iteration_start", "iteration": 48, "attempt": 1}
+{"ts": "2026-10-22T21:32:28-05:00", "event": "iteration_done", "iteration": 48, "end": "time_limit", "turns": 54, "ptok": 2498021, "ctok": 60815, "wall_s": 3788, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-22T21:32:28-05:00", "event": "iteration_start", "iteration": 49, "attempt": 1}
+{"ts": "2026-10-22T22:04:22-05:00", "event": "iteration_done", "iteration": 49, "end": "turn_cap", "turns": 60, "ptok": 2824740, "ctok": 33332, "wall_s": 1915, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-22T22:04:22-05:00", "event": "iteration_start", "iteration": 50, "attempt": 1}
+{"ts": "2026-10-22T22:51:03-05:00", "event": "iteration_done", "iteration": 50, "end": "turn_cap", "turns": 60, "ptok": 2784201, "ctok": 94100, "wall_s": 2800, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T16:34:49-05:00", "event": "run_resume", "run_id": "w1-2026-10-21", "last_completed": 50, "in_progress": null, "config_sha": "e5724d0e74a1100f", "config_changed": false}
+{"ts": "2026-10-23T16:34:52-05:00", "event": "iteration_start", "iteration": 51, "attempt": 1}
+{"ts": "2026-10-23T17:21:53-05:00", "event": "iteration_done", "iteration": 51, "end": "token_cap", "turns": 57, "ptok": 2758678, "ctok": 96000, "wall_s": 2821, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T17:21:53-05:00", "event": "iteration_start", "iteration": 52, "attempt": 1}
+{"ts": "2026-10-23T18:10:07-05:00", "event": "iteration_done", "iteration": 52, "end": "turn_cap", "turns": 60, "ptok": 3306921, "ctok": 90371, "wall_s": 2894, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T18:10:07-05:00", "event": "iteration_start", "iteration": 53, "attempt": 1}
+{"ts": "2026-10-23T18:59:02-05:00", "event": "iteration_done", "iteration": 53, "end": "token_cap", "turns": 59, "ptok": 2916868, "ctok": 96033, "wall_s": 2935, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T18:59:02-05:00", "event": "iteration_start", "iteration": 54, "attempt": 1}
+{"ts": "2026-10-23T19:47:39-05:00", "event": "iteration_done", "iteration": 54, "end": "turn_cap", "turns": 60, "ptok": 3156399, "ctok": 89551, "wall_s": 2917, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=51/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T19:47:39-05:00", "event": "iteration_start", "iteration": 55, "attempt": 1}
+{"ts": "2026-10-23T20:41:35-05:00", "event": "iteration_done", "iteration": 55, "end": "token_cap", "turns": 54, "ptok": 3214006, "ctok": 96000, "wall_s": 3236, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "46f1b62f90"}
+{"ts": "2026-10-23T20:41:35-05:00", "event": "iteration_start", "iteration": 56, "attempt": 1}
+{"ts": "2026-10-23T21:07:30-05:00", "event": "iteration_done", "iteration": 56, "end": "turn_cap", "turns": 60, "ptok": 3083775, "ctok": 52467, "wall_s": 1555, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T21:07:30-05:00", "event": "iteration_start", "iteration": 57, "attempt": 1}
+{"ts": "2026-10-23T21:35:50-05:00", "event": "iteration_done", "iteration": 57, "end": "turn_cap", "turns": 60, "ptok": 3406081, "ctok": 40892, "wall_s": 1700, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T21:35:50-05:00", "event": "iteration_start", "iteration": 58, "attempt": 1}
+{"ts": "2026-10-23T22:00:41-05:00", "event": "iteration_done", "iteration": 58, "end": "end_iteration", "turns": 60, "ptok": 3351841, "ctok": 27113, "wall_s": 1491, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T22:00:41-05:00", "event": "iteration_start", "iteration": 59, "attempt": 1}
+{"ts": "2026-10-23T22:30:57-05:00", "event": "iteration_done", "iteration": 59, "end": "turn_cap", "turns": 60, "ptok": 3265525, "ctok": 59796, "wall_s": 1817, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T22:30:57-05:00", "event": "iteration_start", "iteration": 60, "attempt": 1}
+{"ts": "2026-10-23T22:57:03-05:00", "event": "iteration_done", "iteration": 60, "end": "turn_cap", "turns": 60, "ptok": 3277814, "ctok": 38943, "wall_s": 1566, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T22:57:03-05:00", "event": "iteration_start", "iteration": 61, "attempt": 1}
+{"ts": "2026-10-23T23:27:39-05:00", "event": "iteration_done", "iteration": 61, "end": "turn_cap", "turns": 60, "ptok": 3428171, "ctok": 60194, "wall_s": 1836, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-23T23:27:39-05:00", "event": "iteration_start", "iteration": 62, "attempt": 1}
+{"ts": "2026-10-24T00:18:44-05:00", "event": "iteration_done", "iteration": 62, "end": "turn_cap", "turns": 60, "ptok": 3362992, "ctok": 96000, "wall_s": 3065, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T00:18:44-05:00", "event": "iteration_start", "iteration": 63, "attempt": 1}
+{"ts": "2026-10-24T01:02:07-05:00", "event": "iteration_done", "iteration": 63, "end": "turn_cap", "turns": 60, "ptok": 3546059, "ctok": 74069, "wall_s": 2603, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T01:02:07-05:00", "event": "iteration_start", "iteration": 64, "attempt": 1}
+{"ts": "2026-10-24T01:26:39-05:00", "event": "iteration_done", "iteration": 64, "end": "turn_cap", "turns": 60, "ptok": 3327755, "ctok": 46467, "wall_s": 1472, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=60/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T01:26:39-05:00", "event": "iteration_start", "iteration": 65, "attempt": 1}
+{"ts": "2026-10-24T01:49:52-05:00", "event": "iteration_done", "iteration": 65, "end": "turn_cap", "turns": 60, "ptok": 3274981, "ctok": 47379, "wall_s": 1393, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=69/82 M6=8/55", "commit": "27ca6e0381"}
+{"ts": "2026-10-24T01:49:52-05:00", "event": "iteration_start", "iteration": 66, "attempt": 1}
+{"ts": "2026-10-24T02:05:59-05:00", "event": "iteration_done", "iteration": 66, "end": "turn_cap", "turns": 60, "ptok": 2331455, "ctok": 33061, "wall_s": 967, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=69/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T02:05:59-05:00", "event": "iteration_start", "iteration": 67, "attempt": 1}
+{"ts": "2026-10-24T02:20:59-05:00", "event": "iteration_done", "iteration": 67, "end": "end_iteration", "turns": 60, "ptok": 2521676, "ctok": 26809, "wall_s": 900, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=69/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T02:20:59-05:00", "event": "iteration_start", "iteration": 68, "attempt": 1}
+{"ts": "2026-10-24T02:36:42-05:00", "event": "iteration_done", "iteration": 68, "end": "turn_cap", "turns": 60, "ptok": 2649199, "ctok": 31565, "wall_s": 943, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=74/82 M6=8/55", "commit": "1ddf52e769"}
+{"ts": "2026-10-24T02:36:42-05:00", "event": "iteration_start", "iteration": 69, "attempt": 1}
+{"ts": "2026-10-24T02:56:16-05:00", "event": "iteration_done", "iteration": 69, "end": "end_iteration", "turns": 60, "ptok": 2572814, "ctok": 38052, "wall_s": 1174, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=74/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T02:56:16-05:00", "event": "iteration_start", "iteration": 70, "attempt": 1}
+{"ts": "2026-10-24T03:16:34-05:00", "event": "iteration_done", "iteration": 70, "end": "turn_cap", "turns": 60, "ptok": 2085007, "ctok": 41496, "wall_s": 1218, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=75/82 M6=8/55", "commit": "7a3a4ba905"}
+{"ts": "2026-10-24T03:16:34-05:00", "event": "iteration_start", "iteration": 71, "attempt": 1}
+{"ts": "2026-10-24T03:59:59-05:00", "event": "iteration_done", "iteration": 71, "end": "end_iteration", "turns": 59, "ptok": 2705707, "ctok": 86485, "wall_s": 2606, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=75/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T03:59:59-05:00", "event": "iteration_start", "iteration": 72, "attempt": 1}
+{"ts": "2026-10-24T04:45:51-05:00", "event": "iteration_done", "iteration": 72, "end": "token_cap", "turns": 50, "ptok": 1929050, "ctok": 96000, "wall_s": 2751, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=75/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T04:45:51-05:00", "event": "iteration_start", "iteration": 73, "attempt": 1}
+{"ts": "2026-10-24T05:31:09-05:00", "event": "iteration_done", "iteration": 73, "end": "token_cap", "turns": 46, "ptok": 1403619, "ctok": 96000, "wall_s": 2718, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=75/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T05:31:09-05:00", "event": "iteration_start", "iteration": 74, "attempt": 1}
+{"ts": "2026-10-24T06:17:20-05:00", "event": "iteration_done", "iteration": 74, "end": "token_cap", "turns": 44, "ptok": 1650326, "ctok": 96000, "wall_s": 2772, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=75/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T06:17:20-05:00", "event": "iteration_start", "iteration": 75, "attempt": 1}
+{"ts": "2026-10-24T07:00:57-05:00", "event": "iteration_done", "iteration": 75, "end": "turn_cap", "turns": 60, "ptok": 2334741, "ctok": 90465, "wall_s": 2617, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=8/55", "commit": "d20b6a476a"}
+{"ts": "2026-10-24T07:00:57-05:00", "event": "review_requested", "iteration": 75, "file": "/Users/dtinholt/wasteland-build/runs/w1-2026-10-21/review-request-75.md", "required": false}
+{"ts": "2026-10-24T07:00:57-05:00", "event": "iteration_start", "iteration": 76, "attempt": 1}
+{"ts": "2026-10-24T07:46:35-05:00", "event": "iteration_done", "iteration": 76, "end": "token_cap", "turns": 47, "ptok": 1701495, "ctok": 96000, "wall_s": 2737, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T07:46:35-05:00", "event": "iteration_start", "iteration": 77, "attempt": 1}
+{"ts": "2026-10-24T08:23:51-05:00", "event": "iteration_done", "iteration": 77, "end": "turn_cap", "turns": 60, "ptok": 1818971, "ctok": 77769, "wall_s": 2237, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T08:23:51-05:00", "event": "iteration_start", "iteration": 78, "attempt": 1}
+{"ts": "2026-10-24T09:13:58-05:00", "event": "iteration_done", "iteration": 78, "end": "token_cap", "turns": 38, "ptok": 1202398, "ctok": 96000, "wall_s": 3007, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=8/55", "commit": "-"}
+{"ts": "2026-10-24T09:13:58-05:00", "event": "iteration_start", "iteration": 79, "attempt": 1}
+{"ts": "2026-10-24T09:55:35-05:00", "event": "iteration_done", "iteration": 79, "end": "turn_cap", "turns": 60, "ptok": 2839309, "ctok": 81666, "wall_s": 2497, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "44d4b803f6"}
+{"ts": "2026-10-24T09:55:35-05:00", "event": "iteration_start", "iteration": 80, "attempt": 1}
+{"ts": "2026-10-24T10:29:42-05:00", "event": "iteration_done", "iteration": 80, "end": "turn_cap", "turns": 60, "ptok": 2943478, "ctok": 64219, "wall_s": 2046, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T10:29:42-05:00", "event": "iteration_start", "iteration": 81, "attempt": 1}
+{"ts": "2026-10-24T11:22:11-05:00", "event": "iteration_done", "iteration": 81, "end": "turn_cap", "turns": 60, "ptok": 2808109, "ctok": 93149, "wall_s": 3150, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T11:22:11-05:00", "event": "iteration_start", "iteration": 82, "attempt": 1}
+{"ts": "2026-10-24T11:59:16-05:00", "event": "iteration_done", "iteration": 82, "end": "end_iteration", "turns": 60, "ptok": 3299034, "ctok": 52752, "wall_s": 2224, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T11:59:16-05:00", "event": "iteration_start", "iteration": 83, "attempt": 1}
+{"ts": "2026-10-24T12:46:14-05:00", "event": "iteration_done", "iteration": 83, "end": "turn_cap", "turns": 60, "ptok": 2771945, "ctok": 96000, "wall_s": 2818, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T12:46:14-05:00", "event": "iteration_start", "iteration": 84, "attempt": 1}
+{"ts": "2026-10-24T13:32:52-05:00", "event": "iteration_done", "iteration": 84, "end": "token_cap", "turns": 55, "ptok": 2116558, "ctok": 96000, "wall_s": 2798, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T13:32:52-05:00", "event": "iteration_start", "iteration": 85, "attempt": 1}
+{"ts": "2026-10-24T14:21:59-05:00", "event": "iteration_done", "iteration": 85, "end": "turn_cap", "turns": 60, "ptok": 3217387, "ctok": 92382, "wall_s": 2947, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T14:21:59-05:00", "event": "iteration_start", "iteration": 86, "attempt": 1}
+{"ts": "2026-10-24T15:07:55-05:00", "event": "iteration_done", "iteration": 86, "end": "token_cap", "turns": 51, "ptok": 2201009, "ctok": 96000, "wall_s": 2755, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T15:07:55-05:00", "event": "iteration_start", "iteration": 87, "attempt": 1}
+{"ts": "2026-10-24T15:53:30-05:00", "event": "iteration_done", "iteration": 87, "end": "token_cap", "turns": 47, "ptok": 1665969, "ctok": 96000, "wall_s": 2735, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T15:53:30-05:00", "event": "iteration_start", "iteration": 88, "attempt": 1}
+{"ts": "2026-10-24T16:34:45-05:00", "event": "iteration_done", "iteration": 88, "end": "end_iteration", "turns": 50, "ptok": 1800564, "ctok": 84685, "wall_s": 2475, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T16:34:45-05:00", "event": "iteration_start", "iteration": 89, "attempt": 1}
+{"ts": "2026-10-24T17:21:21-05:00", "event": "iteration_done", "iteration": 89, "end": "token_cap", "turns": 48, "ptok": 2121000, "ctok": 96000, "wall_s": 2796, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=79/82 M6=9/55", "commit": "-"}
+{"ts": "2026-10-24T17:21:21-05:00", "event": "iteration_start", "iteration": 90, "attempt": 1}
+{"ts": "2026-10-24T17:48:48-05:00", "event": "iteration_done", "iteration": 90, "end": "turn_cap", "turns": 60, "ptok": 2994248, "ctok": 55002, "wall_s": 1648, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=80/82 M6=11/55", "commit": "723b878ebb"}
+{"ts": "2026-10-24T17:48:48-05:00", "event": "iteration_start", "iteration": 91, "attempt": 1}
+{"ts": "2026-10-24T18:01:05-05:00", "event": "iteration_done", "iteration": 91, "end": "turn_cap", "turns": 60, "ptok": 2628894, "ctok": 23487, "wall_s": 737, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=15/55", "commit": "ed90b58e06"}
+{"ts": "2026-10-24T18:01:05-05:00", "event": "iteration_start", "iteration": 92, "attempt": 1}
+{"ts": "2026-10-24T18:19:21-05:00", "event": "iteration_done", "iteration": 92, "end": "end_iteration", "turns": 60, "ptok": 2684447, "ctok": 35313, "wall_s": 1096, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=80/82 M6=18/55", "commit": "43a054b62c"}
+{"ts": "2026-10-24T18:19:21-05:00", "event": "iteration_start", "iteration": 93, "attempt": 1}
+{"ts": "2026-10-24T18:32:07-05:00", "event": "iteration_done", "iteration": 93, "end": "turn_cap", "turns": 60, "ptok": 2380999, "ctok": 25252, "wall_s": 765, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=47/55", "commit": "eb32bc21c9"}
+{"ts": "2026-10-24T18:32:07-05:00", "event": "iteration_start", "iteration": 94, "attempt": 1}
+{"ts": "2026-10-24T19:22:00-05:00", "event": "iteration_done", "iteration": 94, "end": "end_iteration", "turns": 42, "ptok": 1334471, "ctok": 93523, "wall_s": 2993, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=47/55", "commit": "-"}
+{"ts": "2026-10-24T19:22:00-05:00", "event": "iteration_start", "iteration": 95, "attempt": 1}
+{"ts": "2026-10-24T19:39:33-05:00", "event": "iteration_done", "iteration": 95, "end": "turn_cap", "turns": 60, "ptok": 2922307, "ctok": 32700, "wall_s": 1053, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=47/55", "commit": "-"}
+{"ts": "2026-10-24T19:39:33-05:00", "event": "iteration_start", "iteration": 96, "attempt": 1}
+{"ts": "2026-10-24T20:17:39-05:00", "event": "iteration_done", "iteration": 96, "end": "turn_cap", "turns": 60, "ptok": 2815011, "ctok": 75752, "wall_s": 2286, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=47/55", "commit": "-"}
+{"ts": "2026-10-24T20:17:39-05:00", "event": "iteration_start", "iteration": 97, "attempt": 1}
+{"ts": "2026-10-24T21:05:28-05:00", "event": "iteration_done", "iteration": 97, "end": "token_cap", "turns": 56, "ptok": 2487864, "ctok": 96000, "wall_s": 2869, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=47/55", "commit": "-"}
+{"ts": "2026-10-24T21:05:28-05:00", "event": "iteration_start", "iteration": 98, "attempt": 1}
+{"ts": "2026-10-24T21:52:50-05:00", "event": "iteration_done", "iteration": 98, "end": "token_cap", "turns": 46, "ptok": 1856716, "ctok": 96000, "wall_s": 2841, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=47/55", "commit": "-"}
+{"ts": "2026-10-24T21:52:50-05:00", "event": "iteration_start", "iteration": 99, "attempt": 1}
+{"ts": "2026-10-24T22:18:36-05:00", "event": "iteration_done", "iteration": 99, "end": "turn_cap", "turns": 60, "ptok": 3083818, "ctok": 49497, "wall_s": 1546, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=48/55", "commit": "78974c0965"}
+{"ts": "2026-10-24T22:18:36-05:00", "event": "iteration_start", "iteration": 100, "attempt": 1}
+{"ts": "2026-10-24T23:02:39-05:00", "event": "iteration_done", "iteration": 100, "end": "token_cap", "turns": 39, "ptok": 1470004, "ctok": 96000, "wall_s": 2643, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=48/55", "commit": "-"}
+{"ts": "2026-10-24T23:02:39-05:00", "event": "review_requested", "iteration": 100, "file": "/Users/dtinholt/wasteland-build/runs/w1-2026-10-21/review-request-100.md", "required": false}
+{"ts": "2026-10-24T23:02:39-05:00", "event": "iteration_start", "iteration": 101, "attempt": 1}
+{"ts": "2026-10-24T23:49:42-05:00", "event": "iteration_done", "iteration": 101, "end": "token_cap", "turns": 45, "ptok": 1854400, "ctok": 96000, "wall_s": 2822, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "9382e39dbd"}
+{"ts": "2026-10-24T23:49:42-05:00", "event": "iteration_start", "iteration": 102, "attempt": 1}
+{"ts": "2026-10-25T00:36:00-05:00", "event": "iteration_done", "iteration": 102, "end": "token_cap", "turns": 37, "ptok": 1227756, "ctok": 96000, "wall_s": 2778, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T00:36:00-05:00", "event": "iteration_start", "iteration": 103, "attempt": 1}
+{"ts": "2026-10-25T01:22:35-05:00", "event": "iteration_done", "iteration": 103, "end": "token_cap", "turns": 43, "ptok": 1549553, "ctok": 96000, "wall_s": 2794, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T01:22:35-05:00", "event": "iteration_start", "iteration": 104, "attempt": 1}
+{"ts": "2026-10-25T02:06:22-05:00", "event": "iteration_done", "iteration": 104, "end": "model_done", "turns": 46, "ptok": 1234469, "ctok": 96000, "wall_s": 2628, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T02:06:22-05:00", "event": "iteration_start", "iteration": 105, "attempt": 1}
+{"ts": "2026-10-25T02:52:15-05:00", "event": "iteration_done", "iteration": 105, "end": "token_cap", "turns": 37, "ptok": 1291643, "ctok": 96000, "wall_s": 2752, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T02:52:15-05:00", "event": "iteration_start", "iteration": 106, "attempt": 1}
+{"ts": "2026-10-25T03:38:39-05:00", "event": "iteration_done", "iteration": 106, "end": "token_cap", "turns": 43, "ptok": 1497386, "ctok": 96000, "wall_s": 2784, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T03:38:39-05:00", "event": "iteration_start", "iteration": 107, "attempt": 1}
+{"ts": "2026-10-25T04:24:26-05:00", "event": "iteration_done", "iteration": 107, "end": "token_cap", "turns": 46, "ptok": 1651047, "ctok": 96000, "wall_s": 2747, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T04:24:26-05:00", "event": "iteration_start", "iteration": 108, "attempt": 1}
+{"ts": "2026-10-25T05:10:03-05:00", "event": "iteration_done", "iteration": 108, "end": "token_cap", "turns": 53, "ptok": 1578597, "ctok": 96000, "wall_s": 2737, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T05:10:03-05:00", "event": "iteration_start", "iteration": 109, "attempt": 1}
+{"ts": "2026-10-25T05:53:06-05:00", "event": "iteration_done", "iteration": 109, "end": "token_cap", "turns": 50, "ptok": 2016559, "ctok": 96000, "wall_s": 2583, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T05:53:06-05:00", "event": "iteration_start", "iteration": 110, "attempt": 1}
+{"ts": "2026-10-25T06:38:53-05:00", "event": "iteration_done", "iteration": 110, "end": "token_cap", "turns": 46, "ptok": 1687798, "ctok": 96000, "wall_s": 2747, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T06:38:53-05:00", "event": "iteration_start", "iteration": 111, "attempt": 1}
+{"ts": "2026-10-25T07:24:38-05:00", "event": "iteration_done", "iteration": 111, "end": "token_cap", "turns": 51, "ptok": 1896532, "ctok": 96207, "wall_s": 2745, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T07:24:38-05:00", "event": "iteration_start", "iteration": 112, "attempt": 1}
+{"ts": "2026-10-25T08:12:26-05:00", "event": "iteration_done", "iteration": 112, "end": "token_cap", "turns": 53, "ptok": 2151609, "ctok": 96000, "wall_s": 2868, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T08:12:26-05:00", "event": "iteration_start", "iteration": 113, "attempt": 1}
+{"ts": "2026-10-25T08:58:25-05:00", "event": "iteration_done", "iteration": 113, "end": "turn_cap", "turns": 60, "ptok": 2203933, "ctok": 94796, "wall_s": 2759, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T08:58:25-05:00", "event": "iteration_start", "iteration": 114, "attempt": 1}
+{"ts": "2026-10-25T09:47:24-05:00", "event": "iteration_done", "iteration": 114, "end": "token_cap", "turns": 45, "ptok": 1691849, "ctok": 96000, "wall_s": 2938, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T09:47:24-05:00", "event": "iteration_start", "iteration": 115, "attempt": 1}
+{"ts": "2026-10-25T10:34:01-05:00", "event": "iteration_done", "iteration": 115, "end": "token_cap", "turns": 32, "ptok": 1181567, "ctok": 96000, "wall_s": 2798, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T10:34:01-05:00", "event": "iteration_start", "iteration": 116, "attempt": 1}
+{"ts": "2026-10-25T11:17:53-05:00", "event": "iteration_done", "iteration": 116, "end": "token_cap", "turns": 27, "ptok": 721062, "ctok": 96000, "wall_s": 2632, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T11:17:53-05:00", "event": "iteration_start", "iteration": 117, "attempt": 1}
+{"ts": "2026-10-25T12:03:56-05:00", "event": "iteration_done", "iteration": 117, "end": "token_cap", "turns": 30, "ptok": 935970, "ctok": 96000, "wall_s": 2762, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T12:03:56-05:00", "event": "iteration_start", "iteration": 118, "attempt": 1}
+{"ts": "2026-10-25T12:47:06-05:00", "event": "iteration_done", "iteration": 118, "end": "token_cap", "turns": 24, "ptok": 671981, "ctok": 96000, "wall_s": 2590, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T12:47:06-05:00", "event": "iteration_start", "iteration": 119, "attempt": 1}
+{"ts": "2026-10-25T13:33:23-05:00", "event": "iteration_done", "iteration": 119, "end": "token_cap", "turns": 37, "ptok": 1385479, "ctok": 96000, "wall_s": 2777, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T13:33:23-05:00", "event": "iteration_start", "iteration": 120, "attempt": 1}
+{"ts": "2026-10-25T14:22:48-05:00", "event": "iteration_done", "iteration": 120, "end": "token_cap", "turns": 31, "ptok": 999987, "ctok": 96000, "wall_s": 2965, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T14:22:48-05:00", "event": "iteration_start", "iteration": 121, "attempt": 1}
+{"ts": "2026-10-25T15:07:57-05:00", "event": "iteration_done", "iteration": 121, "end": "token_cap", "turns": 32, "ptok": 897104, "ctok": 96000, "wall_s": 2709, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T15:07:57-05:00", "event": "iteration_start", "iteration": 122, "attempt": 1}
+{"ts": "2026-10-25T15:54:35-05:00", "event": "iteration_done", "iteration": 122, "end": "token_cap", "turns": 36, "ptok": 1527535, "ctok": 96000, "wall_s": 2798, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T15:54:35-05:00", "event": "iteration_start", "iteration": 123, "attempt": 1}
+{"ts": "2026-10-25T16:33:55-05:00", "event": "iteration_done", "iteration": 123, "end": "stop_file", "turns": 26, "ptok": 712761, "ctok": 82667, "wall_s": 2360, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-25T16:33:55-05:00", "event": "run_stop", "reason": "stop_file", "iterations": 123, "tokens": {"prompt": 322865157, "completion": 7331316}, "session_s": 172743}
+{"ts": "2026-10-31T02:30:43-05:00", "event": "run_resume", "run_id": "w1-2026-10-21", "last_completed": 123, "in_progress": null, "config_sha": "e5724d0e74a1100f", "config_changed": false}
+{"ts": "2026-10-31T02:30:43-05:00", "event": "protected_files_restored", "count": 2, "files": ["tests/test_m5_rules.py", "tests/test_m6_playable.py"]}
+{"ts": "2026-10-31T02:30:46-05:00", "event": "iteration_start", "iteration": 124, "attempt": 1}
+{"ts": "2026-10-31T02:31:51-05:00", "event": "iteration_done", "iteration": 124, "end": "stop_file", "turns": 4, "ptok": 52152, "ctok": 1561, "wall_s": 65, "tests": "M1=89/89 M2=107/107 M3=94/94 M4=76/76 M5=81/82 M6=54/55", "commit": "-"}
+{"ts": "2026-10-31T02:31:51-05:00", "event": "run_stop", "reason": "stop_file", "iterations": 124, "tokens": {"prompt": 322917309, "completion": 7332877}, "session_s": 65}
+{"ts": "2026-10-31T02:32:35-05:00", "event": "run_resume", "run_id": "w1-2026-10-21", "last_completed": 124, "in_progress": null, "config_sha": "e5724d0e74a1100f", "config_changed": false}
+{"ts": "2026-10-31T02:32:38-05:00", "event": "run_stop", "reason": "all_milestones_passed", "iterations": 124, "tokens": {"prompt": 322917309, "completion": 7332877}, "session_s": 0}

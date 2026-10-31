@@ -1,0 +1,346 @@
+    1 """Independent restatement of SPEC-04 combat rules for the first Dry Fork fight.
+    2 
+    3 Used by test_m5_rules.py to compute expected events for the road-raider
+    4 encounter at overworld (30,41) (SPEC-05 section 6, type 1) from the spec text
+    5 alone. The party state is the walkthrough state at CP3 (SPEC-05 sections 7,
+    6 10.1, 10.2 and 14.1): no random draw happens before this encounter, so the
+    7 first draw of the fight is the first draw of the stream.
+    8 
+    9 This is not the engine and is not a general combat implementation: it covers
+   10 the encounter start, the surprise check, the surprise round and the phase 1 of
+   11 round 1 (SPEC-04 LR-26 to LR-30, LR-34, LR-40), plus a rule-consistency checker
+   12 for a whole fight against this group (LR-33 to LR-44).
+   13 """
+   14 
+   15 from __future__ import annotations
+   16 
+   17 from wl_support import (RefRng, ref_build_groups, ref_damage_member, ref_jam_chance,
+   18                         ref_level_after, ref_max_hp, ref_monster_need, ref_ranged_need,
+   19                         ref_skill_check)
+   20 
+   21 # Party at CP3, from SPEC-05 tables (slot: stats). Weapon data from SPEC-05
+   22 # section 7: Ranch pistol capacity 6, skill byte 4, damage 1d8, ammo item 4;
+   23 # Lever rifle capacity 8, skill byte 5, damage 2d6, ammo item 6.
+   24 PISTOL = {"item": 3, "cap": 6, "skill": 4, "n": 1, "s": 8, "ammo": 4}
+   25 RIFLE = {"item": 5, "cap": 8, "skill": 5, "n": 2, "s": 6, "ammo": 6}
+   26 
+   27 PARTY_CP3 = {
+   28     # slot: name, STR, IQ, SPD, AGL, skills {id: level}, weapon, load, ammo boxes, AC, max HP
+   29     1: {"name": "Hessa Brand", "STR": 14, "IQ": 13, "SPD": 12, "AGL": 14,
+   30         "skills": {4: 2, 20: 1, 21: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+   31     2: {"name": "Tobin Ash", "STR": 16, "IQ": 10, "SPD": 11, "AGL": 12,
+   32         "skills": {5: 2, 1: 1, 17: 1, 3: 1}, "weapon": RIFLE, "load": 8, "boxes": 1, "ac": 3, "xp": 90},
+   33     3: {"name": "Maro Quill", "STR": 11, "IQ": 16, "SPD": 13, "AGL": 15,
+   34         "skills": {14: 2, 23: 1, 22: 1, 4: 1, 12: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+   35     4: {"name": "Dell Ostrow", "STR": 12, "IQ": 15, "SPD": 12, "AGL": 13,
+   36         "skills": {12: 2, 13: 1, 4: 1, 29: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 2, "xp": 90},
+   37     5: {"name": "Orla Penn", "STR": 13, "IQ": 11, "SPD": 14, "AGL": 15,
+   38         "skills": {5: 2, 18: 2, 19: 1}, "weapon": RIFLE, "load": 8, "boxes": 2, "ac": 3, "xp": 200, "level": 2},
+   39 }
+   40 
+   41 # Overworld monster 1, SPEC-05 section 5.1 (manifest-style keys).
+   42 RAIDER = {"name": "raider", "sturdiness": 12, "combatRating": 6, "randomDamage": 1, "maxGroup": 4,
+   43           "armorClass": 1, "fixedDamage": 0, "weaponType": 3, "type": 3, "portrait": 1}
+   44 RAIDER_RECORD = {"groups": [[1, False, 3], [0, False, 0], [0, False, 0]]}
+   45 LOOKOUT = 18
+   46 GUNSMITHING = 22
+   47 
+   48 COMBAT_TYPES = {"attack", "jam", "click", "monster_dies", "unconscious", "death"}
+   49 
+   50 
+   51 def _lookout_checker():
+   52     """LR-14: highest Lookout level, then higher linked attribute (IQ), then lower slot."""
+   53     best = None
+   54     for slot, m in PARTY_CP3.items():
+   55         lvl = m["skills"].get(LOOKOUT, 0)
+   56         key = (lvl, m["IQ"], -slot)
+   57         if best is None or key > best[0]:
+   58             best = (key, slot)
+   59     return best[1]
+   60 
+   61 
+   62 def opening(seed: int) -> dict:
+   63     """Expected events of the raider fight up to the end of round 1, phase 1."""
+   64     rng = RefRng(seed)
+   65     groups = ref_build_groups(rng, [RAIDER], RAIDER_RECORD)
+   66     enc = {"type": "encounter_start",
+   67            "groups": [{"monster": "raider", "count": g["count"], "band": g["band"], "hp": g["hp"]}
+   68                       for g in groups]}
+   69     hp = list(groups[0]["hp"])
+   70     band = groups[0]["band"]
+   71     d_max = RAIDER["combatRating"]
+   72     cs = _lookout_checker()
+   73     m = PARTY_CP3[cs]
+   74     c = ref_skill_check(rng, m["skills"].get(LOOKOUT, 0), m["IQ"], d_max)
+   75     check = {"type": "check", "member": cs, "skill": LOOKOUT, "level": m["skills"].get(LOOKOUT, 0), **c}
+   76     member_hp = {s: ref_max_hp(p["STR"], p.get("level", 1)) for s, p in PARTY_CP3.items()}
+   77     cond = {s: 0 for s in PARTY_CP3}
+   78 
+   79     def monster_phase1(events):
+   80         pending = {s: 0 for s in PARTY_CP3}
+   81         conscious = [s for s in sorted(PARTY_CP3) if cond[s] == 0]
+   82         for i in range(len(hp)):
+   83             if hp[i] <= 0:
+   84                 continue
+   85             t = conscious[rng.roll(len(conscious)) - 1]
+   86             need = ref_monster_need(RAIDER["combatRating"], PARTY_CP3[t]["ac"], band)
+   87             r = rng.d100()
+   88             ev = {"type": "attack", "side": "monsters", "group": 1, "attacker": i + 1, "member": t,
+   89                   "need": need, "roll": r, "hit": r <= need}
+   90             if r <= need:
+   91                 d = rng.dice(RAIDER["randomDamage"], 6) + RAIDER["fixedDamage"]
+   92                 ev["damage"] = d
+   93                 pending[t] += d
+   94             events.append(ev)
+   95         return pending
+   96 
+   97     def apply_members(pending, events):
+   98         for s in sorted(PARTY_CP3):
+   99             if pending[s] and cond[s] == 0:
+  100                 res = ref_damage_member(member_hp[s], pending[s])
+  101                 member_hp[s] = res["hp"]
+  102                 if res["cond"]:
+  103                     cond[s] = res["cond"]
+  104                     events.append({"type": "death" if res["cond"] == 2 else "unconscious", "member": s})
+  105 
+  106     round0 = []
+  107     if not c["success"]:
+  108         p = monster_phase1(round0)
+  109         apply_members(p, round0)
+  110 
+  111     round1 = []
+  112     loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+  113     pend = [0] * len(hp)
+  114     for s in sorted(PARTY_CP3):
+  115         if cond[s]:
+  116             continue
+  117         mm = PARTY_CP3[s]
+  118         w = mm["weapon"]
+  119         if loads[s] == 0:
+  120             round1.append({"type": "click", "member": s})
+  121             continue
+  122         r = rng.d100()
+  123         j = ref_jam_chance(mm["skills"].get(GUNSMITHING, 0))
+  124         if r <= j:
+  125             round1.append({"type": "jam", "member": s, "roll": r, "chance": j})
+  126             continue
+  127         loads[s] -= 1
+  128         tgt = next((i for i in range(len(hp)) if hp[i] - pend[i] > 0), None)
+  129         if tgt is None:
+  130             tgt = next(i for i in range(len(hp)) if hp[i] > 0)
+  131         need = ref_ranged_need(mm["skills"].get(w["skill"], 0), mm["AGL"], RAIDER["armorClass"], band)
+  132         r = rng.d100()
+  133         ev = {"type": "attack", "side": "party", "member": s, "group": 1, "target": tgt + 1,
+  134               "need": need, "roll": r, "hit": r <= need}
+  135         if r <= need:
+  136             d = rng.dice(w["n"], w["s"])
+  137             ev["damage"] = d
+  138             pend[tgt] += d
+  139         round1.append(ev)
+  140     pm = monster_phase1(round1)
+  141     for i in range(len(hp)):
+  142         if hp[i] > 0 and pend[i]:
+  143             hp[i] -= pend[i]
+  144             if hp[i] <= 0:
+  145                 round1.append({"type": "monster_dies", "group": 1, "index": i + 1})
+  146     apply_members(pm, round1)
+  147     return {"encounter": enc, "check": check, "surprised": not c["success"],
+  148             "round0": round0, "round1": round1}
+  149 
+  150 
+  151 def combat_window(events: list[dict], round_no: int) -> list[dict] | None:
+  152     """Events after round_start(round_no) while they are combat resolution events."""
+  153     for i, e in enumerate(events):
+  154         if e.get("type") == "round_start" and e.get("round") == round_no:
+  155             out = []
+  156             for f in events[i + 1:]:
+  157                 if f.get("type") not in COMBAT_TYPES:
+  158                     break
+  159                 out.append({k: v for k, v in f.items() if k != "seq"})
+  160             return out
+  161     return None
+  162 
+  163 
+  164 def consistency(events: list[dict]) -> list[tuple[str, str]]:
+  165     """Rule-consistency issues for the raider fight in an engine log.
+  166 
+  167     Categories: orders (LR-33), need (LR-34 party and monster need), jam
+  168     (LR-34 step 2, LR-39), target (LR-34 step 4), victory (LR-44, LR-45, LR-46).
+  169     """
+  170     issues: list[tuple[str, str]] = []
+  171     try:
+  172         start = next(i for i, e in enumerate(events) if e.get("type") == "encounter_start")
+  173     except StopIteration:
+  174         return [("all", "no encounter_start event in the log")]
+  175     end = next((i for i in range(start, len(events)) if events[i].get("type") == "combat_end"), None)
+  176     if end is None:
+  177         return [("all", "no combat_end event after encounter_start")]
+  178     groups = events[start].get("groups") or []
+  179     if len(groups) != 1 or groups[0].get("count") != 3:
+  180         return [("all", "encounter_start groups: expected one group of 3 raiders, got %r" % groups)]
+  181     hp = list(groups[0].get("hp", []))
+  182     band = groups[0].get("band", 3)
+  183     loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+  184     boxes = {s: PARTY_CP3[s]["boxes"] for s in PARTY_CP3}
+  185     jammed: set[int] = set()
+  186     pend = [0] * 3
+  187     in_phase1 = False
+  188     last_death_round = None
+  189     cur_round = None
+  190     rounds_started = []
+  191 
+  192     def finalize():
+  193         nonlocal in_phase1
+  194         if in_phase1:
+  195             for i in range(3):
+  196                 hp[i] -= pend[i]
+  197                 pend[i] = 0
+  198             in_phase1 = False
+  199 
+  200     for e in events[start + 1:end + 1]:
+  201         t = e.get("type")
+  202         if t == "round_orders":
+  203             exp = {}
+  204             for s in sorted(PARTY_CP3):
+  205                 alive = any(h > 0 for h in hp)
+  206                 if not alive:
+  207                     exp[str(s)] = ["wait"]
+  208                 elif s in jammed:
+  209                     exp[str(s)] = ["unjam"]
+  210                 elif loads[s] > 0:
+  211                     exp[str(s)] = ["fire", 1]
+  212                 elif boxes[s] > 0:
+  213                     exp[str(s)] = ["reload"]
+  214                 else:
+  215                     exp[str(s)] = ["unarmed", 1] if band == 1 else ["advance", 1]
+  216             got = {str(k): list(v) for k, v in (e.get("orders") or {}).items()}
+  217             if got != exp:
+  218                 diff = next((k for k in exp if got.get(k) != exp[k]), None)
+  219                 issues.append(("orders", "round %s: slot %s order expected %r, got %r"
+  220                                % (e.get("round"), diff, exp.get(diff), got.get(diff))))
+  221         elif t == "round_start":
+  222             finalize()
+  223             cur_round = e.get("round")
+  224             rounds_started.append(cur_round)
+  225             in_phase1 = True
+  226             pend = [0] * 3
+  227         elif t == "attack" and e.get("side") == "party":
+  228             s = e.get("member")
+  229             mm = PARTY_CP3.get(s)
+  230             if mm is None:
+  231                 issues.append(("need", "party attack by unknown member %r" % s))
+  232                 continue
+  233             w = mm["weapon"]
+  234             need = ref_ranged_need(mm["skills"].get(w["skill"], 0), mm["AGL"], RAIDER["armorClass"], band)
+  235             if e.get("need") != need:
+  236                 issues.append(("need", "party attack by member %d at band %d: need expected %d, got %r"
+  237                                % (s, band, need, e.get("need"))))
+  238             hit = e.get("roll") is not None and e.get("roll") <= e.get("need", -1)
+  239             if e.get("hit") != hit or (("damage" in e) != hit):
+  240                 issues.append(("need", "party attack by member %d: roll %r need %r but hit=%r damage=%r"
+  241                                % (s, e.get("roll"), e.get("need"), e.get("hit"), e.get("damage"))))
+  242             if hit and not (w["n"] <= e.get("damage", 0) <= w["n"] * w["s"]):
+  243                 issues.append(("need", "party attack by member %d: damage %r outside %dd%d"
+  244                                % (s, e.get("damage"), w["n"], w["s"])))
+  245             if in_phase1:
+  246                 exp_t = next((i for i in range(3) if hp[i] - pend[i] > 0), None)
+  247                 if exp_t is None:
+  248                     exp_t = next((i for i in range(3) if hp[i] > 0), None)
+  249                 if exp_t is not None and e.get("target") != exp_t + 1:
+  250                     issues.append(("target", "round %s member %d: target expected %d, got %r"
+  251                                    % (cur_round, s, exp_t + 1, e.get("target"))))
+  252                 tg = (e.get("target") or 1) - 1
+  253                 if hit and 0 <= tg < 3:
+  254                     pend[tg] += e.get("damage", 0)
+  255             loads[s] = max(0, loads[s] - 1)
+  256         elif t == "attack" and e.get("side") == "monsters":
+  257             s = e.get("member")
+  258             mm = PARTY_CP3.get(s)
+  259             if mm is None:
+  260                 issues.append(("need", "monster attack on unknown member %r" % s))
+  261                 continue
+  262             need = ref_monster_need(RAIDER["combatRating"], mm["ac"], band)
+  263             if e.get("need") != need:
+  264                 issues.append(("need", "monster attack on member %d at band %d: need expected %d, got %r"
+  265                                % (s, band, need, e.get("need"))))
+  266             hit = e.get("roll") is not None and e.get("roll") <= e.get("need", -1)
+  267             if e.get("hit") != hit or (("damage" in e) != hit):
+  268                 issues.append(("need", "monster attack on member %d: roll %r need %r but hit=%r"
+  269                                % (s, e.get("roll"), e.get("need"), e.get("hit"))))
+  270             if hit and not (1 <= e.get("damage", 0) <= 6):
+  271                 issues.append(("need", "monster attack damage %r outside 1d6" % e.get("damage")))
+  272         elif t == "jam":
+  273             s = e.get("member")
+  274             mm = PARTY_CP3.get(s, {"skills": {}})
+  275             j = ref_jam_chance(mm["skills"].get(GUNSMITHING, 0))
+  276             if e.get("chance") != j or not (isinstance(e.get("roll"), int) and 1 <= e["roll"] <= j):
+  277                 issues.append(("jam", "jam of member %r: chance expected %d with roll <= chance, got chance %r roll %r"
+  278                                % (s, j, e.get("chance"), e.get("roll"))))
+  279             jammed.add(s)
+  280             loads[s] = 0
+  281         elif t == "check" and e.get("skill") == GUNSMITHING:
+  282             s = e.get("member")
+  283             mm = PARTY_CP3.get(s, {"skills": {}, "IQ": 0})
+  284             lvl = mm["skills"].get(GUNSMITHING, 0)
+  285             need = 20 + 15 * lvl + 2 * mm["IQ"]
+  286             if e.get("need") != need or e.get("level") != lvl:
+  287                 issues.append(("jam", "unjam check of member %r: need expected %d (level %d), got need %r level %r"
+  288                                % (s, need, lvl, e.get("need"), e.get("level"))))
+  289             ok = need >= 100 or (need > 0 and e.get("roll") is not None and e["roll"] <= need)
+  290             if e.get("success") != ok:
+  291                 issues.append(("jam", "unjam check of member %r: roll %r need %d but success=%r"
+  292                                % (s, e.get("roll"), need, e.get("success"))))
+  293         elif t == "unjammed":
+  294             jammed.discard(e.get("member"))
+  295             loads[e.get("member")] = 0
+  296         elif t == "reload":
+  297             s = e.get("member")
+  298             cap = PARTY_CP3.get(s, {"weapon": PISTOL})["weapon"]["cap"]
+  299             if e.get("status") != cap:
+  300                 issues.append(("jam", "reload of member %r: status expected %d, got %r" % (s, cap, e.get("status"))))
+  301             loads[s] = cap
+  302             boxes[s] -= 1
+  303         elif t == "group_closes":
+  304             finalize()
+  305             band = e.get("band", band)
+  306         elif t == "advance":
+  307             band = e.get("band", band)
+  308         elif t == "monster_dies":
+  309             finalize()
+  310             last_death_round = cur_round
+  311         elif t in ("unconscious", "death"):
+  312             finalize()
+  313     # victory checks
+  314     ce = events[end]
+  315     if ce.get("result") != "victory":
+  316         issues.append(("victory", "combat_end result expected 'victory', got %r" % ce.get("result")))
+  317     elif ce.get("rounds") != last_death_round:
+  318         issues.append(("victory", "combat_end rounds expected %r (round of the last monster_dies), got %r"
+  319                        % (last_death_round, ce.get("rounds"))))
+  320     total_xp = 3 * RAIDER["sturdiness"] * (RAIDER["armorClass"] + 1)
+  321     share = total_xp // 5
+  322     after = events[end + 1:]
+  323     xps = [e for e in after[:20] if e.get("type") == "xp"]
+  324     if [x.get("member") for x in xps] != [1, 2, 3, 4, 5]:
+  325         issues.append(("victory", "xp events after victory: expected members [1, 2, 3, 4, 5], got %r"
+  326                        % [x.get("member") for x in xps]))
+  327     for x in xps:
+  328         s = x.get("member")
+  329         if s in PARTY_CP3:
+  330             if x.get("delta") != share or x.get("total") != PARTY_CP3[s]["xp"] + share:
+  331                 issues.append(("victory", "xp of member %d: expected delta %d total %d, got delta %r total %r"
+  332                                % (s, share, PARTY_CP3[s]["xp"] + share, x.get("delta"), x.get("total"))))
+  333     promos = [e for e in after[:20] if e.get("type") == "promote"]
+  334     exp_p = []
+  335     for s, mm in sorted(PARTY_CP3.items()):
+  336         lvl0 = mm.get("level", 1)
+  337         lvl = ref_level_after(lvl0, mm["xp"] + share)
+  338         if lvl > lvl0:
+  339             exp_p.append({"type": "promote", "member": s, "level": lvl, "max_hp": ref_max_hp(mm["STR"], lvl),
+  340                           "rank": ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"][min(lvl, 7) - 1]})
+  341     got_p = [{k: v for k, v in p.items() if k != "seq"} for p in promos]
+  342     if got_p != exp_p:
+  343         i = next((k for k in range(min(len(got_p), len(exp_p))) if got_p[k] != exp_p[k]), min(len(got_p), len(exp_p)))
+  344         issues.append(("victory", "promote event %d: expected %r, got %r"
+  345                        % (i, exp_p[i] if i < len(exp_p) else None, got_p[i] if i < len(got_p) else None)))
+  346     return issues

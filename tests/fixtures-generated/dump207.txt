@@ -1,0 +1,127 @@
+compiled to /Users/dtinholt/wasteland-build/runs/w1-2026-10-21/scratch/tmp2nu_h6f4: ['ALLHTDS1', 'ALLPICS1', 'COLORF.FNT', 'CURS', 'END.CPA', 'GAME1', 'IC0_9.WLF', 'LABHOOKS.JSON', 'LABSKILL.BIN', 'LABSTR.BIN', 'LABTABLES.BIN', 'MASKS.WLF', 'PARAGRAPHS.JSON', 'TITLE.PIC']
+map1 size 32
+compiled actionClass row 20: [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+compiled action row 20: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+compiled image row 20: [35, 10, 10, 21, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 35]
+compiled actionClass row 19: [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 11]
+records keys: ['1', '6', '10', '11']
+actions[11]: null
+actions[1]: null
+actions[10]: null
+actions[6]: null
+start: {"location": 1, "x": 15, "y": 20, "hour": 8, "minute": 0, "day": 1, "paragraph": 1}
+item 3: {"price": 60, "stock": 4, "type": 2, "lowFlags": 0, "capacity": 6, "skill": 4, "damage": 24, "ammo": 4}
+item 4: {"price": 8, "stock": 255, "type": 3, "lowFlags": 0, "capacity": 6, "skill": 0, "damage": 0, "ammo": 0}
+item 5: {"price": 140, "stock": 0, "type": 2, "lowFlags": 0, "capacity": 8, "skill": 5, "damage": 38, "ammo": 6}
+item 6: {"price": 14, "stock": 0, "type": 3, "lowFlags": 0, "capacity": 8, "skill": 0, "damage": 0, "ammo": 0}
+item 9: {"price": 25, "stock": 255, "type": 5, "lowFlags": 0, "capacity": 3, "skill": 12, "damage": 36, "ammo": 0}
+item 11: {"price": 0, "stock": 0, "type": 7, "lowFlags": 0, "capacity": 0, "skill": 0, "damage": 0, "ammo": 0}
+party[0]: {"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "cond": 0, "money": 120, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 2], [7, 0]], "skills": [[4, 2], [20, 1], [21, 1], [18, 1]], "weapon_slot": 1, "armour_slot": 3, "attrs": {"STR": 14, "IQ": 13, "LCK": 11, "SPD": 12, "AGL": 14, "CHA": 15}, "gender": 1, "nationality": 0, "game_won": 0}
+=== reference bumps ===
+127: {"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+131: {"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+175: {"seq": 175, "type": "map_change", "location": 0, "x": 10, "y": 41}
+282: {"seq": 282, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+284: {"seq": 284, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+289: {"seq": 289, "type": "cell_change", "location": 0, "x": 31, "y": 41, "action_class": 0, "action": 0, "image": 22}
+346: {"seq": 346, "type": "map_change", "location": 2, "x": 1, "y": 16}
+503: {"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+508: {"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+513: {"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+518: {"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+522: {"seq": 522, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+523: {"seq": 523, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+528: {"seq": 528, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+534: {"seq": 534, "type": "cell_change", "location": 2, "x": 26, "y": 12, "action_class": 0, "action": 0, "image": 27}
+540: {"seq": 540, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+562: {"seq": 562, "type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+566: {"seq": 566, "type": "cell_change", "location": 2, "x": 18, "y": 17, "action_class": 0, "action": 0, "image": 28}
+603: {"seq": 603, "type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+680: {"seq": 680, "type": "map_change", "location": 0, "x": 43, "y": 28}
+721: {"seq": 721, "type": "map_change", "location": 3, "x": 3, "y": 2}
+790: {"seq": 790, "type": "cell_change", "location": 3, "x": 9, "y": 6, "action_class": 5, "action": 1, "image": 37}
+792: {"seq": 792, "type": "cell_change", "location": 3, "x": 9, "y": 6, "action_class": 0, "action": 0, "image": 37}
+807: {"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+811: {"seq": 811, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39}
+812: {"seq": 812, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+816: {"seq": 816, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+834: {"seq": 834, "type": "cell_change", "location": 3, "x": 21, "y": 4, "action_class": 0, "action": 0, "image": 37}
+851: {"seq": 851, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+889: {"seq": 889, "type": "map_change", "location": 0, "x": 44, "y": 48}
+979: {"seq": 979, "type": "map_change", "location": 1, "x": 15, "y": 30}
+1018: {"seq": 1018, "type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0}
+=== walkthrough script (first 40) ===
+0: {"checkpoint": "CP1"}
+1: "UP"
+2: "UP"
+3: "UP"
+4: "UP"
+5: "UP"
+6: "UP"
+7: "UP"
+8: "UP"
+9: "LEFT"
+10: "UP"
+11: "UP"
+12: "UP"
+13: "UP"
+14: "LEFT"
+15: "LEFT"
+16: "LEFT"
+17: "LEFT"
+18: "LEFT"
+19: "LEFT"
+20: "LEFT"
+21: "LEFT"
+22: "UP"
+23: "UP"
+24: "UP"
+25: "B"
+26: "c"
+27: "3"
+28: "B"
+29: "c"
+30: "4"
+31: "S"
+32: "2"
+33: "c"
+34: "B"
+35: "d"
+36: "2"
+37: "X"
+38: "C"
+39: "2"
+=== walkthrough checkpoints ===
+[{"name": "CP1", "description": "New game in Saltwell: four PCs at (15,20), 08:00 day 1, paragraph 1 shown", "auxiliary": false, "expected": {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map", "cell_changes": [], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "money": 120, "ac": 3, "rank": "Drifter", "skill_points": 0, "cond": 0, "weapon_slot": 1, "armour_slot": 3, "items_excluding_ammo": [3, 7], "hp": 24, "items": [[3, 6], [4, 2], [7, 0]]}, {"slot": 2, "name": "Tobin Ash", "npc": 0, "level": 1, "xp": 90, "max_hp": 26, "money": 60, "ac": 2, "rank": "Drifter", "skill_points": 0, "cond": 0, "weapon_slot": 1, "armour_slot": 0, "items_excluding_ammo": [1, 5], "hp": 26, "items": [[5, 8], [6, 1], [1, 0]]}, {"slot": 3, "name": "Maro Quill", "npc": 0, "level": 1, "xp": 90, "max_hp": 21, "money": 80, "ac": 3, "rank": "Drifter", "skill_points": 0, "cond": 0, "weapon_slot": 1, "armour_slot": 0, "items_excluding_ammo": [3], "hp": 21, "items": [[3, 6], [4, 1]]}, {"slot": 4, "name": "Dell Ostrow", "npc": 0, "level": 1, "xp": 90, "max_hp": 22, "money": 70, "ac": 2, "rank": "Drifter", "skill_points": 0, "cond": 0, "weapon_slot": 1, "armour_slot": 0, "items_excluding_ammo": [3, 9], "hp": 22, "items": [[3, 6], [4, 1], [9, 3]]}]}, "reference_seeded": {"rng_state": 20261021, "party": [{"slot": 1, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]]}, {"slot": 2, "hp": 26, "items": [[5, 8], [6, 1], [1, 0]]}, {"slot": 3,
+=== walkthrough start ===
+"new game: party.json at scenario.json start"
+=== test_m3_maps.py cell-related ===
+17: FIELDS = ["size", "bodySize", "encryptedPrefixLength", "centralDirectory", "info", "cells.actionClass",
+18:           "cells.action", "cells.image", "actions", "npcs", "mobs", "strings"]
+48: def test_decode_map_field(fixture_set, i, field):
+54: def test_load_map_through_tables(fixture_set, loc):
+59:             if k in ("size", "bodySize", "encryptedPrefixLength", "centralDirectory", "info", "cells",
+64: def test_decode_map_bad_header(fixture_set):
+72: def test_decode_map_wrong_size(fixture_set):
+78: def test_decode_map_prefix_mismatch(fixture_set):
+102: RC = [(i, x, y, c) for i, cells in RECORD_CELLS.items() for (x, y, c) in cells]
+106: def test_record_at(fixture_set, i, x, y, c):
+108:     a = m["cells"]["action"][y][x]
+114: def test_record_at_no_record(fixture_set):
+120: def test_record_at_action_out_of_range(fixture_set):
+122:     m["cells"]["action"][10][16] = 9
+126: def test_record_at_null_pointer(fixture_set):
+128:     m["cells"]["action"][10][16] = 0
+140: def test_is_passable(fixture_set, x, y, want, what):
+146: def test_is_passable_reserved_class(fixture_set):
+148:     m["cells"]["actionClass"][3][3] = 7
+158: def test_apply_tail(tail, want):
+170: def test_resolve_transition(fixture_set, i, x, y, want, what):
+173:     rec = copy.deepcopy(m["actions"]["10"][m["cells"]["action"][y][x]])
+178: def test_resolve_transition_relative_negative(fixture_set):
+186: def test_resolve_transition_unused_location(fixture_set):
+193: def test_resolve_transition_outside_target(fixture_set):
+202: def test_image_at(fixture_set, x, y, want):
+205:         want = m["cells"]["image"][y][x]
+212: def test_alt_seed_map(fixture_set_alt, loc):
+217:             if k in ("size", "bodySize", "encryptedPrefixLength", "centralDirectory", "info", "cells",

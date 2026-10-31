@@ -1,0 +1,1099 @@
+======================================================================
+src/wlengine/combat.py
+======================================================================
+--- lines 63..69 ---
+  63|     def weapon_ammo(self, member):
+  64|         """LR-38: the weapon item's status byte (bits 0-6) is the load."""
+  65|         items = member.get("items") or []
+  66|         if not items:
+  67|             return 0
+  68|         return items[0][1] & 0x7F
+  69| 
+
+--- lines 70..76 ---
+  70|     def weapon_jammed(self, member):
+  71|         """LR-38: bit 7 of the weapon item's status byte is the jam flag."""
+  72|         items = member.get("items") or []
+  73|         if not items:
+  74|             return False
+  75|         return bool(items[0][1] & 0x80)
+  76| 
+
+--- lines 77..81 ---
+  77|     def set_weapon_status(self, member, value):
+  78|         items = member.get("items") or []
+  79|         if items:
+  80|             items[0][1] = value & 0xFF
+  81| 
+
+--- lines 82..90 ---
+  82|     def ammo_boxes(self, member):
+  83|         """Total rounds in the member's ammunition items."""
+  84|         total = 0
+  85|         for iid, count in (member.get("items") or [])[1:]:
+  86|             rec = self.item_record(iid)
+  87|             if rec and rec.get("ammo"):
+  88|                 total += rec["ammo"] * count
+  89|         return total
+  90| 
+
+--- lines 91..96 ---
+  91|     def spend_ammo(self, member):
+  92|         items = member.get("items") or []
+  93|         if not items:
+  94|             return
+  95|         items[0][1] = (items[0][1] & 0x80) | max(0, (items[0][1] & 0x7F) - 1)
+  96| 
+
+--- lines 97..113 ---
+  97|     def reload(self, member):
+  98|         """LR-33: one ammunition item refills the weapon to capacity."""
+  99|         rec, _iid = self.member_weapon(member)
+ 100|         cap = rec.get("capacity", 0) if rec else 0
+ 101|         items = member.get("items") or []
+ 102|         for idx in range(1, len(items)):
+ 103|             iid, count = items[idx]
+ 104|             irec = self.item_record(iid)
+ 105|             if not irec or not irec.get("ammo") or count <= 0:
+ 106|                 continue
+ 107|             items[idx] = [iid, count - 1]
+ 108|             self.set_weapon_status(member, cap)
+ 109|             return cap
+ 110|         return 0
+ 111| 
+ 112|     # -- orders (LR-33) ----------------------------------------------------
+ 113| 
+
+--- lines 114..142 ---
+ 114|     def auto_orders(self):
+ 115|         c = self.combat
+ 116|         orders = {}
+ 117|         any_alive = any(hp > 0 for g in c["groups"] for hp in g["hp"])
+ 118|         band = c["band"]
+ 119|         for i, m in enumerate(self.party):
+ 120|             slot = str(i + 1)
+ 121|             if not _alive(m):
+ 122|                 orders[slot] = ["dead"]
+ 123|                 continue
+ 124|             if not any_alive:
+ 125|                 orders[slot] = ["wait"]
+ 126|                 continue
+ 127|             if self.weapon_jammed(m):
+ 128|                 orders[slot] = ["unjam"]
+ 129|                 continue
+ 130|             rec, _iid = self.member_weapon(m)
+ 131|             if rec is not None and rec.get("skill") in RANGED_SKILLS:
+ 132|                 if self.weapon_ammo(m) > 0:
+ 133|                     orders[slot] = ["fire", 1]
+ 134|                     continue
+ 135|                 if self.ammo_boxes(m) > 0:
+ 136|                     orders[slot] = ["reload"]
+ 137|                     continue
+ 138|             orders[slot] = ["unarmed", 1] if band == 1 else ["advance", 1]
+ 139|         return orders
+ 140| 
+ 141|     # -- targeting ---------------------------------------------------------
+ 142| 
+
+--- lines 171..211 ---
+ 171|     def party_phase1(self):
+ 172|         c = self.combat
+ 173|         if c is None:
+ 174|             return
+ 175|         fired = c.setdefault("fired", set())
+ 176|         pend = c["pending_monsters"]
+ 177|         for i, m in enumerate(self.party):
+ 178|             if not _alive(m):
+ 179|                 continue
+ 180|             rec, _iid = self.member_weapon(m)
+ 181|             if rec is None or rec.get("skill") not in RANGED_SKILLS:
+ 182|                 continue
+ 183|             if self.weapon_ammo(m) <= 0:
+ 184|                 self.emit("click", member=i + 1)
+ 185|                 continue
+ 186|             roll = self.rng.d100()
+ 187|             jam = rules.jam_chance(self.skill_level(m, GUNSMITHING))
+ 188|             if roll <= jam:
+ 189|                 m["jammed"] = True
+ 190|                 self.set_weapon_status(m, 0x80 | self.weapon_ammo(m))
+ 191|                 self.emit("jam", member=i + 1, roll=roll, chance=jam)
+ 192|                 continue
+ 193|             self.spend_ammo(m)
+ 194|             fired.add(i + 1)
+ 195|             target = self.pick_monster_target(pend)
+ 196|             if target is None:
+ 197|                 continue
+ 198|             need = rules.ranged_need(self.skill_level(m, rec.get("skill", 0)),
+ 199|                                      (m.get("attrs") or {}).get("AGL", 0),
+ 200|                                      target["ac"], c["band"])
+ 201|             roll = self.rng.d100()
+ 202|             hit = roll <= need
+ 203|             ev = {"side": "party", "member": i + 1, "group": target["group"] + 1,
+ 204|                   "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+ 205|             if hit:
+ 206|                 n, s = weapon_dice(rec)
+ 207|                 dmg = self.rng.dice(n, s)
+ 208|                 ev["damage"] = dmg
+ 209|                 pend[target["group"]][target["index"]] += dmg
+ 210|             self.emit("attack", **ev)
+ 211| 
+
+--- lines 266..293 ---
+ 266|     def phase2(self):
+ 267|         c = self.combat
+ 268|         actors = []
+ 269|         fired = c.get("fired") or set()
+ 270|         for i, m in enumerate(self.party):
+ 271|             if not _alive(m):
+ 272|                 continue
+ 273|             if (i + 1) in fired:
+ 274|                 continue
+ 275|             actors.append({"side": "party", "slot": i + 1, "speed": self.member_speed(m)})
+ 276|         for gi, g in enumerate(c["groups"]):
+ 277|             if g["mob"].get("weaponType", 0) >= 3:
+ 278|                 continue
+ 279|             for mi, hp in enumerate(g["hp"]):
+ 280|                 if hp <= 0:
+ 281|                     continue
+ 282|                 actors.append({"side": "monster", "group": gi, "index": mi,
+ 283|                                "speed": g["mob"].get("combatRating", 0)})
+ 284|         for a in rules.speed_order(actors):
+ 285|             if c.get("over"):
+ 286|                 return
+ 287|             if a["side"] == "party":
+ 288|                 self.member_phase2(a["slot"])
+ 289|             else:
+ 290|                 self.monster_phase2(a["group"], a["index"])
+ 291|             if self.check_end():
+ 292|                 return
+ 293| 
+
+--- lines 297..312 ---
+ 297|     def member_phase2(self, slot):
+ 298|         m = self.party[slot - 1]
+ 299|         if not _alive(m):
+ 300|             return
+ 301|         if m.get("jammed"):
+ 302|             self.unjam(slot)
+ 303|             return
+ 304|         rec, _iid = self.member_weapon(m)
+ 305|         if rec is not None and rec.get("skill") in RANGED_SKILLS and self.weapon_ammo(m) > 0:
+ 306|             self.fire(slot, rec)
+ 307|             return
+ 308|         if self.combat["band"] <= 1:
+ 309|             self.melee_attack(slot)
+ 310|         else:
+ 311|             self.advance()
+ 312| 
+
+--- lines 313..332 ---
+ 313|     def fire(self, slot, rec):
+ 314|         m = self.party[slot - 1]
+ 315|         target = self.pick_monster_target()
+ 316|         if target is None:
+ 317|             return
+ 318|         self.spend_ammo(m)
+ 319|         need = rules.ranged_need(self.skill_level(m, rec.get("skill", 0)),
+ 320|                                  (m.get("attrs") or {}).get("AGL", 0),
+ 321|                                  target["ac"], self.combat["band"])
+ 322|         roll = self.rng.d100()
+ 323|         hit = roll <= need
+ 324|         ev = {"side": "party", "member": slot, "group": target["group"] + 1,
+ 325|               "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+ 326|         if hit:
+ 327|             n, s = weapon_dice(rec)
+ 328|             dmg = self.rng.dice(n, s)
+ 329|             ev["damage"] = dmg
+ 330|             self.damage_monster(target["group"], target["index"], dmg)
+ 331|         self.emit("attack", **ev)
+ 332| 
+
+--- lines 375..383 ---
+ 375|     def unjam(self, slot):
+ 376|         m = self.party[slot - 1]
+ 377|         level = self.skill_level(m, GUNSMITHING)
+ 378|         res = rules.skill_check(self.rng, level, (m.get("attrs") or {}).get("IQ", 0), 0)
+ 379|         self.emit("check", member=slot, skill=GUNSMITHING, level=level, **res)
+ 380|         if res.get("success"):
+ 381|             m["jammed"] = False
+ 382|             self.emit("unjammed", member=slot)
+ 383| 
+
+--- lines 384..388 ---
+ 384|     def advance(self):
+ 385|         c = self.combat
+ 386|         c["band"] = max(1, c["band"] - 1)
+ 387|         self.emit("advance", band=c["band"])
+ 388| 
+
+--- lines 402..407 ---
+ 402|     def reset_phase(self):
+ 403|         c = self.combat
+ 404|         c["fired"] = set()
+ 405|         c["pending_monsters"] = [[0] * len(g["hp"]) for g in c["groups"]]
+ 406|         c["pending_members"] = {}
+ 407| 
+
+--- lines 420..439 ---
+ 420|     def combat_round(self):
+ 421|         c = self.combat
+ 422|         if c is None:
+ 423|             return
+ 424|         rnd = c["round"] if c["round"] else 1
+ 425|         c["round"] = rnd
+ 426|         orders = self.auto_orders()
+ 427|         self.emit("round_orders", round=rnd, orders=orders)
+ 428|         self.emit("round_start", round=rnd)
+ 429|         self.reset_phase()
+ 430|         self.party_phase1()
+ 431|         self.monster_phase1()
+ 432|         self.apply_phase1()
+ 433|         if self.check_end():
+ 434|             return
+ 435|         self.phase2()
+ 436|         if self.check_end():
+ 437|             return
+ 438|         self.end_of_round()
+ 439| 
+
+--- lines 455..497 ---
+ 455|     def victory(self):
+ 456|         c = self.combat
+ 457|         if c is None or c.get("over"):
+ 458|             return
+ 459|         c["over"] = True
+ 460|         rounds = c.get("last_death_round") or c["round"]
+ 461|         self.emit("combat_end", result="victory", rounds=rounds)
+ 462|         total = 0
+ 463|         for gi, g in enumerate(c["groups"]):
+ 464|             mob = g["mob"]
+ 465|             killed = sum(1 for hp in g["hp"] if hp <= 0)
+ 466|             total += killed * mob.get("sturdiness", 0) * (mob.get("armorClass", 0) + 1)
+ 467|         alive = [i + 1 for i, m in enumerate(self.party) if not m.get("cond") == 2]
+ 468|         share = total // len(alive) if alive else 0
+ 469|         for slot in range(1, len(self.party) + 1):
+ 470|             m = self.party[slot - 1]
+ 471|             m["xp"] = m.get("xp", 0) + share
+ 472|             self.emit("xp", member=slot, delta=share, total=m["xp"])
+ 473|             lvl0 = m.get("level", 1)
+ 474|             lvl = rules.level_after(lvl0, m["xp"])
+ 475|             if lvl > lvl0:
+ 476|                 m["level"] = lvl
+ 477|                 m["max_hp"] = rules.max_hp((m.get("attrs") or {}).get("STR", 0), lvl)
+ 478|                 self.emit("promote", member=slot, level=lvl, max_hp=m["max_hp"],
+ 479|                           rank=RANKS[min(lvl, 7) - 1])
+ 480|         money = 5 * self.best_salvage() * c["kills"]
+ 481|         if money:
+ 482|             self.party[0]["money"] = self.party[0].get("money", 0) + money
+ 483|             self.emit("money", member=1, delta=money, total=self.party[0]["money"])
+ 484|         rec = c.get("rec")
+ 485|         self.combat = None
+ 486|         self.mode = "map"
+ 487|         # LR-44: after the victory the encounter cell's tail is applied; if that
+ 488|         # turns the cell into a LOOT cell, the loot fires at once (and its own
+ 489|         # tail is applied afterwards).
+ 490|         if rec is not None:
+ 491|             self.apply_tail(rec, self.x, self.y)
+ 492|             cls, _a = self.cell_class_action(self.x, self.y)
+ 493|             if cls == 5:
+ 494|                 lrec = maps.record_at(self.sc.map(self.location), self.x, self.y)
+ 495|                 if lrec is not None:
+ 496|                     self.apply_loot(lrec, self.x, self.y)
+ 497| 
+
+======================================================================
+src/wlengine/headless.py
+======================================================================
+--- lines 42..44 ---
+  42| class Engine(CombatMixin):
+  43|     """One engine instance driven by a script of input tokens."""
+  44| 
+
+--- lines 45..80 ---
+  45|     def __init__(self, data_dir, seed=None, options=None):
+  46|         self.data_dir = data_dir
+  47|         self.options = dict(options or {})
+  48|         self.sc = _load_scenario(data_dir)
+  49|         self.events = []
+  50|         self._seq = 0
+  51|         self.mode = "map"
+  52|         self.location = 0
+  53|         self.x = 0
+  54|         self.y = 0
+  55|         self.steps = 0
+  56|         self.day = 1
+  57|         self.hour = 0
+  58|         self.minute = 0
+  59|         self.prev_x = 0
+  60|         self.prev_y = 0
+  61|         self.prev_location = 0
+  62|         self.cell_changes = []
+  63|         self.rng = None
+  64|         self.seed = seed
+  65|         self.party = []
+  66|         self.serial = 0
+  67|         self.paragraph = 0
+  68|         self.shop = None
+  69|         self.pending = None
+  70|         self.pending_member = None
+  71|         self.pending_item = None
+  72|         self.pending_hook = None
+  73|         self.pending_cell = (0, 0)
+  74|         self.combat = None
+  75|         self.saved = {}
+  76|         self.script_seed = None
+  77|         self._items = None
+  78| 
+  79|     # -- event log ---------------------------------------------------------
+  80| 
+
+--- lines 91..106 ---
+  91|     def snapshot(self):
+  92|         return {
+  93|             "location": self.location,
+  94|             "x": self.x,
+  95|             "y": self.y,
+  96|             "steps": self.steps,
+  97|             "day": self.day,
+  98|             "hour": self.hour,
+  99|             "minute": self.minute,
+ 100|             "mode": self.mode,
+ 101|             "cell_changes": self.sorted_cell_changes(),
+ 102|             "rng_state": self.rng.state if self.rng is not None else None,
+ 103|             "party": [self.member_snapshot(i + 1)
+ 104|                       for i in range(len(self.party))],
+ 105|         }
+ 106| 
+
+--- lines 107..114 ---
+ 107|     def sorted_cell_changes(self):
+ 108|         """LR-57: the snapshot's cell changes are sorted by (location, y, x)
+ 109|         and a cell that changed more than once keeps only its last change."""
+ 110|         last = {}
+ 111|         for c in self.cell_changes:
+ 112|             last[(c[0], c[1], c[2])] = list(c)
+ 113|         return [last[k] for k in sorted(last, key=lambda k: (k[0], k[2], k[1]))]
+ 114| 
+
+--- lines 115..136 ---
+ 115|     def member_snapshot(self, member):
+ 116|         m = self.party[member - 1]
+ 117|         return {
+ 118|             "slot": member,
+ 119|             "name": m.get("name", ""),
+ 120|             "npc": m.get("npc", 0),
+ 121|             "level": m.get("level", 1),
+ 122|             "xp": m.get("xp", 0),
+ 123|             "max_hp": m.get("max_hp", 0),
+ 124|             "hp": m.get("hp", 0),
+ 125|             "cond": m.get("cond", 0),
+ 126|             "money": m.get("money", 0),
+ 127|             "ac": m.get("ac", 0),
+ 128|             "rank": m.get("rank", 0),
+ 129|             "skill_points": m.get("skill_points", 0),
+ 130|             "items": [list(it) for it in m.get("items", [])],
+ 131|             "weapon_slot": m.get("weapon_slot", -1),
+ 132|             "armour_slot": m.get("armour_slot", -1),
+ 133|         }
+ 134| 
+ 135|     # -- item table --------------------------------------------------------
+ 136| 
+
+--- lines 169..188 ---
+ 169|     def new_game(self, seed):
+ 170|         self.seed = seed
+ 171|         self.rng = rules.Rng(seed)
+ 172|         start = self.sc.start
+ 173|         self.location = start["location"]
+ 174|         self.x = start["x"]
+ 175|         self.y = start["y"]
+ 176|         self.hour = start.get("hour", 8)
+ 177|         self.minute = start.get("minute", 0)
+ 178|         self.day = start.get("day", 1)
+ 179|         self.steps = 0
+ 180|         self.cell_changes = []
+ 181|         self.mode = "map"
+ 182|         self.party = self.sc.premade_party()
+ 183|         self.emit("new_game", seed=seed)
+ 184|         self.paragraph = start.get("paragraph", 1)
+ 185|         self.emit("paragraph", n=self.paragraph)
+ 186| 
+ 187|     # -- script ------------------------------------------------------------
+ 188| 
+
+--- lines 511..528 ---
+ 511|     def move(self, dx, dy):
+ 512|         nx, ny = self.x + dx, self.y + dy
+ 513|         m = self.sc.map(self.location)
+ 514|         size = m["size"]
+ 515|         if not (0 <= nx < size and 0 <= ny < size):
+ 516|             self.emit("blocked", x=nx, y=ny)
+ 517|             return
+ 518|         cls, _action = self.cell_class_action(nx, ny)
+ 519|         if cls == 11 or not maps.is_passable(m, nx, ny):
+ 520|             self.bump(nx, ny)
+ 521|             return
+ 522|         ox, oy = self.x, self.y
+ 523|         self.x, self.y = nx, ny
+ 524|         self.steps += 1
+ 525|         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+ 526|         self.advance_time(self.step_minutes())
+ 527|         self.after_move(ox, oy)
+ 528| 
+
+--- lines 534..540 ---
+ 534|     def cell_class_action(self, x, y):
+ 535|         m = self.sc.map(self.location)
+ 536|         size = m["size"]
+ 537|         if not (0 <= x < size and 0 <= y < size):
+ 538|             return 0, 0
+ 539|         return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+ 540| 
+
+--- lines 574..592 ---
+ 574|     def after_move(self, ox=None, oy=None):
+ 575|         m = self.sc.map(self.location)
+ 576|         cls, action = self.cell_class_action(self.x, self.y)
+ 577|         rec = maps.record_at(m, self.x, self.y)
+ 578|         if cls == 10:
+ 579|             self.transition(rec, ox, oy)
+ 580|         elif cls == 6:
+ 581|             self.open_shop(rec)
+ 582|         elif cls == 3:
+ 583|             self.start_encounter(rec)
+ 584|         elif cls == 1 and rec is not None:
+ 585|             for msg in rec.get("messages", []):
+ 586|                 self.show_message(msg)
+ 587|         elif cls == 5 and rec is not None:
+ 588|             self.apply_loot(rec, self.x, self.y)
+ 589|         elif cls == 4 and rec is not None and not rec.get("impassable"):
+ 590|             self.show_message(rec.get("message", 0))
+ 591|             self.apply_tail(rec, self.x, self.y)
+ 592| 
+
+--- lines 603..609 ---
+ 603|     def bump(self, nx, ny):
+ 604|         m = self.sc.map(self.location)
+ 605|         rec = maps.record_at(m, nx, ny)
+ 606|         cls, action = self.cell_class_action(nx, ny)
+ 607|         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+ 608|         self.bump_effect(rec, nx, ny, cls)
+ 609| 
+
+--- lines 610..627 ---
+ 610|     def bump_effect(self, rec, nx, ny, cls=None):
+ 611|         if cls is None:
+ 612|             cls, _a = self.cell_class_action(nx, ny)
+ 613|         if cls == 11:
+ 614|             self.bump_blocked(rec, nx, ny)
+ 615|         elif cls == 4:
+ 616|             if rec is not None and rec.get("impassable"):
+ 617|                 self.show_message(rec.get("message", 0))
+ 618|                 if self.sc.hook(self.location, nx, ny):
+ 619|                     self.run_hook_at(nx, ny)
+ 620|                 else:
+ 621|                     self.apply_tail(rec, nx, ny)
+ 622|             elif rec is not None:
+ 623|                 self.show_message(rec.get("message", 0))
+ 624|                 self.apply_tail(rec, nx, ny)
+ 625|         elif cls == 3:
+ 626|             self.start_encounter(rec)
+ 627| 
+
+--- lines 628..633 ---
+ 628|     def bump_blocked(self, rec, nx, ny):
+ 629|         if rec is not None:
+ 630|             self.show_message(rec.get("message", 0))
+ 631|             self.apply_tail(rec, nx, ny)
+ 632|         self.run_hook_at(nx, ny)
+ 633| 
+
+--- lines 639..652 ---
+ 639|     def apply_tail(self, rec, x, y):
+ 640|         tail = maps.apply_tail(rec)
+ 641|         if tail is None:
+ 642|             return
+ 643|         m = self.sc.map(self.location)
+ 644|         m["cells"]["actionClass"][y][x] = tail[0]
+ 645|         m["cells"]["action"][y][x] = tail[1]
+ 646|         img = maps.image_at(m, x, y)
+ 647|         newrec = maps.record_at(m, x, y)
+ 648|         if newrec is not None and "tile" in newrec:
+ 649|             img = newrec["tile"]
+ 650|             m["cells"]["image"][y][x] = img
+ 651|         self.cell_change(x, y, tail[0], tail[1], img)
+ 652| 
+
+--- lines 653..687 ---
+ 653|     def apply_loot(self, rec, x, y):
+ 654|         for item in rec.get("items", []):
+ 655|             if isinstance(item, (list, tuple)):
+ 656|                 iid = item[0]
+ 657|                 fixed = bool(item[1]) if len(item) > 1 else True
+ 658|                 amount = item[2] if len(item) > 2 else 0
+ 659|             else:
+ 660|                 iid, fixed, amount = item, True, 0
+ 661|             status = amount if fixed else self.rng.rnd(amount)
+ 662|             placed = False
+ 663|             for i, m in enumerate(self.party):
+ 664|                 if len(m.get("items", [])) < 30:
+ 665|                     self.add_item(i + 1, iid, 1)
+ 666|                     slot = self.item_slot(i + 1, iid) + 1
+ 667|                     self.emit("item_gain", member=i + 1, item=iid, slot=slot,
+ 668|                               status=status)
+ 669|                     placed = True
+ 670|                     break
+ 671|             if not placed:
+ 672|                 self.emit("item_lost", item=iid)
+ 673|         cash = rec.get("cash")
+ 674|         if cash:
+ 675|             if isinstance(cash, (list, tuple)):
+ 676|                 fixed = bool(cash[0]) if len(cash) > 1 else True
+ 677|                 amount = cash[1] if len(cash) > 1 else cash[0]
+ 678|             else:
+ 679|                 fixed, amount = True, cash
+ 680|             amount = amount if fixed else self.rng.rnd(amount)
+ 681|             m = self.party[0]
+ 682|             m["money"] = m.get("money", 0) + amount
+ 683|             self.emit("money", member=1, delta=amount, total=m["money"])
+ 684|         self.apply_tail(rec, x, y)
+ 685| 
+ 686|     # -- cell changes ------------------------------------------------------
+ 687| 
+
+--- lines 688..695 ---
+ 688|     def cell_change(self, x, y, action_class, action, image):
+ 689|         self.cell_changes.append([self.location, x, y, action_class, action,
+ 690|                                   image])
+ 691|         self.emit("cell_change", location=self.location, x=x, y=y,
+ 692|                   action_class=action_class, action=action, image=image)
+ 693| 
+ 694|     # -- hooks -------------------------------------------------------------
+ 695| 
+
+--- lines 696..706 ---
+ 696|     def run_hook(self, hook, nx, ny):
+ 697|         kind = hook.get("kind")
+ 698|         if kind == "win":
+ 699|             self.hook_win(hook, nx, ny)
+ 700|         elif kind == "recruit":
+ 701|             self.hook_recruit(hook, nx, ny)
+ 702|         elif kind == "healer":
+ 703|             self.hook_healer(hook, nx, ny)
+ 704|         elif kind == "lock":
+ 705|             self.bump_lock(None, nx, ny)
+ 706| 
+
+--- lines 707..720 ---
+ 707|     def hook_win(self, hook, nx, ny):
+ 708|         item = hook.get("item")
+ 709|         if item is not None and not self.party_has(item):
+ 710|             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+ 711|             if para:
+ 712|                 self.emit("paragraph", n=para)
+ 713|             return
+ 714|         para = self.hook_get(hook, "win_paragraph", "win_para")
+ 715|         if para:
+ 716|             self.emit("paragraph", n=para)
+ 717|         self.mode = "won"
+ 718|         self.emit("win", steps=self.steps, day=self.day,
+ 719|                   minutes=self.hour * 60 + self.minute)
+ 720| 
+
+--- lines 744..769 ---
+ 744|     def bump_lock(self, rec, nx, ny):
+ 745|         hook = self.sc.hook(self.location, nx, ny)
+ 746|         if hook is None:
+ 747|             return
+ 748|         key_item = hook.get("key_item")
+ 749|         if key_item is not None:
+ 750|             member = self.member_with_item(key_item)
+ 751|             if member is not None:
+ 752|                 self.emit("key_used", member=member, item=key_item)
+ 753|                 self.unlock(nx, ny, hook, member, xp=0)
+ 754|                 return
+ 755|         member = self.pick_member(hook.get("skill", 0))
+ 756|         skill = hook.get("skill", 0)
+ 757|         level = self.skill_level(self.party[member - 1], skill)
+ 758|         attr = self.attr_value(self.party[member - 1], skill)
+ 759|         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+ 760|                                 bool(hook.get("tool_item")))
+ 761|         roll = self.rng.d100()
+ 762|         success = roll <= need
+ 763|         self.emit("check", member=member, skill=skill, level=level, need=need,
+ 764|                   roll=roll, success=success)
+ 765|         if success:
+ 766|             self.unlock(nx, ny, hook, member)
+ 767|         else:
+ 768|             self.show_message(hook.get("fail_message", 0))
+ 769| 
+
+--- lines 770..792 ---
+ 770|     def unlock(self, nx, ny, hook, member, xp=10):
+ 771|         self.emit("unlock", x=nx, y=ny)
+ 772|         m = self.sc.map(self.location)
+ 773|         rec = maps.record_at(m, nx, ny)
+ 774|         img = maps.image_at(m, nx, ny)
+ 775|         tail = maps.apply_tail(rec) if rec is not None else None
+ 776|         if tail is None:
+ 777|             tail = (0, 0)
+ 778|         m["cells"]["actionClass"][ny][nx] = tail[0]
+ 779|         m["cells"]["action"][ny][nx] = tail[1]
+ 780|         self.cell_change(nx, ny, tail[0], tail[1], img)
+ 781|         newimg = img
+ 782|         newrec = maps.record_at(m, nx, ny)
+ 783|         if newrec is not None and "tile" in newrec:
+ 784|             newimg = newrec["tile"]
+ 785|             m["cells"]["image"][ny][nx] = newimg
+ 786|         self.cell_change(nx, ny, tail[0], tail[1], newimg)
+ 787|         if xp:
+ 788|             mm = self.party[member - 1]
+ 789|             mm["xp"] = mm.get("xp", 0) + xp
+ 790|             self.emit("xp", member=member, delta=xp, total=mm["xp"])
+ 791|         self.show_message(hook.get("success_message", 0))
+ 792| 
+
+--- lines 934..949 ---
+ 934|     def do_recruit(self):
+ 935|         hook = self.pending_hook
+ 936|         nx, ny = self.pending_cell
+ 937|         m = self.sc.map(self.location)
+ 938|         img = self.hook_get(hook, "cleared_image", "image")
+ 939|         m["cells"]["actionClass"][ny][nx] = 0
+ 940|         m["cells"]["action"][ny][nx] = 0
+ 941|         m["cells"]["image"][ny][nx] = img
+ 942|         self.cell_change(nx, ny, 0, 0, img)
+ 943|         slot = len(self.party) + 1
+ 944|         idx = hook.get("npc", 0) or 0
+ 945|         npcs = m.get("npcs", [])
+ 946|         ch = npcs[idx] if 0 <= idx < len(npcs) else {}
+ 947|         self.party.append(self.member_from_character(ch, slot))
+ 948|         self.emit("recruit", location=self.location, npc=idx, slot=slot)
+ 949| 
+
+--- lines 950..970 ---
+ 950|     def member_from_character(self, ch, slot):
+ 951|         aff = ch.get("afflictions", 0)
+ 952|         cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+ 953|         return {
+ 954|             "slot": slot, "name": ch.get("name", ""), "npc": ch.get("npc", 0),
+ 955|             "level": ch.get("level", 1), "xp": ch.get("experience", 0),
+ 956|             "max_hp": ch.get("maxCon", 0), "hp": ch.get("curCon", 0),
+ 957|             "cond": cond, "money": ch.get("money", 0),
+ 958|             "ac": ch.get("armorClass", 0), "rank": ch.get("rank", ""),
+ 959|             "skill_points": ch.get("skillPoints", 0),
+ 960|             "items": [list(x) for x in ch.get("items", [])],
+ 961|             "skills": [list(x) for x in ch.get("skills", [])],
+ 962|             "weapon_slot": ch.get("weaponSlot", 0),
+ 963|             "armour_slot": ch.get("armorSlot", 0),
+ 964|             "attrs": {"STR": ch.get("strength", 0), "IQ": ch.get("intelligence", 0),
+ 965|                       "LCK": ch.get("luck", 0), "SPD": ch.get("speed", 0),
+ 966|                       "AGL": ch.get("agility", 0), "CHA": ch.get("charisma", 0)},
+ 967|             "gender": ch.get("gender", 0), "nationality": ch.get("nationality", 0),
+ 968|             "game_won": ch.get("gameWon", 0),
+ 969|         }
+ 970| 
+
+--- lines 997..1020 ---
+ 997|     def write_save_files(self):
+ 998|         dd = Path(self.data_dir)
+ 999|         # LABSTATE.BIN next to GAME1 (LR-54, LR-57)
+1000|         cc = sorted([list(c) for c in self.cell_changes], key=lambda c: (c[0], c[2], c[1]))
+1001|         blob = labstate.encode_labstate({
+1002|             "steps": self.steps, "day": self.day, "seconds": 0, "pad": 0,
+1003|             "rng_state": self.rng.state if self.rng is not None else 0,
+1004|             "cell_changes": cc,
+1005|         })
+1006|         try:
+1007|             (dd / "LABSTATE.BIN").write_bytes(blob)
+1008|         except OSError:
+1009|             pass
+1010|         # GAME1 savegame block (LR-55)
+1011|         try:
+1012|             block = self.build_savegame_payload()
+1013|             path = dd / "GAME1"
+1014|             data = bytearray(path.read_bytes())
+1015|             off = self.sc.tables["savegameOffsets"][0]
+1016|             data[off:off + len(block)] = block
+1017|             path.write_bytes(bytes(data))
+1018|         except Exception:  # noqa: BLE001
+1019|             pass
+1020| 
+
+--- lines 1039..1057 ---
+1039|     def character_dict(self, m):
+1040|         attrs = m.get("attrs", {})
+1041|         return {
+1042|             "name": m.get("name", ""),
+1043|             "strength": attrs.get("STR", 0), "intelligence": attrs.get("IQ", 0),
+1044|             "luck": attrs.get("LCK", 0), "speed": attrs.get("SPD", 0),
+1045|             "agility": attrs.get("AGL", 0), "charisma": attrs.get("CHA", 0),
+1046|             "money": m.get("money", 0), "gender": m.get("gender", 0),
+1047|             "nationality": m.get("nationality", 0), "armorClass": m.get("ac", 0),
+1048|             "maxCon": m.get("max_hp", 0), "curCon": m.get("hp", 0),
+1049|             "weaponSlot": m.get("weapon_slot", 0), "skillPoints": m.get("skill_points", 0),
+1050|             "experience": m.get("xp", 0), "level": m.get("level", 1),
+1051|             "armorSlot": m.get("armour_slot", 0), "afflictions": m.get("cond", 0),
+1052|             "npc": m.get("npc", 0), "rank": m.get("rank", ""),
+1053|             "gameWon": m.get("game_won", 0),
+1054|             "skills": [list(x) for x in m.get("skills", [])],
+1055|             "items": [list(x) for x in m.get("items", [])],
+1056|         }
+1057| 
+
+--- lines 1058..1086 ---
+1058|     def load_game(self):
+1059|         dd = Path(self.data_dir)
+1060|         ls_path = dd / "LABSTATE.BIN"
+1061|         if ls_path.is_file():
+1062|             st = labstate.decode_labstate(ls_path.read_bytes())
+1063|             self.steps = st.get("steps", self.steps)
+1064|             self.day = st.get("day", self.day)
+1065|             if self.rng is not None:
+1066|                 self.rng.state = st.get("rng_state", self.rng.state)
+1067|             self.cell_changes = [tuple(c) for c in st.get("cell_changes", [])]
+1068|         try:
+1069|             data = (dd / "GAME1").read_bytes()
+1070|             off = self.sc.tables["savegameOffsets"][0]
+1071|             sg = containers.decode_savegame(data, off)
+1072|             g = sg["groups"][0]
+1073|             self.x = g["x"]
+1074|             self.y = g["y"]
+1075|             self.location = g["map"]
+1076|             self.prev_x = g["prevX"]
+1077|             self.prev_y = g["prevY"]
+1078|             self.prev_location = g["prevMap"]
+1079|             self.minute = sg["minute"]
+1080|             self.hour = sg["hour"]
+1081|             self.serial = sg["serial"]
+1082|             self.restore_party(sg)
+1083|         except Exception:  # noqa: BLE001
+1084|             pass
+1085|         self.emit("load", serial=self.serial)
+1086| 
+
+--- lines 1103..1135 ---
+1103|     def start_encounter(self, rec):
+1104|         self.mode = "combat"
+1105|         groups = self.build_groups(rec)
+1106|         self.combat = {"groups": groups, "round": 0, "rec": rec, "surprised": False,
+1107|                        "band": 3, "kills": 0, "fired": set(),
+1108|                        "pending_monsters": [[0] * len(g["hp"]) for g in groups],
+1109|                        "pending_members": {}, "over": False, "last_death_round": None}
+1110|         self.emit("encounter_start", groups=[self.group_event(g) for g in groups])
+1111|         msg = (rec or {}).get("message", 0)
+1112|         if msg:
+1113|             self.show_message(msg)
+1114|         if (rec or {}).get("friendly"):
+1115|             self.emit("combat_end", result="friendly")
+1116|             self.mode = "map"
+1117|             self.apply_tail(rec, self.x, self.y)
+1118|             return
+1119|         if not groups:
+1120|             self.emit("combat_end", result="victory", rounds=0)
+1121|             self.mode = "map"
+1122|             self.apply_tail(rec, self.x, self.y)
+1123|             return
+1124|         d_max = max(g["mob"].get("combatRating", 0) for g in groups)
+1125|         skill = 18
+1126|         member = self.pick_member(skill)
+1127|         level = self.skill_level(self.party[member - 1], skill)
+1128|         attr = self.attr_value(self.party[member - 1], skill)
+1129|         res = rules.skill_check(self.rng, level, attr, d_max)
+1130|         self.emit("check", member=member, skill=skill, level=level, **res)
+1131|         if not res["success"]:
+1132|             self.combat["surprised"] = True
+1133|             self.emit("surprised")
+1134|             self.surprise_round()
+1135| 
+
+--- lines 1163..1186 ---
+1163|     def _until_met(self, until):
+1164|         if isinstance(until, str):
+1165|             if until.startswith("mode:"):
+1166|                 return self.mode == until[len("mode:"):]
+1167|             if until.startswith("cell:"):
+1168|                 parts = until[len("cell:"):].split(",")
+1169|                 if len(parts) == 3:
+1170|                     loc, x, y = (int(p) for p in parts)
+1171|                     return any(c[0] == loc and c[1] == x and c[2] == y
+1172|                                for c in self.cell_changes)
+1173|                 return False
+1174|             return any(e.get("type") == until for e in self.events)
+1175|         if isinstance(until, dict):
+1176|             for e in self.events:
+1177|                 if all(e.get(k) == v for k, v in until.items()):
+1178|                     return True
+1179|         return False
+1180| 
+1181| 
+1182| # ---------------------------------------------------------------------------
+1183| # entry point
+1184| # ---------------------------------------------------------------------------
+1185| 
+1186| 
+
+======================================================================
+src/wlengine/rules.py
+======================================================================
+--- lines 159..163 ---
+ 159| def xp_threshold(level: int) -> int:
+ 160|     """LR-45."""
+ 161|     return 50 * level * (level + 1)
+ 162| 
+ 163| 
+
+--- lines 164..174 ---
+ 164| def level_after(level: int, xp: int) -> int:
+ 165|     """LR-45."""
+ 166|     while xp >= xp_threshold(level):
+ 167|         level += 1
+ 168|     return level
+ 169| 
+ 170| 
+ 171| # ---------------------------------------------------------------------------
+ 172| # LR-20, LR-53: money and shops
+ 173| # ---------------------------------------------------------------------------
+ 174| 
+
+--- lines 304..318 ---
+ 304|     def key(a):
+ 305|         party = a.get("side") == "party"
+ 306|         return (-a.get("speed", 0), 0 if party else 1,
+ 307|                 a.get("slot", 0) if party else 0,
+ 308|                 0 if party else a.get("group", 0),
+ 309|                 0 if party else a.get("index", 0))
+ 310|     return sorted(actors, key=key)
+ 311| 
+ 312| 
+ 313| __all__ = ["Rng", "read_skill_table", "roll_attributes", "max_hp", "armour_class",
+ 314|            "starting_money", "check_need", "skill_check", "pick_checker", "advance_clock",
+ 315|            "xp_threshold", "level_after", "buy_price", "sell_price", "pay", "monster_values",
+ 316|            "monster_hp", "monster_damage", "build_groups", "ranged_need", "melee_need",
+ 317|            "monster_need", "flee_need", "jam_chance", "unarmed_attacks", "melee_damage_bonus",
+ 318|            "damage_member", "speed_order"]
+
+======================================================================
+tests/test_m5_rules.py lines 500..545
+======================================================================
+ 500| def test_steps_clock_and_transition(runner):
+ 501|     ev, _ = runner.run("exit", {"seed": SEED, "script": ["DOWN"] * 11 + [{"checkpoint": "a"}, "RIGHT",
+ 502|                                                                          {"checkpoint": "b"}]})
+ 503|     subset("after 11 steps out of Saltwell (LR-15, LR-16, L-TR5)", ckpt(ev, "a"),
+ 504|            {"location": 0, "x": 10, "y": 41, "steps": 11, "day": 1, "hour": 8, "minute": 11})
+ 505|     subset("one overworld step later (10 minutes per step)", ckpt(ev, "b"),
+ 506|            {"location": 0, "x": 11, "y": 41, "steps": 12, "hour": 8, "minute": 21})
+ 507|     types = [strip(e) for e in ev if e.get("type") in ("map_change", "paragraph", "message")]
+ 508|     check_eq("paragraph and transition events on the way out (LR-25: no message event for a paragraph)", types,
+ 509|              [{"type": "paragraph", "n": 1}, {"type": "paragraph", "n": 2},
+ 510|               {"type": "map_change", "location": 0, "x": 10, "y": 41}])
+ 511| 
+ 512| 
+ 513| def test_bump_is_not_a_step(runner):
+ 514|     ev, _ = runner.run("bump", {"seed": SEED, "script": ["LEFT"] * 13 + [{"checkpoint": "a"}]})
+ 515|     subset("after 12 steps west and one bump (LR-15)", ckpt(ev, "a"),
+ 516|            {"location": 1, "x": 3, "y": 20, "steps": 12, "hour": 8, "minute": 12})
+ 517|     tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-2:]
+ 518|     check_eq("events of the bump into the cactus at (2, 20)", tail,
+ 519|              [{"type": "input", "key": "LEFT"}, {"type": "bump", "x": 2, "y": 20, "action_class": 11, "action": 0}])
+ 520| 
+ 521| 
+ 522| def test_rest(runner):
+ 523|     ev, _ = runner.run("rest", {"seed": SEED, "script": ["R", {"checkpoint": "a"}]})
+ 524|     subset("after one rest (LR-17)", ckpt(ev, "a"), {"steps": 0, "day": 1, "hour": 9, "minute": 0, "rng_state": SEED})
+ 525|     i = next((k for k, e in enumerate(ev) if e.get("type") == "input"), None)
+ 526|     check_eq("events after the R token (full HP, no Foraging)",
+ 527|              [strip(e) for e in ev[i:] if e.get("type") != "checkpoint"],
+ 528|              [{"type": "input", "key": "R"}, {"type": "rest"}])
+ 529| 
+ 530| 
+ 531| def test_win_hook_without_item(runner):
+ 532|     ev, _ = runner.run("pump", {"seed": SEED, "script": ["UP"] * 9 + [{"checkpoint": "a"}]})
+ 533|     tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-3:]
+ 534|     check_eq("bumping the Saltwell pump without the valve (LR-18, LR-24)", tail,
+ 535|              [{"type": "input", "key": "UP"}, {"type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0},
+ 536|               {"type": "paragraph", "n": 4}])
+ 537|     subset("mode after the pump bump", ckpt(ev, "a"), {"mode": "map", "steps": 8})
+ 538| 
+ 539| 
+ 540| # ---- shop, equip, recruit (walkthrough to CP2 and CP3; no random draws) -----
+ 541| 
+ 542| ITEMS = {it["id"]: it for it in W.load_json(W.SCENARIO / "items.json")["items"]}
+ 543| SHOPS = W.load_json(W.SCENARIO / "shops.json")["shops"]
+ 544| 
+ 545| 
+
+======================================================================
+tests/test_m5_rules.py lines 760..840
+======================================================================
+ 760|     t = call("containers.read_tables", str(dd / "LABTABLES.BIN"))
+ 761|     g = (dd / "GAME1").read_bytes()
+ 762|     off = t["savegameOffsets"][0]
+ 763|     try:
+ 764|         return C.rxor_decode_whole(g, 0x800, off + 4)
+ 765|     except ValueError as e:
+ 766|         fail("the saved GAME1 savegame block fails the reference checksum: %s" % e)
+ 767| 
+ 768| 
+ 769| def test_save_labstate(runner, walkthrough):
+ 770|     ev, dd = _saved(runner, walkthrough)
+ 771|     st = ckpt(ev, "CP5-pre-save")
+ 772|     p = dd / "LABSTATE.BIN"
+ 773|     if not p.is_file():
+ 774|         fail("no LABSTATE.BIN next to GAME1 after S (LR-54)")
+ 775|     try:
+ 776|         ls = W.ref_labstate(p.read_bytes())
+ 777|     except ValueError as e:
+ 778|         fail("LABSTATE.BIN does not follow LR-57: %s" % e)
+ 779|     want_cc = sorted(st.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+ 780|     check_eq("LABSTATE.BIN after the save (LR-57)", ls,
+ 781|              {"steps": st.get("steps"), "day": st.get("day"), "seconds": 0, "pad": 0, "rng_state": st.get("rng_state"),
+ 782|               "cell_changes": want_cc})
+ 783| 
+ 784| 
+ 785| def test_save_savegame_fields(runner, walkthrough):
+ 786|     ev, dd = _saved(runner, walkthrough)
+ 787|     p = _payload(dd)
+ 788|     got = {"order": list(p[1:8]), "x": p[8], "y": p[9], "map": p[10], "prevX": p[11], "prevY": p[12], "prevMap": p[13],
+ 789|            "groups1to3": list(p[14:56]), "viewport": [p[0x78], p[0x79]], "members": [p[0x7D], p[0x80]],
+ 790|            "party": p[0x7E], "location": p[0x7F], "extra": p[0x81], "clock": [p[0x83], p[0x84]], "scroll": p[0x85],
+ 791|            "serial": int.from_bytes(p[0xF5:0xF9], "little")}
+ 792|     want = {"order": [1, 2, 3, 4, 5, 0, 0], "x": 25, "y": 5, "map": 2, "prevX": 43, "prevY": 28, "prevMap": 0,
+ 793|             "groups1to3": [0] * 42, "viewport": [25, 5], "members": [5, 5], "party": 0, "location": 2, "extra": 0,
+ 794|             "clock": [28, 17], "scroll": 0, "serial": 1}
+ 795|     check_eq("savegame payload after the save at CP5 (LR-55, L-TR4)", got, want)
+ 796|     names = [bytes(p[0x100 * (s + 1):0x100 * (s + 1) + 14]).split(b"\x00")[0].decode("latin-1") for s in range(7)]
+ 797|     check_eq("character record names (LR-55)", names, ["Hessa Brand", "Tobin Ash", "Maro Quill", "Dell Ostrow",
+ 798|                                                        "Orla Penn", "", ""])
+ 799|     check_eq("slots 6 and 7 all zero (LR-55)", any(p[0x600:0x800]), False)
+ 800| 
+ 801| 
+ 802| def test_load_restores_state(runner, walkthrough):
+ 803|     ev, dd = _saved(runner, walkthrough)
+ 804|     want = ckpt(ev, "CP5-pre-save")
+ 805|     ev2, _ = runner.run("reload", {"seed": 5, "script": ["O", "Y", {"checkpoint": "loaded"}]}, None, data_dir=dd)
+ 806|     check_eq("a fresh run that loads the save sees the saved state (LR-4, LR-56)", ckpt(ev2, "loaded"), want)
+ 807| 
+ 808| 
+ 809| def test_save_load_save(runner, walkthrough):
+ 810|     _, dd1 = _saved(runner, walkthrough)
+ 811|     p1 = _payload(dd1)
+ 812|     l1 = (dd1 / "LABSTATE.BIN").read_bytes()
+ 813|     _, dd2 = runner.run("saveloadsave", {"seed": SEED, "script": prefix(walkthrough, "CP5") + ["S"]})
+ 814|     p2 = _payload(dd2)
+ 815|     diff = [i for i in range(0x800) if p1[i] != p2[i]]
+ 816|     if any(not (0xF5 <= i < 0xF9) for i in diff):
+ 817|         j = next(i for i in diff if not (0xF5 <= i < 0xF9))
+ 818|         fail("save, load, save: payload byte 0x%03X differs (%02X then %02X); only the serial may change (LR-56)"
+ 819|              % (j, p1[j], p2[j]))
+ 820|     check_eq("save, load, save: serial", int.from_bytes(p2[0xF5:0xF9], "little"),
+ 821|              int.from_bytes(p1[0xF5:0xF9], "little") + 1)
+ 822|     check_bytes("save, load, save: LABSTATE.BIN identical (LR-56)", (dd2 / "LABSTATE.BIN").read_bytes(), l1)
+ 823| 
+ 824| 
+ 825| def test_load_bad_labstate(runner, walkthrough, tmp_path_factory):
+ 826|     _, dd = _saved(runner, walkthrough)
+ 827|     bad = tmp_path_factory.mktemp("badsave")
+ 828|     import shutil
+ 829|     shutil.copytree(dd, bad, dirs_exist_ok=True)
+ 830|     b = bytearray((bad / "LABSTATE.BIN").read_bytes())
+ 831|     b[-1] ^= 0x01
+ 832|     (bad / "LABSTATE.BIN").write_bytes(bytes(b))
+ 833|     expect_error("FormatError", "headless.run", str(bad), {"seed": SEED, "script": ["O", "Y"]}, None,
+ 834|                  what="load with a wrong LABSTATE.BIN sum (LR-57, SPEC-06 exit code 3)")
+
+======================================================================
+tests/wl_combat_ref.py lines 150..240
+======================================================================
+ 150| 
+ 151| def combat_window(events: list[dict], round_no: int) -> list[dict] | None:
+ 152|     """Events after round_start(round_no) while they are combat resolution events."""
+ 153|     for i, e in enumerate(events):
+ 154|         if e.get("type") == "round_start" and e.get("round") == round_no:
+ 155|             out = []
+ 156|             for f in events[i + 1:]:
+ 157|                 if f.get("type") not in COMBAT_TYPES:
+ 158|                     break
+ 159|                 out.append({k: v for k, v in f.items() if k != "seq"})
+ 160|             return out
+ 161|     return None
+ 162| 
+ 163| 
+ 164| def consistency(events: list[dict]) -> list[tuple[str, str]]:
+ 165|     """Rule-consistency issues for the raider fight in an engine log.
+ 166| 
+ 167|     Categories: orders (LR-33), need (LR-34 party and monster need), jam
+ 168|     (LR-34 step 2, LR-39), target (LR-34 step 4), victory (LR-44, LR-45, LR-46).
+ 169|     """
+ 170|     issues: list[tuple[str, str]] = []
+ 171|     try:
+ 172|         start = next(i for i, e in enumerate(events) if e.get("type") == "encounter_start")
+ 173|     except StopIteration:
+ 174|         return [("all", "no encounter_start event in the log")]
+ 175|     end = next((i for i in range(start, len(events)) if events[i].get("type") == "combat_end"), None)
+ 176|     if end is None:
+ 177|         return [("all", "no combat_end event after encounter_start")]
+ 178|     groups = events[start].get("groups") or []
+ 179|     if len(groups) != 1 or groups[0].get("count") != 3:
+ 180|         return [("all", "encounter_start groups: expected one group of 3 raiders, got %r" % groups)]
+ 181|     hp = list(groups[0].get("hp", []))
+ 182|     band = groups[0].get("band", 3)
+ 183|     loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+ 184|     boxes = {s: PARTY_CP3[s]["boxes"] for s in PARTY_CP3}
+ 185|     jammed: set[int] = set()
+ 186|     pend = [0] * 3
+ 187|     in_phase1 = False
+ 188|     last_death_round = None
+ 189|     cur_round = None
+ 190|     rounds_started = []
+ 191| 
+ 192|     def finalize():
+ 193|         nonlocal in_phase1
+ 194|         if in_phase1:
+ 195|             for i in range(3):
+ 196|                 hp[i] -= pend[i]
+ 197|                 pend[i] = 0
+ 198|             in_phase1 = False
+ 199| 
+ 200|     for e in events[start + 1:end + 1]:
+ 201|         t = e.get("type")
+ 202|         if t == "round_orders":
+ 203|             exp = {}
+ 204|             for s in sorted(PARTY_CP3):
+ 205|                 alive = any(h > 0 for h in hp)
+ 206|                 if not alive:
+ 207|                     exp[str(s)] = ["wait"]
+ 208|                 elif s in jammed:
+ 209|                     exp[str(s)] = ["unjam"]
+ 210|                 elif loads[s] > 0:
+ 211|                     exp[str(s)] = ["fire", 1]
+ 212|                 elif boxes[s] > 0:
+ 213|                     exp[str(s)] = ["reload"]
+ 214|                 else:
+ 215|                     exp[str(s)] = ["unarmed", 1] if band == 1 else ["advance", 1]
+ 216|             got = {str(k): list(v) for k, v in (e.get("orders") or {}).items()}
+ 217|             if got != exp:
+ 218|                 diff = next((k for k in exp if got.get(k) != exp[k]), None)
+ 219|                 issues.append(("orders", "round %s: slot %s order expected %r, got %r"
+ 220|                                % (e.get("round"), diff, exp.get(diff), got.get(diff))))
+ 221|         elif t == "round_start":
+ 222|             finalize()
+ 223|             cur_round = e.get("round")
+ 224|             rounds_started.append(cur_round)
+ 225|             in_phase1 = True
+ 226|             pend = [0] * 3
+ 227|         elif t == "attack" and e.get("side") == "party":
+ 228|             s = e.get("member")
+ 229|             mm = PARTY_CP3.get(s)
+ 230|             if mm is None:
+ 231|                 issues.append(("need", "party attack by unknown member %r" % s))
+ 232|                 continue
+ 233|             w = mm["weapon"]
+ 234|             need = ref_ranged_need(mm["skills"].get(w["skill"], 0), mm["AGL"], RAIDER["armorClass"], band)
+ 235|             if e.get("need") != need:
+ 236|                 issues.append(("need", "party attack by member %d at band %d: need expected %d, got %r"
+ 237|                                % (s, band, need, e.get("need"))))
+ 238|             hit = e.get("roll") is not None and e.get("roll") <= e.get("need", -1)
+ 239|             if e.get("hit") != hit or (("damage" in e) != hit):
+ 240|                 issues.append(("need", "party attack by member %d: roll %r need %r but hit=%r damage=%r"
+

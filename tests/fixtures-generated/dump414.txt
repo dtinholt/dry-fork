@@ -1,0 +1,351 @@
+compiled to /Users/dtinholt/wasteland-build/runs/w1-2026-10-21/scratch/probe414-a83r2vpr
+{"seed": 20261021, "seq": 0, "type": "new_game"}
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"key": "LEFT", "seq": 2, "type": "input"}
+{"location": 1, "seq": 3, "steps": 1, "type": "move", "x": 14, "y": 20}
+{"key": "LEFT", "seq": 4, "type": "input"}
+{"location": 1, "seq": 5, "steps": 2, "type": "move", "x": 13, "y": 20}
+{"key": "LEFT", "seq": 6, "type": "input"}
+{"location": 1, "seq": 7, "steps": 3, "type": "move", "x": 12, "y": 20}
+{"key": "LEFT", "seq": 8, "type": "input"}
+{"location": 1, "seq": 9, "steps": 4, "type": "move", "x": 11, "y": 20}
+{"key": "LEFT", "seq": 10, "type": "input"}
+{"location": 1, "seq": 11, "steps": 5, "type": "move", "x": 10, "y": 20}
+{"key": "LEFT", "seq": 12, "type": "input"}
+{"location": 1, "seq": 13, "steps": 6, "type": "move", "x": 9, "y": 20}
+{"key": "LEFT", "seq": 14, "type": "input"}
+{"location": 1, "seq": 15, "steps": 7, "type": "move", "x": 8, "y": 20}
+{"key": "LEFT", "seq": 16, "type": "input"}
+{"location": 1, "seq": 17, "steps": 8, "type": "move", "x": 7, "y": 20}
+{"key": "LEFT", "seq": 18, "type": "input"}
+{"location": 1, "seq": 19, "steps": 9, "type": "move", "x": 6, "y": 20}
+{"key": "LEFT", "seq": 20, "type": "input"}
+{"location": 1, "seq": 21, "steps": 10, "type": "move", "x": 5, "y": 20}
+{"key": "LEFT", "seq": 22, "type": "input"}
+{"location": 1, "seq": 23, "steps": 11, "type": "move", "x": 4, "y": 20}
+{"key": "LEFT", "seq": 24, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 25, "type": "bump", "x": 3, "y": 20}
+{"key": "LEFT", "seq": 26, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 27, "type": "bump", "x": 3, "y": 20}
+{"name": "a", "seq": 28, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 11, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [1, 0]], "level": 1, "max_hp": 26, "money": 60, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 1]], "level": 1, "max_hp": 21, "money": 80, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 1], [9, 3]], "level": 1, "max_hp": 22, "money": 70, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}], "rng_state": 20261021, "steps": 11, "x": 4, "y": 20}, "type": "checkpoint"}
+---- look ----
+{"seed": 20261021, "seq": 0, "type": "new_game"}
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"key": "L", "seq": 2, "type": "input"}
+{"key": "LEFT", "seq": 3, "type": "input"}
+{"action_class": 0, "image": 10, "seq": 4, "type": "look", "x": 14, "y": 20}
+{"name": "a", "seq": 5, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 0, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [1, 0]], "level": 1, "max_hp": 26, "money": 60, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 1]], "level": 1, "max_hp": 21, "money": 80, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 1], [9, 3]], "level": 1, "max_hp": 22, "money": 70, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}], "rng_state": 20261021, "steps": 0, "x": 15, "y": 20}, "type": "checkpoint"}
+---- map1 json cells around (14,20) ----
+keys: ['action_cells', 'action_class', 'action_value', 'conventions', 'height', 'info', 'location', 'mobs', 'name', 'npcs', 'records', 'strings', 'tiles', 'tileset', 'width']
+{
+ "location": 1,
+ "name": "Saltwell",
+ "width": 32,
+ "height": 32,
+ "tileset": 0,
+ "info": {
+  "encounter_frequency": 0,
+  "tileset": 0,
+  "random_monster_types": 0,
+  "max_random_encounters": 0,
+  "border_image": 35,
+  "time_per_step": 256,
+  "heal_rate": 0
+ },
+ "conventions": "arrays are [y][x]; tiles hold tile ids (image = id + 10); action_value is the 1-based slot in records[class] (SPEC-03 L-AC2, L-AC3); records[c][i] is slot i + 1",
+ "strings": [
+  "",
+  "Read paragraph 2.",
+  "Read paragraph 3.",
+  "Read paragraph 5.",
+  "The trough is green at the edges and nearly empty.",
+  "Saltwell Dry Goods.",
+  "Read paragraph 6.",
+  "Orla shrugs. Some other time, then."
+ ],
+ "mobs": [
+  {
+   "name": "stray dog",
+   "plural_suffix": "s",
+   "sturdiness": 4,
+   "combat_rating": 2,
+   "random_damage": 1,
+   "max_group": 2,
+   "armor_class": 0,
+   "fixed_damage": 0,
+   "weapon_type": 1,
+   "type": 1,
+   "portrait": 1
+  }
+ ],
+ "npcs": [
+  {
+   "name": "Orla Penn",
+   "gender": 1,
+   "nationality": 1,
+   "attrs": {
+    "STR": 13,
+    "IQ": 11,
+    "LCK": 14,
+    "SPD": 14,
+    "AGL": 15,
+    "CHA": 11
+   },
+   "money": 25,
+   "skills": [
+    [
+     5,
+     2
+    ],
+    [
+     18,
+     2
+    ],
+    [
+     19,
+     1
+    ]
+   ],
+   "items": [
+    [
+     5,
+     8
+    ],
+    [
+     6,
+     2
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0,
+   "xp": 200,
+   "level": 2,
+   "portrait": 1
+  }
+ ],
+ "records": {
+  "10": [
+   {
+    "relative": false,
+    "confirm": false,
+    "message": 0,
+    "x": 10,
+    "y": 41,
+    "location": 0,
+    "new_class": 255,
+    "new_action": 0
+   },
+   {
+    "relative": false,
+    "confirm": false,
+    "message": 0,
+    "x": 10,
+    "y": 41,
+    "location": 0,
+    "new_class": 255,
+    "new_action": 0
+   }
+  ],
+  "1": [
+   {
+    "messages": [
+     1
+    ],
+    "new_class": 255,
+    "new_action": 0
+   },
+   {
+    "messages": [
+     2
+    ],
+    "new_class": 255,
+    "new_action": 0
+   },
+   {
+    "messages": [
+     3
+    ],
+    "new_class": 255,
+    "new_action": 0
+   },
+   {
+    "messages": [
+     4
+    ],
+    "new_class": 255,
+    "new_action": 0
+   }
+  ],
+  "6": [
+   {
+    "shop": 0,
+    "message": 5,
+    "new_class": 255,
+    "new_action": 0
+   }
+  ],
+  "11": [
+   {
+    "message": 6,
+    "new_class": 255,
+    "new_action": 0
+   }
+  ]
+ },
+ "action_cells": [
+  {
+   "x": 15,
+   "y": 31,
+   "tile": 18,
+   "class": 10,
+   "action": 1,
+   "note": "Saltwell gate to overworld (10,41)"
+  },
+  {
+   "x": 16,
+   "y": 31,
+   "tile": 18,
+   "class": 10,
+   "action": 2,
+   "note": "Saltwell gate to overworld (10,41)"
+  },
+  {
+   "x": 15,
+   "y": 29,
+   "tile": 18,
+   "class": 1,
+   "action": 1,
+   "note": "Saltwell sign, paragraph 2"
+  },
+  {
+   "x": 6,
+   "y": 7,
+   "tile": 19,
+   "class": 1,
+   "action": 2,
+   "note": "Dry goods doorway, paragraph 3"
+  },
+  {
+   "x": 23,
+   "y": 7,
+   "tile": 19,
+   "class": 1,
+   "action": 3,
+   "note": "Healer's doorway, paragraph 5"
+  },
+  {
+   "x": 13,
+   "y": 12,
+   "tile": 18,
+   "class": 1,
+   "action": 4,
+   "note": "Trough message"
+  },
+  {
+   "x": 6,
+   "y": 5,
+   "tile": 17,
+   "class": 6,
+   "action": 1,
+   "note": "Shop list 0, Saltwell Dry Goods"
+  },
+  {
+   "x": 8,
+   "y": 17,
+   "tile": 24,
+   "class": 11,
+   "action": 1,
+   "note": "NPC 0 of Saltwell: Orla Penn"
+  },
+  {
+   "x": 22,
+   "y": 4,
+   "tile": 22,
+   "class": 11,
+   "action": 0,
+   "note": "Healer's cot, Saltwell"
+  },
+  {
+   "x": 15,
+   "y": 11,
+   "tile": 23,
+   "class": 11,
+   "action": 0,
+   "note": "Saltwell pump: win hook"
+  }
+ ],
+ "action_class": [
+  [
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11,
+   11
+  ],
+  [
+   11,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   11
+  ],
+  [
+   11,
+   0,
+   11,
+  
+has tiles <class 'list'>

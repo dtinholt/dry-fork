@@ -1,0 +1,795 @@
+======================================================================
+MODULE wlengine.headless
+======================================================================
+### try_move: MISSING
+### move: MISSING
+### bump: MISSING
+### bump_effect: MISSING
+### bump_lock: MISSING
+### key_o: MISSING
+### key_y: MISSING
+### load_game: MISSING
+### write_save_files: MISSING
+### save_game: MISSING
+### restore_party: MISSING
+### character_dict: MISSING
+### build_savegame_payload: MISSING
+### snapshot: MISSING
+### checkpoint: MISSING
+### dispatch: MISSING
+### input: MISSING
+### member_from_character: MISSING
+### advance_time: MISSING
+### apply_tail: MISSING
+### cell_action: MISSING
+======================================================================
+MODULE wlengine.combat
+======================================================================
+### auto_orders: MISSING
+### weapon_ammo: MISSING
+### ammo_boxes: MISSING
+### member_weapon: MISSING
+### loaded: MISSING
+### combat_round: MISSING
+### resolve_round: MISSING
+### member_has_ammo: MISSING
+======================================================================
+MODULE wlengine.labstate
+======================================================================
+### encode_labstate
+def encode_labstate(state: dict) -> bytes:
+    """LR-57: cell changes written sorted by (location, y, x)."""
+    cc = sorted(state.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+    b = bytearray(MAGIC)
+    b += int(state.get("steps", 0)).to_bytes(4, "little")
+    b += int(state.get("day", 1)).to_bytes(2, "little")
+    b += bytes((int(state.get("seconds", 0)) & 0xFF, 0))
+    b += int(state.get("rng_state", 0)).to_bytes(4, "little")
+    b += len(cc).to_bytes(2, "little")
+    for c in cc:
+        b += bytes(int(v) & 0xFF for v in c)
+    b += (sum(b) & 0xFFFF).to_bytes(2, "little")
+    return bytes(b)
+
+### decode_labstate
+def decode_labstate(data: bytes) -> dict:
+    """LR-57; ``FormatError`` on a wrong magic or sum."""
+    if len(data) < 0x16 + 2:
+        raise FormatError("LABSTATE: %d bytes, too short" % len(data))
+    if data[:8] != MAGIC:
+        raise FormatError("LABSTATE: bad magic %r" % (bytes(data[:8]),))
+    n = int.from_bytes(data[0x14:0x16], "little")
+    end = 0x16 + 6 * n
+    if len(data) != end + 2:
+        raise FormatError("LABSTATE: %d bytes, expected %d" % (len(data), end + 2))
+    if sum(data[:end]) & 0xFFFF != int.from_bytes(data[end:end + 2], "little"):
+        raise FormatError("LABSTATE: bad checksum")
+    cc = [list(data[0x16 + 6 * i:0x16 + 6 * i + 6]) for i in range(n)]
+    return {"steps": int.from_bytes(data[8:12], "little"),
+            "day": int.from_bytes(data[12:14], "little"),
+            "seconds": data[14], "pad": data[15],
+            "rng_state": int.from_bytes(data[16:20], "little"),
+            "cell_changes": cc}
+
+======================================================================
+MODULE wlengine.containers
+======================================================================
+### encode_savegame
+def encode_savegame(savegame: dict, disk: int) -> bytes:
+    sg = savegame
+    p = bytearray(SAVEGAME_PAYLOAD)
+    for g, grp in enumerate(sg.get("groups", [])[:4]):
+        o = g * 14
+        order = list(grp.get("order", [0] * 7))[:7]
+        p[o + 1:o + 1 + len(order)] = bytes(x & 0xFF for x in order)
+        p[o + 8] = grp.get("x", 0) & 0xFF
+        p[o + 9] = grp.get("y", 0) & 0xFF
+        p[o + 10] = grp.get("map", 0) & 0xFF
+        p[o + 11] = grp.get("prevX", 0) & 0xFF
+        p[o + 12] = grp.get("prevY", 0) & 0xFF
+        p[o + 13] = grp.get("prevMap", 0) & 0xFF
+    p[0x78] = sg.get("viewportX", 0) & 0xFF
+    p[0x79] = sg.get("viewportY", 0) & 0xFF
+    p[0x7D] = sg.get("currentMembers", 0) & 0xFF
+    p[0x7E] = sg.get("currentParty", 0) & 0xFF
+    p[0x7F] = sg.get("currentMap", 0) & 0xFF
+    p[0x80] = sg.get("totalMembers", 0) & 0xFF
+    p[0x81] = sg.get("extraGroups", 0) & 0xFF
+    p[0x83] = sg.get("minute", 0) & 0xFF
+    p[0x84] = sg.get("hour", 0) & 0xFF
+    p[0x85] = sg.get("combatScrollSpeed", 0) & 0xFF
+    p[0xF5:0xF9] = _u32(sg.get("serial", 0))
+    for i, ch in enumerate(sg.get("characters", [])[:7]):
+        p[0x100 + i * 0x100:0x200 + i * 0x100] = encode_character(ch)
+    block = b"msq" + bytes(((0x30 + disk) & 0xFF,)) + codecs.rotating_xor_encode(bytes(p))
+    return block + bytes(SAVEGAME_RESERVED - len(block))
+
+### decode_savegame
+def decode_savegame(game: bytes, offset: int) -> dict:
+    _check_msq_header(game, offset, "savegame")
+    p = codecs.rotating_xor_decode_whole(game, SAVEGAME_PAYLOAD, offset + 4)
+    groups = []
+    for g in range(4):
+        o = g * 14
+        groups.append({"order": list(p[o + 1:o + 8]), "x": p[o + 8], "y": p[o + 9],
+                       "map": p[o + 10], "prevX": p[o + 11], "prevY": p[o + 12],
+                       "prevMap": p[o + 13]})
+    sg = {"groups": groups, "viewportX": p[0x78], "viewportY": p[0x79],
+          "currentMembers": p[0x7D], "currentParty": p[0x7E], "currentMap": p[0x7F],
+          "totalMembers": p[0x80], "extraGroups": p[0x81], "minute": p[0x83],
+          "hour": p[0x84], "combatScrollSpeed": p[0x85], "serial": _r32(p, 0xF5)}
+    sg["characters"] = [decode_character(p[0x100 + i * 0x100:0x200 + i * 0x100]) for i in range(7)]
+    return sg
+
+======================================================================
+MODULE wlengine.rules
+======================================================================
+### skill_level: MISSING
+### best_salvage: MISSING
+======================================================================
+TEST FILE EXCERPTS
+======================================================================
+--- lines 500..545 ---
+def test_steps_clock_and_transition(runner):
+    ev, _ = runner.run("exit", {"seed": SEED, "script": ["DOWN"] * 11 + [{"checkpoint": "a"}, "RIGHT",
+                                                                         {"checkpoint": "b"}]})
+    subset("after 11 steps out of Saltwell (LR-15, LR-16, L-TR5)", ckpt(ev, "a"),
+           {"location": 0, "x": 10, "y": 41, "steps": 11, "day": 1, "hour": 8, "minute": 11})
+    subset("one overworld step later (10 minutes per step)", ckpt(ev, "b"),
+           {"location": 0, "x": 11, "y": 41, "steps": 12, "hour": 8, "minute": 21})
+    types = [strip(e) for e in ev if e.get("type") in ("map_change", "paragraph", "message")]
+    check_eq("paragraph and transition events on the way out (LR-25: no message event for a paragraph)", types,
+             [{"type": "paragraph", "n": 1}, {"type": "paragraph", "n": 2},
+              {"type": "map_change", "location": 0, "x": 10, "y": 41}])
+
+
+def test_bump_is_not_a_step(runner):
+    ev, _ = runner.run("bump", {"seed": SEED, "script": ["LEFT"] * 13 + [{"checkpoint": "a"}]})
+    subset("after 12 steps west and one bump (LR-15)", ckpt(ev, "a"),
+           {"location": 1, "x": 3, "y": 20, "steps": 12, "hour": 8, "minute": 12})
+    tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-2:]
+    check_eq("events of the bump into the cactus at (2, 20)", tail,
+             [{"type": "input", "key": "LEFT"}, {"type": "bump", "x": 2, "y": 20, "action_class": 11, "action": 0}])
+
+
+def test_rest(runner):
+    ev, _ = runner.run("rest", {"seed": SEED, "script": ["R", {"checkpoint": "a"}]})
+    subset("after one rest (LR-17)", ckpt(ev, "a"), {"steps": 0, "day": 1, "hour": 9, "minute": 0, "rng_state": SEED})
+    i = next((k for k, e in enumerate(ev) if e.get("type") == "input"), None)
+    check_eq("events after the R token (full HP, no Foraging)",
+             [strip(e) for e in ev[i:] if e.get("type") != "checkpoint"],
+             [{"type": "input", "key": "R"}, {"type": "rest"}])
+
+
+def test_win_hook_without_item(runner):
+    ev, _ = runner.run("pump", {"seed": SEED, "script": ["UP"] * 9 + [{"checkpoint": "a"}]})
+    tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-3:]
+    check_eq("bumping the Saltwell pump without the valve (LR-18, LR-24)", tail,
+             [{"type": "input", "key": "UP"}, {"type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0},
+              {"type": "paragraph", "n": 4}])
+    subset("mode after the pump bump", ckpt(ev, "a"), {"mode": "map", "steps": 8})
+
+
+# ---- shop, equip, recruit (walkthrough to CP2 and CP3; no random draws) -----
+
+ITEMS = {it["id"]: it for it in W.load_json(W.SCENARIO / "items.json")["items"]}
+SHOPS = W.load_json(W.SCENARIO / "shops.json")["shops"]
+
+
+--- lines 660..700 ---
+
+
+FIGHT_SEEDS = [1, 2, 3, 4, 5]
+
+
+def _fight(runner, walkthrough, seed):
+    ev, _ = runner.run("cp4", {"seed": seed, "script": prefix(walkthrough, "CP4")}, seed)
+    return ev
+
+
+@pytest.mark.parametrize("cat", ["orders", "need", "target", "jam", "victory"])
+def test_raider_fight_rules(runner, walkthrough, cat):
+    for seed in FIGHT_SEEDS:
+        ev = _fight(runner, walkthrough, seed)
+        issues = [m for c, m in CR.consistency(ev) if c in (cat, "all")]
+        if issues:
+            fail("seed %d, %s: %s" % (seed, cat, issues[0]))
+
+
+def test_victory_loot(runner, walkthrough):
+    for seed in [SEED] + FIGHT_SEEDS[:2]:
+        ev = _fight(runner, walkthrough, seed)
+        i = next((k for k, e in enumerate(ev) if e.get("type") == "combat_end"), None)
+        if i is None:
+            fail("seed %d: no combat_end in the raider fight" % seed)
+        got = [strip(e) for e in ev[i:] if e.get("type") in ("cell_change", "money")][:3]
+        check_eq("seed %d: tail (5, 1) then loot of 75 coins after the victory (LR-44, SPEC-03 9.6)" % seed, got,
+                 [{"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13},
+                  {"type": "money", "member": 1, "delta": 75, "total": 195},
+                  {"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}])
+
+
+# ---- locks, healer, key (walkthrough to CP6, CP7, CP9) -----------------------
+
+@pytest.mark.parametrize("seed", [SEED, 1, 2])
+def test_storehouse_lock(runner, walkthrough, seed):
+    ev, _ = runner.run("cp6", {"seed": seed, "script": prefix(walkthrough, "CP6")}, seed)
+    seg = between(ev, "CP5", "CP6")
+    checks = [e for e in seg if e.get("type") == "check"]
+    if not checks:
+        fail("seed %d: no check event at the storehouse door" % seed)
+--- lines 795..834 ---
+    check_eq("savegame payload after the save at CP5 (LR-55, L-TR4)", got, want)
+    names = [bytes(p[0x100 * (s + 1):0x100 * (s + 1) + 14]).split(b"\x00")[0].decode("latin-1") for s in range(7)]
+    check_eq("character record names (LR-55)", names, ["Hessa Brand", "Tobin Ash", "Maro Quill", "Dell Ostrow",
+                                                       "Orla Penn", "", ""])
+    check_eq("slots 6 and 7 all zero (LR-55)", any(p[0x600:0x800]), False)
+
+
+def test_load_restores_state(runner, walkthrough):
+    ev, dd = _saved(runner, walkthrough)
+    want = ckpt(ev, "CP5-pre-save")
+    ev2, _ = runner.run("reload", {"seed": 5, "script": ["O", "Y", {"checkpoint": "loaded"}]}, None, data_dir=dd)
+    check_eq("a fresh run that loads the save sees the saved state (LR-4, LR-56)", ckpt(ev2, "loaded"), want)
+
+
+def test_save_load_save(runner, walkthrough):
+    _, dd1 = _saved(runner, walkthrough)
+    p1 = _payload(dd1)
+    l1 = (dd1 / "LABSTATE.BIN").read_bytes()
+    _, dd2 = runner.run("saveloadsave", {"seed": SEED, "script": prefix(walkthrough, "CP5") + ["S"]})
+    p2 = _payload(dd2)
+    diff = [i for i in range(0x800) if p1[i] != p2[i]]
+    if any(not (0xF5 <= i < 0xF9) for i in diff):
+        j = next(i for i in diff if not (0xF5 <= i < 0xF9))
+        fail("save, load, save: payload byte 0x%03X differs (%02X then %02X); only the serial may change (LR-56)"
+             % (j, p1[j], p2[j]))
+    check_eq("save, load, save: serial", int.from_bytes(p2[0xF5:0xF9], "little"),
+             int.from_bytes(p1[0xF5:0xF9], "little") + 1)
+    check_bytes("save, load, save: LABSTATE.BIN identical (LR-56)", (dd2 / "LABSTATE.BIN").read_bytes(), l1)
+
+
+def test_load_bad_labstate(runner, walkthrough, tmp_path_factory):
+    _, dd = _saved(runner, walkthrough)
+    bad = tmp_path_factory.mktemp("badsave")
+    import shutil
+    shutil.copytree(dd, bad, dirs_exist_ok=True)
+    b = bytearray((bad / "LABSTATE.BIN").read_bytes())
+    b[-1] ^= 0x01
+    (bad / "LABSTATE.BIN").write_bytes(bytes(b))
+    expect_error("FormatError", "headless.run", str(bad), {"seed": SEED, "script": ["O", "Y"]}, None,
+                 what="load with a wrong LABSTATE.BIN sum (LR-57, SPEC-06 exit code 3)")
+======================================================================
+wl_support.py (531 lines)
+======================================================================
+"""Shared helpers for the PREREG-W1 acceptance tests (SPEC-07).
+
+This module is test infrastructure, not an oracle for any single answer:
+
+- `api()` / `call()` reach into the builder's `wlengine` package and turn every
+  engine-side problem (missing module, missing function, NotImplementedError,
+  any other exception) into a clean test failure with a one-line message.
+- `check_eq()` and friends report the first difference only, so a failure never
+  prints more of the expected data than the single case being checked.
+- The `ref_*` functions and `RefRng` are independent restatements of SPEC-04
+  formulas, used to compute expected values. They are not the engine.
+
+Frozen with the tests. The engine must not import this module.
+"""
+
+from __future__ import annotations
+
+import importlib
+import importlib.util
+import json
+import os
+import sys
+from pathlib import Path
+
+import pytest
+
+TESTS = Path(__file__).resolve().parent
+PROJECT = TESTS.parent
+SRC = PROJECT / "src"
+SPEC = PROJECT / "SPEC"
+SCENARIO = SPEC / "scenario"
+REFERENCE = SPEC / "reference"
+REFERENCE_LOG = SCENARIO / "walkthrough-reference-log.json"
+
+# Paths the engine must never open while it is under test (set up by conftest).
+FORBIDDEN_PREFIXES: list[str] = [str(REFERENCE) + os.sep, str(REFERENCE_LOG)]
+
+_STATE = {"armed": 0, "violations": [], "allow_reference_log": False}
+
+
+# ---------------------------------------------------------------------------
+# Failure helpers
+# ---------------------------------------------------------------------------
+
+def fail(msg: str) -> None:
+    """Fail the current test with exactly `msg` and no traceback."""
+    pytest.fail(msg, pytrace=False)
+
+
+def short(v, limit: int = 160) -> str:
+    if isinstance(v, (bytes, bytearray)):
+        h = bytes(v).hex(" ").upper()
+        s = "bytes[%d] %s" % (len(v), h)
+    else:
+        s = repr(v)
+    return s if len(s) <= limit else s[:limit] + "..."
+
+
+def norm(v):
+    """Normalise an engine value for comparison: tuples become lists, integer
+    dict keys become strings, bytearray becomes bytes. Values are untouched."""
+    if isinstance(v, dict):
+        return {(str(k) if isinstance(k, int) else k): norm(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [norm(x) for x in v]
+    if isinstance(v, bytearray):
+        return bytes(v)
+    return v
+
+
+def first_diff(got, want, path: str = ""):
+    """Return (path, got_part, want_part) of the first difference, or None."""
+    if isinstance(want, dict):
+        if not isinstance(got, dict):
+            return (path or "<root>", got, "a dict")
+        for k in want:
+            if k not in got:
+                return ("%s.%s" % (path, k) if path else k, "<missing key>", want[k])
+            d = first_diff(got[k], want[k], "%s.%s" % (path, k) if path else str(k))
+            if d:
+                return d
+        extra = [k for k in got if k not in want]
+        if extra:
+            return ("%s.%s" % (path, extra[0]) if path else str(extra[0]), got[extra[0]], "<no such key>")
+        return None
+    if isinstance(want, list):
+        if not isinstance(got, list):
+            return (path or "<root>", got, "a list of %d items" % len(want))
+        for i, (g, w) in enumerate(zip(got, want)):
+            d = first_diff(g, w, "%s[%d]" % (path, i))
+            if d:
+                return d
+        if len(got) != len(want):
+            return ("%s (length)" % (path or "<root>"), len(got), len(want))
+        return None
+    return None if got == want else (path or "<root>", got, want)
+
+
+def check_eq(what: str, got, want) -> None:
+    """Compare after normalising; report only the first differing element."""
+    g = norm(got)
+    if g == want:
+        return
+    d = first_diff(g, want)
+    if d is None:  # equal under first_diff's rules but not ==, report whole case
+        fail("%s: expected %s, got %s" % (what, short(want), short(g)))
+    p, gv, wv = d
+    if p in ("<root>", ""):
+        fail("%s: expected %s, got %s" % (what, short(wv), short(gv)))
+    fail("%s: first difference at %s: expected %s, got %s" % (what, p, short(wv), short(gv)))
+
+
+def check_bytes(what: str, got, want: bytes) -> None:
+    if not isinstance(got, (bytes, bytearray)):
+        fail("%s: expected bytes, got %s" % (what, type(got).__name__))
+    got = bytes(got)
+    if got == want:
+        return
+    n = min(len(got), len(want))
+    i = next((k for k in range(n) if got[k] != want[k]), n)
+    if i == n:
+        fail("%s: expected %d bytes, got %d (common prefix identical)" % (what, len(want), len(got)))
+    fail("%s: first differing byte at offset %d: expected %02X, got %02X (lengths: expected %d, got %d)"
+         % (what, i, want[i], got[i], len(want), len(got)))
+
+
+# ---------------------------------------------------------------------------
+# Engine access
+# ---------------------------------------------------------------------------
+
+_ENGINE = {"checked": False, "error": None}
+
+ORACLE_NAMES = ("codecs_ref", "fixtures_gen", "_wl_oracle", "oracle_tool", "wl_support",
+                "wl_combat_ref", "walkthrough-reference-log", "reference-log", "reference_log")
+
+
+def _scan_sources() -> str | None:
+    """SPEC-07 section 6: src/ must not name the oracle modules or files."""
+    if not SRC.is_dir():
+        return None
+    for p in sorted(SRC.rglob("*.py")):
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for lineno, line in enumerate(text.splitlines(), 1):
+            for name in ORACLE_NAMES:
+                if name in line:
+                    return "%s line %d names %r" % (p.relative_to(PROJECT), lineno, name)
+    return None
+
+
+def engine_ready() -> None:
+    """Fail the test unless `wlengine` imports cleanly and src/ is clean."""
+    if not _ENGINE["checked"]:
+        _ENGINE["checked"] = True
+        bad = _scan_sources()
+        if bad:
+            _ENGINE["error"] = ("SPEC-07 rule 6.1: src/ must not reference the oracle modules or the "
+                                "reference log (%s)" % bad)
+        else:
+            try:
+                _armed(lambda: importlib.import_module("wlengine"))
+            except Exception as e:  # noqa: BLE001
+                _ENGINE["error"] = "cannot import wlengine from src/: %s: %s" % (type(e).__name__, e)
+    if _ENGINE["error"]:
+        fail(_ENGINE["error"])
+
+
+def _armed(fn, *a, allow_reference_log=False, **k):
+    _STATE["armed"] += 1
+    prev = _STATE["allow_reference_log"]
+    _STATE["allow_reference_log"] = allow_reference_log
+    try:
+        return fn(*a, **k)
+    finally:
+        _STATE["armed"] -= 1
+        _STATE["allow_reference_log"] = prev
+
+
+def audit_hook(event, args):
+    if not _STATE["armed"] or event != "open" or not args:
+        return
+    p = args[0]
+    if isinstance(p, int):
+        return
+    try:
+        p = os.fspath(p)
+        if isinstance(p, bytes):
+            p = p.decode("utf-8", "replace")
+        p = os.path.abspath(p)
+    except Exception:  # noqa: BLE001
+        return
+    for pref in FORBIDDEN_PREFIXES:
+        if _STATE["allow_reference_log"] and pref == str(REFERENCE_LOG):
+            continue
+        if p == pref.rstrip(os.sep) or p.startswith(pref):
+            _STATE["violations"].append(p)
+
+
+def _module_violation() -> str | None:
+    spec_dir = str(SPEC) + os.sep
+    for name, mod in list(sys.modules.items()):
+        f = getattr(mod, "__file__", None)
+        if f and str(f).startswith(spec_dir) and not name.startswith("_wl_oracle_"):
+            return "module %r loaded from %s" % (name, f)
+    return None
+
+
+def api(dotted: str):
+    """Resolve 'module.function' inside wlengine, failing cleanly if absent."""
+    engine_ready()
+    mod_name, _, attr = dotted.rpartition(".")
+    full = "wlengine." + mod_name if mod_name else "wlengine"
+    try:
+        mod = _armed(importlib.import_module, full)
+    except Exception as e:  # noqa: BLE001
+        fail("cannot import %s (SPEC-07 API): %s: %s" % (full, type(e).__name__, e))
+    if not hasattr(mod, attr):
+        fail("%s has no attribute %r (SPEC-07 API)" % (full, attr))
+    return getattr(mod, attr)
+
+
+def error_class(name: str):
+    cls = api("errors." + name)
+    if not (isinstance(cls, type) and issubclass(cls, Exception)):
+        fail("wlengine.errors.%s must be an exception class" % name)
+    if name in ("FormatError", "ChecksumError") and not issubclass(cls, ValueError):
+        fail("wlengine.errors.%s must subclass ValueError (SPEC-07 section 3)" % name)
+    if name == "ChecksumError" and not issubclass(cls, api("errors.FormatError")):
+        fail("wlengine.errors.ChecksumError must subclass FormatError (SPEC-07 section 3)")
+    if cls in (Exception, ValueError, BaseException) or issubclass(NotImplementedError, cls):
+        fail("wlengine.errors.%s must be a dedicated class (SPEC-07 section 3)" % name)
+    return cls
+
+
+def _after_call(label: str) -> None:
+    if _STATE["violations"]:
+        p = _STATE["violations"][0]
+        _STATE["violations"].clear()
+        fail("%s opened a file the engine must not read (SPEC-07 rule 6.1): %s" % (label, p))
+    bad = _module_violation()
+    if bad:
+        fail("%s: the engine loaded an oracle module (SPEC-07 rule 6.1): %s" % (label, bad))
+
+
+def call(dotted: str, *args, allow_reference_log=False, **kw):
+    """Call wlengine.<dotted>(*args, **kw); any exception becomes a clean failure."""
+    fn = api(dotted)
+    label = "wlengine." + dotted
+    try:
+        out = _armed(fn, *args, allow_reference_log=allow_reference_log, **kw)
+    except NotImplementedError as e:
+        _after_call(label)
+        fail("%s: not implemented (%s)" % (label, e or "NotImplementedError"))
+    except Exception as e:  # noqa: BLE001
+        _after_call(label)
+        fail("%s raised %s: %s" % (label, type(e).__name__, short(str(e), 200)))
+    _after_call(label)
+    return out
+
+
+def call_capture(dotted: str, *args, allow_reference_log=False, **kw):
+    """Like call() but returns (value, exception) instead of failing on an
+    exception other than NotImplementedError or a missing API."""
+    fn = api(dotted)
+    label = "wlengine." + dotted
+    try:
+        out = _armed(fn, *args, allow_reference_log=allow_reference_log, **kw)
+    except NotImplementedError as e:
+        _after_call(label)
+        fail("%s: not implemented (%s)" % (label, e or "NotImplementedError"))
+    except Exception as e:  # noqa: BLE001
+        _after_call(label)
+        return None, e
+    _after_call(label)
+    return out, None
+
+
+def expect_error(err_name: str, dotted: str, *args, what: str = "", **kw) -> None:
+    """Pass only if wlengine.<dotted> raises wlengine.errors.<err_name>."""
+    cls = error_class(err_name)
+    out, exc = call_capture(dotted, *args, **kw)
+    label = "wlengine." + dotted + (" (%s)" % what if what else "")
+    if exc is None:
+        fail("%s: expected %s, but it returned %s" % (label, err_name, short(out)))
+    if not isinstance(exc, cls):
+        fail("%s: expected %s, got %s: %s" % (label, err_name, type(exc).__name__, short(str(exc), 160)))
+
+
+# ---------------------------------------------------------------------------
+# Oracle helpers (in-process codecs_ref only; fixtures_gen runs in a subprocess)
+# ---------------------------------------------------------------------------
+
+_ORACLE = {}
+
+
+def codecs_oracle():
+    """SPEC/reference/codecs_ref.py loaded under a private module name."""
+    if "c" not in _ORACLE:
+        sys.dont_write_bytecode = True
+        spec = importlib.util.spec_from_file_location("_wl_oracle_codecs_ref", REFERENCE / "codecs_ref.py")
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["_wl_oracle_codecs_ref"] = mod
+        spec.loader.exec_module(mod)
+        _ORACLE["c"] = mod
+    return _ORACLE["c"]
+
+
+def load_json(path: Path):
+    with open(path, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+# ---------------------------------------------------------------------------
+# Independent restatements of SPEC-04 formulas (expected values only)
+# ---------------------------------------------------------------------------
+
+class RefRng:
+    """SPEC-04 LR-1 and LR-2, restated for computing expected values."""
+
+    def __init__(self, seed: int) -> None:
+        self.state = seed & 0xFFFFFFFF or 0x6D2B79F5
+
+    def next(self) -> int:
+        x = self.state
+        x ^= (x << 13) & 0xFFFFFFFF
+        x ^= x >> 17
+        x ^= (x << 5) & 0xFFFFFFFF
+        self.state = x
+        return x
+
+    def roll(self, n: int) -> int:
+        return 1 + self.next() % n
+
+    def rnd(self, n: int) -> int:
+        if n == 0:
+            return 0
+        if n == 1:
+            return 1
+        return self.roll(n)
+
+    def dice(self, n: int, s: int) -> int:
+        return sum(self.roll(s) for _ in range(n))
+
+    def d100(self) -> int:
+        return self.roll(100)
+
+
+def clamp(v: int, lo: int, hi: int) -> int:
+    return max(lo, min(hi, v))
+
+
+def ref_check_need(level: int, attr: int, difficulty: int, tool: bool = False) -> int:
+    return 20 + 15 * level + 2 * attr - difficulty + (20 if tool else 0)
+
+
+def ref_skill_check(rng: RefRng, level, attr, difficulty, tool=False) -> dict:
+    need = ref_check_need(level, attr, difficulty, tool)
+    if need >= 100:
+        return {"need": need, "roll": None, "success": True}
+    if need <= 0:
+        return {"need": need, "roll": None, "success": False}
+    r = rng.d100()
+    return {"need": need, "roll": r, "success": r <= need}
+
+
+def ref_max_hp(strength: int, level: int) -> int:
+    return 10 + strength + (level - 1) * (2 + strength // 5)
+
+
+def ref_ac(agility: int, armour_bonus: int, evasion: int) -> int:
+    return agility // 5 + armour_bonus + evasion
+
+
+def ref_ranged_need(level, agility, target_ac, band) -> int:
+    return clamp(35 + 12 * level + agility - 6 * target_ac - 5 * (band - 1), 5, 95)
+
+
+def ref_melee_need(level, agility, target_ac) -> int:
+    return clamp(35 + 12 * level + agility - 6 * target_ac, 5, 95)
+
+
+def ref_monster_need(combat_rating, member_ac, band) -> int:
+    return clamp(20 + 5 * combat_rating - 6 * member_ac - 5 * (band - 1), 5, 95)
+
+
+def ref_flee_need(best_spd, best_monster_speed, command) -> int:
+    return clamp(40 + 5 * (best_spd - best_monster_speed) + 5 * command, 5, 95)
+
+
+def ref_jam_chance(gunsmithing: int) -> int:
+    return max(1, 4 - gunsmithing)
+
+
+def ref_xp_threshold(level: int) -> int:
+    return 50 * level * (level + 1)
+
+
+def ref_level_after(level: int, xp: int) -> int:
+    while xp >= ref_xp_threshold(level):
+        level += 1
+    return level
+
+
+def ref_buy_price(price: int, haggling: int) -> int:
+    h = min(5, haggling)
+    return price * (100 - 5 * h) // 100
+
+
+def ref_sell_price(price: int, haggling: int) -> int:
+    h = min(5, haggling)
+    return price * (50 + 5 * h) // 100
+
+
+def ref_monster_hp(rng: RefRng, sturdiness: int) -> int:
+    hi = rng.rnd(sturdiness >> 8)
+    lo = rng.rnd(sturdiness & 0xFF)
+    return sturdiness // 4 + ((hi << 8) | lo)
+
+
+def ref_damage_member(hp: int, d: int) -> dict:
+    prev = hp
+    hp -= d
+    if hp > 0:
+        return {"hp": hp, "cond": 0, "last_hp": None}
+    over = d - prev
+    return {"hp": 0, "cond": 2 if over >= 5 else 1, "last_hp": prev}
+
+
+def ref_pay(moneys: list[int], first_slot: int, price: int):
+    if sum(moneys) < price:
+        return None
+    out = list(moneys)
+    order = [first_slot - 1] + [i for i in range(len(moneys)) if i != first_slot - 1]
+    left = price
+    for i in order:
+        take = min(out[i], left)
+        out[i] -= take
+        left -= take
+        if left == 0:
+            break
+    return out
+
+
+def ref_advance_clock(clock: dict, minutes: int, seconds: int):
+    day, minute, second = clock["day"], clock["minute"], clock["second"]
+    total_s = second + seconds
+    second = total_s % 60
+    add_min = minutes + total_s // 60
+    hours = []
+    for _ in range(add_min):
+        minute += 1
+        if minute == 1440:
+            minute = 0
+        if minute % 60 == 0:
+            h = minute // 60
+            hours.append(h)
+            if h == 0:
+                day += 1
+    return {"day": day, "minute": minute, "second": second}, hours
+
+
+def ref_build_groups(rng: RefRng, mobs: list[dict], record: dict) -> list[dict]:
+    counts = []
+    for mob_index, rnd_flag, size in record["groups"]:
+        if mob_index == 0:
+            continue
+        mob = mobs[mob_index - 1]
+        s = size if size else mob["maxGroup"]
+        counts.append((mob_index, rng.rnd(s) if rnd_flag else s))
+    out = []
+    for mob_index, count in counts:
+        if count <= 0:
+            continue
+        mob = mobs[mob_index - 1]
+        hp = [ref_monster_hp(rng, mob["sturdiness"]) for _ in range(count)]
+        band = 3 if mob["weaponType"] >= 3 else 2
+        out.append({"monster": mob_index, "count": count, "band": band, "hp": hp})
+    return out
+
+
+def ref_speed_order(actors: list[dict]) -> list[dict]:
+    def key(a):
+        party = a["side"] == "party"
+        return (-a["speed"], 0 if party else 1,
+                a.get("slot", 0) if party else 0,
+                0 if party else a["group"], 0 if party else a["index"])
+    return sorted(actors, key=key)
+
+
+def ref_labstate(blob: bytes) -> dict:
+    """Independent LABSTATE.BIN reader (SPEC-04 LR-57)."""
+    if blob[:8] != b"WLLABSV1":
+        raise ValueError("bad magic")
+    n = int.from_bytes(blob[0x14:0x16], "little")
+    end = 0x16 + 6 * n
+    if len(blob) != end + 2:
+        raise ValueError("bad length")
+    if sum(blob[:end]) & 0xFFFF != int.from_bytes(blob[end:end + 2], "little"):
+        raise ValueError("bad sum")
+    cc = [list(blob[0x16 + 6 * i:0x16 + 6 * i + 6]) for i in range(n)]
+    return {"steps": int.from_bytes(blob[8:12], "little"), "day": int.from_bytes(blob[12:14], "little"),
+            "seconds": blob[14], "pad": blob[15], "rng_state": int.from_bytes(blob[16:20], "little"),
+            "cell_changes": cc}
+
+
+def ref_encode_labstate(state: dict) -> bytes:
+    cc = sorted(state["cell_changes"], key=lambda c: (c[0], c[2], c[1]))
+    b = bytearray(b"WLLABSV1")
+    b += state["steps"].to_bytes(4, "little") + state["day"].to_bytes(2, "little")
+    b += bytes((state["seconds"], 0)) + state["rng_state"].to_bytes(4, "little")
+    b += len(cc).to_bytes(2, "little")
+    for c in cc:
+        b += bytes(c)
+    b += (sum(b) & 0xFFFF).to_bytes(2, "little")
+    return bytes(b)
+
+
+def pack4(rows: list[list[int]]) -> bytes:
+    out = bytearray()
+    for row in rows:
+        for x in range(0, len(row), 2):
+            out.append((row[x] << 4) | row[x + 1])
+    return bytes(out)
+
+
+def unpack4(data: bytes, width: int) -> list[list[int]]:
+    stride = width // 2
+    return [[v for b in data[y * stride:(y + 1) * stride] for v in (b >> 4, b & 15)]
+            for y in range(len(data) // stride)]

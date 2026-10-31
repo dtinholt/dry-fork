@@ -1,0 +1,228 @@
+tests/test_m5_rules.py:513: def test_bump_is_not_a_step(runner):
+tests/test_m5_rules.py:514:     ev, _ = runner.run("bump", {"seed": SEED, "script": ["LEFT"] * 13 + [{"checkpoint": "a"}]})
+tests/test_m5_rules.py:515:     subset("after 12 steps west and one bump (LR-15)", ckpt(ev, "a"),
+tests/test_m5_rules.py:516:            {"location": 1, "x": 3, "y": 20, "steps": 12, "hour": 8, "minute": 12})
+tests/test_m5_rules.py:517:     tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-2:]
+tests/test_m5_rules.py:518:     check_eq("events of the bump into the cactus at (2, 20)", tail,
+tests/test_m5_rules.py:519:              [{"type": "input", "key": "LEFT"}, {"type": "bump", "x": 2, "y": 20, "action_class": 11, "action": 0}])
+tests/test_m5_rules.py:520: 
+tests/test_m5_rules.py:521: 
+tests/test_m5_rules.py:522: def test_rest(runner):
+tests/test_m5_rules.py:523:     ev, _ = runner.run("rest", {"seed": SEED, "script": ["R", {"checkpoint": "a"}]})
+tests/test_m5_rules.py:524:     subset("after one rest (LR-17)", ckpt(ev, "a"), {"steps": 0, "day": 1, "hour": 9, "minute": 0, "rng_state": SEED})
+tests/test_m5_rules.py:525:     i = next((k for k, e in enumerate(ev) if e.get("type") == "input"), None)
+tests/test_m5_rules.py:526:     check_eq("events after the R token (full HP, no Foraging)",
+tests/test_m5_rules.py:527:              [strip(e) for e in ev[i:] if e.get("type") != "checkpoint"],
+tests/test_m5_rules.py:528:              [{"type": "input", "key": "R"}, {"type": "rest"}])
+tests/test_m5_rules.py:529: 
+tests/test_m5_rules.py:530: 
+tests/test_m5_rules.py:531: def test_win_hook_without_item(runner):
+tests/test_m5_rules.py:532:     ev, _ = runner.run("pump", {"seed": SEED, "script": ["UP"] * 9 + [{"checkpoint": "a"}]})
+tests/test_m5_rules.py:533:     tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-3:]
+tests/test_m5_rules.py:534:     check_eq("bumping the Saltwell pump without the valve (LR-18, LR-24)", tail,
+tests/test_m5_rules.py:535:              [{"type": "input", "key": "UP"}, {"type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0},
+tests/test_m5_rules.py:536:               {"type": "paragraph", "n": 4}])
+tests/test_m5_rules.py:537:     subset("mode after the pump bump", ckpt(ev, "a"), {"mode": "map", "steps": 8})
+tests/test_m5_rules.py:538: 
+tests/test_m5_rules.py:539: 
+tests/test_m5_rules.py:540: # ---- shop, equip, recruit (walkthrough to CP2 and CP3; no random draws) -----
+tests/test_m5_rules.py:541: 
+tests/test_m5_rules.py:542: ITEMS = {it["id"]: it for it in W.load_json(W.SCENARIO / "items.json")["items"]}
+tests/test_m5_rules.py:543: SHOPS = W.load_json(W.SCENARIO / "shops.json")["shops"]
+tests/test_m5_rules.py:544: 
+tests/test_m5_rules.py:545: 
+tests/test_m5_rules.py:546: def _cp2(runner, walkthrough):
+tests/test_m5_rules.py:547:     ev, _ = runner.run("cp2", {"seed": SEED, "script": prefix(walkthrough, "CP2")})
+tests/test_m5_rules.py:548:     return between(ev, "CP1", "CP2")
+tests/test_m5_rules.py:549: 
+tests/test_m5_rules.py:550: 
+tests/test_m5_rules.py:551: def test_shop_buy_list(runner, walkthrough):
+tests/test_m5_rules.py:552:     seg = _cp2(runner, walkthrough)
+tests/test_m5_rules.py:553:     p = next((e for e in seg if e.get("type") == "prompt" and e.get("prompt") == "buy_item"), None)
+tests/test_m5_rules.py:554:     want = sorted(int(k) for k, v in SHOPS[0]["stock"].items() if 1 <= v <= 255)
+tests/test_m5_rules.py:555:     check_eq("buy list of shop list 0 (LR-50, SPEC-06 6.1 prompt)", p and p.get("items"), want)
+tests/test_m5_rules.py:556: 
+tests/test_m5_rules.py:557: 
+tests/test_m5_rules.py:558: def test_shop_buy_prices(runner, walkthrough):
+---
+tests/test_m5_rules.py:802: def test_load_restores_state(runner, walkthrough):
+tests/test_m5_rules.py:803:     ev, dd = _saved(runner, walkthrough)
+tests/test_m5_rules.py:804:     want = ckpt(ev, "CP5-pre-save")
+tests/test_m5_rules.py:805:     ev2, _ = runner.run("reload", {"seed": 5, "script": ["O", "Y", {"checkpoint": "loaded"}]}, None, data_dir=dd)
+tests/test_m5_rules.py:806:     check_eq("a fresh run that loads the save sees the saved state (LR-4, LR-56)", ckpt(ev2, "loaded"), want)
+tests/test_m5_rules.py:807: 
+tests/test_m5_rules.py:808: 
+tests/test_m5_rules.py:809: def test_save_load_save(runner, walkthrough):
+tests/test_m5_rules.py:810:     _, dd1 = _saved(runner, walkthrough)
+tests/test_m5_rules.py:811:     p1 = _payload(dd1)
+tests/test_m5_rules.py:812:     l1 = (dd1 / "LABSTATE.BIN").read_bytes()
+tests/test_m5_rules.py:813:     _, dd2 = runner.run("saveloadsave", {"seed": SEED, "script": prefix(walkthrough, "CP5") + ["S"]})
+tests/test_m5_rules.py:814:     p2 = _payload(dd2)
+tests/test_m5_rules.py:815:     diff = [i for i in range(0x800) if p1[i] != p2[i]]
+tests/test_m5_rules.py:816:     if any(not (0xF5 <= i < 0xF9) for i in diff):
+tests/test_m5_rules.py:817:         j = next(i for i in diff if not (0xF5 <= i < 0xF9))
+tests/test_m5_rules.py:818:         fail("save, load, save: payload byte 0x%03X differs (%02X then %02X); only the serial may change (LR-56)"
+tests/test_m5_rules.py:819:              % (j, p1[j], p2[j]))
+tests/test_m5_rules.py:820:     check_eq("save, load, save: serial", int.from_bytes(p2[0xF5:0xF9], "little"),
+tests/test_m5_rules.py:821:              int.from_bytes(p1[0xF5:0xF9], "little") + 1)
+tests/test_m5_rules.py:822:     check_bytes("save, load, save: LABSTATE.BIN identical (LR-56)", (dd2 / "LABSTATE.BIN").read_bytes(), l1)
+tests/test_m5_rules.py:823: 
+tests/test_m5_rules.py:824: 
+tests/test_m5_rules.py:825: def test_load_bad_labstate(runner, walkthrough, tmp_path_factory):
+tests/test_m5_rules.py:826:     _, dd = _saved(runner, walkthrough)
+tests/test_m5_rules.py:827:     bad = tmp_path_factory.mktemp("badsave")
+tests/test_m5_rules.py:828:     import shutil
+tests/test_m5_rules.py:829:     shutil.copytree(dd, bad, dirs_exist_ok=True)
+tests/test_m5_rules.py:830:     b = bytearray((bad / "LABSTATE.BIN").read_bytes())
+tests/test_m5_rules.py:831:     b[-1] ^= 0x01
+tests/test_m5_rules.py:832:     (bad / "LABSTATE.BIN").write_bytes(bytes(b))
+---
+tests/test_m6_playable.py:58: def test_checkpoint_matches_reference(runner, reference_log, name):
+tests/test_m6_playable.py:59:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:60:     want = checkpoints(reference_log)[name]
+tests/test_m6_playable.py:61:     check_eq("checkpoint %s, seed %d, full snapshot against the reference log" % (name, SEED),
+tests/test_m6_playable.py:62:              _cp(ev, name, "seed %d" % SEED), want)
+tests/test_m6_playable.py:63: 
+tests/test_m6_playable.py:64: 
+tests/test_m6_playable.py:65: def test_cp5_equals_pre_save(runner):
+tests/test_m6_playable.py:66:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:67:     check_eq("CP5 (after save and load) against CP5-pre-save, seed %d (LR-56)" % SEED,
+tests/test_m6_playable.py:68:              _cp(ev, "CP5", "seed %d" % SEED), _cp(ev, "CP5-pre-save", "seed %d" % SEED))
+tests/test_m6_playable.py:69: 
+tests/test_m6_playable.py:70: 
+tests/test_m6_playable.py:71: def _segments(events):
+tests/test_m6_playable.py:72:     out, cur = {}, []
+tests/test_m6_playable.py:73:     for e in events:
+tests/test_m6_playable.py:74:         cur.append(strip(e))
+tests/test_m6_playable.py:75:         if e.get("type") == "checkpoint":
+tests/test_m6_playable.py:76:             out[e.get("name")] = cur
+tests/test_m6_playable.py:77:             cur = []
+tests/test_m6_playable.py:78:     return out
+tests/test_m6_playable.py:79: 
+tests/test_m6_playable.py:80: 
+tests/test_m6_playable.py:81: @pytest.mark.parametrize("name", CP_NAMES)
+tests/test_m6_playable.py:82: def test_log_segment(runner, reference_log, name):
+tests/test_m6_playable.py:83:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:84:     got = _segments(ev)
+tests/test_m6_playable.py:85:     want = _segments(reference_log)[name]
+tests/test_m6_playable.py:86:     if name not in got:
+tests/test_m6_playable.py:87:         fail("log segment ending at %s: the engine log has no checkpoint %r" % (name, name))
+tests/test_m6_playable.py:88:     g = got[name]
+tests/test_m6_playable.py:89:     for i, (a, b) in enumerate(zip(g, want)):
+tests/test_m6_playable.py:90:         if a != b:
+tests/test_m6_playable.py:91:             fail("log segment ending at %s, event %d of the segment: expected %s, got %s"
+tests/test_m6_playable.py:92:                  % (name, i, W.short(b, 400), W.short(a, 400)))
+tests/test_m6_playable.py:93:     if len(g) != len(want):
+tests/test_m6_playable.py:94:         fail("log segment ending at %s: expected %d events, got %d" % (name, len(want), len(g)))
+tests/test_m6_playable.py:95: 
+tests/test_m6_playable.py:96: 
+tests/test_m6_playable.py:97: def test_full_log_equality(runner, reference_log):
+tests/test_m6_playable.py:98:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:99:     for i, (a, b) in enumerate(zip(ev, reference_log)):
+tests/test_m6_playable.py:100:         if a != b:
+tests/test_m6_playable.py:101:             fail("full event log, seed %d: event %d differs: expected %s, got %s"
+tests/test_m6_playable.py:102:                  % (SEED, i, W.short(b, 400), W.short(a, 400)))
+tests/test_m6_playable.py:103:     if len(ev) != len(reference_log):
+tests/test_m6_playable.py:104:         fail("full event log, seed %d: expected %d events, got %d" % (SEED, len(reference_log), len(ev)))
+tests/test_m6_playable.py:105: 
+tests/test_m6_playable.py:106: 
+tests/test_m6_playable.py:107: # ---- the walkthrough for other seeds: the expected blocks ---------------------
+tests/test_m6_playable.py:108: 
+tests/test_m6_playable.py:109: def _view(state):
+tests/test_m6_playable.py:110:     v = dict(state)
+tests/test_m6_playable.py:111:     party = []
+tests/test_m6_playable.py:112:     for m in state.get("party") or []:
+tests/test_m6_playable.py:113:         mm = dict(m)
+tests/test_m6_playable.py:114:         mm["items_excluding_ammo"] = sorted(i for i, _ in (m.get("items") or []) if ITEM_TYPE.get(i) != 3)
+tests/test_m6_playable.py:115:         party.append(mm)
+tests/test_m6_playable.py:116:     v["party"] = party
+tests/test_m6_playable.py:117:     return v
+tests/test_m6_playable.py:118: 
+---
+tests/test_m6_playable.py:48: def test_walkthrough_wins(runner):
+tests/test_m6_playable.py:49:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:50:     st = _cp(ev, "CP10", "seed %d" % SEED)
+tests/test_m6_playable.py:51:     check_eq("mode at CP10, seed %d" % SEED, st.get("mode"), "won")
+---
+tests/test_m6_playable.py:58: def test_checkpoint_matches_reference(runner, reference_log, name):
+tests/test_m6_playable.py:59:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:60:     want = checkpoints(reference_log)[name]
+tests/test_m6_playable.py:61:     check_eq("checkpoint %s, seed %d, full snapshot against the reference log" % (name, SEED),
+---
+tests/test_m6_playable.py:65: def test_cp5_equals_pre_save(runner):
+tests/test_m6_playable.py:66:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:67:     check_eq("CP5 (after save and load) against CP5-pre-save, seed %d (LR-56)" % SEED,
+tests/test_m6_playable.py:68:              _cp(ev, "CP5", "seed %d" % SEED), _cp(ev, "CP5-pre-save", "seed %d" % SEED))
+---
+tests/test_m6_playable.py:69: 
+tests/test_m6_playable.py:70: 
+---
+tests/test_m6_playable.py:71: def _segments(events):
+---
+tests/test_m6_playable.py:82: def test_log_segment(runner, reference_log, name):
+tests/test_m6_playable.py:83:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:84:     got = _segments(ev)
+tests/test_m6_playable.py:85:     want = _segments(reference_log)[name]
+---
+tests/test_m6_playable.py:97: def test_full_log_equality(runner, reference_log):
+tests/test_m6_playable.py:98:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:99:     for i, (a, b) in enumerate(zip(ev, reference_log)):
+tests/test_m6_playable.py:100:         if a != b:
+---
+tests/test_m6_playable.py:121: def test_expected_blocks(runner, seed):
+tests/test_m6_playable.py:122:     ev = full_run(runner, seed)
+tests/test_m6_playable.py:123:     for cp in WT["checkpoints"]:
+tests/test_m6_playable.py:124:         st = _view(_cp(ev, cp["name"], "seed %d" % seed))
+---
+tests/test_m6_playable.py:135:     check_eq("seed %d: CP5 equals CP5-pre-save (LR-56)" % seed, _cp(ev, "CP5", "seed %d" % seed),
+tests/test_m6_playable.py:136:              _cp(ev, "CP5-pre-save", "seed %d" % seed))
+tests/test_m6_playable.py:137: 
+tests/test_m6_playable.py:138: 
+---
+tests/test_m6_playable.py:139: # ---- headless driver behaviour (SPEC-06 sections 3 to 5) ----------------------
+---
+tests/test_m6_playable.py:141: def test_ignored_key(runner):
+tests/test_m6_playable.py:142:     ev, _ = runner.run("ignored", {"seed": SEED, "script": ["Z", {"checkpoint": "a"}]})
+tests/test_m6_playable.py:143:     got = [strip(e) for e in ev if e.get("type") in ("input", "ignored")]
+tests/test_m6_playable.py:144:     check_eq("an unlisted key in map mode (SPEC-06 section 4)", got,
+---
+tests/test_m6_playable.py:148: def test_look(runner):
+tests/test_m6_playable.py:149:     ev, _ = runner.run("look", {"seed": SEED, "script": ["L", "LEFT", {"checkpoint": "a"}]})
+tests/test_m6_playable.py:150:     got = [strip(e) for e in ev if e.get("type") == "look"]
+tests/test_m6_playable.py:151:     check_eq("look west from (15, 20) (SPEC-06 section 3)", got,
+---
+tests/test_m6_playable.py:157: def test_repeat_limit(compiled, tmp_path_factory):
+tests/test_m6_playable.py:158:     dd = compiled.copy(tmp_path_factory)
+tests/test_m6_playable.py:159:     expect_error("RepeatLimitError", "headless.run", str(dd),
+tests/test_m6_playable.py:160:                  {"seed": SEED, "script": [{"repeat_until": "cell:0,0,0", "keys": ["Z"], "max": 3}]}, None,
+---
+tests/test_m6_playable.py:164: def test_malformed_script(compiled, tmp_path_factory):
+tests/test_m6_playable.py:165:     dd = compiled.copy(tmp_path_factory)
+tests/test_m6_playable.py:166:     expect_error("ScriptError", "headless.run", str(dd), {"seed": SEED, "script": ["JUMP"]}, None,
+tests/test_m6_playable.py:167:                  what="token 'JUMP' (SPEC-06 5.1 exit code 4)")
+---
+tests/test_m6_playable.py:176: def test_cli_headless(runner, compiled, tmp_path_factory):
+tests/test_m6_playable.py:177:     ev = full_run(runner, SEED)
+tests/test_m6_playable.py:178:     dd = compiled.copy(tmp_path_factory)
+tests/test_m6_playable.py:179:     out = tmp_path_factory.mktemp("cli")
+---
+tests/test_m6_playable.py:212: def test_render_frame_party(compiled):
+tests/test_m6_playable.py:213:     fr = _frame(compiled)
+tests/test_m6_playable.py:214:     check_eq("row 6 columns 18 to 20 of the first frame (SPEC-06 7)", fr[6][18:21], ".@.")
+tests/test_m6_playable.py:215:     check_eq("row 0 starts with the location name", fr[0][:8], "Saltwell")
+---
+tests/test_m6_playable.py:218: def test_render_status_line(compiled):
+tests/test_m6_playable.py:219:     fr = _frame(compiled)
+tests/test_m6_playable.py:220:     check_eq("status line (SPEC-06 2.1)", fr[0].rstrip(), "Saltwell  Day 1  08:00  (15,20)  Steps 0  map")
+tests/test_m6_playable.py:221: 
+---
+tests/test_m6_playable.py:223: def test_render_viewport(compiled):
+tests/test_m6_playable.py:224:     fr = _frame(compiled)
+tests/test_m6_playable.py:225:     m = W.load_json(W.SCENARIO / "map1-saltwell.json")
+tests/test_m6_playable.py:226:     border = GLYPHS[m["info"]["border_image"] - 10]
+---
+tests/test_m6_playable.py:245: def test_cli_render_frame(compiled, tmp_path_factory):
+tests/test_m6_playable.py:246:     dd = compiled.copy(tmp_path_factory)
+tests/test_m6_playable.py:247:     r = _cli(["--data", str(dd), "--render-frame"], dd)
+tests/test_m6_playable.py:248:     check_eq("exit code of wl --data DIR --render-frame (SPEC-06 7)", r.returncode, 0)
+---

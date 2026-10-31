@@ -1,0 +1,100 @@
+compiled dir files: ['ALLHTDS1', 'ALLPICS1', 'COLORF.FNT', 'CURS', 'END.CPA', 'GAME1', 'IC0_9.WLF', 'LABHOOKS.JSON', 'LABSKILL.BIN', 'LABSTR.BIN', 'LABTABLES.BIN', 'MASKS.WLF', 'PARAGRAPHS.JSON', 'TITLE.PIC']
+  ALLHTDS1 807 bytes
+  ALLPICS1 2204 bytes
+  COLORF.FNT 1024 bytes
+  CURS 512 bytes
+  END.CPA 3050 bytes
+  GAME1 22722 bytes
+  IC0_9.WLF 1280 bytes
+  LABHOOKS.JSON 3267 bytes
+  LABSKILL.BIN 72 bytes
+  LABSTR.BIN 1938 bytes
+  LABTABLES.BIN 1080 bytes
+  MASKS.WLF 320 bytes
+  PARAGRAPHS.JSON 9642 bytes
+  TITLE.PIC 18432 bytes
+
+scenario.py def lines:
+  44 def _u16(v: int) -> bytes:
+  48 def _u32(v: int) -> bytes:
+  52 def _fixed(text, n: int) -> bytes:
+  57 def _load_json(path: str):
+  62 def _write(out_dir: str, name: str, data: bytes) -> None:
+  67 def _pad4(lst: list) -> list:
+  75 def _tail(nc: int, na: int) -> bytes:
+  79 def encode_record(cls: int, r: dict) -> bytes:
+ 111 def encode_mapinfo(size: int, mi: dict) -> bytes:
+ 121 def encode_mob(m: dict) -> bytes:
+ 133 def build_map(m: dict, disk: int = 0):
+ 149     def emit_table(c: int) -> None:
+ 224 def _record_from_json(c: int, r: dict) -> dict:
+ 247 def _character_from_json(p: dict, npc: int, catalog: dict, ranks: list) -> dict:
+ 270 def _map_from_json(m: dict, size: int, catalog: dict, ranks: list) -> dict:
+ 303 def _build_savegame(scenario_dir: str, scen: dict, catalog: dict, ranks: list) -> bytes:
+ 320 def _shop_items(sh: dict, catalog: dict) -> list:
+ 339 def _encode_labtables(t: dict) -> bytes:
+ 352 def _build_labtables(map_facts: list, sg_off: int, tileset_size: int,
+ 381 def _labstr_file(tables: list) -> bytes:
+ 393 def _build_labstr(scenario_dir: str, scen: dict) -> bytes:
+ 409 def _build_labskill(scenario_dir: str) -> bytes:
+ 423 def _planes_encode(pix: list, bytes_per_row: int) -> bytes:
+ 436 def _mask_encode(mask: list) -> bytes:
+ 447 def _cursor_encode(pix: list, vis: list) -> bytes:
+ 451             def byte(src, x0, fn):
+ 461 def _portrait_anim_encode(scripts: list, updates: list) -> bytes:
+ 475 def _ending_anim_encode(updates: list) -> bytes:
+ 486 def _placeholder_tile(t: int) -> list:
+ 499 def _placeholder_portrait(p: int) -> list:
+ 508 def _build_allhtds(scenario_dir: str) -> bytes:
+ 515 def _build_allpics(scenario_dir: str):
+ 529 def _build_sprites():
+ 540 def _build_font() -> bytes:
+ 549 def _build_cursors() -> bytes:
+ 558 def _build_title() -> bytes:
+ 563 def _build_ending() -> bytes:
+ 576 def compile(scenario_dir: str, out_dir: str) -> None:
+ 586 def _call(mod, names, *args, **kwargs):
+ 597     def __init__(self, data_dir):
+ 611     def _read(self, name):
+ 618     def _json(self, name):
+ 626     def _load(self):
+ 645     def _load_maps(self):
+ 661     def _load_savegame(self):
+ 672     def _load_shops(self):
+ 681     def party_from_savegame(self):
+ 708     def _load_game1(self, raw):
+ 732     def _load_labtables(self, raw):
+ 749     def _load_labstr(self, raw):
+ 757     def _load_labskill(self, raw):
+ 767     def map(self, location):
+ 770     def hook(self, location, x, y):
+ 776     def paragraph(self, n):
+ 779     def premade_party(self):
+ 782     def shop_items(self, n):
+ 786     def item(self, item_id):
+ 795     def skill(self, skill_id):
+ 802     def skill_name(self, skill_id):
+ 808     def rank(self, level):
+ 815     def ui(self, n):
+ 821     def map_string(self, location, n):
+ 828 def load(data_dir):
+ 833 def _compile(scenario_dir: str, out_dir: str) -> None:
+
+oracle rc=0
+top keys: ['errors', 'expected', 'oracle']
+oracle keys: ['files', 'gameLength', 'labskill', 'labstr', 'map0', 'map1', 'map2', 'map3', 'portraits', 'savegame', 'shop0', 'shop1', 'shop2', 'tables', 'tilesets']
+  tables: dict keys ['locationMapping', 'mapCounts', 'mapOffsets', 'mapSizes', 'mobSpriteMap', 'portraitIndices1', 'portraitIndices2', 'portraitOffsets1', 'portraitOffsets2', 'savegameOffsets', 'savegameSize', 'sharedLocations', 'shopListCounts', 'shopListRelOffsets', 'tileMapOffsets', 'tilesetOffsets', 'tilesetSizes']
+  map0: dict keys ['actions', 'blockEnd', 'bodySize', 'cells', 'centralDirectory', 'encryptedPrefixLength', 'info', 'mobs', 'npcs', 'size', 'strings', 'wllibPrefixLength']
+  map1: dict keys ['actions', 'blockEnd', 'bodySize', 'cells', 'centralDirectory', 'encryptedPrefixLength', 'info', 'mobs', 'npcs', 'size', 'strings', 'wllibPrefixLength']
+  map2: dict keys ['actions', 'blockEnd', 'bodySize', 'cells', 'centralDirectory', 'encryptedPrefixLength', 'info', 'mobs', 'npcs', 'size', 'strings', 'wllibPrefixLength']
+  map3: dict keys ['actions', 'blockEnd', 'bodySize', 'cells', 'centralDirectory', 'encryptedPrefixLength', 'info', 'mobs', 'npcs', 'size', 'strings', 'wllibPrefixLength']
+  savegame: dict keys ['characters', 'combatScrollSpeed', 'currentMap', 'currentMembers', 'currentParty', 'extraGroups', 'groups', 'hour', 'minute', 'serial', 'tailAllZero', 'totalMembers', 'viewportX', 'viewportY']
+  shop0: dict keys ['header', 'items']
+  shop1: dict keys ['header', 'items']
+  shop2: dict keys ['header', 'items']
+  labstr: list len 6
+  tilesets: dict keys ['size', 'tilesets']
+  portraits: dict keys ['1', '2', '3', '4']
+  labskill: list len 72
+  files: dict keys ['ALLHTDS1', 'ALLPICS1', 'COLORF.FNT', 'CURS', 'END.CPA', 'GAME1', 'IC0_9.WLF', 'LABHOOKS.JSON', 'LABSKILL.BIN', 'LABSTR.BIN', 'LABTABLES.BIN', 'MASKS.WLF', 'PARAGRAPHS.JSON', 'TITLE.PIC']
+errors: {}

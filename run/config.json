@@ -1,0 +1,101 @@
+{
+  "endpoint": {
+    "base_url": "http://192.168.4.201:8888/v1",
+    "model": "deepseek-v41-flash-exl3",
+    "api_key": "",
+    "temperature": 0.3,
+    "request_timeout_s": 1800,
+    "per_request_max_tokens": 8192,
+    "retry_window_s": 1800,
+    "backoff_initial_s": 5,
+    "backoff_max_s": 120,
+    "poll_interval_s": 60,
+    "extra_params": {}
+  },
+  "project": {
+    "dir": "/Users/dtinholt/wasteland-build/project",
+    "python": "python3",
+    "test_command": "{python} -m pytest -q -p no:cacheprovider --junitxml={junit} {select}",
+    "test_timeout_s": 900,
+    "test_env": {
+      "PYTHONPATH": "{project}"
+    },
+    "runs_dir": "/Users/dtinholt/wasteland-build/runs",
+    "stop_file": "/Users/dtinholt/wasteland-build/STOP",
+    "worklog": "WORKLOG.md"
+  },
+  "limits": {
+    "max_iterations": 2000,
+    "max_wall_hours": 168,
+    "wall_clock_excludes_waits": true,
+    "iteration_token_cap": 32000,
+    "max_turns_per_iteration": 40,
+    "iteration_time_limit_s": 3600,
+    "context_budget_tokens": 100000,
+    "tool_result_max_chars": 8000,
+    "command_timeout_s": 300,
+    "max_failures_shown": 10,
+    "failure_message_max_chars": 500,
+    "worklog_tail_chars": 6000,
+    "spec_index_max_chars": 6000,
+    "spec_index_heading_depth": 3,
+    "max_write_chars": 400000
+  },
+  "paths": {
+    "writable": [
+      "src/",
+      "tests/fixtures-generated/"
+    ]
+  },
+  "commands": {
+    "allowlist": [
+      "python3",
+      "pytest",
+      "ls",
+      "cat",
+      "grep",
+      "wc",
+      "head",
+      "diff"
+    ]
+  },
+  "sandbox": {
+    "mode": "auto"
+  },
+  "review": {
+    "every_k": 25,
+    "on_milestone": true,
+    "required": false,
+    "poll_interval_s": 30,
+    "reply_max_chars": 12000,
+    "diff_max_chars": 60000
+  },
+  "milestones": [
+    {
+      "name": "M1",
+      "select": "tests --group M1"
+    },
+    {
+      "name": "M2",
+      "select": "tests --group M2"
+    },
+    {
+      "name": "M3",
+      "select": "tests --group M3"
+    },
+    {
+      "name": "M4",
+      "select": "tests --group M4"
+    },
+    {
+      "name": "M5",
+      "select": "tests --group M5"
+    },
+    {
+      "name": "M6",
+      "select": "tests --group M6"
+    }
+  ],
+  "_config_path": "/Users/dtinholt/wasteland-build/harness.toml",
+  "_config_sha": "6d56c29882ce1b5c"
+}

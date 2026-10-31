@@ -1,0 +1,233 @@
+{
+  "tileset": 0,
+  "tile_size": [16, 16],
+  "bpp": 4,
+  "image_index": "map image = tile id + 10 (SPEC-03 section 7)",
+  "walkable_note": "Passability comes from the action class only (SPEC-03 L-MV2). 'walkable' says which tiles the scenario leaves at class 0; every cell showing a non-walkable tile carries class 11 unless another class is listed for it.",
+  "tiles": [
+    {
+      "id": 0,
+      "image": 10,
+      "name": "sand",
+      "walkable": true,
+      "description": "Pale wind-rippled sand, the default ground of the overworld."
+    },
+    {
+      "id": 1,
+      "image": 11,
+      "name": "hardpan",
+      "walkable": true,
+      "description": "Cracked grey clay flat with hairline fissures."
+    },
+    {
+      "id": 2,
+      "image": 12,
+      "name": "scrub",
+      "walkable": true,
+      "description": "Low grey-green brush in clumps on sand."
+    },
+    {
+      "id": 3,
+      "image": 13,
+      "name": "road",
+      "walkable": true,
+      "description": "Two rutted wheel tracks with a hump of weeds between them."
+    },
+    {
+      "id": 4,
+      "image": 14,
+      "name": "gravel bed",
+      "walkable": true,
+      "description": "Rounded river stones in a dry channel, lighter than sand."
+    },
+    {
+      "id": 5,
+      "image": 15,
+      "name": "salt crust",
+      "walkable": true,
+      "description": "White salt plate with a faint hexagonal crack pattern."
+    },
+    {
+      "id": 6,
+      "image": 16,
+      "name": "ford stones",
+      "walkable": true,
+      "description": "Flat stepping stones laid across dark water."
+    },
+    {
+      "id": 7,
+      "image": 17,
+      "name": "deep water",
+      "walkable": false,
+      "description": "Slow dark-green water with a single highlight ripple."
+    },
+    {
+      "id": 8,
+      "image": 18,
+      "name": "mesa rock",
+      "walkable": false,
+      "description": "Layered red-brown cliff face with a shadowed lower third."
+    },
+    {
+      "id": 9,
+      "image": 19,
+      "name": "boulder",
+      "walkable": false,
+      "description": "One round tan boulder with a dark crack, on sand."
+    },
+    {
+      "id": 10,
+      "image": 20,
+      "name": "dead tree",
+      "walkable": false,
+      "description": "Bare grey trunk with three forked branches."
+    },
+    {
+      "id": 11,
+      "image": 21,
+      "name": "cactus",
+      "walkable": false,
+      "description": "Single green column cactus with two arms."
+    },
+    {
+      "id": 12,
+      "image": 22,
+      "name": "plank bridge",
+      "walkable": true,
+      "description": "Weathered boards running left to right, rope rails top and bottom."
+    },
+    {
+      "id": 13,
+      "image": 23,
+      "name": "town marker",
+      "walkable": true,
+      "description": "Overworld icon: three small flat-roofed huts in a cluster."
+    },
+    {
+      "id": 14,
+      "image": 24,
+      "name": "cave mouth",
+      "walkable": true,
+      "description": "Overworld icon: a black arch cut into a rock hump."
+    },
+    {
+      "id": 15,
+      "image": 25,
+      "name": "rubble",
+      "walkable": false,
+      "description": "Heap of broken concrete and bent rebar."
+    },
+    {
+      "id": 16,
+      "image": 26,
+      "name": "adobe wall",
+      "walkable": false,
+      "description": "Tan mud-brick wall with two darker brick courses."
+    },
+    {
+      "id": 17,
+      "image": 27,
+      "name": "plank floor",
+      "walkable": true,
+      "description": "Brown floorboards running vertically."
+    },
+    {
+      "id": 18,
+      "image": 28,
+      "name": "street",
+      "walkable": true,
+      "description": "Packed earth, darker than sand, with faint cart marks."
+    },
+    {
+      "id": 19,
+      "image": 29,
+      "name": "doorway",
+      "walkable": true,
+      "description": "Open door frame in an adobe wall, dark interior strip."
+    },
+    {
+      "id": 20,
+      "image": 30,
+      "name": "locked door",
+      "walkable": false,
+      "description": "Heavy plank door with a black iron hasp and padlock."
+    },
+    {
+      "id": 21,
+      "image": 31,
+      "name": "counter",
+      "walkable": false,
+      "description": "Waist-high wooden counter seen from above, with a ledger."
+    },
+    {
+      "id": 22,
+      "image": 32,
+      "name": "healer's cot",
+      "walkable": false,
+      "description": "Narrow cot with a white sheet and a red cross on the blanket."
+    },
+    {
+      "id": 23,
+      "image": 33,
+      "name": "pump head",
+      "walkable": false,
+      "description": "Iron hand-pump with a curved handle over a stone trough."
+    },
+    {
+      "id": 24,
+      "image": 34,
+      "name": "townsperson",
+      "walkable": false,
+      "description": "Standing figure in a long coat and wide hat, seen from above."
+    },
+    {
+      "id": 25,
+      "image": 35,
+      "name": "fence",
+      "walkable": false,
+      "description": "Split-rail fence running left to right."
+    },
+    {
+      "id": 26,
+      "image": 36,
+      "name": "well",
+      "walkable": false,
+      "description": "Round stone well with a dark centre."
+    },
+    {
+      "id": 27,
+      "image": 37,
+      "name": "concrete floor",
+      "walkable": true,
+      "description": "Grey poured floor with an expansion joint across it."
+    },
+    {
+      "id": 28,
+      "image": 38,
+      "name": "concrete wall",
+      "walkable": false,
+      "description": "Dark grey block wall with a lighter top edge."
+    },
+    {
+      "id": 29,
+      "image": 39,
+      "name": "steel gate",
+      "walkable": false,
+      "description": "Barred steel gate, five vertical bars, a lock box at the centre."
+    },
+    {
+      "id": 30,
+      "image": 40,
+      "name": "console",
+      "walkable": false,
+      "description": "Metal desk with a dim green screen and a row of switches."
+    },
+    {
+      "id": 31,
+      "image": 41,
+      "name": "stairs",
+      "walkable": true,
+      "description": "Concrete steps descending toward the top of the tile."
+    }
+  ]
+}

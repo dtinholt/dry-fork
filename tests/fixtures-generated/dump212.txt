@@ -1,0 +1,205 @@
+=== scenario.py: map / load ===
+def map(self, location):
+        return self.maps.get(location)
+
+    def hook(self, location, x, y):
+        for h in self.hooks:
+            if h.get("location") == location and h.get("x") == x and h.get("y") == y:
+                return h
+        return None
+
+    def paragraph(self, n):
+        return self.paragraphs.get(n) or self.paragraphs.get(str(n))
+
+    def premade_party(self):
+        return self.party_from_savegame()
+
+    def shop_items(self, n):
+        """The 94 decoded records of shop list ``n`` (SPEC-02 section 5)."""
+        return self.shops[n]["items"]
+
+    def item(self, item_id):
+        """Item id N is record N - 1 of shop list 0 (LR-47)."""
+        if item_id < 1:
+            return None
+        recs = self.shop_items(0)
+        if item_id - 1 >= len(recs):
+            return None
+        return recs[item_id - 1]
+
+    def skill(self, skill_id):
+        """``(min_iq, cost, attr_offset)`` for skill id 1 to 35 (LR-6)."""
+        if skill_id < 1 or skill_id >= len(self.skill_table):
+            return (0, 0, 0)
+        b0, b1 = self.skill_table[skill_id]
+        return (b0 >> 3, b0 & 7, b1)
+
+    def skill_name(self, skill_id):
+        t2 = self.labstr[2] if len(self.labstr) > 2 else []
+        if 0 <= skill_id < len(t2):
+            return t2[skill_id]
+        return ""
+
+    def rank(self, level):
+        t3 = self.labstr[3] if len(self.labstr) > 3 else []
+        i = min(level, 7) - 1
+        if 0 <= i < len(t3):
+            return t3[i]
+        return ""
+
+ 
+---
+def load(data_dir):
+    """Load a compiled lab data set from ``data_dir``."""
+    return Scenario(data_dir)
+
+
+def _compile(scenario_dir: str, out_dir: str) -> None:
+    """Compile the scenario in ``scenario_dir`` into ``out_dir`` (SPEC-05 13)."""
+    scen = _load_json(os.path.join(scenario_dir, "scenario.json"))
+    items = _load_json(os.path.join(scenario_dir, "items.json"))["items"]
+    catalog = {it["id"]: it for it in items}
+    ranks = scen["labstr_tables"]["3"]["strings"]
+    os.makedirs(out_dir, exist_ok=True)
+
+    game = bytearray()
+    map_facts = []
+    for loc in scen["locations"]:
+        m = _load_json(os.path.join(scenario_dir, loc["file"]))
+        mm = _map_from_json(m, loc["size"], catalog, ranks)
+        mm["name"] = loc["name"]
+        block, tmo, facts = build_map(mm, 0)
+        map_facts.append((len(game), tmo, facts, loc))
+        game += block
+
+    sg_off = len(game)
+    game += _build_savegame(scenario_dir, scen, catalog, ranks)
+
+    shops = _load_json(os.path.join(scenario_dir, "shops.json"))["shops"]
+    for sh in shops:
+        game += containers.encode_shop_list(_shop_items(sh, catalog), 0)
+    _write(out_dir, "GAME1", bytes(game))
+
+    allhtds = _build_allhtds(scenario_dir)
+    allpics, portrait_offsets = _build_allpics(scenario_dir)
+    _write(out_dir, "ALLHTDS1", allhtds)
+    _write(out_dir, "ALLPICS1", allpics)
+
+    sprites, masks = _build_sprites()
+    _write(out_dir, "IC0_9.WLF", sprites)
+    _write(out_dir, "MASKS.WLF", masks)
+    _write(out
+---
+class Scenario:
+    """A compiled lab data set, read back through the engine's own loaders."""
+
+    def __init__(self, data_dir):
+        self.dir = data_dir
+        self.maps = {}
+        self.hooks = []
+        self.paragraphs = {}
+        self.skills = {}
+        self.shops = {}
+        self.savegame = None
+        self.start = {"location": 0, "x": 0, "y": 0, "hour": 8, "minute": 0,
+                      "day": 1, "paragraph": 1}
+        self._load()
+
+    # -- raw file access ---------------------------------------------------
+
+    def _read(self, name):
+        path = os.path.join(self.dir, name)
+        if not os.path.exists(path):
+            return None
+        with open(path, "rb") as fh:
+            return fh.read()
+
+    def _json(self, name):
+        path = os.path.join(self.dir, name)
+        if not os.path.exists(path):
+            return None
+        return _load_json(path)
+
+    # -- loading -----------------------------------------------------------
+
+    def _load(self):
+        self.tables = containers.read_tables(os.path.join(self.dir, "LABTABLES.BIN"))
+        self.game1 = self._read("GAME1")
+        self._load_maps()
+        self._load_savegame()
+        self._load_shops()
+        labstr = os.path.join(self.dir, "LABSTR.BIN")
+        if os.path.exists(labstr):
+            self.labstr = strings.read_labstr(labstr)
+        skills = os.path.join(self.dir, "LABSKILL.BIN")
+        if os.path.exists(skills):
+            self.skill_table = rules.read_skill_table(sk
+---
+def __init__(self, data_dir):
+        self.dir = data_dir
+        self.maps = {}
+        self.hooks = []
+        self.paragraphs = {}
+        self.skills = {}
+        self.shops = {}
+        self.savegame = None
+        self.start = {"location": 0, "x": 0, "y": 0, "hour": 8, "minute": 0,
+                      "day": 1, "paragraph": 1}
+        self._load()
+
+    # -- raw file access ---------------------------------------------------
+
+    def _read(self, name):
+        path = os.path.join(self.dir, name)
+        if not os.path.exists(path):
+            return None
+        with open(path, "rb") as fh:
+            return fh.read()
+
+    def _json(self, name):
+        path = os.path.join(self.dir, name)
+        if not os.path.exists(path):
+            return None
+        return _load_json(path)
+
+    # -- loading -----------------------------------------------------------
+
+    def _load(self):
+        self.tables = containers.read_tables(os.path.join(self.dir, "LABTABLES.BIN"))
+        self.game1 = self._read("GAME1")
+        self._load_maps()
+        self._load_savegame()
+        self._load_shops()
+        labstr = os.path.join(self.dir, "LABSTR.BIN")
+        if os.path.exists(labstr):
+            self.labstr = strings.read_labstr(labstr)
+        skills = os.path.join(self.dir, "LABSKILL.BIN")
+        if os.path.exists(skills):
+            self.skill_table = rules.read_skill_table(skills)
+        hooks = self._json("LABHOOKS.JSON")
+        if hooks is not None:
+            self.hoo
+---
+map1 keys ['actions', 'bodySize', 'cells', 'centralDirectory', 'encryptedPrefixLength', 'info', 'mobs', 'npcs', 'size', 'strings']
+size 32
+action row20: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+actionClass row20: [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+image row20: [35, 10, 10, 21, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 35]
+info {'unknown00': 0, 'unknown01': 0, 'mapSize': 32, 'unknown03': 0, 'unknown04': 0, 'encounterFrequency': 0, 'tileset': 0, 'randomMonsterTypes': 0, 'maxRandomEncounters': 0, 'borderImage': 35, 'timePerStep': 256, 'healRate': 0, 'combatStringIds': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+actions keys ['1', '10', '11', '6']
+class 1: 5 records
+   [0] None
+   [1] {'messages': [1], 'newClass': 255, 'newAction': 0}
+   [2] {'messages': [2], 'newClass': 255, 'newAction': 0}
+   [3] {'messages': [3], 'newClass': 255, 'newAction': 0}
+   [4] {'messages': [4], 'newClass': 255, 'newAction': 0}
+class 10: 3 records
+   [0] None
+   [1] {'relative': False, 'confirm': False, 'message': 0, 'x': 10, 'y': 41, 'location': 0, 'newClass': 255, 'newAction': 0}
+   [2] {'relative': False, 'confirm': False, 'message': 0, 'x': 10, 'y': 41, 'location': 0, 'newClass': 255, 'newAction': 0}
+class 11: 2 records
+   [0] None
+   [1] {'message': 6, 'newClass': 255, 'newAction': 0}
+class 6: 2 records
+   [0] None
+   [1] {'shop': 0, 'message': 5, 'newClass': 255, 'newAction': 0}

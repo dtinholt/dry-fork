@@ -1,0 +1,24 @@
+keys: ['action_cells', 'action_class', 'action_value', 'conventions', 'height', 'info', 'location', 'mobs', 'name', 'npcs', 'records', 'strings', 'tiles', 'tileset', 'width']
+tiles row 20 x=0..8: [25, 0, 0, 11, 0, 0, 0, 0, 0]
+action_class row 20 x=0..8: [11, 0, 0, 11, 0, 0, 0, 0, 0]
+action_value row 20 x=0..8: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+records keys: ['1', '10', '11', '6']
+records[10] = [{"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "new_class": 255, "new_action": 0}, {"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "new_class": 255, "new_action": 0}]
+records[1] = [{"messages": [1], "new_class": 255, "new_action": 0}, {"messages": [2], "new_class": 255, "new_action": 0}, {"messages": [3], "new_class": 255, "new_action": 0}, {"messages": [4], "new_class": 255, "new_action": 0}]
+records[6] = [{"shop": 0, "message": 5, "new_class": 255, "new_action": 0}]
+records[11] = [{"message": 6, "new_class": 255, "new_action": 0}]
+
+### compiled map
+size 32
+actionClass row 20 x=0..8: [11, 0, 0, 11, 0, 0, 0, 0, 0]
+action row 20 x=0..8: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+image row 20 x=0..8: [35, 10, 10, 21, 10, 10, 10, 10, 10]
+cell (0,20) class=11 action=0 image=35 passable=False rec=null
+cell (1,20) class=0 action=0 image=10 passable=True rec=null
+cell (2,20) class=0 action=0 image=10 passable=True rec=null
+cell (3,20) class=11 action=0 image=21 passable=False rec=null
+cell (4,20) class=0 action=0 image=10 passable=True rec=null
+cell (5,20) class=0 action=0 image=10 passable=True rec=null
+cell (6,20) class=0 action=0 image=10 passable=True rec=null
+cell (7,20) class=0 action=0 image=10 passable=True rec=null
+cell (8,20) class=0 action=0 image=10 passable=True rec=null

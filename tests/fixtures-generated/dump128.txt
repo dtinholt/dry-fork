@@ -1,0 +1,214 @@
+LINE 45:     def __init__(self, data_dir, seed=None, options=None):
+LINE 161:     def new_game(self, seed):
+LINE 532:     def show_message(self, index):
+LINE 903:     def key_o(self):
+LINE 907:     def key_y(self):
+LINE 983:     def save_game(self):
+LINE 991:     def write_save_files(self):
+LINE 1015:     def build_savegame_payload(self):
+LINE 1052:     def load_game(self):
+==================== headless head src/wlengine/headless.py 1 120
+   1 """Headless driver (SPEC-06 section 5, SPEC-07 API).
+   2 
+   3 The headless driver runs the engine over a compiled data directory with a
+   4 scripted list of input tokens and returns the event log plus the final state.
+   5 """
+   6 
+   7 from __future__ import annotations
+   8 
+   9 import json
+  10 import os
+  11 from pathlib import Path
+  12 
+  13 from . import containers, labstate, maps, rules, strings
+  14 from .combat import CombatMixin
+  15 from .errors import FormatError, ScriptError
+  16 
+  17 # ---------------------------------------------------------------------------
+  18 # scenario loading
+  19 # ---------------------------------------------------------------------------
+  20 
+  21 
+  22 def _load_scenario(data_dir):
+  23     from . import scenario as scenario_mod
+  24     loader = getattr(scenario_mod, "load", None)
+  25     if loader is not None:
+  26         return loader(data_dir)
+  27     cls = getattr(scenario_mod, "Scenario", None)
+  28     if cls is not None:
+  29         for name in ("from_dir", "read", "load"):
+  30             fn = getattr(cls, name, None)
+  31             if fn is not None:
+  32                 return fn(data_dir)
+  33         return cls(data_dir)
+  34     raise FormatError("wlengine.scenario has no loader")
+  35 
+  36 
+  37 # ---------------------------------------------------------------------------
+  38 # engine
+  39 # ---------------------------------------------------------------------------
+  40 
+  41 
+  42 class Engine(CombatMixin):
+  43     """One engine instance driven by a script of input tokens."""
+  44 
+  45     def __init__(self, data_dir, seed=None, options=None):
+  46         self.data_dir = data_dir
+  47         self.options = dict(options or {})
+  48         self.sc = _load_scenario(data_dir)
+  49         self.events = []
+  50         self._seq = 0
+  51         self.mode = "map"
+  52         self.location = 0
+  53         self.x = 0
+  54         self.y = 0
+  55         self.steps = 0
+  56         self.day = 1
+  57         self.hour = 0
+  58         self.minute = 0
+  59         self.prev_x = 0
+  60         self.prev_y = 0
+  61         self.prev_location = 0
+  62         self.cell_changes = []
+  63         self.rng = None
+  64         self.seed = seed
+  65         self.party = []
+  66         self.serial = 0
+  67         self.paragraph = 0
+  68         self.shop = None
+  69         self.pending = None
+  70         self.pending_member = None
+  71         self.pending_item = None
+  72         self.pending_hook = None
+  73         self.pending_cell = (0, 0)
+  74         self.combat = None
+  75         self.saved = {}
+  76         self.script_seed = None
+  77         self._items = None
+  78 
+  79     # -- event log ---------------------------------------------------------
+  80 
+  81     def emit(self, type_, **kw):
+  82         ev = {"seq": self._seq, "type": type_}
+  83         ev.update(kw)
+  84         self._seq += 1
+  85         self.events.append(ev)
+  86         return ev
+  87 
+  88     def checkpoint(self, name):
+  89         self.emit("checkpoint", name=name, state=self.snapshot())
+  90 
+  91     def snapshot(self):
+  92         return {
+  93             "location": self.location,
+  94             "x": self.x,
+  95             "y": self.y,
+  96             "steps": self.steps,
+  97             "day": self.day,
+  98             "hour": self.hour,
+  99             "minute": self.minute,
+ 100             "mode": self.mode,
+ 101             "cell_changes": [list(c) for c in self.cell_changes],
+ 102             "rng_state": self.rng.state if self.rng is not None else None,
+ 103             "party": [self.member_snapshot(i + 1)
+ 104                       for i in range(len(self.party))],
+ 105         }
+ 106 
+ 107     def member_snapshot(self, member):
+ 108         m = self.party[member - 1]
+ 109         return {
+ 110             "slot": member,
+ 111             "name": m.get("name", ""),
+ 112             "npc": m.get("npc", 0),
+ 113             "level": m.get("level", 1),
+ 114             "xp": m.get("xp", 0),
+ 115             "max_hp": m.get("max_hp", 0),
+ 116             "hp": m.get("hp", 0),
+ 117             "cond": m.get("cond", 0),
+ 118             "money": m.get("money", 0),
+ 119             "ac": m.get("ac", 0),
+ 120             "rank": m.get("rank", 0),
+==================== reference bumps
+{'seq': 127, 'type': 'bump', 'x': 8, 'y': 17, 'action_class': 11, 'action': 1}
+{'seq': 503, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}
+{'seq': 508, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}
+{'seq': 513, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}
+{'seq': 518, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}
+{'seq': 562, 'type': 'bump', 'x': 18, 'y': 17, 'action_class': 11, 'action': 1}
+{'seq': 603, 'type': 'bump', 'x': 25, 'y': 21, 'action_class': 11, 'action': 0}
+{'seq': 807, 'type': 'bump', 'x': 16, 'y': 6, 'action_class': 4, 'action': 5}
+{'seq': 1018, 'type': 'bump', 'x': 15, 'y': 11, 'action_class': 11, 'action': 0}
+==================== reference events seq 100-140
+{'seq': 100, 'type': 'input', 'key': 'DOWN'}
+{'seq': 101, 'type': 'move', 'location': 1, 'x': 6, 'y': 8, 'steps': 27}
+{'seq': 102, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 103, 'type': 'move', 'location': 1, 'x': 7, 'y': 8, 'steps': 28}
+{'seq': 104, 'type': 'input', 'key': 'DOWN'}
+{'seq': 105, 'type': 'move', 'location': 1, 'x': 7, 'y': 9, 'steps': 29}
+{'seq': 106, 'type': 'input', 'key': 'DOWN'}
+{'seq': 107, 'type': 'move', 'location': 1, 'x': 7, 'y': 10, 'steps': 30}
+{'seq': 108, 'type': 'input', 'key': 'DOWN'}
+{'seq': 109, 'type': 'move', 'location': 1, 'x': 7, 'y': 11, 'steps': 31}
+{'seq': 110, 'type': 'input', 'key': 'DOWN'}
+{'seq': 111, 'type': 'move', 'location': 1, 'x': 7, 'y': 12, 'steps': 32}
+{'seq': 112, 'type': 'input', 'key': 'DOWN'}
+{'seq': 113, 'type': 'move', 'location': 1, 'x': 7, 'y': 13, 'steps': 33}
+{'seq': 114, 'type': 'input', 'key': 'DOWN'}
+{'seq': 115, 'type': 'move', 'location': 1, 'x': 7, 'y': 14, 'steps': 34}
+{'seq': 116, 'type': 'input', 'key': 'DOWN'}
+{'seq': 117, 'type': 'move', 'location': 1, 'x': 7, 'y': 15, 'steps': 35}
+{'seq': 118, 'type': 'input', 'key': 'DOWN'}
+{'seq': 119, 'type': 'move', 'location': 1, 'x': 7, 'y': 16, 'steps': 36}
+{'seq': 120, 'type': 'input', 'key': 'DOWN'}
+{'seq': 121, 'type': 'move', 'location': 1, 'x': 7, 'y': 17, 'steps': 37}
+{'seq': 122, 'type': 'input', 'key': 'DOWN'}
+{'seq': 123, 'type': 'move', 'location': 1, 'x': 7, 'y': 18, 'steps': 38}
+{'seq': 124, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 125, 'type': 'move', 'location': 1, 'x': 8, 'y': 18, 'steps': 39}
+{'seq': 126, 'type': 'input', 'key': 'UP'}
+{'seq': 127, 'type': 'bump', 'x': 8, 'y': 17, 'action_class': 11, 'action': 1}
+{'seq': 128, 'type': 'paragraph', 'n': 6}
+{'seq': 129, 'type': 'prompt', 'prompt': 'recruit'}
+{'seq': 130, 'type': 'input', 'key': 'Y'}
+{'seq': 131, 'type': 'cell_change', 'location': 1, 'x': 8, 'y': 17, 'action_class': 0, 'action': 0, 'image': 28}
+{'seq': 132, 'type': 'recruit', 'location': 1, 'npc': 0, 'slot': 5}
+{'seq': 133, 'type': 'checkpoint', 'name': 'CP3', 'state': {'location': 1, 'x': 8, 'y': 18, 'steps': 39, 'day': 1, 'hour': 8, 'minute': 39, 'mode': 'map', 'cell_changes': [[1, 8, 17, 0, 0, 28]], 'party': [{'slot': 1, 'name': 'Hessa Brand', 'npc': 0, 'level': 1, 'xp': 90, 'max_hp': 24, 'hp': 24, 'cond': 0, 'money': 120, 'ac': 3, 'rank': 'Drifter', 'skill_points': 0, 'items': [[3, 6], [4, 2], [7, 0]], 'weapon_slot': 1, 'armour_slot': 3}, {'slot': 2, 'name': 'Tobin Ash', 'npc': 0, 'level': 1, 'xp': 90, 'max_hp': 26, 'hp': 26, 'cond': 0, 'money': 40, 'ac': 3, 'rank': 'Drifter', 'skill_points': 0, 'items': [[5, 8], [6, 1], [7, 0]], 'weapon_slot': 1, 'armour_slot': 3}, {'slot': 3, 'name': 'Maro Quill', 'npc': 0, 'level': 1, 'xp': 90, 'max_hp': 21, 'hp': 21, 'cond': 0, 'money': 73, 'ac': 3, 'rank': 'Drifter', 'skill_points': 0, 'items': [[3, 6], [4, 2]], 'weapon_slot': 1, 'armour_slot': 0}, {'slot': 4, 'name': 'Dell Ostrow', 'npc': 0, 'level': 1, 'xp': 90, 'max_hp': 22, 'hp': 22, 'cond': 0, 'money': 63, 'ac': 2, 'rank': 'Drifter', 'skill_points': 0, 'items': [[3, 6], [4, 2], [9, 3]], 'weapon_slot': 1, 'armour_slot': 0}, {'slot': 5, 'name': 'Orla Penn', 'npc': 1, 'level': 2, 'xp': 200, 'max_hp': 27, 'hp': 27, 'cond': 0, 'money': 25, 'ac': 3, 'rank': 'Hand', 'skill_points': 0, 'items': [[5, 8], [6, 2]], 'weapon_slot': 1, 'armour_slot': 0}], 'rng_state': 20261021}}
+{'seq': 134, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 135, 'type': 'move', 'location': 1, 'x': 9, 'y': 18, 'steps': 40}
+{'seq': 136, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 137, 'type': 'move', 'location': 1, 'x': 10, 'y': 18, 'steps': 41}
+{'seq': 138, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 139, 'type': 'move', 'location': 1, 'x': 11, 'y': 18, 'steps': 42}
+{'seq': 140, 'type': 'input', 'key': 'RIGHT'}
+==================== reference events seq 800-830
+{'seq': 800, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 801, 'type': 'move', 'location': 3, 'x': 13, 'y': 6, 'steps': 263}
+{'seq': 802, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 803, 'type': 'move', 'location': 3, 'x': 14, 'y': 6, 'steps': 264}
+{'seq': 804, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 805, 'type': 'move', 'location': 3, 'x': 15, 'y': 6, 'steps': 265}
+{'seq': 806, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 807, 'type': 'bump', 'x': 16, 'y': 6, 'action_class': 4, 'action': 5}
+{'seq': 808, 'type': 'message', 'location': 3, 'string': 10}
+{'seq': 809, 'type': 'key_used', 'member': 1, 'item': 11}
+{'seq': 810, 'type': 'unlock', 'x': 16, 'y': 6}
+{'seq': 811, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 39}
+{'seq': 812, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 37}
+{'seq': 813, 'type': 'paragraph', 'n': 21}
+{'seq': 814, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 815, 'type': 'move', 'location': 3, 'x': 16, 'y': 6, 'steps': 266}
+{'seq': 816, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 37}
+{'seq': 817, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 818, 'type': 'move', 'location': 3, 'x': 17, 'y': 6, 'steps': 267}
+{'seq': 819, 'type': 'paragraph', 'n': 22}
+{'seq': 820, 'type': 'input', 'key': 'UP'}
+{'seq': 821, 'type': 'move', 'location': 3, 'x': 17, 'y': 5, 'steps': 268}
+{'seq': 822, 'type': 'input', 'key': 'UP'}
+{'seq': 823, 'type': 'move', 'location': 3, 'x': 17, 'y': 4, 'steps': 269}
+{'seq': 824, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 825, 'type': 'move', 'location': 3, 'x': 18, 'y': 4, 'steps': 270}
+{'seq': 826, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 827, 'type': 'move', 'location': 3, 'x': 19, 'y': 4, 'steps': 271}
+{'seq': 828, 'type': 'input', 'key': 'RIGHT'}
+{'seq': 829, 'type': 'move', 'location': 3, 'x': 20, 'y': 4, 'steps': 272}
+{'seq': 830, 'type': 'input', 'key': 'RIGHT'}

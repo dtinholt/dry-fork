@@ -1,0 +1,1522 @@
+### wl_combat_ref.py
+"""Independent restatement of SPEC-04 combat rules for the first Dry Fork fight.
+
+Used by test_m5_rules.py to compute expected events for the road-raider
+encounter at overworld (30,41) (SPEC-05 section 6, type 1) from the spec text
+alone. The party state is the walkthrough state at CP3 (SPEC-05 sections 7,
+10.1, 10.2 and 14.1): no random draw happens before this encounter, so the
+first draw of the fight is the first draw of the stream.
+
+This is not the engine and is not a general combat implementation: it covers
+the encounter start, the surprise check, the surprise round and the phase 1 of
+round 1 (SPEC-04 LR-26 to LR-30, LR-34, LR-40), plus a rule-consistency checker
+for a whole fight against this group (LR-33 to LR-44).
+"""
+
+from __future__ import annotations
+
+from wl_support import (RefRng, ref_build_groups, ref_damage_member, ref_jam_chance,
+                        ref_level_after, ref_max_hp, ref_monster_need, ref_ranged_need,
+                        ref_skill_check)
+
+# Party at CP3, from SPEC-05 tables (slot: stats). Weapon data from SPEC-05
+# section 7: Ranch pistol capacity 6, skill byte 4, damage 1d8, ammo item 4;
+# Lever rifle capacity 8, skill byte 5, damage 2d6, ammo item 6.
+PISTOL = {"item": 3, "cap": 6, "skill": 4, "n": 1, "s": 8, "ammo": 4}
+RIFLE = {"item": 5, "cap": 8, "skill": 5, "n": 2, "s": 6, "ammo": 6}
+
+PARTY_CP3 = {
+    # slot: name, STR, IQ, SPD, AGL, skills {id: level}, weapon, load, ammo boxes, AC, max HP
+    1: {"name": "Hessa Brand", "STR": 14, "IQ": 13, "SPD": 12, "AGL": 14,
+        "skills": {4: 2, 20: 1, 21: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+    2: {"name": "Tobin Ash", "STR": 16, "IQ": 10, "SPD": 11, "AGL": 12,
+        "skills": {5: 2, 1: 1, 17: 1, 3: 1}, "weapon": RIFLE, "load": 8, "boxes": 1, "ac": 3, "xp": 90},
+    3: {"name": "Maro Quill", "STR": 11, "IQ": 16, "SPD": 13, "AGL": 15,
+        "skills": {14: 2, 23: 1, 22: 1, 4: 1, 12: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+    4: {"name": "Dell Ostrow", "STR": 12, "IQ": 15, "SPD": 12, "AGL": 13,
+        "skills": {12: 2, 13: 1, 4: 1, 29: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 2, "xp": 90},
+    5: {"name": "Orla Penn", "STR": 13, "IQ": 11, "SPD": 14, "AGL": 15,
+        "skills": {5: 2, 18: 2, 19: 1}, "weapon": RIFLE, "load": 8, "boxes": 2, "ac": 3, "xp": 200, "level": 2},
+}
+
+# Overworld monster 1, SPEC-05 section 5.1 (manifest-style keys).
+RAIDER = {"name": "raider", "sturdiness": 12, "combatRating": 6, "randomDamage": 1, "maxGroup": 4,
+          "armorClass": 1, "fixedDamage": 0, "weaponType": 3, "type": 3, "portrait": 1}
+RAIDER_RECORD = {"groups": [[1, False, 3], [0, False, 0], [0, False, 0]]}
+LOOKOUT = 18
+GUNSMITHING = 22
+
+COMBAT_TYPES = {"attack", "jam", "click", "monster_dies", "unconscious", "death"}
+
+
+def _lookout_checker():
+    """LR-14: highest Lookout level, then higher linked attribute (IQ), then lower slot."""
+    best = None
+    for slot, m in PARTY_CP3.items():
+        lvl = m["skills"].get(LOOKOUT, 0)
+        key = (lvl, m["IQ"], -slot)
+        if best is None or key > best[0]:
+            best = (key, slot)
+    return best[1]
+
+
+def opening(seed: int) -> dict:
+    """Expected events of the raider fight up to the end of round 1, phase 1."""
+    rng = RefRng(seed)
+    groups = ref_build_groups(rng, [RAIDER], RAIDER_RECORD)
+    enc = {"type": "encounter_start",
+           "groups": [{"monster": "raider", "count": g["count"], "band": g["band"], "hp": g["hp"]}
+                      for g in groups]}
+    hp = list(groups[0]["hp"])
+    band = groups[0]["band"]
+    d_max = RAIDER["combatRating"]
+    cs = _lookout_checker()
+    m = PARTY_CP3[cs]
+    c = ref_skill_check(rng, m["skills"].get(LOOKOUT, 0), m["IQ"], d_max)
+    check = {"type": "check", "member": cs, "skill": LOOKOUT, "level": m["skills"].get(LOOKOUT, 0), **c}
+    member_hp = {s: ref_max_hp(p["STR"], p.get("level", 1)) for s, p in PARTY_CP3.items()}
+    cond = {s: 0 for s in PARTY_CP3}
+
+    def monster_phase1(events):
+        pending = {s: 0 for s in PARTY_CP3}
+        conscious = [s for s in sorted(PARTY_CP3) if cond[s] == 0]
+        for i in range(len(hp)):
+            if hp[i] <= 0:
+                continue
+            t = conscious[rng.roll(len(conscious)) - 1]
+            need = ref_monster_need(RAIDER["combatRating"], PARTY_CP3[t]["ac"], band)
+            r = rng.d100()
+            ev = {"type": "attack", "side": "monsters", "group": 1, "attacker": i + 1, "member": t,
+                  "need": need, "roll": r, "hit": r <= need}
+            if r <= need:
+                d = rng.dice(RAIDER["randomDamage"], 6) + RAIDER["fixedDamage"]
+                ev["damage"] = d
+                pending[t] += d
+            events.append(ev)
+        return pending
+
+    def apply_members(pending, events):
+        for s in sorted(PARTY_CP3):
+            if pending[s] and cond[s] == 0:
+                res = ref_damage_member(member_hp[s], pending[s])
+                member_hp[s] = res["hp"]
+                if res["cond"]:
+                    cond[s] = res["cond"]
+                    events.append({"type": "death" if res["cond"] == 2 else "unconscious", "member": s})
+
+    round0 = []
+    if not c["success"]:
+        p = monster_phase1(round0)
+        apply_members(p, round0)
+
+    round1 = []
+    loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+    pend = [0] * len(hp)
+    for s in sorted(PARTY_CP3):
+        if cond[s]:
+            continue
+        mm = PARTY_CP3[s]
+        w = mm["weapon"]
+        if loads[s] == 0:
+            round1.append({"type": "click", "member": s})
+            continue
+        r = rng.d100()
+        j = ref_jam_chance(mm["skills"].get(GUNSMITHING, 0))
+        if r <= j:
+            round1.append({"type": "jam", "member": s, "roll": r, "chance": j})
+            continue
+        loads[s] -= 1
+        tgt = next((i for i in range(len(hp)) if hp[i] - pend[i] > 0), None)
+        if tgt is None:
+            tgt = next(i for i in range(len(hp)) if hp[i] > 0)
+        need = ref_ranged_need(mm["skills"].get(w["skill"], 0), mm["AGL"], RAIDER["armorClass"], band)
+        r = rng.d100()
+        ev = {"type": "attack", "side": "party", "member": s, "group": 1, "target": tgt + 1,
+              "need": need, "roll": r, "hit": r <= need}
+        if r <= need:
+            d = rng.dice(w["n"], w["s"])
+            ev["damage"] = d
+            pend[tgt] += d
+        round1.append(ev)
+    pm = monster_phase1(round1)
+    for i in range(len(hp)):
+        if hp[i] > 0 and pend[i]:
+            hp[i] -= pend[i]
+            if hp[i] <= 0:
+                round1.append({"type": "monster_dies", "group": 1, "index": i + 1})
+    apply_members(pm, round1)
+    return {"encounter": enc, "check": check, "surprised": not c["success"],
+            "round0": round0, "round1": round1}
+
+
+def combat_window(events: list[dict], round_no: int) -> list[dict] | None:
+    """Events after round_start(round_no) while they are combat resolution events."""
+    for i, e in enumerate(events):
+        if e.get("type") == "round_start" and e.get("round") == round_no:
+            out = []
+            for f in events[i + 1:]:
+                if f.get("type") not in COMBAT_TYPES:
+                    break
+                out.append({k: v for k, v in f.items() if k != "seq"})
+            return out
+    return None
+
+
+def consistency(events: list[dict]) -> list[tuple[str, str]]:
+    """Rule-consistency issues for the raider fight in an engine log.
+
+    Categories: orders (LR-33), need (LR-34 party and monster need), jam
+    (LR-34 step 2, LR-39), target (LR-34 step 4), victory (LR-44, LR-45, LR-46).
+    """
+    issues: list[tuple[str, str]] = []
+    try:
+        start = next(i for i, e in enumerate(events) if e.get("type") == "encounter_start")
+    except StopIteration:
+        return [("all", "no encounter_start event in the log")]
+    end = next((i for i in range(start, len(events)) if events[i].get("type") == "combat_end"), None)
+    if end is None:
+        return [("all", "no combat_end event after encounter_start")]
+    groups = events[start].get("groups") or []
+    if len(groups) != 1 or groups[0].get("count") != 3:
+        return [("all", "encounter_start groups: expected one group of 3 raiders, got %r" % groups)]
+    hp = list(groups[0].get("hp", []))
+    band = groups[0].get("band", 3)
+    loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+    boxes = {s: PARTY_CP3[s]["boxes"] for s in PARTY_CP3}
+    jammed: set[int] = set()
+    pend = [0] * 3
+    in_phase1 = False
+    last_death_round = None
+    cur_round = None
+    rounds_started = []
+
+    def finalize():
+        nonlocal in_phase1
+        if in_phase1:
+            for i in range(3):
+                hp[i] -= pend[i]
+                pend[i] = 0
+            in_phase1 = False
+
+    for e in events[start + 1:end + 1]:
+        t = e.get("type")
+        if t == "round_orders":
+            exp = {}
+            for s in sorted(PARTY_CP3):
+                alive = any(h > 0 for h in hp)
+                if not alive:
+                    exp[str(s)] = ["wait"]
+                elif s in jammed:
+                    exp[str(s)] = ["unjam"]
+                elif loads[s] > 0:
+                    exp[str(s)] = ["fire", 1]
+                elif boxes[s] > 0:
+                    exp[str(s)] = ["reload"]
+                else:
+                    exp[str(s)] = ["unarmed", 1] if band == 1 else ["advance", 1]
+            got = {str(k): list(v) for k, v in (e.get("orders") or {}).items()}
+            if got != exp:
+                diff = next((k for k in exp if got.get(k) != exp[k]), None)
+                issues.append(("orders", "round %s: slot %s order expected %r, got %r"
+                               % (e.get("round"), diff, exp.get(diff), got.get(diff))))
+        elif t == "round_start":
+            finalize()
+            cur_round = e.get("round")
+            rounds_started.append(cur_round)
+            in_phase1 = True
+            pend = [0] * 3
+        elif t == "attack" and e.get("side") == "party":
+            s = e.get("member")
+            mm = PARTY_CP3.get(s)
+            if mm is None:
+                issues.append(("need", "party attack by unknown member %r" % s))
+                continue
+            w = mm["weapon"]
+            need = ref_ranged_need(mm["skills"].get(w["skill"], 0), mm["AGL"], RAIDER["armorClass"], band)
+            if e.get("need") != need:
+                issues.append(("need", "party attack by member %d at band %d: need expected %d, got %r"
+                               % (s, band, need, e.get("need"))))
+            hit = e.get("roll") is not None and e.get("roll") <= e.get("need", -1)
+            if e.get("hit") != hit or (("damage" in e) != hit):
+                issues.append(("need", "party attack by member %d: roll %r need %r but hit=%r damage=%r"
+                               % (s, e.get("roll"), e.get("need"), e.get("hit"), e.get("damage"))))
+            if hit and not (w["n"] <= e.get("damage", 0) <= w["n"] * w["s"]):
+                issues.append(("need", "party attack by member %d: damage %r outside %dd%d"
+                               % (s, e.get("damage"), w["n"], w["s"])))
+            if in_phase1:
+                exp_t = next((i for i in range(3) if hp[i] - pend[i] > 0), None)
+                if exp_t is None:
+                    exp_t = next((i for i in range(3) if hp[i] > 0), None)
+                if exp_t is not None and e.get("target") != exp_t + 1:
+                    issues.append(("target", "round %s member %d: target expected %d, got %r"
+                                   % (cur_round, s, exp_t + 1, e.get("target"))))
+                tg = (e.get("target") or 1) - 1
+                if hit and 0 <= tg < 3:
+                    pend[tg] += e.get("damage", 0)
+            loads[s] = max(0, loads[s] - 1)
+        elif t == "attack" and e.get("side") == "monsters":
+            s = e.get("member")
+            mm = PARTY_CP3.get(s)
+            if mm is None:
+                issues.append(("need", "monster attack on unknown member %r" % s))
+                continue
+            need = ref_monster_need(RAIDER["combatRating"], mm["ac"], band)
+            if e.get("need") != need:
+                issues.append(("need", "monster attack on member %d at band %d: need expected %d, got %r"
+                               % (s, band, need, e.get("need"))))
+            hit = e.get("roll") is not None and e.get("roll") <= e.get("need", -1)
+            if e.get("hit") != hit or (("damage" in e) != hit):
+                issues.append(("need", "monster attack on member %d: roll %r need %r but hit=%r"
+                               % (s, e.get("roll"), e.get("need"), e.get("hit"))))
+            if hit and not (1 <= e.get("damage", 0) <= 6):
+                issues.append(("need", "monster attack damage %r outside 1d6" % e.get("damage")))
+        elif t == "jam":
+            s = e.get("member")
+            mm = PARTY_CP3.get(s, {"skills": {}})
+            j = ref_jam_chance(mm["skills"].get(GUNSMITHING, 0))
+            if e.get("chance") != j or not (isinstance(e.get("roll"), int) and 1 <= e["roll"] <= j):
+                issues.append(("jam", "jam of member %r: chance expected %d with roll <= chance, got chance %r roll %r"
+                               % (s, j, e.get("chance"), e.get("roll"))))
+            jammed.add(s)
+            loads[s] = 0
+        elif t == "check" and e.get("skill") == GUNSMITHING:
+            s = e.get("member")
+            mm = PARTY_CP3.get(s, {"skills": {}, "IQ": 0})
+            lvl = mm["skills"].get(GUNSMITHING, 0)
+            need = 20 + 15 * lvl + 2 * mm["IQ"]
+            if e.get("need") != need or e.get("level") != lvl:
+                issues.append(("jam", "unjam check of member %r: need expected %d (level %d), got need %r level %r"
+                               % (s, need, lvl, e.get("need"), e.get("level"))))
+            ok = need >= 100 or (need > 0 and e.get("roll") is not None and e["roll"] <= need)
+            if e.get("success") != ok:
+                issues.append(("jam", "unjam check of member %r: roll %r need %d but success=%r"
+                               % (s, e.get("roll"), need, e.get("success"))))
+        elif t == "unjammed":
+            jammed.discard(e.get("member"))
+            loads[e.get("member")] = 0
+        elif t == "reload":
+            s = e.get("member")
+            cap = PARTY_CP3.get(s, {"weapon": PISTOL})["weapon"]["cap"]
+            if e.get("status") != cap:
+                issues.append(("jam", "reload of member %r: status expected %d, got %r" % (s, cap, e.get("status"))))
+            loads[s] = cap
+            boxes[s] -= 1
+        elif t == "group_closes":
+            finalize()
+            band = e.get("band", band)
+        elif t == "advance":
+            band = e.get("band", band)
+        elif t == "monster_dies":
+            finalize()
+            last_death_round = cur_round
+        elif t in ("unconscious", "death"):
+            finalize()
+    # victory checks
+    ce = events[end]
+    if ce.get("result") != "victory":
+        issues.append(("victory", "combat_end result expected 'victory', got %r" % ce.get("result")))
+    elif ce.get("rounds") != last_death_round:
+        issues.append(("victory", "combat_end rounds expected %r (round of the last monster_dies), got %r"
+                       % (last_death_round, ce.get("rounds"))))
+    total_xp = 3 * RAIDER["sturdiness"] * (RAIDER["armorClass"] + 1)
+    share = total_xp // 5
+    after = events[end + 1:]
+    xps = [e for e in after[:20] if e.get("type") == "xp"]
+    if [x.get("member") for x in xps] != [1, 2, 3, 4, 5]:
+        issues.append(("victory", "xp events after victory: expected members [1, 2, 3, 4, 5], got %r"
+                       % [x.get("member") for x in xps]))
+    for x in xps:
+        s = x.get("member")
+        if s in PARTY_CP3:
+            if x.get("delta") != share or x.get("total") != PARTY_CP3[s]["xp"] + share:
+                issues.append(("victory", "xp of member %d: expected delta %d total %d, got delta %r total %r"
+                               % (s, share, PARTY_CP3[s]["xp"] + share, x.get("delta"), x.get("total"))))
+    promos = [e for e in after[:20] if e.get("type") == "promote"]
+    exp_p = []
+    for s, mm in sorted(PARTY_CP3.items()):
+        lvl0 = mm.get("level", 1)
+        lvl = ref_level_after(lvl0, mm["xp"] + share)
+        if lvl > lvl0:
+            exp_p.append({"type": "promote", "member": s, "level": lvl, "max_hp": ref_max_hp(mm["STR"], lvl),
+                          "rank": ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"][min(lvl, 7) - 1]})
+    got_p = [{k: v for k, v in p.items() if k != "seq"} for p in promos]
+    if got_p != exp_p:
+        i = next((k for k in range(min(len(got_p), len(exp_p))) if got_p[k] != exp_p[k]), min(len(got_p), len(exp_p)))
+        issues.append(("victory", "promote event %d: expected %r, got %r"
+                       % (i, exp_p[i] if i < len(exp_p) else None, got_p[i] if i < len(got_p) else None)))
+    return issues
+
+
+### walkthrough-reference-log.json (first 20000 chars)
+{
+  "note": "Event log of the lab reference implementation for walkthrough.json with seed 20261021 (SPEC-06 section 6 schema). Reproduced event for event (1022 events) by an independent implementation built from the spec text on 21 Oct 2026.",
+  "events": [
+    {
+      "seq": 0,
+      "type": "new_game",
+      "seed": 20261021
+    },
+    {
+      "seq": 1,
+      "type": "paragraph",
+      "n": 1
+    },
+    {
+      "seq": 2,
+      "type": "checkpoint",
+      "name": "CP1",
+      "state": {
+        "location": 1,
+        "x": 15,
+        "y": 20,
+        "steps": 0,
+        "day": 1,
+        "hour": 8,
+        "minute": 0,
+        "mode": "map",
+        "cell_changes": [],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "hp": 24,
+            "cond": 0,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 60,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [1, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "hp": 21,
+            "cond": 0,
+            "money": 80,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 1]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "hp": 22,
+            "cond": 0,
+            "money": 70,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 1],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 20261021
+      }
+    },
+    {
+      "seq": 3,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 4,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 19,
+      "steps": 1
+    },
+    {
+      "seq": 5,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 6,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 18,
+      "steps": 2
+    },
+    {
+      "seq": 7,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 8,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 17,
+      "steps": 3
+    },
+    {
+      "seq": 9,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 10,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 16,
+      "steps": 4
+    },
+    {
+      "seq": 11,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 12,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 15,
+      "steps": 5
+    },
+    {
+      "seq": 13,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 14,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 14,
+      "steps": 6
+    },
+    {
+      "seq": 15,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 16,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 13,
+      "steps": 7
+    },
+    {
+      "seq": 17,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 18,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 12,
+      "steps": 8
+    },
+    {
+      "seq": 19,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 20,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 12,
+      "steps": 9
+    },
+    {
+      "seq": 21,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 22,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 11,
+      "steps": 10
+    },
+    {
+      "seq": 23,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 24,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 10,
+      "steps": 11
+    },
+    {
+      "seq": 25,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 26,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 9,
+      "steps": 12
+    },
+    {
+      "seq": 27,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 28,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 8,
+      "steps": 13
+    },
+    {
+      "seq": 29,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 30,
+      "type": "move",
+      "location": 1,
+      "x": 13,
+      "y": 8,
+      "steps": 14
+    },
+    {
+      "seq": 31,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 32,
+      "type": "move",
+      "location": 1,
+      "x": 12,
+      "y": 8,
+      "steps": 15
+    },
+    {
+      "seq": 33,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 34,
+      "type": "move",
+      "location": 1,
+      "x": 11,
+      "y": 8,
+      "steps": 16
+    },
+    {
+      "seq": 35,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 36,
+      "type": "move",
+      "location": 1,
+      "x": 10,
+      "y": 8,
+      "steps": 17
+    },
+    {
+      "seq": 37,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 38,
+      "type": "move",
+      "location": 1,
+      "x": 9,
+      "y": 8,
+      "steps": 18
+    },
+    {
+      "seq": 39,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 40,
+      "type": "move",
+      "location": 1,
+      "x": 8,
+      "y": 8,
+      "steps": 19
+    },
+    {
+      "seq": 41,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 42,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 8,
+      "steps": 20
+    },
+    {
+      "seq": 43,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 44,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 8,
+      "steps": 21
+    },
+    {
+      "seq": 45,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 46,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 7,
+      "steps": 22
+    },
+    {
+      "seq": 47,
+      "type": "paragraph",
+      "n": 3
+    },
+    {
+      "seq": 48,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 49,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 6,
+      "steps": 23
+    },
+    {
+      "seq": 50,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 51,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 5,
+      "steps": 24
+    },
+    {
+      "seq": 52,
+      "type": "message",
+      "location": 1,
+      "string": 5
+    },
+    {
+      "seq": 53,
+      "type": "shop_open",
+      "shop": 0
+    },
+    {
+      "seq": 54,
+      "type": "input",
+      "key": "B"
+    },
+    {
+      "seq": 55,
+      "type": "prompt",
+      "prompt": "buy_item",
+      "items": [1, 3, 4, 7, 9, 10]
+    },
+    {
+      "seq": 56,
+      "type": "input",
+      "key": "c"
+    },
+    {
+      "seq": 57,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 58,
+      "type": "input",
+      "key": "3"
+    },
+    {
+      "seq": 59,
+      "type": "money",
+      "member": 3,
+      "delta": -7,
+      "total": 73
+    },
+    {
+      "seq": 60,
+      "type": "buy",
+      "member": 3,
+      "item": 4,
+      "price": 7,
+      "slot": 2,
+      "status": 2
+    },
+    {
+      "seq": 61,
+      "type": "input",
+      "key": "B"
+    },
+    {
+      "seq": 62,
+      "type": "prompt",
+      "prompt": "buy_item",
+      "items": [1, 3, 4, 7, 9, 10]
+    },
+    {
+      "seq": 63,
+      "type": "input",
+      "key": "c"
+    },
+    {
+      "seq": 64,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 65,
+      "type": "input",
+      "key": "4"
+    },
+    {
+      "seq": 66,
+      "type": "money",
+      "member": 4,
+      "delta": -7,
+      "total": 63
+    },
+    {
+      "seq": 67,
+      "type": "buy",
+      "member": 4,
+      "item": 4,
+      "price": 7,
+      "slot": 2,
+      "status": 2
+    },
+    {
+      "seq": 68,
+      "type": "input",
+      "key": "S"
+    },
+    {
+      "seq": 69,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 70,
+      "type": "input",
+      "key": "2"
+    },
+    {
+      "seq": 71,
+      "type": "prompt",
+      "prompt": "item_slot"
+    },
+    {
+      "seq": 72,
+      "type": "input",
+      "key": "c"
+    },
+    {
+      "seq": 73,
+      "type": "sell",
+      "member": 2,
+      "item": 1,
+      "price": 8,
+      "slot": 3
+    },
+    {
+      "seq": 74,
+      "type": "money",
+      "member": 2,
+      "delta": 8,
+      "total": 68
+    },
+    {
+      "seq": 75,
+      "type": "input",
+      "key": "B"
+    },
+    {
+      "seq": 76,
+      "type": "prompt",
+      "prompt": "buy_item",
+      "items": [1, 3, 4, 7, 9, 10]
+    },
+    {
+      "seq": 77,
+      "type": "input",
+      "key": "d"
+    },
+    {
+      "seq": 78,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 79,
+      "type": "input",
+      "key": "2"
+    },
+    {
+      "seq": 80,
+      "type": "money",
+      "member": 2,
+      "delta": -28,
+      "total": 40
+    },
+    {
+      "seq": 81,
+      "type": "buy",
+      "member": 2,
+      "item": 7,
+      "price": 28,
+      "slot": 3,
+      "status": 0
+    },
+    {
+      "seq": 82,
+      "type": "input",
+      "key": "X"
+    },
+    {
+      "seq": 83,
+      "type": "shop_close"
+    },
+    {
+      "seq": 84,
+      "type": "input",
+      "key": "C"
+    },
+    {
+      "seq": 85,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 86,
+      "type": "input",
+      "key": "2"
+    },
+    {
+      "seq": 87,
+      "type": "char_open",
+      "member": 2
+    },
+    {
+      "seq": 88,
+      "type": "input",
+      "key": "E"
+    },
+    {
+      "seq": 89,
+      "type": "prompt",
+      "prompt": "item_slot"
+    },
+    {
+      "seq": 90,
+      "type": "input",
+      "key": "c"
+    },
+    {
+      "seq": 91,
+      "type": "equip",
+      "member": 2,
+      "slot": 3,
+      "item": 7,
+      "ac": 3
+    },
+    {
+      "seq": 92,
+      "type": "input",
+      "key": "X"
+    },
+    {
+      "seq": 93,
+      "type": "char_close"
+    },
+    {
+      "seq": 94,
+      "type": "checkpoint",
+      "name": "CP2",
+      "state": {
+        "location": 1,
+        "x": 6,
+        "y": 5,
+        "steps": 24,
+        "day": 1,
+        "hour": 8,
+        "minute": 24,
+        "mode": "map",
+        "cell_changes": [],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "hp": 24,
+            "cond": 0,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 40,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "hp": 21,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "hp": 22,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 20261021
+      }
+    },
+    {
+      "seq": 95,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 96,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 6,
+      "steps": 25
+    },
+    {
+      "seq": 97,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 98,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 7,
+      "steps": 26
+    },
+    {
+      "seq": 99,
+      "type": "paragraph",
+      "n": 3
+    },
+    {
+      "seq": 100,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 101,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 8,
+      "steps": 27
+    },
+    {
+      "seq": 102,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 103,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 8,
+      "steps": 28
+    },
+    {
+      "seq": 104,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 105,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 9,
+      "steps": 29
+    },
+    {
+      "seq": 106,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 107,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 10,
+      "steps": 30
+    },
+    {
+      "seq": 108,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 109,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 11,
+      "steps": 31
+    },
+    {
+      "seq": 110,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 111,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 12,
+      "steps": 32
+    },
+    {
+      "seq": 112,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 113,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 13,
+      "steps": 33
+    },
+    {
+      "seq": 114,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 115,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 14,
+      "steps": 34
+    },
+    {
+      "seq": 116,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 117,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 15,
+      "steps": 35
+    },
+    {
+      "seq": 118,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 119,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 16,
+      "steps": 36
+    },
+    {
+      "seq": 120,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 121,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 17,
+      "steps": 37
+    },
+    {
+      "seq": 122,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 123,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 18,
+      "steps": 38
+    },
+    {
+      "seq": 124,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 125,
+      "type": "move",
+      "location": 1,
+      "x": 8,
+      "y": 18,
+      "steps": 39
+    },
+    {
+      "seq": 126,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 127,
+      "type": "bump",
+      "x": 8,
+      "y": 17,
+      "action_class": 11,
+      "action": 1
+    },
+    {
+      "seq": 128,
+      "type": "paragraph",
+      "n": 6
+    },
+    {
+      "seq": 129,
+      "type": "prompt",
+      "prompt": "recruit"
+    },
+    {
+      "seq": 130,
+      "type": "input",
+      "key": "Y"
+    },
+    {
+      "seq": 131,
+      "type": "cell_change",
+      "location": 1,
+      "x": 8,
+      "y": 17,
+      "action_class": 0,
+      "action": 0,
+      "image": 28
+    },
+    {
+      "seq": 132,
+      "type": "recruit",
+      "location": 1,
+      "npc": 0,
+      "slot": 5
+    },
+    {
+      "seq": 133,
+      "type": "checkpoint",
+      "name": "CP3",
+      "state": {
+        "location": 1,
+        "x": 8,
+        "y": 18,
+        "steps": 39,
+        "day": 1,
+        "hour": 8,
+        "minute": 39,
+        "mode": "map",
+        "cell_changes": [
+          [1, 8, 17, 0, 0, 28]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "hp": 24,
+            "cond": 0,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 40,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "hp": 21,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "hp": 22,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 200,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 8],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 20261021
+      }
+    },
+    {
+      "seq": 134,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 135,
+      "type": "move",
+      "location": 1,
+      "x": 9,
+      "y": 18,
+      "steps": 40
+    },
+    {
+      "seq": 136,
+      "type": 
+
+=== run bump seed 20261021
+EXC FileNotFoundError(2, 'No such file or directory')
+=== run fight1 seed 1
+EXC FileNotFoundError(2, 'No such file or directory')
+=== run fight2 seed 2
+EXC FileNotFoundError(2, 'No such file or directory')
+=== run fight3 seed 3
+EXC FileNotFoundError(2, 'No such file or directory')
+=== run cp6 seed 20261021
+EXC FileNotFoundError(2, 'No such file or directory')
+=== run cp7 seed 20261021
+EXC FileNotFoundError(2, 'No such file or directory')
+=== run cp9 seed 20261021
+EXC FileNotFoundError(2, 'No such file or directory')

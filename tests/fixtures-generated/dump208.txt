@@ -1,0 +1,326 @@
+=== SPEC/SPEC-03-maps.md :: 9.2 Action byte and tables (line 456) ===
+456: ### 9.2 Action byte and tables
+457: 
+458: - L-AC2: the action byte is the 0-based index into the class's pointer list at
+459:   `actionClassOffsets[class]` (section 6.2).
+460: - L-AC3: in lab tables pointer 0 is always 0x0000. Action byte 0 therefore
+461:   means "no record": the class default applies (WALKABLE moves, BLOCKED blocks
+462:   silently). Records use slots 1, 2, 3, ...
+463: - L-AC4: non-zero pointers ascend and records are stored in pointer order right
+464:   after the pointer list, so both the wastelib and the wllib pointer-list rules
+465:   (section 6.2) find the same list length.
+466: - L-AC5: an action byte at or beyond the pointer-list length, or a null pointer
+467:   for a class that needs a record (1, 3, 5, 6, 10), is a data error in lab data.
+468: - L-AC6: a class with no records has `actionClassOffsets[class] = 0`.
+469: 
+470: ### 9.3 Tail
+471: 
+472: - L-TL1: `newActionClass` 0 to 15 replaces the cell's class and action byte with
+473:   `(newActionClass, newAction)` after the action has fired once; 255 changes
+474:   nothing; lab encoders never write 16 to 254. The engine treats 16 to 254 in
+475:   lab data as 255 and logs a warning.
+476: - L-TL2: replacements are part of the game state and are saved with it; the
+477:   base map files are never modified.
+478: 
+479: ### 9.4 SHOP record (class 6, lab layout)
+480: 
+481: ```text
+482: u8 shop list number (SPEC-02 rule L-SH3)
+483: u8 message index
+484: tail (8.3)
+485: ```
+486: 
+487: ### 9.5 Messages and monsters
+488: 
+489: - L-MS1: a message index `m` selects map string `m` (0-based, group x 4 +
+490:   slot). Lab maps keep string 0 empty, so `m = 0` shows nothing.
+491: - L-MS2: messages are shown in order; a 0x06 control byte waits for a key.
+492:   PRINT records may hold the text "Read paragraph N."; the paragraph book is a
+493:   separate lab document, outside these formats. This is the lab's paragraph
+494:   trigger.
+495: - L-MB1: in encounter records, monster index 0 = empty slot, `n >= 1` = map
+496:   monster `n - 1`.
+497: - L-MB2: group size: if the random flag is set, `rnd(size)` with `rnd` from
+498:   section 6.6; otherwise exactly `size`; if `size` is 0 in a used slot, use the
+499:   monster's own maximum group size nibble.
+500: - L-MB3: lab encoders write the encounter NPC number and bit 3 of the flag
+501:   byte as 0. Visible distance, hit distance, proper name and immobile are
+502:   written as data; the lab v1 engine exposes them and ignores them.
+503: 
+504: ### 9.6 Movement and triggers
+505: 
+506: The party occupies one cell. A move targets the adjacent cell `(nx, ny)`.
+507: 
+508: 1. Out of bounds (`nx` or `ny` outside 0 to S-1): blocked, no message (L-MV1).
+509: 2. Look up the target cell's class `c` and action byte `a`, and record `r`
+510:    (null if `a = 0`).
+511: 3. Act by class:
+512: 
+513: | Class | Effect |
+514: | --- | --- |
+515: | 0 | move |
+516: | 11 | do not move; if `r` and `r.message != 0`, show it; apply tail |
+517: | 4 | if `r.impassable`: do not move, show `r.message`. Else: set the cell image to `r.tile`, move, show `r.message` if non-zero, apply tail |
+518: | 1 | move; show every message of `r`; apply tail |
+519: | 3 | move; raise an encounter event with the resolved groups (9.5) and `r.friendly`; when the engine reports the event resolved (combat won, or friendly), apply tail |
+520: | 5 | move; give each item to the first party member with a free item slot (fixed: `amount` as the status byte; random: `rnd(amount)`); add cash (fixed: `amount`; random: `rnd(amount)`) to the active character's money; apply tail |
+521: | 6 | move; show `r.message`; open shop list `r.shop` |
+522: | 10 | see 9.7 |
+523: | reserved | move; warning (L-AC1) |
+524: 
+525: - L-MV2: passability depends only on the class and the DOOR flag, never on the
+=== SPEC/SPEC-03-maps.md :: 9.9 Encoder rules for lab map blocks (line 574) ===
+574: ### 9.9 Encoder rules for lab map blocks
+575: 
+576: - L-EN1: body order: action-class map, action map, central directory, map info,
+577:   action tables 0 to 7, table 15, NPC section, tables 8 to 14, specials,
+578:   monster names, monster data, strings (the wllib order of section 6.1).
+579: - L-EN2: the encrypted prefix is exactly `body[0 : stringsOffset]`; strings and
+580:   anything after them are plain. The prefix must pass the ambiguity check of
+581:   SPEC-01 section 2.7. The fixture generator nudges monster sturdiness until it
+582:   passes.
+583: - L-EN3: `specialsOffset = 0` (no special-action table).
+584: - L-EN4: a map with no NPCs sets `npcOffset = stringsOffset`. The u16 there
+585:   (`20 65`, read as 0x6520) is non-zero, so the `map.md` rule reads "no NPCs",
+586:   and wllib sees a zero-length section because strings outrank the NPC table.
+587: - L-EN5: string dictionaries start with `20 65` (SPEC-02 L-ST3), so wllib's
+588:   `20 65` guard accepts the same prefix end as the wastelib rule.
+589: - L-EN6: strings fill the body to its end, with no padding; string 0 is empty
+590:   (L-MS1); groups hold exactly 4 strings (SPEC-02 L-ST1).
+591: - L-EN7: the unknown byte before the tile-map section and the unknown u32 after
+592:   `tileMapDecodedSize` are 0.
+593: - L-EN8: no map block contains the bytes `msq` after its 4-byte header (keeps
+594:   wllib's scanning reader working; the generator checks and fails otherwise).
+595: - L-EN9: every map has at least one monster, so `mobNamesOffset <
+596:   mobDataOffset < stringsOffset`.
+597: 
+598: ### 9.10 Replacing lab rules with parity
+599: 
+600: A parity loader keeps sections 3 to 8 and the decoders unchanged and swaps in:
+601: the WL.EXE table source (SPEC-02 section 3.3) for LABTABLES.BIN; the real
+602: semantics of classes 1 to 15 for 9.1 to 9.7; real map-info units for L-MI2 to
+603: L-MI4. Every lab rule is named (L-xx) so the parity milestone can list which
+604: ones it overrides.
+605: 
+606: ## 10. Disagreements between wastelib and wllib (maps)
+607: 
+608: | Topic | wastelib | wllib | Engine rule |
+609: | --- | --- | --- | --- |
+610: | Action-class nibble order | high nibble = even x (`map.md`, `GameMap.ts`) | low nibble = even x (`decode/mapdata.go`) | wastelib; wllib's `EncodeMapData` also steps x by 1 inside a 2-cell loop and would overrun its buffer, so its writer is not a reliable witness |
+611: | Map info +0x0A, +0x0B | u16 time per step | u8 seconds rate, u8 minutes rate | read u16, expose both bytes; lab rule L-MI2 |
+612: | Map info +0x0D | u8[37] combat string ids | u16[18] string ids + 1 padding byte | read 37 raw bytes |
+613: | Map info +0x00, +0x01, +0x03, +0x04 | unknown | padding | UNKNOWN |
+614: | End of encrypted prefix | first checksum match | match plus raw `20 65` next | wastelib; lab data satisfies both |
+615: | No-NPC marker | first u16 at npcOffset non-zero | npcOffset 0 or shared with a higher-priority section | read with the `map.md` rule; lab data satisfies both |
+616: | Class 6 | SPECIAL | "shop" (`IDShop`) and "special actions" | UNKNOWN for parity; lab SHOP |
+617: | Transition X and Y | signed bytes | unsigned bytes | lab: unsigned when absolute, signed when relative (L-TR3) |
+618: | Pointer-list length | until the smallest non-zero pointer | from the first non-zero pointer | lab data keeps pointers ascending so both agree |
+619: | Last string group pointer | used if inside the data | "garbage", dropped | do not fail on it |
+620: | Tile map | Huffman decoded | not decoded (opaque) | wastelib |
+621: 
+622: ## 11. Validation checklist
+623: 
+624: For every map (`map.md` validation notes plus the rules above):
+625: 
+626: 1. Header `msq0` or `msq1` matches the file.
+627: 2. Prefix decryption finds a checksum match inside the body.
+628: 3. `tileMapDecodedSize == S x S`; map info +0x02 equals the table size.
+629: 4. Every non-zero central-directory offset is inside the body.
+630: 5. `prefixLength == stringsOffset` (warning for parity data, error for lab
+631:    data).
+632: 6. `(stringsOffset - mobDataOffset)` is a multiple of 8.
+633: 7. NPC pointers point at 0x100-byte records inside the body.
+634: 8. Action pointer lists end inside the body and every record parses inside the
+635:    body.
+636: 9. Lab data only: rules L-AC1 to L-AC6, L-EN1 to L-EN9.
+637: 
+638: ## 12. Fixture maps
+639: 
+640: `SPEC/reference/fixtures_gen.py` (seed 19880101) writes three lab maps into
+641: GAME1. Their decoded cells, records, monsters, NPCs and strings are in
+642: `manifest.json` under `maps`.
+643: 
+=== SPEC/SPEC-05-scenario.md :: 5.6 Encoding checks (line 558) ===
+558: ### 5.6 Encoding checks
+559: 
+560: Every map was encoded with `SPEC/reference/fixtures_gen.py` `build_map` (the
+561: SPEC-03 lab encoder) and decoded with its `map_decode`: action classes, action
+562: bytes and strings come back identical for all four maps; no map block contains
+563: `msq` after its header; every string uses only characters of dictionary D
+564: (SPEC-02 section 9.3). Block sizes: overworld 7874 bytes (encrypted prefix
+565: 6460), Saltwell 2406 (1957), Ninemile 2848 (2260), Pumphouse Deep 2682 (2059),
+566: with the premade NPC records as written by the compiler. String lists are
+567: padded with empty strings to a multiple of 4 (SPEC-02 L-ST1). Every monster
+568: record carries portrait 1, because a monster record ends the encrypted prefix
+569: and a final zero byte would make the prefix ambiguous (SPEC-01 section 2.7,
+570: SPEC-03 L-EN2). Every listed cell is reachable from the start once the locks
+571: are open.
+572: 
+573: ## 6. Encounters
+574: 
+575: Six encounter types, each a class 3 record. Derived values follow SPEC-04
+576: LR-26 and LR-27: hit points `sturdiness div 4 + rnd(sturdiness)`, experience
+577: `sturdiness x (AC + 1)`, to-hit base `20 + 5 x combat rating`, speed = combat
+578: rating, ranged when weapon type is 3 or more.
+579: 
+580: | Type | Location, cell | Groups | Start band | XP per monster | After victory |
+581: | --- | --- | --- | --- | --- | --- |
+582: | 1 Road raiders | 0, (30,41) | 3 raiders (fixed) | 3 | 24 | loot: 75 coins, then plain road |
+583: | 2 Dust hounds | 0, (18,12) | rnd(4) dust hounds | 2 | 8 | plain |
+584: | 3 Glass beetles | 0, (52,35) | 2 glass beetles | 2 | 64 | plain |
+585: | 4 Riverbed scavengers | 0, (22,22) | 2 scavengers and 1 raider | 2 and 3 | 24 each | loot: rnd(40) coins |
+586: | 5 Pump crawlers | 3, (9,6) | 4 pump crawlers (fixed) | 2 | 28 | loot: Field kit (status 3) |
+587: | 6 Scrap drones | 3, (10,20) | rnd(2) scrap drones | 3 | 30 | plain |
+588: 
+589: The walkthrough fights types 1 and 5. Types 2, 3, 4 and 6 sit off its route.
+590: 
+591: ## 7. Items
+592: 
+593: Item id N is record N - 1 of all three shop lists; records 12 to 93 are eight
+594: zero bytes. Type byte = class code << 3 with low flags 0. Damage byte: dice
+595: count in the high nibble and die sides in the low nibble for weapons and the
+596: medical kit, AC bonus for armour.
+597: 
+598: | Id | Name | Price | Class | Type byte | Capacity | Skill | Damage byte | Ammo |
+599: | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+600: | 1 | Pipe club | 15 | melee | 0x08 | 0 | 1 | 0x16 | 0 |
+601: | 2 | Hook knife | 12 | melee | 0x08 | 0 | 2 | 0x14 | 0 |
+602: | 3 | Ranch pistol | 60 | ranged | 0x10 | 6 | 4 | 0x18 | 4 |
+603: | 4 | Pistol rounds | 8 | ammo | 0x18 | 6 | 0 | 0x00 | 0 |
+604: | 5 | Lever rifle | 140 | ranged | 0x10 | 8 | 5 | 0x26 | 6 |
+605: | 6 | Rifle rounds | 14 | ammo | 0x18 | 8 | 0 | 0x00 | 0 |
+606: | 7 | Hide vest | 30 | armour | 0x20 | 0 | 0 | 0x01 | 0 |
+607: | 8 | Plate jacket | 110 | armour | 0x20 | 0 | 0 | 0x03 | 0 |
+608: | 9 | Field kit | 25 | medical | 0x28 | 3 | 12 | 0x24 | 0 |
+609: | 10 | Rope coil | 10 | tool | 0x30 | 0 | 16 | 0x00 | 0 |
+610: | 11 | Gate card | 0 | quest | 0x38 | 0 | 0 | 0x00 | 0 |
+611: | 12 | Governor valve | 0 | quest | 0x38 | 0 | 0 | 0x00 | 0 |
+612: 
+613: Descriptions: 1 Pipe club: A length of iron pipe with tape wound round one end. 2 Hook knife: A short curved blade for cutting rope and hide. 3 Ranch pistol: A revolver that holds six rounds. 4 Pistol rounds: One box of six pistol rounds. One box fills the pistol once. 5 Lever rifle: A lever-action rifle that holds eight rounds. 6 Rifle rounds: One box of eight rifle rounds. One box fills the rifle once. 7 Hide vest: Stitched goat hide over a canvas lining. AC 1. 8 Plate jacket: Canvas jacket with flattened can lids sewn in rows. AC 3. 9 Field kit: Bandages, splints and a bottle of spirit. Three uses, heals 2d4. 10 Rope coil: Fifty feet of braided rope. Adds 20 to Scaling checks for the member who carries it. 11 Gate card: A punched steel card stamped with the pumping company's mark. 12 Governor valve: A brass valve the size of a fist, its spindle still greased.
+614: 
+615: ## 8. Skills (LABSKILL.BIN)
+616: 
+617: The 36-entry table: entry 0 is a dummy; entries 1 to 35 are the skills of
+=== test_m4_scenario.py cell checks ===
+18: MAP_FIELDS = ["size", "info", "cells.image", "cells.actionClass", "cells.action", "actions", "npcs", "mobs",
+47: def test_compiled_file_set(compiled):
+58: def test_map_round_trip(compiled, loaded, expected_view, loc, field):
+65: def test_map_reference_reader(oracle_view, loc):
+69:     for k in ("cells", "actions", "npcs", "mobs", "strings", "info"):
+78: def test_tables_values(compiled):
+90: def test_tables_reference_reader(oracle_view):
+109: def test_savegame_header_fields(compiled, expected_view):
+116: def test_savegame_party(compiled, expected_view, slot):
+125: def test_savegame_reference_reader(oracle_view):
+133: def test_shop_list(compiled, expected_view, n):
+143: def test_shop_lists_reference_reader(oracle_view):
+153: def test_labstr_table(compiled, expected_view, table):
+160: def test_labstr_reference_reader(oracle_view):
+164: def test_labskill_bytes(oracle_view):
+170: def test_labskill_engine_reader(compiled, expected_view):
+176: def test_hooks_file(compiled, expected_view):
+185: def test_paragraphs_file(compiled, expected_view):
+196: def test_tileset(compiled, oracle_view):
+197:     ts = call("graphics.read_tilesets", str(compiled.need() / "ALLHTDS1"))
+198:     ref = oracle_view.oracle("tilesets")["tilesets"]
+199:     check_eq("ALLHTDS1: tilesets and tile counts", [len(x) for x in ts], [32])
+200:     check_eq("ALLHTDS1 tiles (engine reader vs reference reader)", ts, ref)
+203: def test_tileset_tables(oracle_view):
+205:     size = oracle_view.oracle("tilesets")["size"]
+206:     check_eq("tilesetOffsets[0] and tilesetSizes[0] for one tileset", [t["tilesetOffsets"][0], t["tilesetSizes"][0]],
+210: def test_portrait_index(oracle_view):
+218: def test_portrait(compiled, oracle_view, raw):
+232: def test_sprites(compiled):
+238: def test_font_cursors_title_ending(compiled):
+=== fixtures_gen.py: scenario compile? ===
+37: def u16(v: int) -> bytes:
+41: def u24(v: int) -> bytes:
+45: def u32(v: int) -> bytes:
+49: def r16(b: bytes, o: int) -> int:
+53: def r24(b: bytes, o: int) -> int:
+57: def r32(b: bytes, o: int) -> int:
+61: def s(b: bytes) -> str:
+66: def cstr(b: bytes, n: int) -> bytes:
+73: def fixed(text: bytes, n: int) -> bytes:
+78: def pack4(pixels: list[list[int]]) -> bytes:
+87: def unpack4(data: bytes, width: int) -> list[list[int]]:
+98: def sha(b: bytes) -> str:
+130: def labtables_encode(t: dict) -> bytes:
+142: def labtables_decode(b: bytes) -> dict:
+157: def char_encode(c: dict) -> bytes:
+194: def char_decode(b: bytes) -> dict:
+219: def savegame_encode(sg: dict, disk: int) -> bytes:
+248: def savegame_decode(game: bytes, off: int) -> dict:
+271: def shop_encode(items: list[dict], disk: int) -> bytes:
+285: def shop_decode(game: bytes, off: int) -> dict:
+308: def tail(nc: int, na: int) -> bytes:
+312: def rec_encode(cls: int, r: dict) -> bytes:
+325:         return bytes((r["message"], (0x80 if r["impassable"] else 0) | r["tile"])) + tail(nc, na)
+326:     if cls == 5:  # LOOT (wllib layout: class and action always present)
+341:     raise ValueError("lab rules v1 define no record for class %d" % cls)
+344: def _tail_read(b: bytes, o: int, r: dict) -> int:
+355: def i8(v: int) -> int:
+359: def rec_decode(cls: int, b: bytes, o: int) -> dict:
+383:         r["message"], r["impassable"], r["tile"] = b[o], bool(b[o + 1] & 0x80), b[o + 1] & 0x7F
+408:         raise ValueError("class %d has no lab record" % cls)
+412: def _norm(cls: int, r: dict) -> dict:
+417: def mob_encode(m: dict) -> bytes:
+423: def mob_decode(b: bytes, name: bytes) -> dict:
+433: def mapinfo_encode(size: int, mi: dict) -> bytes:
+443: def mapinfo_decode(b: bytes) -> dict:
+453: def build_map(m: dict, disk: int) -> tuple[bytes, int, dict]:
+470:     def emit_table(c: int) -> None:
+541: def map_decode(game: bytes, off: int, size: int, tmo: int) -> dict:
+609: def planes_encode(pix: list[list[int]], bytes_per_row: int) -> bytes:
+622: def planes_decode(b: bytes, w: int, h: int) -> list[list[int]]:
+629: def mask_encode(mask: list[list[int]]) -> bytes:
+640: def cursor_encode(pix: list[list[int]], vis: list[list[int]]) -> bytes:
+644:             def byte(src, x0, fn):
+654: def cursor_decode(b: bytes) -> tuple[list[list[int]], list[list[int]]]:
+667: def portrait_anim_encode(scripts: list[list[tuple[int, int]]], updates: list[list[tuple[int, bytes]]]) -> bytes:
+682: def portrait_anim_decode(b: bytes) -> tuple[list, list]:
+712: def apply_updates(base: bytes, upd: list) -> bytes:
+720: def ending_anim_encode(updates: list[tuple[int, list[tuple[int, bytes]]]]) -> bytes:
+732: def ending_anim_decode(b: bytes) -> list:
+754: def ending_apply(img: bytes, patches: list) -> bytes:
+770: def labstr_encode(tables: list[bytes]) -> bytes:
+782: def labstr_decode(b: bytes) -> list[list[bytes]]:
+802: def make_character(rng: random.Random, name: bytes, npc: int = 0) -> dict:
+820: def blank_map(rng: random.Random, S: int, location: int) -> dict:
+835: def put(m: dict, x: int, y: int, c: int, rec: dict | None, image: int | None = None) -> None:
+836:     """Place a cell; the record (if any) is appended to the class table and the
+849: def make_maps(rng: random.Random) -> list[dict]:
+858:     put(m, 5, 5, 4, {"message": 0, "impassable": False, "tile": 10 + 12,
+860:     put(m, 6, 5, 4, {"message": 3, "impassable": True, "tile": 10 + 12}, 10 + 11)
+925: def make_tile(rng: random.Random, t: int) -> list[list[int]]:
+931: def make_portrait(rng: random.Random, p: int) -> list[list[int]]:
+936: def generate(outdir: str, seed: int = DEFAULT_SEED) -> dict:
+1109: def verify(outdir: str) -> list[str]:
+1110:     def rd(n: str) -> bytes:
+1118:     def eq(label: str, got, want) -> None:
+1207: def selftest() -> int:
+=== oracle_tool.py: scenario compile? ===
+33: def cmd_fixtures(outdir: str, mandir: str, seed: int = FG.DEFAULT_SEED) -> int:
+45: def _rd(d: str, name: str) -> bytes:
+50: def _js(path: str):
+55: def _plain(v):
+61: def conv_record(c: int, r: dict) -> dict:
+69:         d = {"message": r["message"], "impassable": r["impassable"], "tile": r["tile"]}
+79:         raise ValueError("no lab record for class %d" % c)
+84: def char_from_json(p: dict, npc: int, catalog: dict, ranks: list[str]) -> dict:
+107: def expected_from_json(sd: str) -> dict:
+135:             "cells": {"actionClass": m["action_class"], "action": m["action_value"],
+175:     def pad(lst):
+198: def oracle_compiled(dd: str, errors: dict) -> dict:
+201:     def section(name, fn):
+209:     def tables():
+228:             def mp(idx=idx, loc=loc):
+238:     def tiles():
+247:     def portraits():
+271: def cmd_compiled(dd: str, sd: str) -> int:
+=== map2 action_cells ===
+[{"x": 0, "y": 15, "tile": 18, "class": 10, "action": 1, "note": "Ninemile west gate to overworld (43,28)"}, {"x": 0, "y": 16, "tile": 18, "class": 10, "action": 2, "note": "Ninemile west gate to overworld (43,28)"}, {"x": 0, "y": 17, "tile": 18, "class": 10, "action": 3, "note": "Ninemile west gate to overworld (43,28)"}, {"x": 2, "y": 16, "tile": 0, "class": 1, "action": 1, "note": "Ninemile entry, paragraph 10"}, {"x": 7, "y": 6, "tile": 19, "class": 1, "action": 2, "note": "Gunsmith doorway, paragraph 11"}, {"x": 7, "y": 25, "tile": 19, "class": 1, "action": 3, "note": "Dining hall doorway, paragraph 15"}, {"x": 10, "y": 9, "tile": 0, "class": 1, "action": 4, "note": "Sleeping dog message"}, {"x": 7, "y": 5, "tile": 17, "class": 6, "action": 1, "note": "Shop list 1, Ninemile Gunsmith"}, {"x": 25, "y": 5, "tile": 17, "class": 6, "action": 2, "note": "Shop list 2, Ninemile Outfitter"}, {"x": 26, "y": 12, "tile": 17, "class": 5, "action": 1, "note": "Loot: Gate card"}, {"x": 10, "y": 23, "tile": 17, "class": 5, "action": 2, "note": "Loot: Rope coil"}, {"x": 26, "y": 14, "tile": 20, "class": 4, "action": 2, "note": "Lock: storehouse door, Tumblers 30"}, {"x": 18, "y": 17, "tile": 24, "class": 11, "action": 1, "note": "NPC 0 of Ninemile: Teodor Lusk"}, {"x": 20, "y": 4, "tile": 24, "class": 11, "action": 2, "note": "NPC 1 of Ninemile: Wren Abara (leader CHA 17)"}, {"x": 25, "y": 21, "tile": 22, "class": 11, "action": 0, "note": "Healer's cot, Ninemile"}]
+map2 tiles row 21: [16, 0, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 16, 17, 22, 17, 16, 0, 0, 0, 16]
+map2 action_class row 21: [11, 0, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 11, 0, 11, 0, 0, 0, 11]
+=== tiles.json ===
+{"tileset": 0, "tile_size": [16, 16], "bpp": 4, "image_index": "map image = tile id + 10 (SPEC-03 section 7)", "walkable_note": "Passability comes from the action class only (SPEC-03 L-MV2). 'walkable' says which tiles the scenario leaves at class 0; every cell showing a non-walkable tile carries class 11 unless another class is listed for it.", "tiles": [{"id": 0, "image": 10, "name": "sand", "walkable": true, "description": "Pale wind-rippled sand, the default ground of the overworld."}, {"id": 1, "image": 11, "name": "hardpan", "walkable": true, "description": "Cracked grey clay flat with hairline fissures."}, {"id": 2, "image": 12, "name": "scrub", "walkable": true, "description": "Low grey-green brush in clumps on sand."}, {"id": 3, "image": 13, "name": "road", "walkable": true, "description": "Two rutted wheel tracks with a hump of weeds between them."}, {"id": 4, "image": 14, "name": "gravel bed", "walkable": true, "description": "Rounded river stones in a dry channel, lighter than sand."}, {"id": 5, "image": 15, "name": "salt crust", "walkable": true, "description": "White salt plate with a faint hexagonal crack pattern."}, {"id": 6, "image": 16, "name": "ford stones", "walkable": true, "description": "Flat stepping stones laid across dark water."}, {"id": 7, "image": 17, "name": "deep water", "walkable": false, "description": "Slow dark-green water with a single highlight ripple."}, {"id": 8, "image": 18, "name": "mesa rock", "walkable": false, "description": "Layered red-brown cliff face with a shadowed lower third."}, {"id": 9, "image": 19, "name": "boulder", "walkable": false, "description": "One round tan boulder with a dark crack, on sand."}, {"id": 10, "image": 20, "name": "dead tree", "walkable": false, "description": "Bare grey trunk with three forked branches."}, {"id": 11, "image": 21, "name": "cactus", "walkable": false, "description": "Single green column cactus with two arms."}, {"id": 12, "image": 22, "name": "plank bridge", "walkable": true, "description": "Weathered boards running left to right, rope rails top and bottom."}, {"id": 13, "image": 23, "name": "town marker", "walkable": true, "description": "Overworld icon: three small flat-roofed huts in a cluster."}, {"id": 14, "image": 24, "name": "cave mouth", "walkable": true, "description": "Overworld icon: a black arch cut into a rock hump."}, {"id": 15, "image": 25, "name": "rubble", "walkable": false, "description": "Heap of broken concrete and bent rebar."}, {"id": 16, "image": 26, "name": "adobe wall", "walkable": false, "description": "Tan mud-brick wall with two darker brick courses."}, {"id": 17, "image": 27, "name": "plank floor", "walkable": true, "description": "Brown floorboards running vertically."}, {"id": 18, "image": 28, "name": "street", "walkable": true, "description": "Packed earth, darker than sand, with faint cart marks."}, {"id": 19, "image": 29, "name": "doorway", "walkable": true, "description": "Open door frame in an adobe wall, dark interior st

@@ -1,0 +1,122 @@
+map1 keys ['actions', 'blockEnd', 'bodySize', 'cells', 'centralDirectory', 'encryptedPrefixLength', 'info', 'mobs', 'npcs', 'size', 'strings', 'wllibPrefixLength']
+{"size": 32, "bodySize": 2144, "encryptedPrefixLength": 1957, "wllibPrefixLength": 1957, "blockEnd": 2406, "centralDirectory": {"stringsOffset": 1957, "mobNamesOffset": 1935, "mobDataOffset": 1949, "actionClassOffsets": [0, 1628, 0, 0, 0, 0, 1646, 0, 0, 0, 1913, 1929, 0, 0, 0, 0], "specialsOffset": 0, "npcOffset": 1653}, "info": {"unknown00": 0, "unknown01": 0, "mapSize": 32, "unknown03": 0, "unknown04": 0, "encounterFrequency": 0, "tileset": 0, "randomMonsterTypes": 0, "maxRandomEncounters": 0, "borderImage": 35, "timePerStep": 256, "healRate": 0, "combatStringIds": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, "cells": {"actionClass": [[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 11, 11, 11, 11, 11, 11, 11, 11, 11, 0, 0, 0, 0, 0, 0, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 0, 11], [11, 0, 11, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 11], [11, 0, 11, 0, 0, 11, 11, 11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 11, 0, 11], [11, 0, 11, 0, 0, 0, 6, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 11], [11, 0, 11, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 11, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 11], [11, 0, 11, 11, 11, 11, 1, 11, 11, 11, 11, 0, 0, 0, 0, 0, 0, 11, 11, 11, 11, 11, 11, 1, 11, 11, 11, 11, 11, 11, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0
+=== conftest runner ===
+conftest:227: def runner(compiled, tmp_path_factory) -> Runner:
+conftest:228:     return Runner(compiled, tmp_path_factory)
+conftest:229: 
+conftest:230: 
+conftest:231: @pytest.fixture(scope="session")
+conftest:232: def walkthrough() -> dict:
+conftest:233:     return W.load_json(W.SCENARIO / "walkthrough.json")
+conftest:234: 
+conftest:235: 
+conftest:236: @pytest.fixture(scope="session")
+conftest:237: def reference_log() -> list[dict]:
+conftest:238:     return W.load_json(W.REFERENCE_LOG)["events"]
+conftest:239: 
+---
+=== test_m5_rules _saved / _fight / prefix ===
+m5:441: def prefix(walkthrough, upto: str) -> list:
+m5:442:     out = []
+m5:443:     for item in walkthrough["script"]:
+m5:444:         out.append(item)
+m5:445:         if isinstance(item, dict) and item.get("checkpoint") == upto:
+m5:446:             return out
+m5:447:     raise AssertionError("no checkpoint %s in walkthrough.json" % upto)
+m5:448: 
+m5:449: 
+m5:450: def opening_script(walkthrough) -> list:
+m5:451:     out = []
+m5:452:     for item in walkthrough["script"]:
+m5:453:         if isinstance(item, dict) and "repeat_until" in item:
+m5:454:             return out + ["A"]
+m5:455:         out.append(item)
+m5:456:     raise AssertionError("walkthrough.json has no repeat_until macro")
+m5:457: 
+m5:458: 
+m5:459: def ckpt(events, name):
+m5:460:     for e in events:
+m5:461:         if e.get("type") == "checkpoint" and e.get("name") == name:
+m5:462:             st = e.get("state")
+m5:463:             if not isinstance(st, dict):
+m5:464:                 fail("checkpoint %s has no state object" % name)
+m5:465:             return st
+---
+m5:665: def _fight(runner, walkthrough, seed):
+m5:666:     ev, _ = runner.run("cp4", {"seed": seed, "script": prefix(walkthrough, "CP4")}, seed)
+m5:667:     return ev
+m5:668: 
+m5:669: 
+m5:670: @pytest.mark.parametrize("cat", ["orders", "need", "target", "jam", "victory"])
+m5:671: def test_raider_fight_rules(runner, walkthrough, cat):
+m5:672:     for seed in FIGHT_SEEDS:
+m5:673:         ev = _fight(runner, walkthrough, seed)
+m5:674:         issues = [m for c, m in CR.consistency(ev) if c in (cat, "all")]
+m5:675:         if issues:
+m5:676:             fail("seed %d, %s: %s" % (seed, cat, issues[0]))
+m5:677: 
+m5:678: 
+m5:679: def test_victory_loot(runner, walkthrough):
+m5:680:     for seed in [SEED] + FIGHT_SEEDS[:2]:
+m5:681:         ev = _fight(runner, walkthrough, seed)
+m5:682:         i = next((k for k, e in enumerate(ev) if e.get("type") == "combat_end"), None)
+m5:683:         if i is None:
+m5:684:             fail("seed %d: no combat_end in the raider fight" % seed)
+m5:685:         got = [strip(e) for e in ev[i:] if e.get("type") in ("cell_change", "money")][:3]
+m5:686:         check_eq("seed %d: tail (5, 1) then loot of 75 coins after the victory (LR-44, SPEC-03 9.6)" % seed, got,
+m5:687:                  [{"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13},
+m5:688:                   {"type": "money", "member": 1, "delta": 75, "total": 195},
+m5:689:                   {"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}])
+---
+m5:754: def _saved(runner, walkthrough):
+m5:755:     script = prefix(walkthrough, "CP5-pre-save") + ["S"]
+m5:756:     return runner.run("saved", {"seed": SEED, "script": script})
+m5:757: 
+m5:758: 
+m5:759: def _payload(dd):
+m5:760:     t = call("containers.read_tables", str(dd / "LABTABLES.BIN"))
+m5:761:     g = (dd / "GAME1").read_bytes()
+m5:762:     off = t["savegameOffsets"][0]
+m5:763:     try:
+m5:764:         return C.rxor_decode_whole(g, 0x800, off + 4)
+m5:765:     except ValueError as e:
+m5:766:         fail("the saved GAME1 savegame block fails the reference checksum: %s" % e)
+m5:767: 
+m5:768: 
+m5:769: def test_save_labstate(runner, walkthrough):
+m5:770:     ev, dd = _saved(runner, walkthrough)
+m5:771:     st = ckpt(ev, "CP5-pre-save")
+m5:772:     p = dd / "LABSTATE.BIN"
+m5:773:     if not p.is_file():
+m5:774:         fail("no LABSTATE.BIN next to GAME1 after S (LR-54)")
+m5:775:     try:
+m5:776:         ls = W.ref_labstate(p.read_bytes())
+m5:777:     except ValueError as e:
+m5:778:         fail("LABSTATE.BIN does not follow LR-57: %s" % e)
+---
+m5:759: def _payload(dd):
+m5:760:     t = call("containers.read_tables", str(dd / "LABTABLES.BIN"))
+m5:761:     g = (dd / "GAME1").read_bytes()
+m5:762:     off = t["savegameOffsets"][0]
+m5:763:     try:
+m5:764:         return C.rxor_decode_whole(g, 0x800, off + 4)
+m5:765:     except ValueError as e:
+m5:766:         fail("the saved GAME1 savegame block fails the reference checksum: %s" % e)
+m5:767: 
+m5:768: 
+m5:769: def test_save_labstate(runner, walkthrough):
+m5:770:     ev, dd = _saved(runner, walkthrough)
+m5:771:     st = ckpt(ev, "CP5-pre-save")
+m5:772:     p = dd / "LABSTATE.BIN"
+m5:773:     if not p.is_file():
+m5:774:         fail("no LABSTATE.BIN next to GAME1 after S (LR-54)")
+m5:775:     try:
+m5:776:         ls = W.ref_labstate(p.read_bytes())
+m5:777:     except ValueError as e:
+m5:778:         fail("LABSTATE.BIN does not follow LR-57: %s" % e)
+m5:779:     want_cc = sorted(st.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+m5:780:     check_eq("LABSTATE.BIN after the save (LR-57)", ls,
+m5:781:              {"steps": st.get("steps"), "day": st.get("day"), "seconds": 0, "pad": 0, "rng_state": st.get("rng_state"),
+m5:782:               "cell_changes": want_cc})
+m5:783: 
+---

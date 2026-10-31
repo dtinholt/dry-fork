@@ -1,0 +1,241 @@
+{"seq": 0, "type": "new_game", "seed": 20261021}
+{"seq": 1, "type": "paragraph", "n": 1}
+{"seq": 47, "type": "paragraph", "n": 3}
+{"seq": 52, "type": "message", "location": 1, "string": 5}
+{"seq": 53, "type": "shop_open", "shop": 0}
+{"seq": 55, "type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+{"seq": 57, "type": "prompt", "prompt": "member"}
+{"seq": 59, "type": "money", "member": 3, "delta": -7, "total": 73}
+{"seq": 60, "type": "buy", "member": 3, "item": 4, "price": 7, "slot": 2, "status": 2}
+{"seq": 62, "type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+{"seq": 64, "type": "prompt", "prompt": "member"}
+{"seq": 66, "type": "money", "member": 4, "delta": -7, "total": 63}
+{"seq": 67, "type": "buy", "member": 4, "item": 4, "price": 7, "slot": 2, "status": 2}
+{"seq": 69, "type": "prompt", "prompt": "member"}
+{"seq": 71, "type": "prompt", "prompt": "item_slot"}
+{"seq": 73, "type": "sell", "member": 2, "item": 1, "price": 8, "slot": 3}
+{"seq": 74, "type": "money", "member": 2, "delta": 8, "total": 68}
+{"seq": 76, "type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+{"seq": 78, "type": "prompt", "prompt": "member"}
+{"seq": 80, "type": "money", "member": 2, "delta": -28, "total": 40}
+{"seq": 81, "type": "buy", "member": 2, "item": 7, "price": 28, "slot": 3, "status": 0}
+{"seq": 83, "type": "shop_close"}
+{"seq": 85, "type": "prompt", "prompt": "member"}
+{"seq": 87, "type": "char_open", "member": 2}
+{"seq": 89, "type": "prompt", "prompt": "item_slot"}
+{"seq": 91, "type": "equip", "member": 2, "slot": 3, "item": 7, "ac": 3}
+{"seq": 93, "type": "char_close"}
+{"seq": 99, "type": "paragraph", "n": 3}
+{"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+{"seq": 128, "type": "paragraph", "n": 6}
+{"seq": 129, "type": "prompt", "prompt": "recruit"}
+{"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 132, "type": "recruit", "location": 1, "npc": 0, "slot": 5}
+{"seq": 170, "type": "paragraph", "n": 2}
+{"seq": 175, "type": "map_change", "location": 0, "x": 10, "y": 41}
+{"seq": 208, "type": "paragraph", "n": 7}
+{"seq": 217, "type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [14, 12, 14]}]}
+{"seq": 218, "type": "paragraph", "n": 8}
+{"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 54, "success": true}
+{"seq": 221, "type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 222, "type": "round_start", "round": 1}
+{"seq": 223, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 53, "hit": true, "damage": 6}
+{"seq": 224, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 38, "hit": true, "damage": 4}
+{"seq": 225, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 46, "roll": 32, "hit": true, "damage": 6}
+{"seq": 226, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 92, "hit": false}
+{"seq": 227, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 56, "hit": true, "damage": 3}
+{"seq": 228, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 1, "need": 22, "roll": 61, "hit": false}
+{"seq": 229, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 16, "hit": true, "damage": 1}
+{"seq": 230, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 2, "need": 22, "roll": 60, "hit": false}
+{"seq": 231, "type": "monster_dies", "group": 1, "index": 1}
+{"seq": 233, "type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 234, "type": "round_start", "round": 2}
+{"seq": 235, "type": "jam", "member": 1, "roll": 4, "chance": 4}
+{"seq": 236, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 75, "hit": false}
+{"seq": 237, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 48, "hit": false}
+{"seq": 238, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 15, "hit": true, "damage": 8}
+{"seq": 239, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 78, "hit": false}
+{"seq": 240, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 4, "need": 28, "roll": 2, "hit": true, "damage": 4}
+{"seq": 241, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 75, "hit": false}
+{"seq": 243, "type": "round_orders", "round": 3, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 244, "type": "round_start", "round": 3}
+{"seq": 245, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 98, "hit": false}
+{"seq": 246, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 33, "hit": true, "damage": 3}
+{"seq": 247, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 68, "hit": false}
+{"seq": 248, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 85, "hit": false}
+{"seq": 249, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 42, "hit": false}
+{"seq": 250, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 3, "need": 22, "roll": 66, "hit": false}
+{"seq": 251, "type": "monster_dies", "group": 1, "index": 2}
+{"seq": 252, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 79, "success": false}
+{"seq": 254, "type": "round_orders", "round": 4, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 255, "type": "round_start", "round": 4}
+{"seq": 256, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 85, "hit": false}
+{"seq": 257, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 38, "hit": true, "damage": 3}
+{"seq": 258, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 19, "hit": true, "damage": 4}
+{"seq": 259, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 69, "hit": false}
+{"seq": 260, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 19, "hit": true, "damage": 3}
+{"seq": 261, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 22, "success": true}
+{"seq": 262, "type": "unjammed", "member": 1}
+{"seq": 264, "type": "round_orders", "round": 5, "orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 265, "type": "round_start", "round": 5}
+{"seq": 266, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 34, "hit": true, "damage": 8}
+{"seq": 267, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 39, "hit": true, "damage": 7}
+{"seq": 268, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 33, "hit": true, "damage": 7}
+{"seq": 269, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 12, "hit": true, "damage": 7}
+{"seq": 270, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 94, "hit": false}
+{"seq": 271, "type": "monster_dies", "group": 1, "index": 3}
+{"seq": 272, "type": "combat_end", "result": "victory", "rounds": 5}
+{"seq": 273, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 274, "type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+{"seq": 275, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 276, "type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+{"seq": 277, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 278, "type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+{"seq": 279, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 280, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+{"seq": 281, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 282, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 283, "type": "money", "member": 1, "delta": 75, "total": 195}
+{"seq": 284, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+{"seq": 288, "type": "paragraph", "n": 9}
+{"seq": 289, "type": "cell_change", "location": 0, "x": 31, "y": 41, "action_class": 0, "action": 0, "image": 22}
+{"seq": 298, "type": "natural_heal", "members": [1, 2, 4]}
+{"seq": 311, "type": "natural_heal", "members": [1, 4]}
+{"seq": 324, "type": "natural_heal", "members": [1, 4]}
+{"seq": 337, "type": "natural_heal", "members": [4]}
+{"seq": 346, "type": "map_change", "location": 2, "x": 1, "y": 16}
+{"seq": 349, "type": "paragraph", "n": 10}
+{"seq": 380, "type": "paragraph", "n": 11}
+{"seq": 383, "type": "message", "location": 2, "string": 5}
+{"seq": 384, "type": "shop_open", "shop": 1}
+{"seq": 386, "type": "prompt", "prompt": "buy_item", "items": [3, 4, 5, 6]}
+{"seq": 388, "type": "prompt", "prompt": "member"}
+{"seq": 390, "type": "money", "member": 2, "delta": -13, "total": 27}
+{"seq": 391, "type": "buy", "member": 2, "item": 6, "price": 13, "slot": 2, "status": 2}
+{"seq": 393, "type": "shop_close"}
+{"seq": 396, "type": "paragraph", "n": 11}
+{"seq": 439, "type": "message", "location": 2, "string": 6}
+{"seq": 440, "type": "shop_open", "shop": 2}
+{"seq": 442, "type": "prompt", "prompt": "buy_item", "items": [2, 7, 8, 9, 10]}
+{"seq": 444, "type": "prompt", "prompt": "member"}
+{"seq": 446, "type": "money", "member": 1, "delta": -104, "total": 91}
+{"seq": 447, "type": "buy", "member": 1, "item": 8, "price": 104, "slot": 4, "status": 0}
+{"seq": 449, "type": "shop_close"}
+{"seq": 451, "type": "prompt", "prompt": "member"}
+{"seq": 453, "type": "char_open", "member": 1}
+{"seq": 455, "type": "prompt", "prompt": "item_slot"}
+{"seq": 457, "type": "equip", "member": 1, "slot": 4, "item": 8, "ac": 5}
+{"seq": 459, "type": "char_close"}
+{"seq": 462, "type": "save", "serial": 1}
+{"seq": 464, "type": "prompt", "prompt": "load"}
+{"seq": 466, "type": "load", "serial": 1}
+{"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 504, "type": "message", "location": 2, "string": 7}
+{"seq": 505, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 69, "success": false}
+{"seq": 506, "type": "message", "location": 2, "string": 9}
+{"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 509, "type": "message", "location": 2, "string": 7}
+{"seq": 510, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+{"seq": 511, "type": "message", "location": 2, "string": 9}
+{"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 514, "type": "message", "location": 2, "string": 7}
+{"seq": 515, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+{"seq": 516, "type": "message", "location": 2, "string": 9}
+{"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 519, "type": "message", "location": 2, "string": 7}
+{"seq": 520, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 21, "success": true}
+{"seq": 521, "type": "unlock", "x": 26, "y": 14}
+{"seq": 522, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+{"seq": 523, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+{"seq": 524, "type": "xp", "member": 3, "delta": 10, "total": 114}
+{"seq": 525, "type": "paragraph", "n": 12}
+{"seq": 528, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+{"seq": 533, "type": "item_gain", "member": 1, "item": 11, "slot": 5, "status": 0}
+{"seq": 534, "type": "cell_change", "location": 2, "x": 26, "y": 12, "action_class": 0, "action": 0, "image": 27}
+{"seq": 540, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+{"seq": 562, "type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+{"seq": 563, "type": "paragraph", "n": 13}
+{"seq": 564, "type": "prompt", "prompt": "recruit"}
+{"seq": 566, "type": "cell_change", "location": 2, "x": 18, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 567, "type": "recruit", "location": 2, "npc": 0, "slot": 6}
+{"seq": 603, "type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+{"seq": 604, "type": "prompt", "prompt": "heal", "price": 40}
+{"seq": 606, "type": "money", "member": 1, "delta": -40, "total": 51}
+{"seq": 607, "type": "heal_all", "price": 40}
+{"seq": 675, "type": "paragraph", "n": 10}
+{"seq": 680, "type": "map_change", "location": 0, "x": 43, "y": 28}
+{"seq": 721, "type": "map_change", "location": 3, "x": 3, "y": 2}
+{"seq": 724, "type": "paragraph", "n": 18}
+{"seq": 743, "type": "encounter_start", "groups": [{"monster": "pump crawler", "count": 4, "band": 2, "hp": [9, 5, 10, 17]}]}
+{"seq": 744, "type": "paragraph", "n": 19}
+{"seq": 745, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 65, "roll": 74, "success": false}
+{"seq": 746, "type": "surprised"}
+{"seq": 747, "type": "round_start", "round": 0}
+{"seq": 748, "type": "group_closes", "group": 1, "band": 1}
+{"seq": 750, "type": "round_orders", "round": 1, "orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["melee", 1]}}
+{"seq": 751, "type": "round_start", "round": 1}
+{"seq": 752, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 65, "roll": 53, "hit": true, "damage": 4}
+{"seq": 753, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 56, "roll": 12, "hit": true, "damage": 2}
+{"seq": 754, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 1, "need": 54, "roll": 90, "hit": false}
+{"seq": 755, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 1, "need": 68, "roll": 26, "hit": true, "damage": 8}
+{"seq": 756, "type": "monster_dies", "group": 1, "index": 1}
+{"seq": 757, "type": "reload", "member": 1, "status": 6}
+{"seq": 758, "type": "attack", "side": "party", "member": 6, "group": 1, "target": 2, "need": 52, "roll": 95, "hit": false}
+{"seq": 759, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 1, "need": 25, "roll": 54, "hit": false}
+{"seq": 760, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 6, "need": 37, "roll": 29, "hit": true, "damage": 4}
+{"seq": 761, "type": "attack", "side": "monsters", "group": 1, "attacker": 4, "member": 4, "need": 43, "roll": 93, "hit": false}
+{"seq": 763, "type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["reload"], "4": ["reload"], "5": ["fire", 1], "6": ["melee", 1]}}
+{"seq": 764, "type": "round_start", "round": 2}
+{"seq": 765, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 2, "need": 67, "roll": 25, "hit": true, "damage": 6}
+{"seq": 766, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 65, "roll": 35, "hit": true, "damage": 7}
+{"seq": 767, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 68, "roll": 89, "hit": false}
+{"seq": 768, "type": "monster_dies", "group": 1, "index": 2}
+{"seq": 769, "type": "reload", "member": 3, "status": 6}
+{"seq": 770, "type": "reload", "member": 4, "status": 6}
+{"seq": 771, "type": "attack", "side": "party", "member": 6, "group": 1, "target": 3, "need": 52, "roll": 50, "hit": true, "damage": 4}
+{"seq": 772, "type": "monster_dies", "group": 1, "index": 3}
+{"seq": 773, "type": "attack", "side": "monsters", "group": 1, "attacker": 4, "member": 2, "need": 37, "roll": 24, "hit": true, "damage": 5}
+{"seq": 775, "type": "round_orders", "round": 3, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["melee", 1]}}
+{"seq": 776, "type": "round_start", "round": 3}
+{"seq": 777, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 4, "need": 67, "roll": 4, "hit": true, "damage": 8}
+{"seq": 778, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 4, "need": 65, "roll": 19, "hit": true, "damage": 5}
+{"seq": 779, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 4, "need": 56, "roll": 13, "hit": true, "damage": 6}
+{"seq": 780, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 4, "need": 54, "roll": 32, "hit": true, "damage": 6}
+{"seq": 781, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 4, "need": 68, "roll": 76, "hit": false}
+{"seq": 782, "type": "monster_dies", "group": 1, "index": 4}
+{"seq": 783, "type": "combat_end", "result": "victory", "rounds": 3}
+{"seq": 784, "type": "xp", "member": 1, "delta": 18, "total": 122}
+{"seq": 785, "type": "xp", "member": 2, "delta": 18, "total": 122}
+{"seq": 786, "type": "xp", "member": 3, "delta": 18, "total": 132}
+{"seq": 787, "type": "xp", "member": 4, "delta": 18, "total": 122}
+{"seq": 788, "type": "xp", "member": 5, "delta": 18, "total": 232}
+{"seq": 789, "type": "xp", "member": 6, "delta": 18, "total": 168}
+{"seq": 790, "type": "cell_change", "location": 3, "x": 9, "y": 6, "action_class": 5, "action": 1, "image": 37}
+{"seq": 791, "type": "item_gain", "member": 1, "item": 9, "slot": 6, "status": 3}
+{"seq": 792, "type": "cell_change", "location": 3, "x": 9, "y": 6, "action_class": 0, "action": 0, "image": 37}
+{"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+{"seq": 808, "type": "message", "location": 3, "string": 10}
+{"seq": 809, "type": "key_used", "member": 1, "item": 11}
+{"seq": 810, "type": "unlock", "x": 16, "y": 6}
+{"seq": 811, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39}
+{"seq": 812, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+{"seq": 813, "type": "paragraph", "n": 21}
+{"seq": 816, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+{"seq": 819, "type": "paragraph", "n": 22}
+{"seq": 832, "type": "natural_heal", "members": [2, 6]}
+{"seq": 833, "type": "item_gain", "member": 1, "item": 12, "slot": 7, "status": 0}
+{"seq": 834, "type": "cell_change", "location": 3, "x": 21, "y": 4, "action_class": 0, "action": 0, "image": 37}
+{"seq": 848, "type": "paragraph", "n": 22}
+{"seq": 851, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+{"seq": 884, "type": "paragraph", "n": 18}
+{"seq": 889, "type": "map_change", "location": 0, "x": 44, "y": 48}
+{"seq": 892, "type": "natural_heal", "members": [2, 6]}
+{"seq": 893, "type": "day", "day": 2}
+{"seq": 906, "type": "natural_heal", "members": [2, 6]}
+{"seq": 919, "type": "natural_heal", "members": [2, 6]}
+{"seq": 932, "type": "natural_heal", "members": [2]}
+{"seq": 979, "type": "map_change", "location": 1, "x": 15, "y": 30}
+{"seq": 982, "type": "paragraph", "n": 2}
+{"seq": 1018, "type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0}
+{"seq": 1019, "type": "paragraph", "n": 24}
+{"seq": 1020, "type": "win", "steps": 358, "day": 2, "minutes": 428}

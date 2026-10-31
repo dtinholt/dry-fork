@@ -1,0 +1,144 @@
+=== reference: context around check / key_used / unlock ===
+ 217 {"seq": 216, "type": "move", "location": 0, "x": 30, "y": 41, "steps": 79}
+ 218 {"seq": 217, "type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [14, 12, 14]}]}
+ 219 {"seq": 218, "type": "paragraph", "n": 8}
+ 220 {"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 54, "success": true}
+ 221 IN A
+ 222 {"seq": 221, "type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+ 223 {"seq": 222, "type": "round_start", "round": 1}
+ 224 {"seq": 223, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 53, "hit": true, "damage": 6}
+ 225 {"seq": 224, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 38, "hit": true, "damage": 4}
+ 226 {"seq": 225, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 46, "roll": 32, "hit": true, "damage": 6}
+ 227 {"seq": 226, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 92, "hit": false}
+---
+ 250 {"seq": 249, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 42, "hit": false}
+ 251 {"seq": 250, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 3, "need": 22, "roll": 66, "hit": false}
+ 252 {"seq": 251, "type": "monster_dies", "group": 1, "index": 2}
+ 253 {"seq": 252, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 79, "success": false}
+ 254 IN A
+ 255 {"seq": 254, "type": "round_orders", "round": 4, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+ 256 {"seq": 255, "type": "round_start", "round": 4}
+ 257 {"seq": 256, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 85, "hit": false}
+ 258 {"seq": 257, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 38, "hit": true, "damage": 3}
+ 259 {"seq": 258, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 19, "hit": true, "damage": 4}
+ 260 {"seq": 259, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 69, "hit": false}
+---
+ 259 {"seq": 258, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 19, "hit": true, "damage": 4}
+ 260 {"seq": 259, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 69, "hit": false}
+ 261 {"seq": 260, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 19, "hit": true, "damage": 3}
+ 262 {"seq": 261, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 22, "success": true}
+ 263 {"seq": 262, "type": "unjammed", "member": 1}
+ 264 IN A
+ 265 {"seq": 264, "type": "round_orders", "round": 5, "orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+ 266 {"seq": 265, "type": "round_start", "round": 5}
+ 267 {"seq": 266, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 34, "hit": true, "damage": 8}
+ 268 {"seq": 267, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 39, "hit": true, "damage": 7}
+ 269 {"seq": 268, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 33, "hit": true, "damage": 7}
+---
+ 503 IN UP
+ 504 {"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 505 {"seq": 504, "type": "message", "location": 2, "string": 7}
+ 506 {"seq": 505, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 69, "success": false}
+ 507 {"seq": 506, "type": "message", "location": 2, "string": 9}
+ 508 IN UP
+ 509 {"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 510 {"seq": 509, "type": "message", "location": 2, "string": 7}
+ 511 {"seq": 510, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+ 512 {"seq": 511, "type": "message", "location": 2, "string": 9}
+ 513 IN UP
+---
+ 508 IN UP
+ 509 {"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 510 {"seq": 509, "type": "message", "location": 2, "string": 7}
+ 511 {"seq": 510, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+ 512 {"seq": 511, "type": "message", "location": 2, "string": 9}
+ 513 IN UP
+ 514 {"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 515 {"seq": 514, "type": "message", "location": 2, "string": 7}
+ 516 {"seq": 515, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+ 517 {"seq": 516, "type": "message", "location": 2, "string": 9}
+ 518 IN UP
+---
+ 513 IN UP
+ 514 {"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 515 {"seq": 514, "type": "message", "location": 2, "string": 7}
+ 516 {"seq": 515, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+ 517 {"seq": 516, "type": "message", "location": 2, "string": 9}
+ 518 IN UP
+ 519 {"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 520 {"seq": 519, "type": "message", "location": 2, "string": 7}
+ 521 {"seq": 520, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 21, "success": true}
+ 522 {"seq": 521, "type": "unlock", "x": 26, "y": 14}
+ 523 {"seq": 522, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+---
+ 518 IN UP
+ 519 {"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 520 {"seq": 519, "type": "message", "location": 2, "string": 7}
+ 521 {"seq": 520, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 21, "success": true}
+ 522 {"seq": 521, "type": "unlock", "x": 26, "y": 14}
+ 523 {"seq": 522, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+ 524 {"seq": 523, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+ 525 {"seq": 524, "type": "xp", "member": 3, "delta": 10, "total": 114}
+ 526 {"seq": 525, "type": "paragraph", "n": 12}
+ 527 IN UP
+ 528 {"seq": 527, "type": "move", "location": 2, "x": 26, "y": 14, "steps": 163}
+---
+ 519 {"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 520 {"seq": 519, "type": "message", "location": 2, "string": 7}
+ 521 {"seq": 520, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 21, "success": true}
+ 522 {"seq": 521, "type": "unlock", "x": 26, "y": 14}
+ 523 {"seq": 522, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+ 524 {"seq": 523, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+ 525 {"seq": 524, "type": "xp", "member": 3, "delta": 10, "total": 114}
+ 526 {"seq": 525, "type": "paragraph", "n": 12}
+ 527 IN UP
+ 528 {"seq": 527, "type": "move", "location": 2, "x": 26, "y": 14, "steps": 163}
+ 529 {"seq": 528, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+---
+ 743 {"seq": 742, "type": "move", "location": 3, "x": 9, "y": 6, "steps": 259}
+ 744 {"seq": 743, "type": "encounter_start", "groups": [{"monster": "pump crawler", "count": 4, "band": 2, "hp": [9, 5, 10, 17]}]}
+ 745 {"seq": 744, "type": "paragraph", "n": 19}
+ 746 {"seq": 745, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 65, "roll": 74, "success": false}
+ 747 {"seq": 746, "type": "surprised"}
+ 748 {"seq": 747, "type": "round_start", "round": 0}
+ 749 {"seq": 748, "type": "group_closes", "group": 1, "band": 1}
+ 750 IN A
+ 751 {"seq": 750, "type": "round_orders", "round": 1, "orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["melee", 1]}}
+ 752 {"seq": 751, "type": "round_start", "round": 1}
+ 753 {"seq": 752, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 65, "roll": 53, "hit": true, "damage": 4}
+---
+ 807 IN RIGHT
+ 808 {"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+ 809 {"seq": 808, "type": "message", "location": 3, "string": 10}
+ 810 {"seq": 809, "type": "key_used", "member": 1, "item": 11}
+ 811 {"seq": 810, "type": "unlock", "x": 16, "y": 6}
+ 812 {"seq": 811, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39}
+ 813 {"seq": 812, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+ 814 {"seq": 813, "type": "paragraph", "n": 21}
+ 815 IN RIGHT
+ 816 {"seq": 815, "type": "move", "location": 3, "x": 16, "y": 6, "steps": 266}
+ 817 {"seq": 816, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+---
+ 808 {"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+ 809 {"seq": 808, "type": "message", "location": 3, "string": 10}
+ 810 {"seq": 809, "type": "key_used", "member": 1, "item": 11}
+ 811 {"seq": 810, "type": "unlock", "x": 16, "y": 6}
+ 812 {"seq": 811, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39}
+ 813 {"seq": 812, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+ 814 {"seq": 813, "type": "paragraph", "n": 21}
+ 815 IN RIGHT
+ 816 {"seq": 815, "type": "move", "location": 3, "x": 16, "y": 6, "steps": 266}
+ 817 {"seq": 816, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+ 818 IN RIGHT
+---
+=== map strings for hook messages ===
+loc 2 success_message 8 -> 'Read paragraph 12.'
+loc 2 fail_message 9 -> 'The padlock holds.'
+loc 0 success_message 11 -> 'Read paragraph 17.'
+loc 0 fail_message 12 -> 'The current pushes you back to the bank.'
+loc 3 success_message 8 -> 'Read paragraph 20.'
+loc 3 fail_message 9 -> 'The screen fills with symbols and then goes dark again.'
+loc 3 success_message 11 -> 'Read paragraph 21.'
+loc 3 fail_message 12 -> 'The lock box clicks and stays shut.'
+loc 3 success_message 14 -> 'You scramble over the rubble.'
+loc 3 fail_message 15 -> 'The rubble shifts under your hands and you slide back down.'

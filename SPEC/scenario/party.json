@@ -1,0 +1,126 @@
+{
+  "note": "Premade party, savegame slots 1 to 4. weapon_slot and armour_slot are 1-based item slots, 0 = none (SPEC-02 section 4.4). DEX is written as 0.",
+  "party": [
+    {
+      "name": "Hessa Brand",
+      "gender": 1,
+      "nationality": 0,
+      "attrs": {
+        "STR": 14,
+        "IQ": 13,
+        "LCK": 11,
+        "SPD": 12,
+        "AGL": 14,
+        "CHA": 15
+      },
+      "money": 120,
+      "skills": [
+        [4, 2],
+        [20, 1],
+        [21, 1],
+        [18, 1]
+      ],
+      "items": [
+        [3, 6],
+        [4, 2],
+        [7, 0]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 3,
+      "xp": 90,
+      "level": 1,
+      "portrait": 0
+    },
+    {
+      "name": "Tobin Ash",
+      "gender": 0,
+      "nationality": 1,
+      "attrs": {
+        "STR": 16,
+        "IQ": 10,
+        "LCK": 12,
+        "SPD": 11,
+        "AGL": 12,
+        "CHA": 9
+      },
+      "money": 60,
+      "skills": [
+        [5, 2],
+        [1, 1],
+        [17, 1],
+        [3, 1]
+      ],
+      "items": [
+        [5, 8],
+        [6, 1],
+        [1, 0]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "xp": 90,
+      "level": 1,
+      "portrait": 0
+    },
+    {
+      "name": "Maro Quill",
+      "gender": 0,
+      "nationality": 0,
+      "attrs": {
+        "STR": 11,
+        "IQ": 16,
+        "LCK": 13,
+        "SPD": 13,
+        "AGL": 15,
+        "CHA": 10
+      },
+      "money": 80,
+      "skills": [
+        [14, 2],
+        [23, 1],
+        [22, 1],
+        [4, 1],
+        [12, 1]
+      ],
+      "items": [
+        [3, 6],
+        [4, 1]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "xp": 90,
+      "level": 1,
+      "portrait": 0
+    },
+    {
+      "name": "Dell Ostrow",
+      "gender": 1,
+      "nationality": 2,
+      "attrs": {
+        "STR": 12,
+        "IQ": 15,
+        "LCK": 12,
+        "SPD": 12,
+        "AGL": 13,
+        "CHA": 12
+      },
+      "money": 70,
+      "skills": [
+        [12, 2],
+        [13, 1],
+        [4, 1],
+        [29, 1],
+        [18, 1]
+      ],
+      "items": [
+        [3, 6],
+        [4, 1],
+        [9, 3]
+      ],
+      "weapon_slot": 1,
+      "armour_slot": 0,
+      "xp": 90,
+      "level": 1,
+      "portrait": 0
+    }
+  ]
+}

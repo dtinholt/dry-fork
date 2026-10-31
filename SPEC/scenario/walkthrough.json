@@ -1,0 +1,2292 @@
+{
+  "seed": 20261021,
+  "start": "new game: party.json at scenario.json start",
+  "token_rules": {
+    "key": "UP, DOWN, LEFT, RIGHT, ESC, or one printable character",
+    "repeat_until": "test the condition; while false, send 'keys' in order and test again; fail the run after 'max' rounds",
+    "conditions": "mode:NAME is true when the engine mode is NAME; cell:L,X,Y is true when cell (X,Y) of location L has a cell change",
+    "checkpoint": "emit a checkpoint event carrying the state snapshot; consumes no input"
+  },
+  "summary": {
+    "steps_to_win": 358,
+    "tokens": 414,
+    "direction_tokens": 363,
+    "checkpoints": 10,
+    "auxiliary_checkpoints": 1,
+    "seeds_checked": "5000 seeds (1 to 5000) replayed by the lab reference: all 10 checkpoints match 'expected', no member ever falls"
+  },
+  "expected_rule": "Every field under 'expected' must match exactly for any seed. items_excluding_ammo is sorted; 'hp' and 'items' (slot order, with status bytes) appear only where the lab reference found them independent of the random stream over seeds 1 to 300. CP5 must equal CP5-pre-save in every snapshot field, generator state included. 'reference_seeded' holds the lab reference values for seed 20261021; an independent clean-room implementation built from SPEC-03, SPEC-04 and SPEC-06 alone reproduced it exactly on 21 Oct 2026; SPEC-07 decides whether to assert it.",
+  "script": [
+    {
+      "checkpoint": "CP1"
+    },
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "B",
+    "c",
+    "3",
+    "B",
+    "c",
+    "4",
+    "S",
+    "2",
+    "c",
+    "B",
+    "d",
+    "2",
+    "X",
+    "C",
+    "2",
+    "E",
+    "c",
+    "X",
+    {
+      "checkpoint": "CP2"
+    },
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "UP",
+    "Y",
+    {
+      "checkpoint": "CP3"
+    },
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    {
+      "repeat_until": "mode:map",
+      "keys": ["A"],
+      "max": 30
+    },
+    {
+      "checkpoint": "CP4"
+    },
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "B",
+    "d",
+    "2",
+    "X",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "B",
+    "c",
+    "1",
+    "X",
+    "C",
+    "1",
+    "E",
+    "d",
+    "X",
+    {
+      "checkpoint": "CP5-pre-save"
+    },
+    "S",
+    "O",
+    "Y",
+    {
+      "checkpoint": "CP5"
+    },
+    "LEFT",
+    "LEFT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "LEFT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    {
+      "repeat_until": "cell:2,26,14",
+      "keys": ["UP"],
+      "max": 40
+    },
+    "UP",
+    "UP",
+    "UP",
+    {
+      "checkpoint": "CP6"
+    },
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "DOWN",
+    "Y",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "UP",
+    "Y",
+    {
+      "checkpoint": "CP7"
+    },
+    "DOWN",
+    "DOWN",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "DOWN",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    {
+      "repeat_until": "mode:map",
+      "keys": ["A"],
+      "max": 30
+    },
+    {
+      "checkpoint": "CP8"
+    },
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    {
+      "checkpoint": "CP9"
+    },
+    "DOWN",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "DOWN",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    {
+      "checkpoint": "CP10"
+    }
+  ],
+  "checkpoints": [
+    {
+      "name": "CP1",
+      "description": "New game in Saltwell: four PCs at (15,20), 08:00 day 1, paragraph 1 shown",
+      "auxiliary": false,
+      "expected": {
+        "location": 1,
+        "x": 15,
+        "y": 20,
+        "steps": 0,
+        "day": 1,
+        "hour": 8,
+        "minute": 0,
+        "mode": "map",
+        "cell_changes": [],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [3, 7],
+            "hp": 24,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "money": 60,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [1, 5],
+            "hp": 26,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [1, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "money": 80,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3],
+            "hp": 21,
+            "items": [
+              [3, 6],
+              [4, 1]
+            ]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "money": 70,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9],
+            "hp": 22,
+            "items": [
+              [3, 6],
+              [4, 1],
+              [9, 3]
+            ]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 20261021,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 24,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 26,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [1, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 21,
+            "items": [
+              [3, 6],
+              [4, 1]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 22,
+            "items": [
+              [3, 6],
+              [4, 1],
+              [9, 3]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP2",
+      "description": "Saltwell Dry Goods: two boxes of pistol rounds bought, pipe club sold, hide vest bought and worn by Tobin",
+      "auxiliary": false,
+      "expected": {
+        "location": 1,
+        "x": 6,
+        "y": 5,
+        "steps": 24,
+        "day": 1,
+        "hour": 8,
+        "minute": 24,
+        "mode": "map",
+        "cell_changes": [],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [3, 7],
+            "hp": 24,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "money": 40,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7],
+            "hp": 26,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "money": 73,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3],
+            "hp": 21,
+            "items": [
+              [3, 6],
+              [4, 2]
+            ]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "money": 63,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9],
+            "hp": 22,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [9, 3]
+            ]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 20261021,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 24,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 26,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 21,
+            "items": [
+              [3, 6],
+              [4, 2]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 22,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [9, 3]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP3",
+      "description": "Orla Penn recruited into slot 5",
+      "auxiliary": false,
+      "expected": {
+        "location": 1,
+        "x": 8,
+        "y": 18,
+        "steps": 39,
+        "day": 1,
+        "hour": 8,
+        "minute": 39,
+        "mode": "map",
+        "cell_changes": [
+          [1, 8, 17, 0, 0, 28]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [3, 7],
+            "hp": 24,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "money": 40,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7],
+            "hp": 26,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "money": 73,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3],
+            "hp": 21,
+            "items": [
+              [3, 6],
+              [4, 2]
+            ]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "money": 63,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9],
+            "hp": 22,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 200,
+            "max_hp": 27,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [5],
+            "hp": 27,
+            "items": [
+              [5, 8],
+              [6, 2]
+            ]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 20261021,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 24,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 26,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 21,
+            "items": [
+              [3, 6],
+              [4, 2]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 22,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "hp": 27,
+            "items": [
+              [5, 8],
+              [6, 2]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP4",
+      "description": "Bridge raiders beaten; PCs promoted to level 2; 75 coins looted",
+      "auxiliary": false,
+      "expected": {
+        "location": 0,
+        "x": 30,
+        "y": 41,
+        "steps": 79,
+        "day": 1,
+        "hour": 12,
+        "minute": 19,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [1, 8, 17, 0, 0, 28]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "money": 195,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [3, 7]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 25,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9]
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [5]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 2973743393,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 25,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 30,
+            "items": [
+              [5, 3],
+              [6, 1],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 25,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 22,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "hp": 27,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP5-pre-save",
+      "description": "Auxiliary: state just before the save; CP5 must equal it field for field, generator state included",
+      "auxiliary": true,
+      "expected": {
+        "location": 2,
+        "x": 25,
+        "y": 5,
+        "steps": 145,
+        "day": 1,
+        "hour": 17,
+        "minute": 28,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "money": 91,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 4,
+            "items_excluding_ammo": [3, 7, 8]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 25,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9]
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [5]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 2973743393,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 28,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0],
+              [8, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 31,
+            "items": [
+              [5, 3],
+              [6, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 25,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 26,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "hp": 27,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP5",
+      "description": "Ninemile purchases done, plate jacket worn by Hessa; saved and loaded: state equals the pre-save state",
+      "auxiliary": false,
+      "expected": {
+        "location": 2,
+        "x": 25,
+        "y": 5,
+        "steps": 145,
+        "day": 1,
+        "hour": 17,
+        "minute": 28,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "money": 91,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 4,
+            "items_excluding_ammo": [3, 7, 8]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 25,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9]
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [5]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 2973743393,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 28,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0],
+              [8, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 31,
+            "items": [
+              [5, 3],
+              [6, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 25,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 26,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "hp": 27,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP6",
+      "description": "Storehouse unlocked with Tumblers; Gate card looted",
+      "auxiliary": false,
+      "expected": {
+        "location": 2,
+        "x": 26,
+        "y": 12,
+        "steps": 165,
+        "day": 1,
+        "hour": 17,
+        "minute": 48,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "money": 91,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 4,
+            "items_excluding_ammo": [3, 7, 8, 11]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 114,
+            "max_hp": 25,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9]
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [5]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 68685520,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 28,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0],
+              [8, 0],
+              [11, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 31,
+            "items": [
+              [5, 3],
+              [6, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 25,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 26,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "hp": 27,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP7",
+      "description": "Teodor Lusk recruited into slot 6; party healed to full for 40 coins",
+      "auxiliary": false,
+      "expected": {
+        "location": 2,
+        "x": 25,
+        "y": 22,
+        "steps": 194,
+        "day": 1,
+        "hour": 18,
+        "minute": 17,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 18, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "money": 51,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 4,
+            "items_excluding_ammo": [3, 7, 8, 11],
+            "hp": 28
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7],
+            "hp": 31
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 114,
+            "max_hp": 25,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3],
+            "hp": 25
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9],
+            "hp": 26
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [5],
+            "hp": 27
+          },
+          {
+            "slot": 6,
+            "name": "Teodor Lusk",
+            "npc": 1,
+            "level": 2,
+            "xp": 150,
+            "max_hp": 26,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 2,
+            "items_excluding_ammo": [1, 7],
+            "hp": 26,
+            "items": [
+              [1, 0],
+              [7, 0]
+            ]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 68685520,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 28,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0],
+              [8, 0],
+              [11, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 31,
+            "items": [
+              [5, 3],
+              [6, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 25,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 26,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "hp": 27,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ]
+          },
+          {
+            "slot": 6,
+            "hp": 26,
+            "items": [
+              [1, 0],
+              [7, 0]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP8",
+      "description": "Pump crawlers beaten in Pumphouse Deep; Field kit looted",
+      "auxiliary": false,
+      "expected": {
+        "location": 3,
+        "x": 9,
+        "y": 6,
+        "steps": 259,
+        "day": 1,
+        "hour": 22,
+        "minute": 32,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 18, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29],
+          [3, 9, 6, 0, 0, 37]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 28,
+            "money": 51,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 4,
+            "items_excluding_ammo": [3, 7, 8, 9, 11]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 31,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 132,
+            "max_hp": 25,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 26,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9]
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 232,
+            "max_hp": 27,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [5]
+          },
+          {
+            "slot": 6,
+            "name": "Teodor Lusk",
+            "npc": 1,
+            "level": 2,
+            "xp": 168,
+            "max_hp": 26,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 2,
+            "items_excluding_ammo": [1, 7],
+            "items": [
+              [1, 0],
+              [7, 0]
+            ]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 1205497775,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 28,
+            "items": [
+              [3, 4],
+              [4, 1],
+              [7, 0],
+              [8, 0],
+              [11, 0],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 26,
+            "items": [
+              [5, 0],
+              [6, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 25,
+            "items": [
+              [3, 5],
+              [4, 1]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 26,
+            "items": [
+              [3, 5],
+              [4, 1],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "hp": 27,
+            "items": [
+              [5, 0],
+              [6, 2]
+            ]
+          },
+          {
+            "slot": 6,
+            "hp": 22,
+            "items": [
+              [1, 0],
+              [7, 0]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP9",
+      "description": "Vault gate opened with the Gate card; Governor valve looted",
+      "auxiliary": false,
+      "expected": {
+        "location": 3,
+        "x": 21,
+        "y": 4,
+        "steps": 273,
+        "day": 1,
+        "hour": 23,
+        "minute": 0,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 18, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29],
+          [3, 9, 6, 0, 0, 37],
+          [3, 16, 6, 4, 4, 37],
+          [3, 21, 4, 0, 0, 37]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 28,
+            "money": 51,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 4,
+            "items_excluding_ammo": [3, 7, 8, 9, 11, 12]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 31,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 132,
+            "max_hp": 25,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 26,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9]
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 232,
+            "max_hp": 27,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [5]
+          },
+          {
+            "slot": 6,
+            "name": "Teodor Lusk",
+            "npc": 1,
+            "level": 2,
+            "xp": 168,
+            "max_hp": 26,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 2,
+            "items_excluding_ammo": [1, 7],
+            "items": [
+              [1, 0],
+              [7, 0]
+            ]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 1205497775,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 28,
+            "items": [
+              [3, 4],
+              [4, 1],
+              [7, 0],
+              [8, 0],
+              [11, 0],
+              [9, 3],
+              [12, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 27,
+            "items": [
+              [5, 0],
+              [6, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 25,
+            "items": [
+              [3, 5],
+              [4, 1]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 26,
+            "items": [
+              [3, 5],
+              [4, 1],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "hp": 27,
+            "items": [
+              [5, 0],
+              [6, 2]
+            ]
+          },
+          {
+            "slot": 6,
+            "hp": 23,
+            "items": [
+              [1, 0],
+              [7, 0]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CP10",
+      "description": "Valve fitted at the Saltwell pump: game won",
+      "auxiliary": false,
+      "expected": {
+        "location": 1,
+        "x": 15,
+        "y": 12,
+        "steps": 358,
+        "day": 2,
+        "hour": 7,
+        "minute": 8,
+        "mode": "won",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 18, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29],
+          [3, 9, 6, 0, 0, 37],
+          [3, 16, 6, 4, 4, 37],
+          [3, 21, 4, 0, 0, 37]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 28,
+            "money": 51,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 4,
+            "items_excluding_ammo": [3, 7, 8, 9, 11, 12]
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 31,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 3,
+            "items_excluding_ammo": [5, 7]
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 132,
+            "max_hp": 25,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3]
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 26,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [3, 9]
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 232,
+            "max_hp": 27,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 0,
+            "items_excluding_ammo": [5]
+          },
+          {
+            "slot": 6,
+            "name": "Teodor Lusk",
+            "npc": 1,
+            "level": 2,
+            "xp": 168,
+            "max_hp": 26,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "cond": 0,
+            "weapon_slot": 1,
+            "armour_slot": 2,
+            "items_excluding_ammo": [1, 7],
+            "items": [
+              [1, 0],
+              [7, 0]
+            ]
+          }
+        ]
+      },
+      "reference_seeded": {
+        "rng_state": 1205497775,
+        "party": [
+          {
+            "slot": 1,
+            "hp": 28,
+            "items": [
+              [3, 4],
+              [4, 1],
+              [7, 0],
+              [8, 0],
+              [11, 0],
+              [9, 3],
+              [12, 0]
+            ]
+          },
+          {
+            "slot": 2,
+            "hp": 31,
+            "items": [
+              [5, 0],
+              [6, 2],
+              [7, 0]
+            ]
+          },
+          {
+            "slot": 3,
+            "hp": 25,
+            "items": [
+              [3, 5],
+              [4, 1]
+            ]
+          },
+          {
+            "slot": 4,
+            "hp": 26,
+            "items": [
+              [3, 5],
+              [4, 1],
+              [9, 3]
+            ]
+          },
+          {
+            "slot": 5,
+            "hp": 27,
+            "items": [
+              [5, 0],
+              [6, 2]
+            ]
+          },
+          {
+            "slot": 6,
+            "hp": 26,
+            "items": [
+              [1, 0],
+              [7, 0]
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

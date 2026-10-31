@@ -1,0 +1,508 @@
+======================================================================
+FILE /Users/dtinholt/wasteland-build/project/tests/test_m6_playable.py
+    1 """M6: playable (SPEC-05 section 14, SPEC-06). Headless replay of
+    2 SPEC/scenario/walkthrough.json against walkthrough-reference-log.json and the
+    3 `expected` blocks, plus one curses-free render of the first frame.
+    4 API: SPEC-07 sections 2.10 and 2.11."""
+    5 
+    6 from __future__ import annotations
+    7 
+    8 import json
+    9 import os
+   10 import subprocess
+   11 import sys
+   12 
+   13 import pytest
+   14 
+   15 import wl_support as W
+   16 from wl_support import call, check_eq, expect_error, fail
+   17 
+   18 pytestmark = pytest.mark.milestone("M6")
+   19 
+   20 SEED = 20261021
+   21 WT = W.load_json(W.SCENARIO / "walkthrough.json")
+   22 CP_NAMES = [c["name"] for c in WT["checkpoints"]]
+   23 ITEM_TYPE = {it["id"]: it["type_byte"] >> 3 for it in W.load_json(W.SCENARIO / "items.json")["items"]}
+   24 GLYPHS = '.:"=,so~^bTYH*O%#_;/+nhPp|w`XGK>'  # SPEC-06 section 2.3, tiles 0 to 31
+   25 
+   26 
+   27 def strip(e):
+   28     return {k: v for k, v in e.items() if k != "seq"}
+   29 
+   30 
+   31 def full_run(runner, seed):
+   32     return runner.run("walkthrough", {"seed": seed, "script": WT["script"]}, seed)[0]
+   33 
+   34 
+   35 def checkpoints(events) -> dict:
+   36     return {e.get("name"): e.get("state") for e in events if e.get("type") == "checkpoint"}
+   37 
+   38 
+   39 def _cp(events, name, what):
+   40     cps = checkpoints(events)
+   41     if name not in cps or not isinstance(cps[name], dict):
+   42         fail("%s: the engine log has no checkpoint %r" % (what, name))
+   43     return cps[name]
+   44 
+   45 
+   46 # ---- the walkthrough, seed 20261021 ------------------------------------------
+   47 
+   48 def test_walkthrough_wins(runner):
+   49     ev = full_run(runner, SEED)
+   50     st = _cp(ev, "CP10", "seed %d" % SEED)
+   51     check_eq("mode at CP10, seed %d" % SEED, st.get("mode"), "won")
+   52     win = [strip(e) for e in ev if e.get("type") == "win"]
+   53     check_eq("win event, seed %d (LR-24, SPEC-06 6.2)" % SEED, win,
+   54              [{"type": "win", "steps": 358, "day": 2, "minutes": 428}])
+   55 
+   56 
+   57 @pytest.mark.parametrize("name", CP_NAMES)
+   58 def test_checkpoint_matches_reference(runner, reference_log, name):
+   59     ev = full_run(runner, SEED)
+   60     want = checkpoints(reference_log)[name]
+   61     check_eq("checkpoint %s, seed %d, full snapshot against the reference log" % (name, SEED),
+   62              _cp(ev, name, "seed %d" % SEED), want)
+   63 
+   64 
+   65 def test_cp5_equals_pre_save(runner):
+   66     ev = full_run(runner, SEED)
+   67     check_eq("CP5 (after save and load) against CP5-pre-save, seed %d (LR-56)" % SEED,
+   68              _cp(ev, "CP5", "seed %d" % SEED), _cp(ev, "CP5-pre-save", "seed %d" % SEED))
+   69 
+   70 
+   71 def _segments(events):
+   72     out, cur = {}, []
+   73     for e in events:
+   74         cur.append(strip(e))
+   75         if e.get("type") == "checkpoint":
+   76             out[e.get("name")] = cur
+   77             cur = []
+   78     return out
+   79 
+   80 
+   81 @pytest.mark.parametrize("name", CP_NAMES)
+   82 def test_log_segment(runner, reference_log, name):
+   83     ev = full_run(runner, SEED)
+   84     got = _segments(ev)
+   85     want = _segments(reference_log)[name]
+   86     if name not in got:
+   87         fail("log segment ending at %s: the engine log has no checkpoint %r" % (name, name))
+   88     g = got[name]
+   89     for i, (a, b) in enumerate(zip(g, want)):
+   90         if a != b:
+   91             fail("log segment ending at %s, event %d of the segment: expected %s, got %s"
+   92                  % (name, i, W.short(b, 400), W.short(a, 400)))
+   93     if len(g) != len(want):
+   94         fail("log segment ending at %s: expected %d events, got %d" % (name, len(want), len(g)))
+   95 
+   96 
+   97 def test_full_log_equality(runner, reference_log):
+   98     ev = full_run(runner, SEED)
+   99     for i, (a, b) in enumerate(zip(ev, reference_log)):
+  100         if a != b:
+  101             fail("full event log, seed %d: event %d differs: expected %s, got %s"
+  102                  % (SEED, i, W.short(b, 400), W.short(a, 400)))
+  103     if len(ev) != len(reference_log):
+  104         fail("full event log, seed %d: expected %d events, got %d" % (SEED, len(reference_log), len(ev)))
+  105 
+  106 
+  107 # ---- the walkthrough for other seeds: the expected blocks ---------------------
+  108 
+  109 def _view(state):
+  110     v = dict(state)
+  111     party = []
+  112     for m in state.get("party") or []:
+  113         mm = dict(m)
+  114         mm["items_excluding_ammo"] = sorted(i for i, _ in (m.get("items") or []) if ITEM_TYPE.get(i) != 3)
+  115         party.append(mm)
+  116     v["party"] = party
+  117     return v
+  118 
+  119 
+  120 @pytest.mark.parametrize("seed", [SEED] + list(range(1, 21)))
+  121 def test_expected_blocks(runner, seed):
+  122     ev = full_run(runner, seed)
+  123     for cp in WT["checkpoints"]:
+  124         st = _view(_cp(ev, cp["name"], "seed %d" % seed))
+  125         exp = cp["expected"]
+  126         top = {k: v for k, v in exp.items() if k != "party"}
+  127         check_eq("seed %d checkpoint %s" % (seed, cp["name"]), {k: st.get(k, "<missing>") for k in top}, top)
+  128         got_party = st.get("party") or []
+  129         if len(got_party) != len(exp["party"]):
+  130             fail("seed %d checkpoint %s: expected %d party members, got %d"
+  131                  % (seed, cp["name"], len(exp["party"]), len(got_party)))
+  132         for g, w in zip(got_party, exp["party"]):
+  133             check_eq("seed %d checkpoint %s slot %d" % (seed, cp["name"], w["slot"]),
+  134                      {k: g.get(k, "<missing>") for k in w}, w)
+  135     check_eq("seed %d: CP5 equals CP5-pre-save (LR-56)" % seed, _cp(ev, "CP5", "seed %d" % seed),
+  136              _cp(ev, "CP5-pre-save", "seed %d" % seed))
+  137 
+  138 
+  139 # ---- headless driver behaviour (SPEC-06 sections 3 to 5) ----------------------
+  140 
+  141 def test_ignored_key(runner):
+  142     ev, _ = runner.run("ignored", {"seed": SEED, "script": ["Z", {"checkpoint": "a"}]})
+  143     got = [strip(e) for e in ev if e.get("type") in ("input", "ignored")]
+  144     check_eq("an unlisted key in map mode (SPEC-06 section 4)", got,
+  145              [{"type": "input", "key": "Z"}, {"type": "ignored", "key": "Z"}])
+  146 
+  147 
+  148 def test_look(runner):
+  149     ev, _ = runner.run("look", {"seed": SEED, "script": ["L", "LEFT", {"checkpoint": "a"}]})
+  150     got = [strip(e) for e in ev if e.get("type") == "look"]
+  151     check_eq("look west from (15, 20) (SPEC-06 section 3)", got,
+  152              [{"type": "look", "x": 14, "y": 20, "image": 28, "action_class": 0}])
+  153     st = _cp(ev, "a", "look")
+  154     check_eq("look takes no step and no time", [st.get("steps"), st.get("minute"), st.get("rng_state")], [0, 0, SEED])
+  155 
+  156 
+  157 def test_repeat_limit(compiled, tmp_path_factory):
+  158     dd = compiled.copy(tmp_path_factory)
+  159     expect_error("RepeatLimitError", "headless.run", str(dd),
+  160                  {"seed": SEED, "script": [{"repeat_until": "cell:0,0,0", "keys": ["Z"], "max": 3}]}, None,
+  161                  what="repeat_until never true (SPEC-06 5.1 exit code 2)")
+  162 
+  163 
+  164 def test_malformed_script(compiled, tmp_path_factory):
+  165     dd = compiled.copy(tmp_path_factory)
+  166     expect_error("ScriptError", "headless.run", str(dd), {"seed": SEED, "script": ["JUMP"]}, None,
+  167                  what="token 'JUMP' (SPEC-06 5.1 exit code 4)")
+  168 
+  169 
+  170 def _cli(args, cwd):
+  171     env = dict(os.environ, PYTHONPATH=str(W.SRC), PYTHONDONTWRITEBYTECODE="1")
+  172     return subprocess.run([sys.executable, "-m", "wlengine"] + args, capture_output=True, text=True, cwd=str(cwd),
+  173                           env=env, timeout=300, stdin=subprocess.DEVNULL)
+  174 
+  175 
+  176 def test_cli_headless(runner, compiled, tmp_path_factory):
+  177     ev = full_run(runner, SEED)
+  178     dd = compiled.copy(tmp_path_factory)
+  179     out = tmp_path_factory.mktemp("cli")
+  180     script = out / "script.json"
+  181     script.write_text(json.dumps({"seed": 1, "script": WT["script"]}))
+  182     log = out / "out.jsonl"
+  183     r = _cli(["--headless", "--data", str(dd), "--script", str(script), "--seed", str(SEED), "--log", str(log)], out)
+  184     check_eq("exit code of wl --headless on the walkthrough (SPEC-06 5.1)", r.returncode, 0)
+  185     if not log.is_file():
+  186         fail("wl --headless wrote no log file at --log")
+  187     lines = log.read_text(encoding="utf-8").splitlines()
+  188     bad = next((i for i, l in enumerate(lines) if l != l.rstrip()), None)
+  189     if bad is not None:
+  190         fail("log line %d has trailing spaces (SPEC-06 5.3)" % bad)
+  191     try:
+  192         got = [json.loads(l) for l in lines]
+  193     except ValueError as e:
+  194         fail("log is not JSON Lines: %s" % e)
+  195     for i, (a, b) in enumerate(zip(got, ev)):
+  196         if a != b:
+  197             fail("CLI log event %d differs from headless.run: expected %s, got %s" % (i, W.short(b, 300), W.short(a, 300)))
+  198     check_eq("CLI log length against headless.run", len(got), len(ev))
+  199 
+  200 
+  201 # ---- front end: first frame (SPEC-06 sections 2 and 7) ------------------------
+  202 
+  203 def _frame(compiled):
+  204     dd = compiled.need()
+  205     fr = call("ui.render_frame", str(dd))
+  206     if not (isinstance(fr, list) and len(fr) == 25 and all(isinstance(r, str) and len(r) == 80 for r in fr)):
+  207         fail("ui.render_frame must return 25 strings of 80 characters, got %s" % W.short(
+  208             [len(r) if isinstance(r, str) else type(r).__name__ for r in fr] if isinstance(fr, list) else fr))
+  209     return fr
+  210 
+  211 
+  212 def test_render_frame_party(compiled):
+  213     fr = _frame(compiled)
+  214     check_eq("row 6 columns 18 to 20 of the first frame (SPEC-06 7)", fr[6][18:21], ".@.")
+  215     check_eq("row 0 starts with the location name", fr[0][:8], "Saltwell")
+  216 
+  217 
+  218 def test_render_status_line(compiled):
+  219     fr = _frame(compiled)
+  220     check_eq("status line (SPEC-06 2.1)", fr[0].rstrip(), "Saltwell  Day 1  08:00  (15,20)  Steps 0  map")
+  221 
+  222 
+  223 def test_render_viewport(compiled):
+  224     fr = _frame(compiled)
+  225     m = W.load_json(W.SCENARIO / "map1-saltwell.json")
+  226     border = GLYPHS[m["info"]["border_image"] - 10]
+  227     want = []
+  228     for j in range(11):
+  229         row = ""
+  230         for i in range(39):
+  231             x, y = 15 - 19 + i, 20 - 5 + j
+  232             if (i, j) == (19, 5):
+  233                 row += "@"
+  234             elif 0 <= x < 32 and 0 <= y < 32:
+  235                 row += GLYPHS[m["tiles"][y][x]]
+  236             else:
+  237                 row += border
+  238         want.append(row)
+  239     got = [fr[1 + j][0:39] for j in range(11)]
+  240     for j, (g, w) in enumerate(zip(got, want)):
+  241         if g != w:
+  242             fail("map viewport row %d (screen row %d, columns 0 to 38): expected %r, got %r" % (j, j + 1, w, g))
+  243 
+  244 
+  245 def test_cli_render_frame(compiled, tmp_path_factory):
+  246     dd = compiled.copy(tmp_path_factory)
+  247     r = _cli(["--data", str(dd), "--render-frame"], dd)
+  248     check_eq("exit code of wl --data DIR --render-frame (SPEC-06 7)", r.returncode, 0)
+  249     lines = r.stdout.splitlines()
+  250     check_eq("printed frame: 25 lines, row 0 starts with Saltwell, row 6 column 19 is @",
+  251              [len(lines), lines[0][:8] if lines else None, lines[6][19:20] if len(lines) > 6 else None],
+  252              [25, "Saltwell", "@"])
+======================================================================
+FILE /Users/dtinholt/wasteland-build/project/tests/conftest.py
+    1 """Acceptance-test configuration for PREREG-W1 (SPEC-07).
+    2 
+    3 - Registers the `milestone(name)` marker; every test carries exactly one.
+    4 - Adds `--group M1` ... `--group M6` to select one milestone group.
+    5 - Puts the project's src/ first on sys.path so `import wlengine` finds the
+    6   builder's package.
+    7 - Provides the session fixtures: the SPEC-02/SPEC-03 fixture set, the engine's
+    8   compiled Dry Fork data, the oracle decoding of that data, and cached headless
+    9   runs.
+   10 
+   11 Frozen with the tests (SPEC-07 section 6).
+   12 """
+   13 
+   14 from __future__ import annotations
+   15 
+   16 import json
+   17 import os
+   18 import shutil
+   19 import subprocess
+   20 import sys
+   21 from pathlib import Path
+   22 
+   23 import pytest
+   24 
+   25 sys.dont_write_bytecode = True
+   26 _TESTS = Path(__file__).resolve().parent
+   27 _SRC = _TESTS.parent / "src"
+   28 for p in (str(_TESTS), str(_SRC)):
+   29     if p in sys.path:
+   30         sys.path.remove(p)
+   31 sys.path.insert(0, str(_TESTS))
+   32 sys.path.insert(0, str(_SRC))
+   33 
+   34 import wl_support as W  # noqa: E402
+   35 
+   36 MILESTONES = ("M1", "M2", "M3", "M4", "M5", "M6")
+   37 sys.addaudithook(W.audit_hook)
+   38 
+   39 
+   40 def pytest_addoption(parser):
+   41     parser.addoption("--group", action="store", default=None, metavar="M",
+   42                      help="run only the tests of one milestone group (M1 to M6), SPEC-07")
+   43 
+   44 
+   45 def pytest_configure(config):
+   46     config.addinivalue_line("markers", "milestone(name): PREREG-W1 milestone group, M1 to M6 (SPEC-07)")
+   47 
+   48 
+   49 def pytest_collection_modifyitems(config, items):
+   50     group = config.getoption("--group")
+   51     if group is not None and group not in MILESTONES:
+   52         raise pytest.UsageError("--group must be one of %s, got %r" % (", ".join(MILESTONES), group))
+   53     keep, drop = [], []
+   54     for it in items:
+   55         marks = [m.args[0] if m.args else None for m in it.iter_markers("milestone")]
+   56         if len(marks) != 1 or marks[0] not in MILESTONES:
+   57             raise pytest.UsageError("%s must carry exactly one milestone marker (got %r)" % (it.nodeid, marks))
+   58         (keep if group is None or marks[0] == group else drop).append(it)
+   59     if drop:
+   60         config.hook.pytest_deselected(items=drop)
+   61         items[:] = keep
+   62 
+   63 
+   64 # ---------------------------------------------------------------------------
+   65 # Session fixtures
+   66 # ---------------------------------------------------------------------------
+   67 
+   68 def _oracle(args: list[str], timeout: int = 300) -> subprocess.CompletedProcess:
+   69     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+   70     env.pop("PYTHONPATH", None)
+   71     return subprocess.run([sys.executable, str(_TESTS / "oracle_tool.py")] + args, capture_output=True,
+   72                           text=True, timeout=timeout, env=env, stdin=subprocess.DEVNULL)
+   73 
+   74 
+   75 class FixtureSet:
+   76     def __init__(self, d: Path, manifest: dict) -> None:
+   77         self.dir = d
+   78         self.manifest = manifest
+   79 
+   80     def path(self, name: str) -> str:
+   81         return str(self.dir / name)
+   82 
+   83     def read(self, name: str) -> bytes:
+   84         return (self.dir / name).read_bytes()
+   85 
+   86 
+   87 def _make_fixture_set(tmp_path_factory, seed: int) -> FixtureSet:
+   88     d = tmp_path_factory.mktemp("fixtures")
+   89     mand = tmp_path_factory.mktemp("manifest")
+   90     r = _oracle(["fixtures", str(d), str(mand), str(seed)])
+   91     if r.returncode != 0:
+   92         raise RuntimeError("fixture generator failed (test infrastructure): %s %s" % (r.stdout[-500:], r.stderr[-500:]))
+   93     W.FORBIDDEN_PREFIXES.append(str(mand) + os.sep)
+   94     return FixtureSet(d, json.loads((mand / "manifest.json").read_text()))
+   95 
+   96 
+   97 @pytest.fixture(scope="session")
+   98 def fixture_set(tmp_path_factory) -> FixtureSet:
+   99     """SPEC-02 section 12.8 / SPEC-03 section 12 fixtures (seed 19880101), manifest kept apart."""
+  100     return _make_fixture_set(tmp_path_factory, 19880101)
+  101 
+  102 
+  103 @pytest.fixture(scope="session")
+  104 def fixture_set_alt(tmp_path_factory) -> FixtureSet:
+  105     """The same generator with seed 20261022: same structure, different content (SPEC-07 section 5)."""
+  106     return _make_fixture_set(tmp_path_factory, 20261022)
+  107 
+  108 
+  109 class Compiled:
+  110     def __init__(self, d: Path | None, error: str | None) -> None:
+  111         self.dir = d
+  112         self.error = error
+  113 
+  114     def need(self) -> Path:
+  115         if self.error:
+  116             W.fail("scenario compile failed, so this check cannot run: " + self.error)
+  117         return self.dir
+  118 
+  119     def copy(self, tmp_path_factory) -> Path:
+  120         src = self.need()
+  121         dst = tmp_path_factory.mktemp("data")
+  122         shutil.copytree(src, dst, dirs_exist_ok=True)
+  123         return dst
+  124 
+  125 
+  126 @pytest.fixture(scope="session")
+  127 def compiled(tmp_path_factory) -> Compiled:
+  128     """The engine's own compilation of SPEC/scenario (SPEC-05 section 13)."""
+  129     d = tmp_path_factory.mktemp("compiled")
+  130     try:
+  131         W.engine_ready()
+  132         fn = W.api("scenario.compile")
+  133     except pytest.fail.Exception as e:
+  134         return Compiled(None, str(e))
+  135     try:
+  136         W._armed(fn, str(W.SCENARIO), str(d), allow_reference_log=True)
+  137     except NotImplementedError as e:
+  138         return Compiled(None, "wlengine.scenario.compile: not implemented (%s)" % (e or "NotImplementedError"))
+  139     except Exception as e:  # noqa: BLE001
+  140         return Compiled(None, "wlengine.scenario.compile raised %s: %s" % (type(e).__name__, W.short(str(e), 200)))
+  141     if W._STATE["violations"]:
+  142         v = W._STATE["violations"][0]
+  143         W._STATE["violations"].clear()
+  144         if not v.startswith(str(W.SCENARIO)):
+  145             return Compiled(None, "wlengine.scenario.compile opened a file the engine must not read: %s" % v)
+  146     return Compiled(d, None)
+  147 
+  148 
+  149 class OracleView:
+  150     def __init__(self, data: dict | None, error: str | None) -> None:
+  151         self.data = data or {}
+  152         self.error = error
+  153 
+  154     def oracle(self, section: str):
+  155         if self.error:
+  156             W.fail(self.error)
+  157         errs = self.data.get("errors", {})
+  158         if section in errs:
+  159             W.fail("reference reader rejected the compiled data (%s): %s" % (section, errs[section]))
+  160         if section not in self.data.get("oracle", {}):
+  161             W.fail("reference reader found no %s in the compiled data" % section)
+  162         return self.data["oracle"][section]
+  163 
+  164     def expected(self, section: str):
+  165         if self.error and not self.data.get("expected"):
+  166             W.fail(self.error)
+  167         return self.data["expected"][section]
+  168 
+  169 
+  170 @pytest.fixture(scope="session")
+  171 def oracle_view(compiled) -> OracleView:
+  172     if compiled.error:
+  173         return OracleView(None, "scenario compile failed, so this check cannot run: " + compiled.error)
+  174     r = _oracle(["compiled", str(compiled.dir), str(W.SCENARIO)])
+  175     try:
+  176         data = json.loads(r.stdout)
+  177     except ValueError:
+  178         raise RuntimeError("oracle tool failed (test infrastructure): %s" % r.stderr[-800:])
+  179     if "fatal" in data:
+  180         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+  181     return OracleView(data, None)
+  182 
+  183 
+  184 @pytest.fixture(scope="session")
+  185 def expected_view(tmp_path_factory) -> dict:
+  186     """Expected structures from the scenario JSON alone (no engine involved)."""
+  187     d = tmp_path_factory.mktemp("empty")
+  188     r = _oracle(["compiled", str(d), str(W.SCENARIO)])
+  189     data = json.loads(r.stdout)
+  190     if "fatal" in data:
+  191         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+  192     return data["expected"]
+  193 
+  194 
+  195 class Runner:
+  196     """Cached headless runs on fresh copies of the compiled data."""
+  197 
+  198     def __init__(self, compiled: Compiled, tmp_path_factory) -> None:
+  199         self.compiled = compiled
+  200         self.tpf = tmp_path_factory
+  201         self.cache: dict = {}
+  202 
+  203     def run(self, key: str, script: dict, seed: int | None = None, data_dir: Path | None = None):
+  204         """Return (events, data_dir). Fails the test cleanly on any engine problem."""
+  205         ck = (key, seed, str(data_dir) if data_dir else None)
+  206         if ck in self.cache:
+  207             ev, dd, err = self.cache[ck]
+  208             if err:
+  209                 W.fail(err)
+  210             return ev, dd
+  211         dd = data_dir or self.compiled.copy(self.tpf)
+  212         err = None
+  213         ev = None
+  214         try:
+  215             ev = W.call("headless.run", str(dd), json.loads(json.dumps(script)), seed)
+  216             if not isinstance(ev, list) or not all(isinstance(e, dict) for e in ev):
+  217                 err = "wlengine.headless.run must return a list of event dicts, got %s" % type(ev).__name__
+  218         except pytest.fail.Exception as e:
+  219             err = str(e)
+  220         self.cache[ck] = (ev, dd, err)
+  221         if err:
+  222             W.fail(err)
+  223         return ev, dd
+  224 
+  225 
+  226 @pytest.fixture(scope="session")
+  227 def runner(compiled, tmp_path_factory) -> Runner:
+  228     return Runner(compiled, tmp_path_factory)
+  229 
+  230 
+  231 @pytest.fixture(scope="session")
+  232 def walkthrough() -> dict:
+  233     return W.load_json(W.SCENARIO / "walkthrough.json")
+  234 
+  235 
+  236 @pytest.fixture(scope="session")
+  237 def reference_log() -> list[dict]:
+  238     return W.load_json(W.REFERENCE_LOG)["events"]
+FOUND /Users/dtinholt/wasteland-build/project/WORKLOG.md
+FOUND /Users/dtinholt/wasteland-build/project/tests/wl_combat_ref.py
+FOUND /Users/dtinholt/wasteland-build/project/tests/fixtures-generated/refdiff.py
+FOUND /Users/dtinholt/wasteland-build/project/tests/fixtures-generated/reflog.txt
+FOUND /Users/dtinholt/wasteland-build/project/tests/fixtures-generated/dumpref.py
+FOUND /Users/dtinholt/wasteland-build/project/tests/fixtures-generated/refdump.txt
+FOUND /Users/dtinholt/wasteland-build/project/tests/fixtures-generated/ref.txt
+FOUND /Users/dtinholt/wasteland-build/project/tests/fixtures-generated/reflog4.txt
+FOUND /Users/dtinholt/wasteland-build/project/tests/fixtures-generated/refcheck.py
+FOUND /Users/dtinholt/wasteland-build/project/tests/fixtures-generated/reflog2.txt
+FOUND /Users/dtinholt/wasteland-build/project/tests/fixtures-generated/reflog3.txt
+FOUND /Users/dtinholt/wasteland-build/project/SPEC/scenario/walkthrough-reference-log.json
+FOUND /Users/dtinholt/wasteland-build/project/SPEC/reference/codecs_ref.py
+FOUND /Users/dtinholt/wasteland-build/project/SPEC/reference/__pycache__/codecs_ref.cpython-314.pyc

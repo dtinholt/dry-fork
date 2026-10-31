@@ -1,0 +1,166 @@
+{
+  "note": "Derived index of the six encounter types. The map files are authoritative.",
+  "derived_monster_values": "hp = floor(sturdiness / 4) + rnd(sturdiness) for sturdiness < 256; xp = sturdiness x (armor_class + 1); to-hit base = 20 + 5 x combat_rating; speed = combat_rating; ranged when weapon_type >= 3",
+  "monsters": [
+    {
+      "armor_class": 0,
+      "combat_rating": 2,
+      "fixed_damage": 0,
+      "max_group": 2,
+      "name": "stray dog",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 4,
+      "type": 1,
+      "weapon_type": 1
+    },
+    {
+      "armor_class": 0,
+      "combat_rating": 8,
+      "fixed_damage": 0,
+      "max_group": 6,
+      "name": "dust hound",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 8,
+      "type": 1,
+      "weapon_type": 1
+    },
+    {
+      "armor_class": 1,
+      "combat_rating": 6,
+      "fixed_damage": 0,
+      "max_group": 4,
+      "name": "raider",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 12,
+      "type": 3,
+      "weapon_type": 3
+    },
+    {
+      "armor_class": 1,
+      "combat_rating": 6,
+      "fixed_damage": 1,
+      "max_group": 4,
+      "name": "scavenger",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 12,
+      "type": 3,
+      "weapon_type": 2
+    },
+    {
+      "armor_class": 1,
+      "combat_rating": 7,
+      "fixed_damage": 0,
+      "max_group": 6,
+      "name": "pump crawler",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 14,
+      "type": 2,
+      "weapon_type": 1
+    },
+    {
+      "armor_class": 2,
+      "combat_rating": 7,
+      "fixed_damage": 1,
+      "max_group": 3,
+      "name": "scrap drone",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 10,
+      "type": 5,
+      "weapon_type": 4
+    },
+    {
+      "armor_class": 3,
+      "combat_rating": 5,
+      "fixed_damage": 1,
+      "max_group": 3,
+      "name": "glass beetle",
+      "plural_suffix": "s",
+      "portrait": 1,
+      "random_damage": 1,
+      "sturdiness": 16,
+      "type": 1,
+      "weapon_type": 1
+    }
+  ],
+  "encounters": [
+    {
+      "location": 0,
+      "x": 30,
+      "y": 41,
+      "slot": 1,
+      "note": "Encounter 1: road raiders, 3 raiders; then loot 75 coins",
+      "groups": [
+        ["raider", false, 3]
+      ],
+      "tail": [5, 1]
+    },
+    {
+      "location": 0,
+      "x": 18,
+      "y": 12,
+      "slot": 2,
+      "note": "Encounter 2: dust hounds, rnd(4)",
+      "groups": [
+        ["dust hound", true, 4]
+      ],
+      "tail": [0, 0]
+    },
+    {
+      "location": 0,
+      "x": 52,
+      "y": 35,
+      "slot": 3,
+      "note": "Encounter 3: glass beetles, 2",
+      "groups": [
+        ["glass beetle", false, 2]
+      ],
+      "tail": [0, 0]
+    },
+    {
+      "location": 0,
+      "x": 22,
+      "y": 22,
+      "slot": 4,
+      "note": "Encounter 4: riverbed scavengers, 2 scavengers and 1 raider; then loot rnd(40) coins",
+      "groups": [
+        ["scavenger", false, 2],
+        ["raider", false, 1]
+      ],
+      "tail": [5, 2]
+    },
+    {
+      "location": 3,
+      "x": 9,
+      "y": 6,
+      "slot": 1,
+      "note": "Encounter 5: pump crawlers, 4; then loot Field kit (status 3)",
+      "groups": [
+        ["pump crawler", false, 4]
+      ],
+      "tail": [5, 1]
+    },
+    {
+      "location": 3,
+      "x": 10,
+      "y": 20,
+      "slot": 2,
+      "note": "Encounter 6: scrap drones, rnd(2)",
+      "groups": [
+        ["scrap drone", true, 2]
+      ],
+      "tail": [0, 0]
+    }
+  ]
+}

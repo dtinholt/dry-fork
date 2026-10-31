@@ -1,0 +1,103 @@
+REF CP4 cell_changes=[[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]]
+REF CP4 party=[{"slot": 1, "hp": 25, "max_hp": 28, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 0], [4, 2], [7, 0]], "money": 195}, {"slot": 2, "hp": 30, "max_hp": 31, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[5, 3], [6, 1], [7, 0]], "money": 40}, {"slot": 3, "hp": 25, "max_hp": 25, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2]], "money": 73}, {"slot": 4, "hp": 22, "max_hp": 26, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2], [9, 3]], "money": 63}, {"slot": 5, "hp": 27, "max_hp": 27, "level": 2, "xp": 214, "rank": "Hand", "skill_points": 0, "items": [[5, 3], [6, 2]], "money": 25}]
+REF CP5-pre-save cell_changes=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28]]
+REF CP5-pre-save party=[{"slot": 1, "hp": 28, "max_hp": 28, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 0], [4, 2], [7, 0], [8, 0]], "money": 91}, {"slot": 2, "hp": 31, "max_hp": 31, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[5, 3], [6, 2], [7, 0]], "money": 27}, {"slot": 3, "hp": 25, "max_hp": 25, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2]], "money": 73}, {"slot": 4, "hp": 26, "max_hp": 26, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2], [9, 3]], "money": 63}, {"slot": 5, "hp": 27, "max_hp": 27, "level": 2, "xp": 214, "rank": "Hand", "skill_points": 0, "items": [[5, 3], [6, 2]], "money": 25}]
+REF CP5 cell_changes=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28]]
+REF CP5 party=[{"slot": 1, "hp": 28, "max_hp": 28, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 0], [4, 2], [7, 0], [8, 0]], "money": 91}, {"slot": 2, "hp": 31, "max_hp": 31, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[5, 3], [6, 2], [7, 0]], "money": 27}, {"slot": 3, "hp": 25, "max_hp": 25, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2]], "money": 73}, {"slot": 4, "hp": 26, "max_hp": 26, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2], [9, 3]], "money": 63}, {"slot": 5, "hp": 27, "max_hp": 27, "level": 2, "xp": 214, "rank": "Hand", "skill_points": 0, "items": [[5, 3], [6, 2]], "money": 25}]
+REF CP6 cell_changes=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29]]
+REF CP6 party=[{"slot": 1, "hp": 28, "max_hp": 28, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 0], [4, 2], [7, 0], [8, 0], [11, 0]], "money": 91}, {"slot": 2, "hp": 31, "max_hp": 31, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[5, 3], [6, 2], [7, 0]], "money": 27}, {"slot": 3, "hp": 25, "max_hp": 25, "level": 2, "xp": 114, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2]], "money": 73}, {"slot": 4, "hp": 26, "max_hp": 26, "level": 2, "xp": 104, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2], [9, 3]], "money": 63}, {"slot": 5, "hp": 27, "max_hp": 27, "level": 2, "xp": 214, "rank": "Hand", "skill_points": 0, "items": [[5, 3], [6, 2]], "money": 25}]
+
+--- ref cell_change events ---
+{"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 282, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 284, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+{"seq": 289, "type": "cell_change", "location": 0, "x": 31, "y": 41, "action_class": 0, "action": 0, "image": 22}
+{"seq": 522, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+{"seq": 523, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+{"seq": 528, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+{"seq": 534, "type": "cell_change", "location": 2, "x": 26, "y": 12, "action_class": 0, "action": 0, "image": 27}
+{"seq": 540, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+{"seq": 566, "type": "cell_change", "location": 2, "x": 18, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 790, "type": "cell_change", "location": 3, "x": 9, "y": 6, "action_class": 5, "action": 1, "image": 37}
+{"seq": 792, "type": "cell_change", "location": 3, "x": 9, "y": 6, "action_class": 0, "action": 0, "image": 37}
+{"seq": 811, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39}
+{"seq": 812, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+{"seq": 816, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+{"seq": 834, "type": "cell_change", "location": 3, "x": 21, "y": 4, "action_class": 0, "action": 0, "image": 37}
+{"seq": 851, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+
+--- ref events around seq 120..135 ---
+{"seq": 118, "type": "input", "key": "DOWN"}
+{"seq": 119, "type": "move", "location": 1, "x": 7, "y": 16, "steps": 36}
+{"seq": 120, "type": "input", "key": "DOWN"}
+{"seq": 121, "type": "move", "location": 1, "x": 7, "y": 17, "steps": 37}
+{"seq": 122, "type": "input", "key": "DOWN"}
+{"seq": 123, "type": "move", "location": 1, "x": 7, "y": 18, "steps": 38}
+{"seq": 124, "type": "input", "key": "RIGHT"}
+{"seq": 125, "type": "move", "location": 1, "x": 8, "y": 18, "steps": 39}
+{"seq": 126, "type": "input", "key": "UP"}
+{"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+{"seq": 128, "type": "paragraph", "n": 6}
+{"seq": 129, "type": "prompt", "prompt": "recruit"}
+{"seq": 130, "type": "input", "key": "Y"}
+{"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 132, "type": "recruit", "location": 1, "npc": 0, "slot": 5}
+{"seq": 133, "type": "checkpoint", "name": "CP3", "state": {"location": 1, "x": 8, "y": 18, "steps": 39, "day": 1, "hour": 8, "minute": 39, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, 
+{"seq": 134, "type": "input", "key": "RIGHT"}
+{"seq": 135, "type": "move", "location": 1, "x": 9, "y": 18, "steps": 40}
+{"seq": 136, "type": "input", "key": "RIGHT"}
+{"seq": 137, "type": "move", "location": 1, "x": 10, "y": 18, "steps": 41}
+{"seq": 138, "type": "input", "key": "RIGHT"}
+{"seq": 139, "type": "move", "location": 1, "x": 11, "y": 18, "steps": 42}
+
+--- ref events around seq 495..530 ---
+{"seq": 495, "type": "move", "location": 2, "x": 23, "y": 15, "steps": 159}
+{"seq": 496, "type": "input", "key": "RIGHT"}
+{"seq": 497, "type": "move", "location": 2, "x": 24, "y": 15, "steps": 160}
+{"seq": 498, "type": "input", "key": "RIGHT"}
+{"seq": 499, "type": "move", "location": 2, "x": 25, "y": 15, "steps": 161}
+{"seq": 500, "type": "input", "key": "RIGHT"}
+{"seq": 501, "type": "move", "location": 2, "x": 26, "y": 15, "steps": 162}
+{"seq": 502, "type": "input", "key": "UP"}
+{"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 504, "type": "message", "location": 2, "string": 7}
+{"seq": 505, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 69, "success": false}
+{"seq": 506, "type": "message", "location": 2, "string": 9}
+{"seq": 507, "type": "input", "key": "UP"}
+{"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 509, "type": "message", "location": 2, "string": 7}
+{"seq": 510, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+{"seq": 511, "type": "message", "location": 2, "string": 9}
+{"seq": 512, "type": "input", "key": "UP"}
+{"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 514, "type": "message", "location": 2, "string": 7}
+{"seq": 515, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+{"seq": 516, "type": "message", "location": 2, "string": 9}
+{"seq": 517, "type": "input", "key": "UP"}
+{"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 519, "type": "message", "location": 2, "string": 7}
+{"seq": 520, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 21, "success": true}
+{"seq": 521, "type": "unlock", "x": 26, "y": 14}
+{"seq": 522, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+{"seq": 523, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+{"seq": 524, "type": "xp", "member": 3, "delta": 10, "total": 114}
+{"seq": 525, "type": "paragraph", "n": 12}
+{"seq": 526, "type": "input", "key": "UP"}
+{"seq": 527, "type": "move", "location": 2, "x": 26, "y": 14, "steps": 163}
+{"seq": 528, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+{"seq": 529, "type": "input", "key": "UP"}
+
+--- ours ---
+OUR CP4 cell_changes=[[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]]
+OUR CP4 party=[{"slot": 1, "hp": 24, "max_hp": 28, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 130], [4, 2], [7, 0]], "money": 195}, {"slot": 2, "hp": 25, "max_hp": 31, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[5, 3], [6, 1], [7, 0]], "money": 40}, {"slot": 3, "hp": 21, "max_hp": 25, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 1], [4, 2]], "money": 73}, {"slot": 4, "hp": 15, "max_hp": 26, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 1], [4, 2], [9, 3]], "money": 63}, {"slot": 5, "hp": 27, "max_hp": 27, "level": 2, "xp": 214, "rank": "Hand", "skill_points": 0, "items": [[5, 3], [6, 2]], "money": 25}]
+OUR CP5-pre-save cell_changes=[[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]]
+OUR CP5-pre-save party=[{"slot": 1, "hp": 28, "max_hp": 28, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 130], [4, 2], [7, 0], [8, 0]], "money": 91}, {"slot": 2, "hp": 31, "max_hp": 31, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[5, 3], [6, 2], [7, 0]], "money": 27}, {"slot": 3, "hp": 25, "max_hp": 25, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 1], [4, 2]], "money": 73}, {"slot": 4, "hp": 26, "max_hp": 26, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 1], [4, 2], [9, 3]], "money": 63}, {"slot": 5, "hp": 27, "max_hp": 27, "level": 2, "xp": 214, "rank": "Hand", "skill_points": 0, "items": [[5, 3], [6, 2]], "money": 25}]
+OUR CP5 cell_changes=[[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]]
+OUR CP5 party=[{"slot": 1, "hp": 28, "max_hp": 28, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 130], [4, 2], [7, 0], [8, 0]], "money": 91}, {"slot": 2, "hp": 31, "max_hp": 31, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[5, 3], [6, 2], [7, 0]], "money": 27}, {"slot": 3, "hp": 25, "max_hp": 25, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 1], [4, 2]], "money": 73}, {"slot": 4, "hp": 26, "max_hp": 26, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 1], [4, 2], [9, 3]], "money": 63}, {"slot": 5, "hp": 27, "max_hp": 27, "level": 2, "xp": 214, "rank": "Hand", "skill_points": 0, "items": [[5, 3], [6, 2]], "money": 25}]
+OUR CP5-pre-save cell_changes=[[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]]
+OUR CP5-pre-save party=[{"slot": 1, "hp": 28, "max_hp": 28, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 130], [4, 2], [7, 0], [8, 0]], "money": 91}, {"slot": 2, "hp": 31, "max_hp": 31, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[5, 3], [6, 2], [7, 0]], "money": 27}, {"slot": 3, "hp": 25, "max_hp": 25, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 1], [4, 2]], "money": 73}, {"slot": 4, "hp": 26, "max_hp": 26, "level": 2, "xp": 104, "rank": "Drifter", "skill_points": 0, "items": [[3, 1], [4, 2], [9, 3]], "money": 63}, {"slot": 5, "hp": 27, "max_hp": 27, "level": 2, "xp": 214, "rank": "Hand", "skill_points": 0, "items": [[5, 3], [6, 2]], "money": 25}]
+
+--- our cell_change events ---
+{"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 283, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 285, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}

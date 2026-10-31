@@ -1,0 +1,1314 @@
+=== headless.py 680-800 ===
+ 680     def cell_change(self, x, y, action_class, action, image):
+ 681         self.cell_changes.append([self.location, x, y, action_class, action,
+ 682                                   image])
+ 683         self.emit("cell_change", location=self.location, x=x, y=y,
+ 684                   action_class=action_class, action=action, image=image)
+ 685 
+ 686     # -- hooks -------------------------------------------------------------
+ 687 
+ 688     def run_hook(self, hook, nx, ny):
+ 689         kind = hook.get("kind")
+ 690         if kind == "win":
+ 691             self.hook_win(hook, nx, ny)
+ 692         elif kind == "recruit":
+ 693             self.hook_recruit(hook, nx, ny)
+ 694         elif kind == "healer":
+ 695             self.hook_healer(hook, nx, ny)
+ 696         elif kind == "lock":
+ 697             self.bump_lock(None, nx, ny)
+ 698 
+ 699     def hook_win(self, hook, nx, ny):
+ 700         item = hook.get("item")
+ 701         if item is not None and not self.party_has(item):
+ 702             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+ 703             if para:
+ 704                 self.emit("paragraph", n=para)
+ 705             return
+ 706         para = self.hook_get(hook, "win_paragraph", "win_para")
+ 707         if para:
+ 708             self.emit("paragraph", n=para)
+ 709         self.mode = "won"
+ 710         self.emit("win", steps=self.steps, day=self.day,
+ 711                   minutes=self.hour * 60 + self.minute)
+ 712 
+ 713     def hook_get(self, hook, *names):
+ 714         for name in names:
+ 715             if name in hook and hook[name] is not None:
+ 716                 return hook[name]
+ 717         return None
+ 718 
+ 719     def hook_recruit(self, hook, nx, ny):
+ 720         para = self.hook_get(hook, "paragraph")
+ 721         if para:
+ 722             self.emit("paragraph", n=para)
+ 723         self.pending = "recruit"
+ 724         self.pending_hook = hook
+ 725         self.pending_cell = (nx, ny)
+ 726         self.emit("prompt", prompt="recruit")
+ 727 
+ 728     def hook_healer(self, hook, nx, ny):
+ 729         self.pending = "heal"
+ 730         self.pending_hook = hook
+ 731         self.pending_cell = (nx, ny)
+ 732         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+ 733 
+ 734     # -- locks -------------------------------------------------------------
+ 735 
+ 736     def bump_lock(self, rec, nx, ny):
+ 737         hook = self.sc.hook(self.location, nx, ny)
+ 738         if hook is None:
+ 739             return
+ 740         key_item = hook.get("key_item")
+ 741         if key_item is not None:
+ 742             member = self.member_with_item(key_item)
+ 743             if member is not None:
+ 744                 self.emit("key_used", member=member, item=key_item)
+ 745                 self.unlock(nx, ny, hook, member, xp=0)
+ 746                 return
+ 747         member = self.pick_member(hook.get("skill", 0))
+ 748         skill = hook.get("skill", 0)
+ 749         level = self.skill_level(self.party[member - 1], skill)
+ 750         attr = self.attr_value(self.party[member - 1], skill)
+ 751         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+ 752                                 bool(hook.get("tool_item")))
+ 753         roll = self.rng.d100()
+ 754         success = roll <= need
+ 755         self.emit("check", member=member, skill=skill, level=level, need=need,
+ 756                   roll=roll, success=success)
+ 757         if success:
+ 758             self.unlock(nx, ny, hook, member)
+ 759         else:
+ 760             self.emit("message", location=self.location,
+ 761                       string=hook.get("fail_message", ""))
+ 762 
+ 763     def unlock(self, nx, ny, hook, member, xp=10):
+ 764         self.emit("unlock", x=nx, y=ny)
+ 765         m = self.sc.map(self.location)
+ 766         rec = maps.record_at(m, nx, ny)
+ 767         img = maps.image_at(m, nx, ny)
+ 768         tail = maps.apply_tail(rec) if rec is not None else None
+ 769         if tail is None:
+ 770             tail = (0, 0)
+ 771         m["cells"]["actionClass"][ny][nx] = tail[0]
+ 772         m["cells"]["action"][ny][nx] = tail[1]
+ 773         self.cell_change(nx, ny, tail[0], tail[1], img)
+ 774         newimg = img
+ 775         newrec = maps.record_at(m, nx, ny)
+ 776         if newrec is not None and "tile" in newrec:
+ 777             newimg = newrec["tile"]
+ 778             m["cells"]["image"][ny][nx] = newimg
+ 779         self.cell_change(nx, ny, tail[0], tail[1], newimg)
+ 780         if xp:
+ 781             mm = self.party[member - 1]
+ 782             mm["xp"] = mm.get("xp", 0) + xp
+ 783             self.emit("xp", member=member, delta=xp, total=mm["xp"])
+ 784         para = self.hook_get(hook, "paragraph", "success_paragraph")
+ 785         if para:
+ 786             self.emit("paragraph", n=para)
+ 787 
+ 788     def member_with_item(self, item):
+ 789         for i, m in enumerate(self.party):
+ 790             for it in m.get("items", []):
+ 791                 if it[0] == item and it[1] > 0:
+ 792                     return i + 1
+ 793         return None
+ 794 
+ 795     def pick_member(self, skill):
+ 796         idx = self.skill_attribute(skill)
+ 797         best = 1
+ 798         best_key = None
+ 799         for i, m in enumerate(self.party):
+ 800             if m.get("cond", 0) != 0:
+=== hooks ===
+{"difficulty": 30, "fail_message": 9, "key_item": 0, "kind": "lock", "location": 2, "note": "Lock: storehouse door, Tumblers 30", "remote": null, "skill": 14, "success_message": 8, "tool_item": 0, "x": 26, "y": 14}
+{"difficulty": 25, "fail_message": 12, "key_item": 0, "kind": "lock", "location": 0, "note": "Lock: ford, Fording 25", "remote": null, "skill": 17, "success_message": 11, "tool_item": 0, "x": 31, "y": 55}
+{"difficulty": 30, "fail_message": 9, "key_item": 0, "kind": "lock", "location": 3, "note": "Lock: console, Terminals 30; opens the cage gate (14,12)", "remote": {"new_action": 1, "new_class": 4, "x": 14, "y": 12}, "skill": 29, "success_message": 8, "tool_item": 0, "x": 26, "y": 11}
+{"difficulty": 60, "fail_message": 12, "key_item": 11, "kind": "lock", "location": 3, "note": "Lock: vault gate, key Gate card or Circuitry 60", "remote": null, "skill": 23, "success_message": 11, "tool_item": 0, "x": 16, "y": 6}
+{"difficulty": 35, "fail_message": 15, "key_item": 0, "kind": "lock", "location": 3, "note": "Lock: rubble, Scaling 35, tool Rope coil", "remote": null, "skill": 16, "success_message": 14, "tool_item": 10, "x": 4, "y": 20}
+{"cleared_image": 28, "kind": "recruit", "location": 1, "min_leader_cha": 0, "note": "NPC 0 of Saltwell: Orla Penn", "npc": 0, "refuse_message": 7, "x": 8, "y": 17}
+{"cleared_image": 28, "kind": "recruit", "location": 2, "min_leader_cha": 10, "note": "NPC 0 of Ninemile: Teodor Lusk", "npc": 0, "refuse_message": 11, "x": 18, "y": 17}
+{"cleared_image": 27, "kind": "recruit", "location": 2, "min_leader_cha": 17, "note": "NPC 1 of Ninemile: Wren Abara (leader CHA 17)", "npc": 1, "refuse_message": 13, "x": 20, "y": 4}
+{"cleared_image": 37, "kind": "recruit", "location": 3, "min_leader_cha": 0, "note": "NPC 0 of Pumphouse Deep: Sallow Kett", "npc": 0, "refuse_message": 17, "x": 14, "y": 14}
+{"kind": "healer", "location": 1, "note": "Saltwell healer, 30 coins", "price": 30, "x": 22, "y": 4}
+{"kind": "healer", "location": 2, "note": "Ninemile healer, 40 coins", "price": 40, "x": 25, "y": 21}
+{"item": 12, "kind": "win", "location": 1, "not_yet_paragraph": 4, "note": "Fit the Governor valve", "win_paragraph": 24, "x": 15, "y": 11}
+=== reference events 495-535 ===
+ 495 IN RIGHT
+ 496 {"seq": 495, "type": "move", "location": 2, "x": 23, "y": 15, "steps": 159}
+ 497 IN RIGHT
+ 498 {"seq": 497, "type": "move", "location": 2, "x": 24, "y": 15, "steps": 160}
+ 499 IN RIGHT
+ 500 {"seq": 499, "type": "move", "location": 2, "x": 25, "y": 15, "steps": 161}
+ 501 IN RIGHT
+ 502 {"seq": 501, "type": "move", "location": 2, "x": 26, "y": 15, "steps": 162}
+ 503 IN UP
+ 504 {"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 505 {"seq": 504, "type": "message", "location": 2, "string": 7}
+ 506 {"seq": 505, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 69, "success": false}
+ 507 {"seq": 506, "type": "message", "location": 2, "string": 9}
+ 508 IN UP
+ 509 {"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 510 {"seq": 509, "type": "message", "location": 2, "string": 7}
+ 511 {"seq": 510, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+ 512 {"seq": 511, "type": "message", "location": 2, "string": 9}
+ 513 IN UP
+ 514 {"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 515 {"seq": 514, "type": "message", "location": 2, "string": 7}
+ 516 {"seq": 515, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+ 517 {"seq": 516, "type": "message", "location": 2, "string": 9}
+ 518 IN UP
+ 519 {"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+ 520 {"seq": 519, "type": "message", "location": 2, "string": 7}
+ 521 {"seq": 520, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 21, "success": true}
+ 522 {"seq": 521, "type": "unlock", "x": 26, "y": 14}
+ 523 {"seq": 522, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+ 524 {"seq": 523, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+ 525 {"seq": 524, "type": "xp", "member": 3, "delta": 10, "total": 114}
+ 526 {"seq": 525, "type": "paragraph", "n": 12}
+ 527 IN UP
+ 528 {"seq": 527, "type": "move", "location": 2, "x": 26, "y": 14, "steps": 163}
+ 529 {"seq": 528, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+ 530 IN UP
+ 531 {"seq": 530, "type": "move", "location": 2, "x": 26, "y": 13, "steps": 164}
+ 532 IN UP
+ 533 {"seq": 532, "type": "move", "location": 2, "x": 26, "y": 12, "steps": 165}
+ 534 {"seq": 533, "type": "item_gain", "member": 1, "item": 11, "slot": 5, "status": 0}
+ 535 {"seq": 534, "type": "cell_change", "location": 2, "x": 26, "y": 12, "action_class": 0, "action": 0, "image": 27}
+=== reference events 800-820 ===
+ 800 {"seq": 799, "type": "move", "location": 3, "x": 12, "y": 6, "steps": 262}
+ 801 IN RIGHT
+ 802 {"seq": 801, "type": "move", "location": 3, "x": 13, "y": 6, "steps": 263}
+ 803 IN RIGHT
+ 804 {"seq": 803, "type": "move", "location": 3, "x": 14, "y": 6, "steps": 264}
+ 805 IN RIGHT
+ 806 {"seq": 805, "type": "move", "location": 3, "x": 15, "y": 6, "steps": 265}
+ 807 IN RIGHT
+ 808 {"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+ 809 {"seq": 808, "type": "message", "location": 3, "string": 10}
+ 810 {"seq": 809, "type": "key_used", "member": 1, "item": 11}
+ 811 {"seq": 810, "type": "unlock", "x": 16, "y": 6}
+ 812 {"seq": 811, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39}
+ 813 {"seq": 812, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+ 814 {"seq": 813, "type": "paragraph", "n": 21}
+ 815 IN RIGHT
+ 816 {"seq": 815, "type": "move", "location": 3, "x": 16, "y": 6, "steps": 266}
+ 817 {"seq": 816, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+ 818 IN RIGHT
+ 819 {"seq": 818, "type": "move", "location": 3, "x": 17, "y": 6, "steps": 267}
+ 820 {"seq": 819, "type": "paragraph", "n": 22}
+=== map 1 size 32 ===
+loc 1 (0,0) cls 11 action 0 rec None
+loc 1 (1,0) cls 11 action 0 rec None
+loc 1 (2,0) cls 11 action 0 rec None
+loc 1 (3,0) cls 11 action 0 rec None
+loc 1 (4,0) cls 11 action 0 rec None
+loc 1 (5,0) cls 11 action 0 rec None
+loc 1 (6,0) cls 11 action 0 rec None
+loc 1 (7,0) cls 11 action 0 rec None
+loc 1 (8,0) cls 11 action 0 rec None
+loc 1 (9,0) cls 11 action 0 rec None
+loc 1 (10,0) cls 11 action 0 rec None
+loc 1 (11,0) cls 11 action 0 rec None
+loc 1 (12,0) cls 11 action 0 rec None
+loc 1 (13,0) cls 11 action 0 rec None
+loc 1 (14,0) cls 11 action 0 rec None
+loc 1 (15,0) cls 11 action 0 rec None
+loc 1 (16,0) cls 11 action 0 rec None
+loc 1 (17,0) cls 11 action 0 rec None
+loc 1 (18,0) cls 11 action 0 rec None
+loc 1 (19,0) cls 11 action 0 rec None
+loc 1 (20,0) cls 11 action 0 rec None
+loc 1 (21,0) cls 11 action 0 rec None
+loc 1 (22,0) cls 11 action 0 rec None
+loc 1 (23,0) cls 11 action 0 rec None
+loc 1 (24,0) cls 11 action 0 rec None
+loc 1 (25,0) cls 11 action 0 rec None
+loc 1 (26,0) cls 11 action 0 rec None
+loc 1 (27,0) cls 11 action 0 rec None
+loc 1 (28,0) cls 11 action 0 rec None
+loc 1 (29,0) cls 11 action 0 rec None
+loc 1 (30,0) cls 11 action 0 rec None
+loc 1 (31,0) cls 11 action 0 rec None
+loc 1 (0,1) cls 11 action 0 rec None
+loc 1 (31,1) cls 11 action 0 rec None
+loc 1 (0,2) cls 11 action 0 rec None
+loc 1 (2,2) cls 11 action 0 rec None
+loc 1 (3,2) cls 11 action 0 rec None
+loc 1 (4,2) cls 11 action 0 rec None
+loc 1 (5,2) cls 11 action 0 rec None
+loc 1 (6,2) cls 11 action 0 rec None
+loc 1 (7,2) cls 11 action 0 rec None
+loc 1 (8,2) cls 11 action 0 rec None
+loc 1 (9,2) cls 11 action 0 rec None
+loc 1 (10,2) cls 11 action 0 rec None
+loc 1 (17,2) cls 11 action 0 rec None
+loc 1 (18,2) cls 11 action 0 rec None
+loc 1 (19,2) cls 11 action 0 rec None
+loc 1 (20,2) cls 11 action 0 rec None
+loc 1 (21,2) cls 11 action 0 rec None
+loc 1 (22,2) cls 11 action 0 rec None
+loc 1 (23,2) cls 11 action 0 rec None
+loc 1 (24,2) cls 11 action 0 rec None
+loc 1 (25,2) cls 11 action 0 rec None
+loc 1 (26,2) cls 11 action 0 rec None
+loc 1 (27,2) cls 11 action 0 rec None
+loc 1 (28,2) cls 11 action 0 rec None
+loc 1 (29,2) cls 11 action 0 rec None
+loc 1 (31,2) cls 11 action 0 rec None
+loc 1 (0,3) cls 11 action 0 rec None
+loc 1 (2,3) cls 11 action 0 rec None
+loc 1 (10,3) cls 11 action 0 rec None
+loc 1 (17,3) cls 11 action 0 rec None
+loc 1 (29,3) cls 11 action 0 rec None
+loc 1 (31,3) cls 11 action 0 rec None
+loc 1 (0,4) cls 11 action 0 rec None
+loc 1 (2,4) cls 11 action 0 rec None
+loc 1 (5,4) cls 11 action 0 rec None
+loc 1 (6,4) cls 11 action 0 rec None
+loc 1 (7,4) cls 11 action 0 rec None
+loc 1 (10,4) cls 11 action 0 rec None
+loc 1 (17,4) cls 11 action 0 rec None
+loc 1 (22,4) cls 11 action 0 rec None
+loc 1 (29,4) cls 11 action 0 rec None
+loc 1 (31,4) cls 11 action 0 rec None
+loc 1 (0,5) cls 11 action 0 rec None
+loc 1 (2,5) cls 11 action 0 rec None
+loc 1 (10,5) cls 11 action 0 rec None
+loc 1 (17,5) cls 11 action 0 rec None
+loc 1 (29,5) cls 11 action 0 rec None
+loc 1 (31,5) cls 11 action 0 rec None
+loc 1 (0,6) cls 11 action 0 rec None
+loc 1 (2,6) cls 11 action 0 rec None
+loc 1 (10,6) cls 11 action 0 rec None
+loc 1 (13,6) cls 11 action 0 rec None
+loc 1 (17,6) cls 11 action 0 rec None
+loc 1 (29,6) cls 11 action 0 rec None
+loc 1 (31,6) cls 11 action 0 rec None
+loc 1 (0,7) cls 11 action 0 rec None
+loc 1 (2,7) cls 11 action 0 rec None
+loc 1 (3,7) cls 11 action 0 rec None
+loc 1 (4,7) cls 11 action 0 rec None
+loc 1 (5,7) cls 11 action 0 rec None
+loc 1 (7,7) cls 11 action 0 rec None
+loc 1 (8,7) cls 11 action 0 rec None
+loc 1 (9,7) cls 11 action 0 rec None
+loc 1 (10,7) cls 11 action 0 rec None
+loc 1 (17,7) cls 11 action 0 rec None
+loc 1 (18,7) cls 11 action 0 rec None
+loc 1 (19,7) cls 11 action 0 rec None
+loc 1 (20,7) cls 11 action 0 rec None
+loc 1 (21,7) cls 11 action 0 rec None
+loc 1 (22,7) cls 11 action 0 rec None
+loc 1 (24,7) cls 11 action 0 rec None
+loc 1 (25,7) cls 11 action 0 rec None
+loc 1 (26,7) cls 11 action 0 rec None
+loc 1 (27,7) cls 11 action 0 rec None
+loc 1 (28,7) cls 11 action 0 rec None
+loc 1 (29,7) cls 11 action 0 rec None
+loc 1 (31,7) cls 11 action 0 rec None
+loc 1 (0,8) cls 11 action 0 rec None
+loc 1 (31,8) cls 11 action 0 rec None
+loc 1 (0,9) cls 11 action 0 rec None
+loc 1 (31,9) cls 11 action 0 rec None
+loc 1 (0,10) cls 11 action 0 rec None
+loc 1 (3,10) cls 11 action 0 rec None
+loc 1 (31,10) cls 11 action 0 rec None
+loc 1 (0,11) cls 11 action 0 rec None
+loc 1 (15,11) cls 11 action 0 rec None
+loc 1 (24,11) cls 11 action 0 rec None
+loc 1 (31,11) cls 11 action 0 rec None
+loc 1 (0,12) cls 11 action 0 rec None
+loc 1 (31,12) cls 11 action 0 rec None
+loc 1 (0,13) cls 11 action 0 rec None
+loc 1 (31,13) cls 11 action 0 rec None
+loc 1 (0,14) cls 11 action 0 rec None
+loc 1 (23,14) cls 11 action 0 rec None
+loc 1 (31,14) cls 11 action 0 rec None
+loc 1 (0,15) cls 11 action 0 rec None
+loc 1 (3,15) cls 11 action 0 rec None
+loc 1 (31,15) cls 11 action 0 rec None
+loc 1 (0,16) cls 11 action 0 rec None
+loc 1 (31,16) cls 11 action 0 rec None
+loc 1 (0,17) cls 11 action 0 rec None
+loc 1 (8,17) cls 11 action 1 rec {'message': 6, 'newClass': 255, 'newAction': 0}
+loc 1 (31,17) cls 11 action 0 rec None
+loc 1 (0,18) cls 11 action 0 rec None
+loc 1 (31,18) cls 11 action 0 rec None
+loc 1 (0,19) cls 11 action 0 rec None
+loc 1 (23,19) cls 11 action 0 rec None
+loc 1 (31,19) cls 11 action 0 rec None
+loc 1 (0,20) cls 11 action 0 rec None
+loc 1 (3,20) cls 11 action 0 rec None
+loc 1 (31,20) cls 11 action 0 rec None
+loc 1 (0,21) cls 11 action 0 rec None
+loc 1 (26,21) cls 11 action 0 rec None
+loc 1 (31,21) cls 11 action 0 rec None
+loc 1 (0,22) cls 11 action 0 rec None
+loc 1 (31,22) cls 11 action 0 rec None
+loc 1 (0,23) cls 11 action 0 rec None
+loc 1 (6,23) cls 11 action 0 rec None
+loc 1 (31,23) cls 11 action 0 rec None
+loc 1 (0,24) cls 11 action 0 rec None
+loc 1 (31,24) cls 11 action 0 rec None
+loc 1 (0,25) cls 11 action 0 rec None
+loc 1 (25,25) cls 11 action 0 rec None
+loc 1 (31,25) cls 11 action 0 rec None
+loc 1 (0,26) cls 11 action 0 rec None
+loc 1 (31,26) cls 11 action 0 rec None
+loc 1 (0,27) cls 11 action 0 rec None
+loc 1 (3,27) cls 11 action 0 rec None
+loc 1 (31,27) cls 11 action 0 rec None
+loc 1 (0,28) cls 11 action 0 rec None
+loc 1 (31,28) cls 11 action 0 rec None
+loc 1 (0,29) cls 11 action 0 rec None
+loc 1 (31,29) cls 11 action 0 rec None
+loc 1 (0,30) cls 11 action 0 rec None
+loc 1 (31,30) cls 11 action 0 rec None
+loc 1 (0,31) cls 11 action 0 rec None
+loc 1 (1,31) cls 11 action 0 rec None
+loc 1 (2,31) cls 11 action 0 rec None
+loc 1 (3,31) cls 11 action 0 rec None
+loc 1 (4,31) cls 11 action 0 rec None
+loc 1 (5,31) cls 11 action 0 rec None
+loc 1 (6,31) cls 11 action 0 rec None
+loc 1 (7,31) cls 11 action 0 rec None
+loc 1 (8,31) cls 11 action 0 rec None
+loc 1 (9,31) cls 11 action 0 rec None
+loc 1 (10,31) cls 11 action 0 rec None
+loc 1 (11,31) cls 11 action 0 rec None
+loc 1 (12,31) cls 11 action 0 rec None
+loc 1 (13,31) cls 11 action 0 rec None
+loc 1 (14,31) cls 11 action 0 rec None
+loc 1 (17,31) cls 11 action 0 rec None
+loc 1 (18,31) cls 11 action 0 rec None
+loc 1 (19,31) cls 11 action 0 rec None
+loc 1 (20,31) cls 11 action 0 rec None
+loc 1 (21,31) cls 11 action 0 rec None
+loc 1 (22,31) cls 11 action 0 rec None
+loc 1 (23,31) cls 11 action 0 rec None
+loc 1 (24,31) cls 11 action 0 rec None
+loc 1 (25,31) cls 11 action 0 rec None
+loc 1 (26,31) cls 11 action 0 rec None
+loc 1 (27,31) cls 11 action 0 rec None
+loc 1 (28,31) cls 11 action 0 rec None
+loc 1 (29,31) cls 11 action 0 rec None
+loc 1 (30,31) cls 11 action 0 rec None
+loc 1 (31,31) cls 11 action 0 rec None
+=== map 3 size 32 ===
+loc 3 (0,0) cls 11 action 0 rec None
+loc 3 (1,0) cls 11 action 0 rec None
+loc 3 (2,0) cls 11 action 0 rec None
+loc 3 (3,0) cls 11 action 0 rec None
+loc 3 (4,0) cls 11 action 0 rec None
+loc 3 (5,0) cls 11 action 0 rec None
+loc 3 (6,0) cls 11 action 0 rec None
+loc 3 (7,0) cls 11 action 0 rec None
+loc 3 (8,0) cls 11 action 0 rec None
+loc 3 (9,0) cls 11 action 0 rec None
+loc 3 (10,0) cls 11 action 0 rec None
+loc 3 (11,0) cls 11 action 0 rec None
+loc 3 (12,0) cls 11 action 0 rec None
+loc 3 (13,0) cls 11 action 0 rec None
+loc 3 (14,0) cls 11 action 0 rec None
+loc 3 (15,0) cls 11 action 0 rec None
+loc 3 (16,0) cls 11 action 0 rec None
+loc 3 (17,0) cls 11 action 0 rec None
+loc 3 (18,0) cls 11 action 0 rec None
+loc 3 (19,0) cls 11 action 0 rec None
+loc 3 (20,0) cls 11 action 0 rec None
+loc 3 (21,0) cls 11 action 0 rec None
+loc 3 (22,0) cls 11 action 0 rec None
+loc 3 (23,0) cls 11 action 0 rec None
+loc 3 (24,0) cls 11 action 0 rec None
+loc 3 (25,0) cls 11 action 0 rec None
+loc 3 (26,0) cls 11 action 0 rec None
+loc 3 (27,0) cls 11 action 0 rec None
+loc 3 (28,0) cls 11 action 0 rec None
+loc 3 (29,0) cls 11 action 0 rec None
+loc 3 (30,0) cls 11 action 0 rec None
+loc 3 (31,0) cls 11 action 0 rec None
+loc 3 (0,1) cls 11 action 0 rec None
+loc 3 (1,1) cls 11 action 0 rec None
+loc 3 (2,1) cls 11 action 0 rec None
+loc 3 (4,1) cls 11 action 0 rec None
+loc 3 (5,1) cls 11 action 0 rec None
+loc 3 (6,1) cls 11 action 0 rec None
+loc 3 (7,1) cls 11 action 0 rec None
+loc 3 (8,1) cls 11 action 0 rec None
+loc 3 (9,1) cls 11 action 0 rec None
+loc 3 (10,1) cls 11 action 0 rec None
+loc 3 (11,1) cls 11 action 0 rec None
+loc 3 (12,1) cls 11 action 0 rec None
+loc 3 (13,1) cls 11 action 0 rec None
+loc 3 (14,1) cls 11 action 0 rec None
+loc 3 (15,1) cls 11 action 0 rec None
+loc 3 (16,1) cls 11 action 0 rec None
+loc 3 (17,1) cls 11 action 0 rec None
+loc 3 (18,1) cls 11 action 0 rec None
+loc 3 (19,1) cls 11 action 0 rec None
+loc 3 (20,1) cls 11 action 0 rec None
+loc 3 (21,1) cls 11 action 0 rec None
+loc 3 (22,1) cls 11 action 0 rec None
+loc 3 (23,1) cls 11 action 0 rec None
+loc 3 (24,1) cls 11 action 0 rec None
+loc 3 (25,1) cls 11 action 0 rec None
+loc 3 (26,1) cls 11 action 0 rec None
+loc 3 (27,1) cls 11 action 0 rec None
+loc 3 (28,1) cls 11 action 0 rec None
+loc 3 (29,1) cls 11 action 0 rec None
+loc 3 (30,1) cls 11 action 0 rec None
+loc 3 (31,1) cls 11 action 0 rec None
+loc 3 (0,2) cls 11 action 0 rec None
+loc 3 (1,2) cls 11 action 0 rec None
+loc 3 (2,2) cls 11 action 0 rec None
+loc 3 (4,2) cls 11 action 0 rec None
+loc 3 (5,2) cls 11 action 0 rec None
+loc 3 (6,2) cls 11 action 0 rec None
+loc 3 (7,2) cls 11 action 0 rec None
+loc 3 (8,2) cls 11 action 0 rec None
+loc 3 (9,2) cls 11 action 0 rec None
+loc 3 (10,2) cls 11 action 0 rec None
+loc 3 (11,2) cls 11 action 0 rec None
+loc 3 (12,2) cls 11 action 0 rec None
+loc 3 (13,2) cls 11 action 0 rec None
+loc 3 (14,2) cls 11 action 0 rec None
+loc 3 (15,2) cls 11 action 0 rec None
+loc 3 (16,2) cls 11 action 0 rec None
+loc 3 (17,2) cls 11 action 0 rec None
+loc 3 (18,2) cls 11 action 0 rec None
+loc 3 (19,2) cls 11 action 0 rec None
+loc 3 (20,2) cls 11 action 0 rec None
+loc 3 (21,2) cls 11 action 0 rec None
+loc 3 (22,2) cls 11 action 0 rec None
+loc 3 (23,2) cls 11 action 0 rec None
+loc 3 (24,2) cls 11 action 0 rec None
+loc 3 (25,2) cls 11 action 0 rec None
+loc 3 (26,2) cls 11 action 0 rec None
+loc 3 (27,2) cls 11 action 0 rec None
+loc 3 (28,2) cls 11 action 0 rec None
+loc 3 (29,2) cls 11 action 0 rec None
+loc 3 (30,2) cls 11 action 0 rec None
+loc 3 (31,2) cls 11 action 0 rec None
+loc 3 (0,3) cls 11 action 0 rec None
+loc 3 (1,3) cls 11 action 0 rec None
+loc 3 (2,3) cls 11 action 0 rec None
+loc 3 (4,3) cls 11 action 0 rec None
+loc 3 (5,3) cls 11 action 0 rec None
+loc 3 (6,3) cls 11 action 0 rec None
+loc 3 (7,3) cls 11 action 0 rec None
+loc 3 (8,3) cls 11 action 0 rec None
+loc 3 (9,3) cls 11 action 0 rec None
+loc 3 (10,3) cls 11 action 0 rec None
+loc 3 (11,3) cls 11 action 0 rec None
+loc 3 (12,3) cls 11 action 0 rec None
+loc 3 (13,3) cls 11 action 0 rec None
+loc 3 (14,3) cls 11 action 0 rec None
+loc 3 (15,3) cls 11 action 0 rec None
+loc 3 (16,3) cls 11 action 0 rec None
+loc 3 (17,3) cls 11 action 0 rec None
+loc 3 (18,3) cls 11 action 0 rec None
+loc 3 (19,3) cls 11 action 0 rec None
+loc 3 (20,3) cls 11 action 0 rec None
+loc 3 (21,3) cls 11 action 0 rec None
+loc 3 (22,3) cls 11 action 0 rec None
+loc 3 (23,3) cls 11 action 0 rec None
+loc 3 (24,3) cls 11 action 0 rec None
+loc 3 (25,3) cls 11 action 0 rec None
+loc 3 (26,3) cls 11 action 0 rec None
+loc 3 (27,3) cls 11 action 0 rec None
+loc 3 (28,3) cls 11 action 0 rec None
+loc 3 (29,3) cls 11 action 0 rec None
+loc 3 (30,3) cls 11 action 0 rec None
+loc 3 (31,3) cls 11 action 0 rec None
+loc 3 (0,4) cls 11 action 0 rec None
+loc 3 (1,4) cls 11 action 0 rec None
+loc 3 (2,4) cls 11 action 0 rec None
+loc 3 (4,4) cls 11 action 0 rec None
+loc 3 (5,4) cls 11 action 0 rec None
+loc 3 (6,4) cls 11 action 0 rec None
+loc 3 (7,4) cls 11 action 0 rec None
+loc 3 (8,4) cls 11 action 0 rec None
+loc 3 (9,4) cls 11 action 0 rec None
+loc 3 (10,4) cls 11 action 0 rec None
+loc 3 (11,4) cls 11 action 0 rec None
+loc 3 (12,4) cls 11 action 0 rec None
+loc 3 (13,4) cls 11 action 0 rec None
+loc 3 (14,4) cls 11 action 0 rec None
+loc 3 (15,4) cls 11 action 0 rec None
+loc 3 (16,4) cls 11 action 0 rec None
+loc 3 (23,4) cls 11 action 0 rec None
+loc 3 (24,4) cls 11 action 0 rec None
+loc 3 (25,4) cls 11 action 0 rec None
+loc 3 (26,4) cls 11 action 0 rec None
+loc 3 (27,4) cls 11 action 0 rec None
+loc 3 (28,4) cls 11 action 0 rec None
+loc 3 (29,4) cls 11 action 0 rec None
+loc 3 (30,4) cls 11 action 0 rec None
+loc 3 (31,4) cls 11 action 0 rec None
+loc 3 (0,5) cls 11 action 0 rec None
+loc 3 (1,5) cls 11 action 0 rec None
+loc 3 (2,5) cls 11 action 0 rec None
+loc 3 (4,5) cls 11 action 0 rec None
+loc 3 (5,5) cls 11 action 0 rec None
+loc 3 (6,5) cls 11 action 0 rec None
+loc 3 (7,5) cls 11 action 0 rec None
+loc 3 (8,5) cls 11 action 0 rec None
+loc 3 (9,5) cls 11 action 0 rec None
+loc 3 (10,5) cls 11 action 0 rec None
+loc 3 (11,5) cls 11 action 0 rec None
+loc 3 (12,5) cls 11 action 0 rec None
+loc 3 (13,5) cls 11 action 0 rec None
+loc 3 (14,5) cls 11 action 0 rec None
+loc 3 (15,5) cls 11 action 0 rec None
+loc 3 (16,5) cls 11 action 0 rec None
+loc 3 (23,5) cls 11 action 0 rec None
+loc 3 (24,5) cls 11 action 0 rec None
+loc 3 (25,5) cls 11 action 0 rec None
+loc 3 (26,5) cls 11 action 0 rec None
+loc 3 (27,5) cls 11 action 0 rec None
+loc 3 (28,5) cls 11 action 0 rec None
+loc 3 (29,5) cls 11 action 0 rec None
+loc 3 (30,5) cls 11 action 0 rec None
+loc 3 (31,5) cls 11 action 0 rec None
+loc 3 (0,6) cls 11 action 0 rec None
+loc 3 (1,6) cls 11 action 0 rec None
+loc 3 (2,6) cls 11 action 0 rec None
+loc 3 (16,6) cls 4 action 5 rec {'message': 10, 'impassable': True, 'tile': 39, 'newClass': 4, 'newAction': 4}
+loc 3 (19,6) cls 11 action 0 rec None
+loc 3 (23,6) cls 11 action 0 rec None
+loc 3 (24,6) cls 11 action 0 rec None
+loc 3 (25,6) cls 11 action 0 rec None
+loc 3 (26,6) cls 11 action 0 rec None
+loc 3 (27,6) cls 11 action 0 rec None
+loc 3 (28,6) cls 11 action 0 rec None
+loc 3 (29,6) cls 11 action 0 rec None
+loc 3 (30,6) cls 11 action 0 rec None
+loc 3 (31,6) cls 11 action 0 rec None
+loc 3 (0,7) cls 11 action 0 rec None
+loc 3 (1,7) cls 11 action 0 rec None
+loc 3 (2,7) cls 11 action 0 rec None
+loc 3 (4,7) cls 11 action 0 rec None
+loc 3 (5,7) cls 11 action 0 rec None
+loc 3 (6,7) cls 11 action 0 rec None
+loc 3 (7,7) cls 11 action 0 rec None
+loc 3 (8,7) cls 11 action 0 rec None
+loc 3 (9,7) cls 11 action 0 rec None
+loc 3 (10,7) cls 11 action 0 rec None
+loc 3 (11,7) cls 11 action 0 rec None
+loc 3 (12,7) cls 11 action 0 rec None
+loc 3 (13,7) cls 11 action 0 rec None
+loc 3 (14,7) cls 11 action 0 rec None
+loc 3 (15,7) cls 11 action 0 rec None
+loc 3 (16,7) cls 11 action 0 rec None
+loc 3 (23,7) cls 11 action 0 rec None
+loc 3 (24,7) cls 11 action 0 rec None
+loc 3 (25,7) cls 11 action 0 rec None
+loc 3 (26,7) cls 11 action 0 rec None
+loc 3 (27,7) cls 11 action 0 rec None
+loc 3 (28,7) cls 11 action 0 rec None
+loc 3 (29,7) cls 11 action 0 rec None
+loc 3 (30,7) cls 11 action 0 rec None
+loc 3 (31,7) cls 11 action 0 rec None
+loc 3 (0,8) cls 11 action 0 rec None
+loc 3 (1,8) cls 11 action 0 rec None
+loc 3 (2,8) cls 11 action 0 rec None
+loc 3 (4,8) cls 11 action 0 rec None
+loc 3 (5,8) cls 11 action 0 rec None
+loc 3 (6,8) cls 11 action 0 rec None
+loc 3 (7,8) cls 11 action 0 rec None
+loc 3 (8,8) cls 11 action 0 rec None
+loc 3 (9,8) cls 11 action 0 rec None
+loc 3 (10,8) cls 11 action 0 rec None
+loc 3 (11,8) cls 11 action 0 rec None
+loc 3 (12,8) cls 11 action 0 rec None
+loc 3 (13,8) cls 11 action 0 rec None
+loc 3 (14,8) cls 11 action 0 rec None
+loc 3 (15,8) cls 11 action 0 rec None
+loc 3 (16,8) cls 11 action 0 rec None
+loc 3 (23,8) cls 11 action 0 rec None
+loc 3 (24,8) cls 11 action 0 rec None
+loc 3 (25,8) cls 11 action 0 rec None
+loc 3 (26,8) cls 11 action 0 rec None
+loc 3 (27,8) cls 11 action 0 rec None
+loc 3 (28,8) cls 11 action 0 rec None
+loc 3 (29,8) cls 11 action 0 rec None
+loc 3 (30,8) cls 11 action 0 rec None
+loc 3 (31,8) cls 11 action 0 rec None
+loc 3 (0,9) cls 11 action 0 rec None
+loc 3 (1,9) cls 11 action 0 rec None
+loc 3 (2,9) cls 11 action 0 rec None
+loc 3 (4,9) cls 11 action 0 rec None
+loc 3 (5,9) cls 11 action 0 rec None
+loc 3 (6,9) cls 11 action 0 rec None
+loc 3 (7,9) cls 11 action 0 rec None
+loc 3 (8,9) cls 11 action 0 rec None
+loc 3 (9,9) cls 11 action 0 rec None
+loc 3 (10,9) cls 11 action 0 rec None
+loc 3 (11,9) cls 11 action 0 rec None
+loc 3 (12,9) cls 11 action 0 rec None
+loc 3 (13,9) cls 11 action 0 rec None
+loc 3 (14,9) cls 11 action 0 rec None
+loc 3 (15,9) cls 11 action 0 rec None
+loc 3 (16,9) cls 11 action 0 rec None
+loc 3 (17,9) cls 11 action 0 rec None
+loc 3 (18,9) cls 11 action 0 rec None
+loc 3 (19,9) cls 11 action 0 rec None
+loc 3 (20,9) cls 11 action 0 rec None
+loc 3 (21,9) cls 11 action 0 rec None
+loc 3 (22,9) cls 11 action 0 rec None
+loc 3 (23,9) cls 11 action 0 rec None
+loc 3 (24,9) cls 11 action 0 rec None
+loc 3 (25,9) cls 11 action 0 rec None
+loc 3 (26,9) cls 11 action 0 rec None
+loc 3 (27,9) cls 11 action 0 rec None
+loc 3 (28,9) cls 11 action 0 rec None
+loc 3 (29,9) cls 11 action 0 rec None
+loc 3 (30,9) cls 11 action 0 rec None
+loc 3 (31,9) cls 11 action 0 rec None
+loc 3 (0,10) cls 11 action 0 rec None
+loc 3 (1,10) cls 11 action 0 rec None
+loc 3 (2,10) cls 11 action 0 rec None
+loc 3 (4,10) cls 11 action 0 rec None
+loc 3 (5,10) cls 11 action 0 rec None
+loc 3 (6,10) cls 11 action 0 rec None
+loc 3 (7,10) cls 11 action 0 rec None
+loc 3 (8,10) cls 11 action 0 rec None
+loc 3 (9,10) cls 11 action 0 rec None
+loc 3 (10,10) cls 11 action 0 rec None
+loc 3 (11,10) cls 11 action 0 rec None
+loc 3 (12,10) cls 11 action 0 rec None
+loc 3 (13,10) cls 11 action 0 rec None
+loc 3 (14,10) cls 11 action 0 rec None
+loc 3 (15,10) cls 11 action 0 rec None
+loc 3 (16,10) cls 11 action 0 rec None
+loc 3 (17,10) cls 11 action 0 rec None
+loc 3 (18,10) cls 11 action 0 rec None
+loc 3 (19,10) cls 11 action 0 rec None
+loc 3 (20,10) cls 11 action 0 rec None
+loc 3 (21,10) cls 11 action 0 rec None
+loc 3 (22,10) cls 11 action 0 rec None
+loc 3 (23,10) cls 11 action 0 rec None
+loc 3 (24,10) cls 11 action 0 rec None
+loc 3 (25,10) cls 11 action 0 rec None
+loc 3 (26,10) cls 11 action 0 rec None
+loc 3 (27,10) cls 11 action 0 rec None
+loc 3 (28,10) cls 11 action 0 rec None
+loc 3 (29,10) cls 11 action 0 rec None
+loc 3 (30,10) cls 11 action 0 rec None
+loc 3 (31,10) cls 11 action 0 rec None
+loc 3 (0,11) cls 11 action 0 rec None
+loc 3 (1,11) cls 11 action 0 rec None
+loc 3 (2,11) cls 11 action 0 rec None
+loc 3 (26,11) cls 4 action 3 rec {'message': 7, 'impassable': True, 'tile': 40, 'newClass': 11, 'newAction': 0}
+loc 3 (27,11) cls 11 action 0 rec None
+loc 3 (28,11) cls 11 action 0 rec None
+loc 3 (29,11) cls 11 action 0 rec None
+loc 3 (30,11) cls 11 action 0 rec None
+loc 3 (31,11) cls 11 action 0 rec None
+loc 3 (0,12) cls 11 action 0 rec None
+loc 3 (1,12) cls 11 action 0 rec None
+loc 3 (2,12) cls 11 action 0 rec None
+loc 3 (4,12) cls 11 action 0 rec None
+loc 3 (5,12) cls 11 action 0 rec None
+loc 3 (6,12) cls 11 action 0 rec None
+loc 3 (7,12) cls 11 action 0 rec None
+loc 3 (8,12) cls 11 action 0 rec None
+loc 3 (9,12) cls 11 action 0 rec None
+loc 3 (10,12) cls 11 action 0 rec None
+loc 3 (11,12) cls 11 action 0 rec None
+loc 3 (12,12) cls 11 action 0 rec None
+loc 3 (13,12) cls 11 action 0 rec None
+loc 3 (14,12) cls 4 action 2 rec {'message': 6, 'impassable': True, 'tile': 39, 'newClass': 255, 'newAction': 0}
+loc 3 (15,12) cls 11 action 0 rec None
+loc 3 (16,12) cls 11 action 0 rec None
+loc 3 (17,12) cls 11 action 0 rec None
+loc 3 (18,12) cls 11 action 0 rec None
+loc 3 (19,12) cls 11 action 0 rec None
+loc 3 (20,12) cls 11 action 0 rec None
+loc 3 (21,12) cls 11 action 0 rec None
+loc 3 (22,12) cls 11 action 0 rec None
+loc 3 (23,12) cls 11 action 0 rec None
+loc 3 (24,12) cls 11 action 0 rec None
+loc 3 (25,12) cls 11 action 0 rec None
+loc 3 (26,12) cls 11 action 0 rec None
+loc 3 (27,12) cls 11 action 0 rec None
+loc 3 (28,12) cls 11 action 0 rec None
+loc 3 (29,12) cls 11 action 0 rec None
+loc 3 (30,12) cls 11 action 0 rec None
+loc 3 (31,12) cls 11 action 0 rec None
+loc 3 (0,13) cls 11 action 0 rec None
+loc 3 (1,13) cls 11 action 0 rec None
+loc 3 (2,13) cls 11 action 0 rec None
+loc 3 (4,13) cls 11 action 0 rec None
+loc 3 (5,13) cls 11 action 0 rec None
+loc 3 (6,13) cls 11 action 0 rec None
+loc 3 (7,13) cls 11 action 0 rec None
+loc 3 (8,13) cls 11 action 0 rec None
+loc 3 (9,13) cls 11 action 0 rec None
+loc 3 (10,13) cls 11 action 0 rec None
+loc 3 (11,13) cls 11 action 0 rec None
+loc 3 (17,13) cls 11 action 0 rec None
+loc 3 (18,13) cls 11 action 0 rec None
+loc 3 (19,13) cls 11 action 0 rec None
+loc 3 (20,13) cls 11 action 0 rec None
+loc 3 (21,13) cls 11 action 0 rec None
+loc 3 (22,13) cls 11 action 0 rec None
+loc 3 (23,13) cls 11 action 0 rec None
+loc 3 (24,13) cls 11 action 0 rec None
+loc 3 (25,13) cls 11 action 0 rec None
+loc 3 (26,13) cls 11 action 0 rec None
+loc 3 (27,13) cls 11 action 0 rec None
+loc 3 (28,13) cls 11 action 0 rec None
+loc 3 (29,13) cls 11 action 0 rec None
+loc 3 (30,13) cls 11 action 0 rec None
+loc 3 (31,13) cls 11 action 0 rec None
+loc 3 (0,14) cls 11 action 0 rec None
+loc 3 (1,14) cls 11 action 0 rec None
+loc 3 (2,14) cls 11 action 0 rec None
+loc 3 (4,14) cls 11 action 0 rec None
+loc 3 (5,14) cls 11 action 0 rec None
+loc 3 (6,14) cls 11 action 0 rec None
+loc 3 (7,14) cls 11 action 0 rec None
+loc 3 (8,14) cls 11 action 0 rec None
+loc 3 (9,14) cls 11 action 0 rec None
+loc 3 (10,14) cls 11 action 0 rec None
+loc 3 (11,14) cls 11 action 0 rec None
+loc 3 (14,14) cls 11 action 1 rec {'message': 16, 'newClass': 255, 'newAction': 0}
+loc 3 (17,14) cls 11 action 0 rec None
+loc 3 (18,14) cls 11 action 0 rec None
+loc 3 (19,14) cls 11 action 0 rec None
+loc 3 (20,14) cls 11 action 0 rec None
+loc 3 (21,14) cls 11 action 0 rec None
+loc 3 (22,14) cls 11 action 0 rec None
+loc 3 (23,14) cls 11 action 0 rec None
+loc 3 (24,14) cls 11 action 0 rec None
+loc 3 (25,14) cls 11 action 0 rec None
+loc 3 (26,14) cls 11 action 0 rec None
+loc 3 (27,14) cls 11 action 0 rec None
+loc 3 (28,14) cls 11 action 0 rec None
+loc 3 (29,14) cls 11 action 0 rec None
+loc 3 (30,14) cls 11 action 0 rec None
+loc 3 (31,14) cls 11 action 0 rec None
+loc 3 (0,15) cls 11 action 0 rec None
+loc 3 (1,15) cls 11 action 0 rec None
+loc 3 (2,15) cls 11 action 0 rec None
+loc 3 (4,15) cls 11 action 0 rec None
+loc 3 (5,15) cls 11 action 0 rec None
+loc 3 (6,15) cls 11 action 0 rec None
+loc 3 (7,15) cls 11 action 0 rec None
+loc 3 (8,15) cls 11 action 0 rec None
+loc 3 (9,15) cls 11 action 0 rec None
+loc 3 (10,15) cls 11 action 0 rec None
+loc 3 (11,15) cls 11 action 0 rec None
+loc 3 (17,15) cls 11 action 0 rec None
+loc 3 (18,15) cls 11 action 0 rec None
+loc 3 (19,15) cls 11 action 0 rec None
+loc 3 (20,15) cls 11 action 0 rec None
+loc 3 (21,15) cls 11 action 0 rec None
+loc 3 (22,15) cls 11 action 0 rec None
+loc 3 (23,15) cls 11 action 0 rec None
+loc 3 (24,15) cls 11 action 0 rec None
+loc 3 (25,15) cls 11 action 0 rec None
+loc 3 (26,15) cls 11 action 0 rec None
+loc 3 (27,15) cls 11 action 0 rec None
+loc 3 (28,15) cls 11 action 0 rec None
+loc 3 (29,15) cls 11 action 0 rec None
+loc 3 (30,15) cls 11 action 0 rec None
+loc 3 (31,15) cls 11 action 0 rec None
+loc 3 (0,16) cls 11 action 0 rec None
+loc 3 (1,16) cls 11 action 0 rec None
+loc 3 (2,16) cls 11 action 0 rec None
+loc 3 (4,16) cls 11 action 0 rec None
+loc 3 (5,16) cls 11 action 0 rec None
+loc 3 (6,16) cls 11 action 0 rec None
+loc 3 (7,16) cls 11 action 0 rec None
+loc 3 (8,16) cls 11 action 0 rec None
+loc 3 (9,16) cls 11 action 0 rec None
+loc 3 (10,16) cls 11 action 0 rec None
+loc 3 (11,16) cls 11 action 0 rec None
+loc 3 (12,16) cls 11 action 0 rec None
+loc 3 (13,16) cls 11 action 0 rec None
+loc 3 (14,16) cls 11 action 0 rec None
+loc 3 (15,16) cls 11 action 0 rec None
+loc 3 (16,16) cls 11 action 0 rec None
+loc 3 (17,16) cls 11 action 0 rec None
+loc 3 (18,16) cls 11 action 0 rec None
+loc 3 (19,16) cls 11 action 0 rec None
+loc 3 (20,16) cls 11 action 0 rec None
+loc 3 (21,16) cls 11 action 0 rec None
+loc 3 (22,16) cls 11 action 0 rec None
+loc 3 (23,16) cls 11 action 0 rec None
+loc 3 (24,16) cls 11 action 0 rec None
+loc 3 (25,16) cls 11 action 0 rec None
+loc 3 (26,16) cls 11 action 0 rec None
+loc 3 (27,16) cls 11 action 0 rec None
+loc 3 (28,16) cls 11 action 0 rec None
+loc 3 (29,16) cls 11 action 0 rec None
+loc 3 (30,16) cls 11 action 0 rec None
+loc 3 (31,16) cls 11 action 0 rec None
+loc 3 (0,17) cls 11 action 0 rec None
+loc 3 (1,17) cls 11 action 0 rec None
+loc 3 (2,17) cls 11 action 0 rec None
+loc 3 (4,17) cls 11 action 0 rec None
+loc 3 (5,17) cls 11 action 0 rec None
+loc 3 (6,17) cls 11 action 0 rec None
+loc 3 (7,17) cls 11 action 0 rec None
+loc 3 (8,17) cls 11 action 0 rec None
+loc 3 (9,17) cls 11 action 0 rec None
+loc 3 (10,17) cls 11 action 0 rec None
+loc 3 (11,17) cls 11 action 0 rec None
+loc 3 (12,17) cls 11 action 0 rec None
+loc 3 (13,17) cls 11 action 0 rec None
+loc 3 (14,17) cls 11 action 0 rec None
+loc 3 (15,17) cls 11 action 0 rec None
+loc 3 (16,17) cls 11 action 0 rec None
+loc 3 (17,17) cls 11 action 0 rec None
+loc 3 (18,17) cls 11 action 0 rec None
+loc 3 (19,17) cls 11 action 0 rec None
+loc 3 (20,17) cls 11 action 0 rec None
+loc 3 (21,17) cls 11 action 0 rec None
+loc 3 (22,17) cls 11 action 0 rec None
+loc 3 (23,17) cls 11 action 0 rec None
+loc 3 (24,17) cls 11 action 0 rec None
+loc 3 (25,17) cls 11 action 0 rec None
+loc 3 (26,17) cls 11 action 0 rec None
+loc 3 (27,17) cls 11 action 0 rec None
+loc 3 (28,17) cls 11 action 0 rec None
+loc 3 (29,17) cls 11 action 0 rec None
+loc 3 (30,17) cls 11 action 0 rec None
+loc 3 (31,17) cls 11 action 0 rec None
+loc 3 (0,18) cls 11 action 0 rec None
+loc 3 (1,18) cls 11 action 0 rec None
+loc 3 (2,18) cls 11 action 0 rec None
+loc 3 (4,18) cls 11 action 0 rec None
+loc 3 (5,18) cls 11 action 0 rec None
+loc 3 (6,18) cls 11 action 0 rec None
+loc 3 (7,18) cls 11 action 0 rec None
+loc 3 (8,18) cls 11 action 0 rec None
+loc 3 (9,18) cls 11 action 0 rec None
+loc 3 (10,18) cls 11 action 0 rec None
+loc 3 (11,18) cls 11 action 0 rec None
+loc 3 (12,18) cls 11 action 0 rec None
+loc 3 (13,18) cls 11 action 0 rec None
+loc 3 (14,18) cls 11 action 0 rec None
+loc 3 (15,18) cls 11 action 0 rec None
+loc 3 (16,18) cls 11 action 0 rec None
+loc 3 (17,18) cls 11 action 0 rec None
+loc 3 (18,18) cls 11 action 0 rec None
+loc 3 (19,18) cls 11 action 0 rec None
+loc 3 (20,18) cls 11 action 0 rec None
+loc 3 (21,18) cls 11 action 0 rec None
+loc 3 (22,18) cls 11 action 0 rec None
+loc 3 (23,18) cls 11 action 0 rec None
+loc 3 (24,18) cls 11 action 0 rec None
+loc 3 (25,18) cls 11 action 0 rec None
+loc 3 (26,18) cls 11 action 0 rec None
+loc 3 (27,18) cls 11 action 0 rec None
+loc 3 (28,18) cls 11 action 0 rec None
+loc 3 (29,18) cls 11 action 0 rec None
+loc 3 (30,18) cls 11 action 0 rec None
+loc 3 (31,18) cls 11 action 0 rec None
+loc 3 (0,19) cls 11 action 0 rec None
+loc 3 (1,19) cls 11 action 0 rec None
+loc 3 (2,19) cls 11 action 0 rec None
+loc 3 (4,19) cls 11 action 0 rec None
+loc 3 (5,19) cls 11 action 0 rec None
+loc 3 (6,19) cls 11 action 0 rec None
+loc 3 (7,19) cls 11 action 0 rec None
+loc 3 (8,19) cls 11 action 0 rec None
+loc 3 (9,19) cls 11 action 0 rec None
+loc 3 (10,19) cls 11 action 0 rec None
+loc 3 (11,19) cls 11 action 0 rec None
+loc 3 (12,19) cls 11 action 0 rec None
+loc 3 (13,19) cls 11 action 0 rec None
+loc 3 (14,19) cls 11 action 0 rec None
+loc 3 (15,19) cls 11 action 0 rec None
+loc 3 (16,19) cls 11 action 0 rec None
+loc 3 (17,19) cls 11 action 0 rec None
+loc 3 (18,19) cls 11 action 0 rec None
+loc 3 (19,19) cls 11 action 0 rec None
+loc 3 (20,19) cls 11 action 0 rec None
+loc 3 (21,19) cls 11 action 0 rec None
+loc 3 (22,19) cls 11 action 0 rec None
+loc 3 (23,19) cls 11 action 0 rec None
+loc 3 (24,19) cls 11 action 0 rec None
+loc 3 (25,19) cls 11 action 0 rec None
+loc 3 (26,19) cls 11 action 0 rec None
+loc 3 (27,19) cls 11 action 0 rec None
+loc 3 (28,19) cls 11 action 0 rec None
+loc 3 (29,19) cls 11 action 0 rec None
+loc 3 (30,19) cls 11 action 0 rec None
+loc 3 (31,19) cls 11 action 0 rec None
+loc 3 (0,20) cls 11 action 0 rec None
+loc 3 (1,20) cls 11 action 0 rec None
+loc 3 (2,20) cls 11 action 0 rec None
+loc 3 (4,20) cls 4 action 7 rec {'message': 13, 'impassable': True, 'tile': 25, 'newClass': 4, 'newAction': 6}
+loc 3 (16,20) cls 11 action 0 rec None
+loc 3 (17,20) cls 11 action 0 rec None
+loc 3 (18,20) cls 11 action 0 rec None
+loc 3 (19,20) cls 11 action 0 rec None
+loc 3 (20,20) cls 11 action 0 rec None
+loc 3 (21,20) cls 11 action 0 rec None
+loc 3 (22,20) cls 11 action 0 rec None
+loc 3 (23,20) cls 11 action 0 rec None
+loc 3 (24,20) cls 11 action 0 rec None
+loc 3 (25,20) cls 11 action 0 rec None
+loc 3 (26,20) cls 11 action 0 rec None
+loc 3 (27,20) cls 11 action 0 rec None
+loc 3 (28,20) cls 11 action 0 rec None
+loc 3 (29,20) cls 11 action 0 rec None
+loc 3 (30,20) cls 11 action 0 rec None
+loc 3 (31,20) cls 11 action 0 rec None
+loc 3 (0,21) cls 11 action 0 rec None
+loc 3 (1,21) cls 11 action 0 rec None
+loc 3 (2,21) cls 11 action 0 rec None
+loc 3 (3,21) cls 11 action 0 rec None
+loc 3 (4,21) cls 11 action 0 rec None
+loc 3 (5,21) cls 11 action 0 rec None
+loc 3 (6,21) cls 11 action 0 rec None
+loc 3 (7,21) cls 11 action 0 rec None
+loc 3 (8,21) cls 11 action 0 rec None
+loc 3 (9,21) cls 11 action 0 rec None
+loc 3 (10,21) cls 11 action 0 rec None
+loc 3 (11,21) cls 11 action 0 rec None
+loc 3 (12,21) cls 11 action 0 rec None
+loc 3 (13,21) cls 11 action 0 rec None
+loc 3 (14,21) cls 11 action 0 rec None
+loc 3 (15,21) cls 11 action 0 rec None
+loc 3 (16,21) cls 11 action 0 rec None
+loc 3 (17,21) cls 11 action 0 rec None
+loc 3 (18,21) cls 11 action 0 rec None
+loc 3 (19,21) cls 11 action 0 rec None
+loc 3 (20,21) cls 11 action 0 rec None
+loc 3 (21,21) cls 11 action 0 rec None
+loc 3 (22,21) cls 11 action 0 rec None
+loc 3 (23,21) cls 11 action 0 rec None
+loc 3 (24,21) cls 11 action 0 rec None
+loc 3 (25,21) cls 11 action 0 rec None
+loc 3 (26,21) cls 11 action 0 rec None
+loc 3 (27,21) cls 11 action 0 rec None
+loc 3 (28,21) cls 11 action 0 rec None
+loc 3 (29,21) cls 11 action 0 rec None
+loc 3 (30,21) cls 11 action 0 rec None
+loc 3 (31,21) cls 11 action 0 rec None
+loc 3 (0,22) cls 11 action 0 rec None
+loc 3 (1,22) cls 11 action 0 rec None
+loc 3 (2,22) cls 11 action 0 rec None
+loc 3 (3,22) cls 11 action 0 rec None
+loc 3 (4,22) cls 11 action 0 rec None
+loc 3 (5,22) cls 11 action 0 rec None
+loc 3 (6,22) cls 11 action 0 rec None
+loc 3 (7,22) cls 11 action 0 rec None
+loc 3 (8,22) cls 11 action 0 rec None
+loc 3 (9,22) cls 11 action 0 rec None
+loc 3 (10,22) cls 11 action 0 rec None
+loc 3 (11,22) cls 11 action 0 rec None
+loc 3 (12,22) cls 11 action 0 rec None
+loc 3 (13,22) cls 11 action 0 rec None
+loc 3 (14,22) cls 11 action 0 rec None
+loc 3 (15,22) cls 11 action 0 rec None
+loc 3 (16,22) cls 11 action 0 rec None
+loc 3 (17,22) cls 11 action 0 rec None
+loc 3 (18,22) cls 11 action 0 rec None
+loc 3 (19,22) cls 11 action 0 rec None
+loc 3 (20,22) cls 11 action 0 rec None
+loc 3 (21,22) cls 11 action 0 rec None
+loc 3 (22,22) cls 11 action 0 rec None
+loc 3 (23,22) cls 11 action 0 rec None
+loc 3 (24,22) cls 11 action 0 rec None
+loc 3 (25,22) cls 11 action 0 rec None
+loc 3 (26,22) cls 11 action 0 rec None
+loc 3 (27,22) cls 11 action 0 rec None
+loc 3 (28,22) cls 11 action 0 rec None
+loc 3 (29,22) cls 11 action 0 rec None
+loc 3 (30,22) cls 11 action 0 rec None
+loc 3 (31,22) cls 11 action 0 rec None
+loc 3 (0,23) cls 11 action 0 rec None
+loc 3 (1,23) cls 11 action 0 rec None
+loc 3 (2,23) cls 11 action 0 rec None
+loc 3 (3,23) cls 11 action 0 rec None
+loc 3 (4,23) cls 11 action 0 rec None
+loc 3 (5,23) cls 11 action 0 rec None
+loc 3 (6,23) cls 11 action 0 rec None
+loc 3 (7,23) cls 11 action 0 rec None
+loc 3 (8,23) cls 11 action 0 rec None
+loc 3 (9,23) cls 11 action 0 rec None
+loc 3 (10,23) cls 11 action 0 rec None
+loc 3 (11,23) cls 11 action 0 rec None
+loc 3 (12,23) cls 11 action 0 rec None
+loc 3 (13,23) cls 11 action 0 rec None
+loc 3 (14,23) cls 11 action 0 rec None
+loc 3 (15,23) cls 11 action 0 rec None
+loc 3 (16,23) cls 11 action 0 rec None
+loc 3 (17,23) cls 11 action 0 rec None
+loc 3 (18,23) cls 11 action 0 rec None
+loc 3 (19,23) cls 11 action 0 rec None
+loc 3 (20,23) cls 11 action 0 rec None
+loc 3 (21,23) cls 11 action 0 rec None
+loc 3 (22,23) cls 11 action 0 rec None
+loc 3 (23,23) cls 11 action 0 rec None
+loc 3 (24,23) cls 11 action 0 rec None
+loc 3 (25,23) cls 11 action 0 rec None
+loc 3 (26,23) cls 11 action 0 rec None
+loc 3 (27,23) cls 11 action 0 rec None
+loc 3 (28,23) cls 11 action 0 rec None
+loc 3 (29,23) cls 11 action 0 rec None
+loc 3 (30,23) cls 11 action 0 rec None
+loc 3 (31,23) cls 11 action 0 rec None
+loc 3 (0,24) cls 11 action 0 rec None
+loc 3 (1,24) cls 11 action 0 rec None
+loc 3 (2,24) cls 11 action 0 rec None
+loc 3 (3,24) cls 11 action 0 rec None
+loc 3 (4,24) cls 11 action 0 rec None
+loc 3 (5,24) cls 11 action 0 rec None
+loc 3 (6,24) cls 11 action 0 rec None
+loc 3 (7,24) cls 11 action 0 rec None
+loc 3 (8,24) cls 11 action 0 rec None
+loc 3 (9,24) cls 11 action 0 rec None
+loc 3 (10,24) cls 11 action 0 rec None
+loc 3 (11,24) cls 11 action 0 rec None
+loc 3 (12,24) cls 11 action 0 rec None
+loc 3 (13,24) cls 11 action 0 rec None
+loc 3 (14,24) cls 11 action 0 rec None
+loc 3 (15,24) cls 11 action 0 rec None
+loc 3 (16,24) cls 11 action 0 rec None
+loc 3 (17,24) cls 11 action 0 rec None
+loc 3 (18,24) cls 11 action 0 rec None
+loc 3 (19,24) cls 11 action 0 rec None
+loc 3 (20,24) cls 11 action 0 rec None
+loc 3 (21,24) cls 11 action 0 rec None
+loc 3 (22,24) cls 11 action 0 rec None
+loc 3 (23,24) cls 11 action 0 rec None
+loc 3 (24,24) cls 11 action 0 rec None
+loc 3 (25,24) cls 11 action 0 rec None
+loc 3 (26,24) cls 11 action 0 rec None
+loc 3 (27,24) cls 11 action 0 rec None
+loc 3 (28,24) cls 11 action 0 rec None
+loc 3 (29,24) cls 11 action 0 rec None
+loc 3 (30,24) cls 11 action 0 rec None
+loc 3 (31,24) cls 11 action 0 rec None
+loc 3 (0,25) cls 11 action 0 rec None
+loc 3 (1,25) cls 11 action 0 rec None
+loc 3 (2,25) cls 11 action 0 rec None
+loc 3 (3,25) cls 11 action 0 rec None
+loc 3 (4,25) cls 11 action 0 rec None
+loc 3 (5,25) cls 11 action 0 rec None
+loc 3 (6,25) cls 11 action 0 rec None
+loc 3 (7,25) cls 11 action 0 rec None
+loc 3 (8,25) cls 11 action 0 rec None
+loc 3 (9,25) cls 11 action 0 rec None
+loc 3 (10,25) cls 11 action 0 rec None
+loc 3 (11,25) cls 11 action 0 rec None
+loc 3 (12,25) cls 11 action 0 rec None
+loc 3 (13,25) cls 11 action 0 rec None
+loc 3 (14,25) cls 11 action 0 rec None
+loc 3 (15,25) cls 11 action 0 rec None
+loc 3 (16,25) cls 11 action 0 rec None
+loc 3 (17,25) cls 11 action 0 rec None
+loc 3 (18,25) cls 11 action 0 rec None
+loc 3 (19,25) cls 11 action 0 rec None
+loc 3 (20,25) cls 11 action 0 rec None
+loc 3 (21,25) cls 11 action 0 rec None
+loc 3 (22,25) cls 11 action 0 rec None
+loc 3 (23,25) cls 11 action 0 rec None
+loc 3 (24,25) cls 11 action 0 rec None
+loc 3 (25,25) cls 11 action 0 rec None
+loc 3 (26,25) cls 11 action 0 rec None
+loc 3 (27,25) cls 11 action 0 rec None
+loc 3 (28,25) cls 11 action 0 rec None
+loc 3 (29,25) cls 11 action 0 rec None
+loc 3 (30,25) cls 11 action 0 rec None
+loc 3 (31,25) cls 11 action 0 rec None
+loc 3 (0,26) cls 11 action 0 rec None
+loc 3 (1,26) cls 11 action 0 rec None
+loc 3 (2,26) cls 11 action 0 rec None
+loc 3 (3,26) cls 11 action 0 rec None
+loc 3 (4,26) cls 11 action 0 rec None
+loc 3 (5,26) cls 11 action 0 rec None
+loc 3 (6,26) cls 11 action 0 rec None
+loc 3 (7,26) cls 11 action 0 rec None
+loc 3 (8,26) cls 11 action 0 rec None
+loc 3 (9,26) cls 11 action 0 rec None
+loc 3 (10,26) cls 11 action 0 rec None
+loc 3 (11,26) cls 11 action 0 rec None
+loc 3 (12,26) cls 11 action 0 rec None
+loc 3 (13,26) cls 11 action 0 rec None
+loc 3 (14,26) cls 11 action 0 rec None
+loc 3 (15,26) cls 11 action 0 rec None
+loc 3 (16,26) cls 11 action 0 rec None
+loc 3 (17,26) cls 11 action 0 rec None
+loc 3 (18,26) cls 11 action 0 rec None
+loc 3 (19,26) cls 11 action 0 rec None
+loc 3 (20,26) cls 11 action 0 rec None
+loc 3 (21,26) cls 11 action 0 rec None
+loc 3 (22,26) cls 11 action 0 rec None
+loc 3 (23,26) cls 11 action 0 rec None
+loc 3 (24,26) cls 11 action 0 rec None
+loc 3 (25,26) cls 11 action 0 rec None
+loc 3 (26,26) cls 11 action 0 rec None
+loc 3 (27,26) cls 11 action 0 rec None
+loc 3 (28,26) cls 11 action 0 rec None
+loc 3 (29,26) cls 11 action 0 rec None
+loc 3 (30,26) cls 11 action 0 rec None
+loc 3 (31,26) cls 11 action 0 rec None
+loc 3 (0,27) cls 11 action 0 rec None
+loc 3 (1,27) cls 11 action 0 rec None
+loc 3 (2,27) cls 11 action 0 rec None
+loc 3 (3,27) cls 11 action 0 rec None
+loc 3 (4,27) cls 11 action 0 rec None
+loc 3 (5,27) cls 11 action 0 rec None
+loc 3 (6,27) cls 11 action 0 rec None
+loc 3 (7,27) cls 11 action 0 rec None
+loc 3 (8,27) cls 11 action 0 rec None
+loc 3 (9,27) cls 11 action 0 rec None
+loc 3 (10,27) cls 11 action 0 rec None
+loc 3 (11,27) cls 11 action 0 rec None
+loc 3 (12,27) cls 11 action 0 rec None
+loc 3 (13,27) cls 11 action 0 rec None
+loc 3 (14,27) cls 11 action 0 rec None
+loc 3 (15,27) cls 11 action 0 rec None
+loc 3 (16,27) cls 11 action 0 rec None
+loc 3 (17,27) cls 11 action 0 rec None
+loc 3 (18,27) cls 11 action 0 rec None
+loc 3 (19,27) cls 11 action 0 rec None
+loc 3 (20,27) cls 11 action 0 rec None
+loc 3 (21,27) cls 11 action 0 rec None
+loc 3 (22,27) cls 11 action 0 rec None
+loc 3 (23,27) cls 11 action 0 rec None
+loc 3 (24,27) cls 11 action 0 rec None
+loc 3 (25,27) cls 11 action 0 rec None
+loc 3 (26,27) cls 11 action 0 rec None
+loc 3 (27,27) cls 11 action 0 rec None
+loc 3 (28,27) cls 11 action 0 rec None
+loc 3 (29,27) cls 11 action 0 rec None
+loc 3 (30,27) cls 11 action 0 rec None
+loc 3 (31,27) cls 11 action 0 rec None
+loc 3 (0,28) cls 11 action 0 rec None
+loc 3 (1,28) cls 11 action 0 rec None
+loc 3 (2,28) cls 11 action 0 rec None
+loc 3 (3,28) cls 11 action 0 rec None
+loc 3 (4,28) cls 11 action 0 rec None
+loc 3 (5,28) cls 11 action 0 rec None
+loc 3 (6,28) cls 11 action 0 rec None
+loc 3 (7,28) cls 11 action 0 rec None
+loc 3 (8,28) cls 11 action 0 rec None
+loc 3 (9,28) cls 11 action 0 rec None
+loc 3 (10,28) cls 11 action 0 rec None
+loc 3 (11,28) cls 11 action 0 rec None
+loc 3 (12,28) cls 11 action 0 rec None
+loc 3 (13,28) cls 11 action 0 rec None
+loc 3 (14,28) cls 11 action 0 rec None
+loc 3 (15,28) cls 11 action 0 rec None
+loc 3 (16,28) cls 11 action 0 rec None
+loc 3 (17,28) cls 11 action 0 rec None
+loc 3 (18,28) cls 11 action 0 rec None
+loc 3 (19,28) cls 11 action 0 rec None
+loc 3 (20,28) cls 11 action 0 rec None
+loc 3 (21,28) cls 11 action 0 rec None
+loc 3 (22,28) cls 11 action 0 rec None
+loc 3 (23,28) cls 11 action 0 rec None
+loc 3 (24,28) cls 11 action 0 rec None
+loc 3 (25,28) cls 11 action 0 rec None
+loc 3 (26,28) cls 11 action 0 rec None
+loc 3 (27,28) cls 11 action 0 rec None
+loc 3 (28,28) cls 11 action 0 rec None
+loc 3 (29,28) cls 11 action 0 rec None
+loc 3 (30,28) cls 11 action 0 rec None
+loc 3 (31,28) cls 11 action 0 rec None
+loc 3 (0,29) cls 11 action 0 rec None
+loc 3 (1,29) cls 11 action 0 rec None
+loc 3 (2,29) cls 11 action 0 rec None
+loc 3 (3,29) cls 11 action 0 rec None
+loc 3 (4,29) cls 11 action 0 rec None
+loc 3 (5,29) cls 11 action 0 rec None
+loc 3 (6,29) cls 11 action 0 rec None
+loc 3 (7,29) cls 11 action 0 rec None
+loc 3 (8,29) cls 11 action 0 rec None
+loc 3 (9,29) cls 11 action 0 rec None
+loc 3 (10,29) cls 11 action 0 rec None
+loc 3 (11,29) cls 11 action 0 rec None
+loc 3 (12,29) cls 11 action 0 rec None
+loc 3 (13,29) cls 11 action 0 rec None
+loc 3 (14,29) cls 11 action 0 rec None
+loc 3 (15,29) cls 11 action 0 rec None
+loc 3 (16,29) cls 11 action 0 rec None
+loc 3 (17,29) cls 11 action 0 rec None
+loc 3 (18,29) cls 11 action 0 rec None
+loc 3 (19,29) cls 11 action 0 rec None
+loc 3 (20,29) cls 11 action 0 rec None
+loc 3 (21,29) cls 11 action 0 rec None
+loc 3 (22,29) cls 11 action 0 rec None
+loc 3 (23,29) cls 11 action 0 rec None
+loc 3 (24,29) cls 11 action 0 rec None
+loc 3 (25,29) cls 11 action 0 rec None
+loc 3 (26,29) cls 11 action 0 rec None
+loc 3 (27,29) cls 11 action 0 rec None
+loc 3 (28,29) cls 11 action 0 rec None
+loc 3 (29,29) cls 11 action 0 rec None
+loc 3 (30,29) cls 11 action 0 rec None
+loc 3 (31,29) cls 11 action 0 rec None
+loc 3 (0,30) cls 11 action 0 rec None
+loc 3 (1,30) cls 11 action 0 rec None
+loc 3 (2,30) cls 11 action 0 rec None
+loc 3 (3,30) cls 11 action 0 rec None
+loc 3 (4,30) cls 11 action 0 rec None
+loc 3 (5,30) cls 11 action 0 rec None
+loc 3 (6,30) cls 11 action 0 rec None
+loc 3 (7,30) cls 11 action 0 rec None
+loc 3 (8,30) cls 11 action 0 rec None
+loc 3 (9,30) cls 11 action 0 rec None
+loc 3 (10,30) cls 11 action 0 rec None
+loc 3 (11,30) cls 11 action 0 rec None
+loc 3 (12,30) cls 11 action 0 rec None
+loc 3 (13,30) cls 11 action 0 rec None
+loc 3 (14,30) cls 11 action 0 rec None
+loc 3 (15,30) cls 11 action 0 rec None
+loc 3 (16,30) cls 11 action 0 rec None
+loc 3 (17,30) cls 11 action 0 rec None
+loc 3 (18,30) cls 11 action 0 rec None
+loc 3 (19,30) cls 11 action 0 rec None
+loc 3 (20,30) cls 11 action 0 rec None
+loc 3 (21,30) cls 11 action 0 rec None
+loc 3 (22,30) cls 11 action 0 rec None
+loc 3 (23,30) cls 11 action 0 rec None
+loc 3 (24,30) cls 11 action 0 rec None
+loc 3 (25,30) cls 11 action 0 rec None
+loc 3 (26,30) cls 11 action 0 rec None
+loc 3 (27,30) cls 11 action 0 rec None
+loc 3 (28,30) cls 11 action 0 rec None
+loc 3 (29,30) cls 11 action 0 rec None
+loc 3 (30,30) cls 11 action 0 rec None
+loc 3 (31,30) cls 11 action 0 rec None
+loc 3 (0,31) cls 11 action 0 rec None
+loc 3 (1,31) cls 11 action 0 rec None
+loc 3 (2,31) cls 11 action 0 rec None
+loc 3 (3,31) cls 11 action 0 rec None
+loc 3 (4,31) cls 11 action 0 rec None
+loc 3 (5,31) cls 11 action 0 rec None
+loc 3 (6,31) cls 11 action 0 rec None
+loc 3 (7,31) cls 11 action 0 rec None
+loc 3 (8,31) cls 11 action 0 rec None
+loc 3 (9,31) cls 11 action 0 rec None
+loc 3 (10,31) cls 11 action 0 rec None
+loc 3 (11,31) cls 11 action 0 rec None
+loc 3 (12,31) cls 11 action 0 rec None
+loc 3 (13,31) cls 11 action 0 rec None
+loc 3 (14,31) cls 11 action 0 rec None
+loc 3 (15,31) cls 11 action 0 rec None
+loc 3 (16,31) cls 11 action 0 rec None
+loc 3 (17,31) cls 11 action 0 rec None
+loc 3 (18,31) cls 11 action 0 rec None
+loc 3 (19,31) cls 11 action 0 rec None
+loc 3 (20,31) cls 11 action 0 rec None
+loc 3 (21,31) cls 11 action 0 rec None
+loc 3 (22,31) cls 11 action 0 rec None
+loc 3 (23,31) cls 11 action 0 rec None
+loc 3 (24,31) cls 11 action 0 rec None
+loc 3 (25,31) cls 11 action 0 rec None
+loc 3 (26,31) cls 11 action 0 rec None
+loc 3 (27,31) cls 11 action 0 rec None
+loc 3 (28,31) cls 11 action 0 rec None
+loc 3 (29,31) cls 11 action 0 rec None
+loc 3 (30,31) cls 11 action 0 rec None
+loc 3 (31,31) cls 11 action 0 rec None

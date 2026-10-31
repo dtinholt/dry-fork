@@ -1,0 +1,266 @@
+compiled map keys: ['size', 'bodySize', 'encryptedPrefixLength', 'centralDirectory', 'info', 'cells', 'actions', 'npcs', 'mobs', 'strings']
+size 32
+cells keys: ['actionClass', 'action', 'image']
+cells[actionClass][19] = [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 11]
+cells[action][19] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cells[image][19] = [35, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28, 10, 10, 10, 10, 10, 10, 10, 20, 10, 10, 10, 10, 10, 10, 10, 35]
+cells[actionClass][20] = [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+cells[action][20] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cells[image][20] = [35, 10, 10, 21, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 35]
+cells[actionClass][21] = [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 11]
+cells[action][21] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cells[image][21] = [35, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 21, 10, 10, 10, 10, 35]
+info: '{"borderImage": 35, "combatStringIds": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "encounterFrequency": 0, "healRate": 0, "mapSize": 32, "maxRandomEncounters": 0, "randomMonsterTypes": 0, "tileset": 0, "timePerStep": 256, "unknown00": 0, "unknown01": 0, "unknown03": 0, "unknown04": 0}'
+records: 'null'
+======================================================================
+FIGHT seed 3
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"n": 3, "seq": 47, "type": "paragraph"}
+{"delta": -7, "member": 3, "seq": 59, "total": 73, "type": "money"}
+{"delta": -7, "member": 4, "seq": 66, "total": 63, "type": "money"}
+{"delta": 8, "member": 2, "seq": 74, "total": 68, "type": "money"}
+{"delta": -28, "member": 2, "seq": 80, "total": 40, "type": "money"}
+{"n": 3, "seq": 99, "type": "paragraph"}
+{"n": 6, "seq": 128, "type": "paragraph"}
+{"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+{"n": 2, "seq": 170, "type": "paragraph"}
+{"n": 7, "seq": 208, "type": "paragraph"}
+{"groups": [{"band": 3, "count": 3, "hp": [7, 15, 7], "monster": "raider"}], "seq": 217, "type": "encounter_start"}
+{"n": 8, "seq": 218, "type": "paragraph"}
+{"level": 2, "member": 5, "need": 66, "roll": 54, "seq": 219, "skill": 18, "success": true, "type": "check"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 1, "seq": 221, "type": "round_orders"}
+{"round": 1, "seq": 222, "type": "round_start"}
+{"chance": 4, "member": 1, "roll": 4, "seq": 223, "type": "jam"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 64, "seq": 224, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 56, "seq": 225, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 54, "seq": 226, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 5, "need": 58, "roll": 60, "seq": 227, "side": "party", "target": 1, "type": "attack"}
+{"attacker": 1, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 56, "seq": 228, "side": "monsters", "type": "attack"}
+{"attacker": 2, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 48, "seq": 229, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 3, "need": 22, "roll": 89, "seq": 230, "side": "monsters", "type": "attack"}
+{"level": 0, "member": 1, "need": 46, "roll": 27, "seq": 231, "skill": 22, "success": true, "type": "check"}
+{"member": 1, "seq": 232, "type": "unjammed"}
+{"orders": {"1": ["advance", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 2, "seq": 234, "type": "round_orders"}
+{"round": 2, "seq": 235, "type": "round_start"}
+{"member": 1, "seq": 236, "type": "click"}
+{"damage": 9, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 46, "seq": 237, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 66, "seq": 238, "side": "party", "target": 2, "type": "attack"}
+{"damage": 4, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 10, "seq": 239, "side": "party", "target": 2, "type": "attack"}
+{"damage": 5, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 33, "seq": 240, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 1, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 50, "seq": 241, "side": "monsters", "type": "attack"}
+{"attacker": 2, "damage": 6, "group": 1, "hit": true, "member": 4, "need": 28, "roll": 17, "seq": 242, "side": "monsters", "type": "attack"}
+{"attacker": 3, "damage": 4, "group": 1, "hit": true, "member": 1, "need": 22, "roll": 3, "seq": 243, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 1, "seq": 244, "type": "monster_dies"}
+{"band": 2, "seq": 245, "type": "advance"}
+{"orders": {"1": ["advance", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 3, "seq": 247, "type": "round_orders"}
+{"round": 3, "seq": 248, "type": "round_start"}
+{"member": 1, "seq": 249, "type": "click"}
+{"damage": 8, "group": 1, "hit": true, "member": 2, "need": 60, "roll": 3, "seq": 250, "side": "party", "target": 2, "type": "attack"}
+{"damage": 1, "group": 1, "hit": true, "member": 3, "need": 51, "roll": 26, "seq": 251, "side": "party", "target": 3, "type": "attack"}
+{"damage": 2, "group": 1, "hit": true, "member": 4, "need": 49, "roll": 39, "seq": 252, "side": "party", "target": 3, "type": "attack"}
+{"damage": 10, "group": 1, "hit": true, "member": 5, "need": 63, "roll": 9, "seq": 253, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 2, "group": 1, "hit": false, "member": 5, "need": 27, "roll": 45, "seq": 254, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 4, "need": 33, "roll": 87, "seq": 255, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 2, "seq": 256, "type": "monster_dies"}
+{"group": 1, "index": 3, "seq": 257, "type": "monster_dies"}
+{"result": "victory", "rounds": 3, "seq": 258, "type": "combat_end"}
+{"delta": 14, "member": 1, "seq": 259, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 28, "member": 1, "rank": "Hand", "seq": 260, "type": "promote"}
+{"delta": 14, "member": 2, "seq": 261, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 31, "member": 2, "rank": "Hand", "seq": 262, "type": "promote"}
+{"delta": 14, "member": 3, "seq": 263, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 25, "member": 3, "rank": "Hand", "seq": 264, "type": "promote"}
+{"delta": 14, "member": 4, "seq": 265, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 26, "member": 4, "rank": "Hand", "seq": 266, "type": "promote"}
+{"delta": 14, "member": 5, "seq": 267, "total": 214, "type": "xp"}
+{"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 268, "type": "cell_change", "x": 30, "y": 41}
+{"delta": 75, "member": 1, "seq": 269, "total": 195, "type": "money"}
+{"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 270, "type": "cell_change", "x": 30, "y": 41}
+======================================================================
+FIGHT seed 20261021
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"n": 3, "seq": 47, "type": "paragraph"}
+{"delta": -7, "member": 3, "seq": 59, "total": 73, "type": "money"}
+{"delta": -7, "member": 4, "seq": 66, "total": 63, "type": "money"}
+{"delta": 8, "member": 2, "seq": 74, "total": 68, "type": "money"}
+{"delta": -28, "member": 2, "seq": 80, "total": 40, "type": "money"}
+{"n": 3, "seq": 99, "type": "paragraph"}
+{"n": 6, "seq": 128, "type": "paragraph"}
+{"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+{"n": 2, "seq": 170, "type": "paragraph"}
+{"n": 7, "seq": 208, "type": "paragraph"}
+{"groups": [{"band": 3, "count": 3, "hp": [14, 12, 14], "monster": "raider"}], "seq": 217, "type": "encounter_start"}
+{"n": 8, "seq": 218, "type": "paragraph"}
+{"level": 2, "member": 5, "need": 66, "roll": 54, "seq": 219, "skill": 18, "success": true, "type": "check"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 1, "seq": 221, "type": "round_orders"}
+{"round": 1, "seq": 222, "type": "round_start"}
+{"damage": 6, "group": 1, "hit": true, "member": 1, "need": 57, "roll": 53, "seq": 223, "side": "party", "target": 1, "type": "attack"}
+{"damage": 4, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 38, "seq": 224, "side": "party", "target": 1, "type": "attack"}
+{"damage": 6, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 32, "seq": 225, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 92, "seq": 226, "side": "party", "target": 2, "type": "attack"}
+{"damage": 3, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 56, "seq": 227, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 1, "group": 1, "hit": false, "member": 1, "need": 22, "roll": 61, "seq": 228, "side": "monsters", "type": "attack"}
+{"attacker": 2, "damage": 1, "group": 1, "hit": true, "member": 2, "need": 22, "roll": 16, "seq": 229, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 60, "seq": 230, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 1, "seq": 231, "type": "monster_dies"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 2, "seq": 233, "type": "round_orders"}
+{"round": 2, "seq": 234, "type": "round_start"}
+{"chance": 4, "member": 1, "roll": 4, "seq": 235, "type": "jam"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 75, "seq": 236, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 48, "seq": 237, "side": "party", "target": 2, "type": "attack"}
+{"damage": 8, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 15, "seq": 238, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 5, "need": 58, "roll": 78, "seq": 239, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 2, "damage": 4, "group": 1, "hit": true, "member": 4, "need": 28, "roll": 2, "seq": 240, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 75, "seq": 241, "side": "monsters", "type": "attack"}
+{"level": 0, "member": 1, "need": 46, "roll": 58, "seq": 242, "skill": 22, "success": false, "type": "check"}
+{"orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 3, "seq": 244, "type": "round_orders"}
+{"round": 3, "seq": 245, "type": "round_start"}
+{"member": 1, "seq": 246, "type": "click"}
+{"damage": 10, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 55, "seq": 247, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 68, "seq": 248, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 85, "seq": 249, "side": "party", "target": 3, "type": "attack"}
+{"damage": 9, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 42, "seq": 250, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 2, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 40, "seq": 251, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 25, "seq": 252, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 2, "seq": 253, "type": "monster_dies"}
+{"level": 0, "member": 1, "need": 46, "roll": 38, "seq": 254, "skill": 22, "success": true, "type": "check"}
+{"member": 1, "seq": 255, "type": "unjammed"}
+{"orders": {"1": ["advance", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 4, "seq": 257, "type": "round_orders"}
+{"round": 4, "seq": 258, "type": "round_start"}
+{"member": 1, "seq": 259, "type": "click"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 72, "seq": 260, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 72, "seq": 261, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 69, "seq": 262, "side": "party", "target": 3, "type": "attack"}
+{"damage": 5, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 19, "seq": 263, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 34, "seq": 264, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 3, "seq": 265, "type": "monster_dies"}
+{"result": "victory", "rounds": 4, "seq": 266, "type": "combat_end"}
+{"delta": 14, "member": 1, "seq": 267, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 28, "member": 1, "rank": "Hand", "seq": 268, "type": "promote"}
+{"delta": 14, "member": 2, "seq": 269, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 31, "member": 2, "rank": "Hand", "seq": 270, "type": "promote"}
+{"delta": 14, "member": 3, "seq": 271, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 25, "member": 3, "rank": "Hand", "seq": 272, "type": "promote"}
+{"delta": 14, "member": 4, "seq": 273, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 26, "member": 4, "rank": "Hand", "seq": 274, "type": "promote"}
+{"delta": 14, "member": 5, "seq": 275, "total": 214, "type": "xp"}
+{"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 276, "type": "cell_change", "x": 30, "y": 41}
+{"delta": 75, "member": 1, "seq": 277, "total": 195, "type": "money"}
+{"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 278, "type": "cell_change", "x": 30, "y": 41}
+======================================================================
+test_m5_rules.py from FIGHT_SEEDS
+9, LR-22)", picks,
+             [{"type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28},
+              {"type": "recruit", "location": 1, "npc": 0, "slot": 5}])
+    party = ckpt(ev, "CP3").get("party") or []
+    if len(party) != 5:
+        fail("CP3: expected 5 members after the recruit, got %d" % len(party))
+    subset("CP3 slot 5 (SPEC-05 10.2, LR-8, LR-46 rank)", party[4],
+           {"slot": 5, "name": "Orla Penn", "npc": 1, "level": 2, "xp": 200, "max_hp": ref_max_hp(13, 2),
+            "hp": ref_max_hp(13, 2), "cond": 0, "money": 25, "ac": ref_ac(15, 0, 0), "rank": "Hand",
+            "items": [[5, 8], [6, 2]], "weapon_slot": 1, "armour_slot": 0, "skill_points": 0})
+
+
+# ---- the first fight (raiders at (30, 41)), seeded -------------------------
+
+OPEN_SEEDS = [20261021, 1, 2, 3]
+
+
+def _opening(runner, walkthrough, seed):
+    ev, _ = runner.run("opening", {"seed": seed, "script": opening_script(walkthrough)}, seed)
+    return ev, CR.opening(seed)
+
+
+@pytest.mark.parametrize("seed", OPEN_SEEDS)
+def test_encounter_start(runner, walkthrough, seed):
+    ev, ref = _opening(runner, walkthrough, seed)
+    got = next((strip(e) for e in ev if e.get("type") == "encounter_start"), None)
+    check_eq("encounter_start of the road raiders, seed %d (LR-26, LR-28, LR-29)" % seed, got, ref["encounter"])
+
+
+@pytest.mark.parametrize("seed", OPEN_SEEDS)
+def test_surprise_check(runner, walkthrough, seed):
+    ev, ref = _opening(runner, walkthrough, seed)
+    i = next((k for k, e in enumerate(ev) if e.get("type") == "encounter_start"), None)
+    got = next((strip(e) for e in ev[i or 0:] if e.get("type") == "check"), None)
+    check_eq("surprise check after the raiders appear, seed %d (LR-14, LR-30)" % seed, got, ref["check"])
+
+
+@pytest.mark.parametrize("seed", OPEN_SEEDS)
+def test_surprise_round(runner, walkthrough, seed):
+    ev, ref = _opening(runner, walkthrough, seed)
+    surprised = any(e.get("type") == "surprised" for e in ev)
+    check_eq("surprised event present, seed %d (LR-30)" % seed, surprised, ref["surprised"])
+    if ref["surprised"]:
+        got = CR.combat_window(ev, 0)
+        if got is None:
+            fail("seed %d: no round_start with round 0 after the failed surprise check" % seed)
+        check_eq("surprise round attacks, seed %d (LR-30, LR-34)" % seed, got, ref["round0"])
+
+
+@pytest.mark.parametrize("seed", OPEN_SEEDS)
+def test_round1_phase1(runner, walkthrough, seed):
+    ev, ref = _opening(runner, walkthrough, seed)
+    orders = next((strip(e) for e in ev if e.get("type") == "round_orders"), None)
+    check_eq("round 1 auto orders, seed %d (LR-33)" % seed, orders,
+             {"type": "round_orders", "round": 1, "orders": {str(s): ["fire", 1] for s in range(1, 6)}})
+    got = CR.combat_window(ev, 1)
+    if got is None:
+        fail("seed %d: no round_start with round 1" % seed)
+    check_eq("round 1 phase 1 resolution, seed %d (LR-34: shots, monster fire, deaths)" % seed, got, ref["round1"])
+
+
+FIGHT_SEEDS = [1, 2, 3, 4, 5]
+
+
+def _fight(runner, walkthrough, seed):
+    ev, _ = runner.run("cp4", {"seed": seed, "script": prefix(walkthrough, "CP4")}, seed)
+    return ev
+
+
+@pytest.mark.parametrize("cat", ["orders", "need", "target", "jam", "victory"])
+def test_raider_fight_rules(runner, walkthrough, cat):
+    for seed in FIGHT_SEEDS:
+        ev = _fight(runner, walkthrough, seed)
+        issues = [m for c, m in CR.consistency(ev) if c in (cat, "all")]
+        if issues:
+            fail("seed %d, %s: %s" % (seed, cat, issues[0]))
+
+
+def test_victory_loot(runner, walkthrough):
+    for seed in [SEED] + FIGHT_SEEDS[:2]:
+        ev = _fight(runner, walkthrough, seed)
+        i = next((k for k, e in enumerate(ev) if e.get("type") == "combat_end"), None)
+        if i is None:
+            fail("seed %d: no combat_end in the raider fight" % seed)
+        got = [strip(e) for e in ev[i:] if e.get("type") in ("cell_change", "money")][:3]
+        check_eq("seed %d: tail (5, 1) then loot of 75 coins after the victory (LR-44, SPEC-03 9.6)" % seed, got,
+                 [{"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13},
+                  {"type": "money", "member": 1, "delta": 75, "total": 195},
+                  {"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}])
+
+
+# ---- locks, healer, key (walkthrough to CP6, CP7, CP9) -----------------------
+
+@pytest.mark.parametrize("seed", [SEED, 1, 2])
+def test_storehouse_lock(runner, walkthrough, seed):
+    ev, _ = runner.run("cp6", {"seed": seed, "script": prefix(walkthrough, "CP6")}, seed)
+    seg = between(ev, "CP5", "CP6")
+    checks = [e for e in seg if e.get("type") == "check"]
+    if not checks:
+        fail("seed %d: no check event at the storehouse door" % seed)
+    for c in checks:
+        exp = {"type": "check", "member": 3, "skill": 14, "level": 2, "need": 50}
+        check_eq("seed %d: storehouse check (LR-13, LR-14, worked example need 50)" % seed,
+                 {k: c.get(k) for k in exp}, exp)
+        if c.get("success") != (isinstance(c.get("roll"), int) and 1 <= c["roll"] <= 50):
+            fail("seed %d: check roll %r with need 50 but success=%r" % (seed, c.get("roll"), c.get("success")))
+    if any(c.get("success") for c in checks[:-1]) or not checks[-1].get("success"):
+        fail("seed %d: the bumps must repeat until the first success (repeat_until cell:2,26,14)" % seed)
+    i = seg.index(checks[-1])
+    check_eq("seed %d: events after the successful check (LR-21 order)" % seed, seg[i + 1:i + 6],
+             [{"type": "unlock", "x": 26, "y": 14},
+              {"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30},
+              {"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29},
+              {"type": "xp", "member": 3, "delta": 10, "total": 114},
+              {"type": "paragraph", "n": 1

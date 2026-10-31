@@ -1,0 +1,106 @@
+======================================================================
+BUMP SCRIPT EVENTS
+{"seed": 20261021, "seq": 0, "type": "new_game"}
+{"n": 1, "seq": 1, "type": "paragraph"}
+{"key": "LEFT", "seq": 2, "type": "input"}
+{"location": 1, "seq": 3, "steps": 1, "type": "move", "x": 14, "y": 20}
+{"key": "LEFT", "seq": 4, "type": "input"}
+{"location": 1, "seq": 5, "steps": 2, "type": "move", "x": 13, "y": 20}
+{"key": "LEFT", "seq": 6, "type": "input"}
+{"location": 1, "seq": 7, "steps": 3, "type": "move", "x": 12, "y": 20}
+{"key": "LEFT", "seq": 8, "type": "input"}
+{"location": 1, "seq": 9, "steps": 4, "type": "move", "x": 11, "y": 20}
+{"key": "LEFT", "seq": 10, "type": "input"}
+{"location": 1, "seq": 11, "steps": 5, "type": "move", "x": 10, "y": 20}
+{"key": "LEFT", "seq": 12, "type": "input"}
+{"location": 1, "seq": 13, "steps": 6, "type": "move", "x": 9, "y": 20}
+{"key": "LEFT", "seq": 14, "type": "input"}
+{"location": 1, "seq": 15, "steps": 7, "type": "move", "x": 8, "y": 20}
+{"key": "LEFT", "seq": 16, "type": "input"}
+{"location": 1, "seq": 17, "steps": 8, "type": "move", "x": 7, "y": 20}
+{"key": "LEFT", "seq": 18, "type": "input"}
+{"location": 1, "seq": 19, "steps": 9, "type": "move", "x": 6, "y": 20}
+{"key": "LEFT", "seq": 20, "type": "input"}
+{"location": 1, "seq": 21, "steps": 10, "type": "move", "x": 5, "y": 20}
+{"key": "LEFT", "seq": 22, "type": "input"}
+{"location": 1, "seq": 23, "steps": 11, "type": "move", "x": 4, "y": 20}
+{"key": "LEFT", "seq": 24, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 25, "type": "bump", "x": 3, "y": 20}
+{"key": "LEFT", "seq": 26, "type": "input"}
+{"action": 0, "action_class": 11, "seq": 27, "type": "bump", "x": 3, "y": 20}
+{"name": "a", "seq": 28, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 11, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drif
+======================================================================
+CP5-pre-save script index 183
+our CP5-pre-save cell_changes: [[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]]
+our CP5-pre-save steps: 145
+our CP5-pre-save rng: 90935533
+our CP5-pre-save party: '[{"ac": 5, "armour_slot": 4, "cond": 0, "hp": 28, "items": [[3, 6], [4, 2], [7, 0], [8, 0]], "level": 2, "max_hp": 28, "money": 91, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 3, "cond": 0, "hp": 31, "items": [[5, 8], [6, 2], [7, 0]], "level": 2, "max_hp": 31, "money": 27, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 25, "items": [[3, 6], [4, 2]], "level": 2, "max_hp": 25, "money": 73, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 104}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[3, 6], [4, 2], [9, 3]], "level": 2, "max_hp": 26, "money": 63, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 104}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 27, "items": [[5, 8], [6, 2]], "level": 2, "max_hp": 27, "money": 25, "name": "Orla Penn", "npc": 1, "rank": "Hand", "skill_points": 0, "slot": 5, "weapon_slot": 1, "xp": 214}]'
+cell_change events in the run:
+  {"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+  {"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 276, "type": "cell_change", "x": 30, "y": 41}
+  {"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 278, "type": "cell_change", "x": 30, "y": 41}
+======================================================================
+FIGHT EVENTS (walkthrough to CP4)
+{"name": "CP1", "seq": 2, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 0, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond":
+{"delta": -7, "member": 3, "seq": 59, "total": 73, "type": "money"}
+{"delta": -7, "member": 4, "seq": 66, "total": 63, "type": "money"}
+{"delta": 8, "member": 2, "seq": 74, "total": 68, "type": "money"}
+{"delta": -28, "member": 2, "seq": 80, "total": 40, "type": "money"}
+{"name": "CP2", "seq": 94, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 24, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 3, "cond
+{"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+{"name": "CP3", "seq": 133, "state": {"cell_changes": [[1, 8, 17, 0, 0, 28]], "day": 1, "hour": 8, "location": 1, "minute": 39, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 3, "a
+{"groups": [{"band": 3, "count": 3, "hp": [14, 12, 14], "monster": "raider"}], "seq": 217, "type": "encounter_start"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 1, "seq": 221, "type": "round_orders"}
+{"round": 1, "seq": 222, "type": "round_start"}
+{"damage": 6, "group": 1, "hit": true, "member": 1, "need": 57, "roll": 53, "seq": 223, "side": "party", "target": 1, "type": "attack"}
+{"damage": 4, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 38, "seq": 224, "side": "party", "target": 1, "type": "attack"}
+{"damage": 6, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 32, "seq": 225, "side": "party", "target": 1, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 92, "seq": 226, "side": "party", "target": 2, "type": "attack"}
+{"damage": 3, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 56, "seq": 227, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 1, "group": 1, "hit": false, "member": 1, "need": 22, "roll": 61, "seq": 228, "side": "monsters", "type": "attack"}
+{"attacker": 2, "damage": 1, "group": 1, "hit": true, "member": 2, "need": 22, "roll": 16, "seq": 229, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 60, "seq": 230, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 1, "seq": 231, "type": "monster_dies"}
+{"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 2, "seq": 233, "type": "round_orders"}
+{"round": 2, "seq": 234, "type": "round_start"}
+{"chance": 4, "member": 1, "roll": 4, "seq": 235, "type": "jam"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 75, "seq": 236, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 48, "seq": 237, "side": "party", "target": 2, "type": "attack"}
+{"damage": 8, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 15, "seq": 238, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 5, "need": 58, "roll": 78, "seq": 239, "side": "party", "target": 2, "type": "attack"}
+{"attacker": 2, "damage": 4, "group": 1, "hit": true, "member": 4, "need": 28, "roll": 2, "seq": 240, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 75, "seq": 241, "side": "monsters", "type": "attack"}
+{"orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 3, "seq": 244, "type": "round_orders"}
+{"round": 3, "seq": 245, "type": "round_start"}
+{"member": 1, "seq": 246, "type": "click"}
+{"damage": 10, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 55, "seq": 247, "side": "party", "target": 2, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 68, "seq": 248, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 85, "seq": 249, "side": "party", "target": 3, "type": "attack"}
+{"damage": 9, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 42, "seq": 250, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 2, "group": 1, "hit": false, "member": 4, "need": 28, "roll": 40, "seq": 251, "side": "monsters", "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 25, "seq": 252, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 2, "seq": 253, "type": "monster_dies"}
+{"member": 1, "seq": 255, "type": "unjammed"}
+{"orders": {"1": ["advance", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 4, "seq": 257, "type": "round_orders"}
+{"round": 4, "seq": 258, "type": "round_start"}
+{"member": 1, "seq": 259, "type": "click"}
+{"group": 1, "hit": false, "member": 2, "need": 55, "roll": 72, "seq": 260, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 3, "need": 46, "roll": 72, "seq": 261, "side": "party", "target": 3, "type": "attack"}
+{"group": 1, "hit": false, "member": 4, "need": 44, "roll": 69, "seq": 262, "side": "party", "target": 3, "type": "attack"}
+{"damage": 5, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 19, "seq": 263, "side": "party", "target": 3, "type": "attack"}
+{"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 34, "seq": 264, "side": "monsters", "type": "attack"}
+{"group": 1, "index": 3, "seq": 265, "type": "monster_dies"}
+{"result": "victory", "rounds": 4, "seq": 266, "type": "combat_end"}
+{"delta": 14, "member": 1, "seq": 267, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 28, "member": 1, "rank": "Hand", "seq": 268, "type": "promote"}
+{"delta": 14, "member": 2, "seq": 269, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 31, "member": 2, "rank": "Hand", "seq": 270, "type": "promote"}
+{"delta": 14, "member": 3, "seq": 271, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 25, "member": 3, "rank": "Hand", "seq": 272, "type": "promote"}
+{"delta": 14, "member": 4, "seq": 273, "total": 104, "type": "xp"}
+{"level": 2, "max_hp": 26, "member": 4, "rank": "Hand", "seq": 274, "type": "promote"}
+{"delta": 14, "member": 5, "seq": 275, "total": 214, "type": "xp"}
+{"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 276, "type": "cell_change", "x": 30, "y": 41}
+{"delta": 75, "member": 1, "seq": 277, "total": 195, "type": "money"}
+{"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 278, "type": "cell_change", "x": 30, "y": 41}
+{"name": "CP4", "seq": 279, "state": {"cell_changes": [[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]], "day": 1, "hour": 12, "location": 0, "minute": 19, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 2, "max_hp": 28, "money": 195, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1,

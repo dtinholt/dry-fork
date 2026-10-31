@@ -1,0 +1,10 @@
+map keys ['actions', 'bodySize', 'cells', 'centralDirectory', 'encryptedPrefixLength', 'info', 'mobs', 'npcs', 'size', 'strings']
+cells keys ['action', 'actionClass', 'image']
+actionClass row20 [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+actionClass row17 [11, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+action row20 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+action row17 [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+image row20 [35, 10, 10, 21, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 35]
+image row17 [35, 10, 10, 10, 10, 10, 10, 10, 34, 10, 10, 10, 10, 10, 10, 28, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 35]
+actions {"1": [null, {"messages": [1], "newClass": 255, "newAction": 0}, {"messages": [2], "newClass": 255, "newAction": 0}, {"messages": [3], "newClass": 255, "newAction": 0}, {"messages": [4], "newClass": 255, "newAction": 0}], "6": [null, {"shop": 0, "message": 5, "newClass": 255, "newAction": 0}], "10": [null, {"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "newClass": 255, "newAction": 0}, {"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "newClass": 255, "newAction": 0}], "11": [null, {"message": 6, "newClass": 255, "newAction": 0}]}
+records null

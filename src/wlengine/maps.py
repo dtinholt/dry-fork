@@ -1,0 +1,445 @@
+"""Map blocks (SPEC-03).
+
+A map block lives inside GAME1 or GAME2: an ``msq`` header, a rotating-XOR
+encrypted prefix followed by plain bytes (the map-data body), then the Huffman
+coded tile map.  ``decode_map`` reads one block; ``load_map`` finds one through
+LABTABLES.BIN (SPEC-02 section 3.4).
+
+The rest of the module implements the lab rules of SPEC-03 section 9 on the
+decoded dict: ``record_at``, ``is_passable``, ``apply_tail``,
+``resolve_transition`` and ``image_at``.
+"""
+
+from __future__ import annotations
+
+from . import codecs, containers, huffman, strings
+from .errors import FormatError
+
+# Classes that need a record: a null pointer or an out-of-range action byte is
+# a data error for these (L-AC5).
+NEEDS_RECORD = (1, 3, 5, 6, 10)
+
+# Classes the lab defines; everything else is reserved (L-AC1).
+LAB_CLASSES = (0, 1, 3, 4, 5, 6, 10, 11)
+
+# Map-info field order after the five leading bytes (SPEC-03 5.5).
+MAPINFO_FIELDS = ("encounterFrequency", "tileset", "randomMonsterTypes",
+                  "maxRandomEncounters", "borderImage")
+
+CD_SIZE = 42
+MAPINFO_SIZE = 50
+
+
+def _r16(b: bytes, o: int) -> int:
+    if o < 0 or o + 2 > len(b):
+        raise FormatError("map: u16 at offset %d runs past the body" % o)
+    return int.from_bytes(b[o:o + 2], "little")
+
+
+def _r32(b: bytes, o: int) -> int:
+    if o < 0 or o + 4 > len(b):
+        raise FormatError("map: u32 at offset %d runs past the input" % o)
+    return int.from_bytes(b[o:o + 4], "little")
+
+
+def _i8(v: int) -> int:
+    return v - 256 if v >= 128 else v
+
+
+# ---------------------------------------------------------------------------
+# Record decoding (SPEC-03 section 8)
+# ---------------------------------------------------------------------------
+
+def _read_tail(b: bytes, o: int, r: dict) -> int:
+    """Common tail (8.3): u8 newActionClass, u8 newAction when < 253."""
+    if o >= len(b):
+        raise FormatError("map: record tail runs past the body")
+    nc = b[o]
+    o += 1
+    if nc < 253:
+        if o >= len(b):
+            raise FormatError("map: record tail runs past the body")
+        r["newClass"], r["newAction"] = nc, b[o]
+        o += 1
+    else:
+        r["newClass"], r["newAction"] = nc, 0
+    return o
+
+
+def decode_record(cls: int, b: bytes, o: int) -> dict:
+    """Decode one action record of class ``cls`` at body offset ``o``."""
+    if o < 0 or o >= len(b):
+        raise FormatError("map: record offset %d outside the body" % o)
+    r: dict = {}
+    if cls == 1:  # PRINT (8.4)
+        msgs = []
+        while True:
+            if o >= len(b):
+                raise FormatError("map: PRINT record runs past the body")
+            m = b[o]
+            o += 1
+            msgs.append(m & 0x7F)
+            if m & 0x80:
+                break
+        r["messages"] = msgs
+        _read_tail(b, o, r)
+    elif cls == 3 or cls == 15:  # FIXED_ENCOUNTER / RANDOM_ENCOUNTER (8.5)
+        if o + 10 > len(b):
+            raise FormatError("map: encounter record runs past the body")
+        r["visibleDistance"], r["hitDistance"], r["message"] = b[o], b[o + 1], b[o + 2]
+        o += 3
+        groups = []
+        for _ in range(3):
+            groups.append([b[o], bool(b[o + 1] & 0x80), b[o + 1] & 0x7F])
+            o += 2
+        r["groups"] = groups
+        f = b[o]
+        o += 1
+        r.update({"properName": f & 1, "friendly": (f >> 1) & 1,
+                  "immobile": (f >> 2) & 1, "npc": f >> 4})
+        _read_tail(b, o, r)
+    elif cls == 4:  # MASK (8.7)
+        if o + 2 > len(b):
+            raise FormatError("map: MASK record runs past the body")
+        r["message"], r["impassable"], r["tile"] = b[o], bool(b[o + 1] & 0x80), b[o + 1] & 0x7F
+        _read_tail(b, o + 2, r)
+    elif cls == 5:  # LOOT (8.8, wllib layout)
+        if o + 2 > len(b):
+            raise FormatError("map: LOOT record runs past the body")
+        r["newClass"], r["newAction"] = b[o], b[o + 1]
+        o += 2
+        r["items"], r["cash"] = [], None
+        while True:
+            if o >= len(b):
+                raise FormatError("map: LOOT record has no 0xFF terminator")
+            v = b[o]
+            if v == 0xFF:
+                break
+            if v in (0xDE, 0x5E):
+                if o + 3 > len(b):
+                    raise FormatError("map: LOOT cash entry runs past the body")
+                r["cash"] = [v == 0xDE, _r16(b, o + 1)]
+                o += 3
+            else:
+                if o + 2 > len(b):
+                    raise FormatError("map: LOOT item entry runs past the body")
+                r["items"].append([v & 0x7F, bool(v & 0x80), b[o + 1]])
+                o += 2
+    elif cls == 6:  # SHOP (lab layout, 9.4)
+        if o + 2 > len(b):
+            raise FormatError("map: SHOP record runs past the body")
+        r["shop"], r["message"] = b[o], b[o + 1]
+        _read_tail(b, o + 2, r)
+    elif cls == 10:  # TRANSITION (8.9)
+        if o + 4 > len(b):
+            raise FormatError("map: TRANSITION record runs past the body")
+        f = b[o]
+        r.update({"relative": bool(f & 0x80), "confirm": bool(f & 0x40),
+                  "message": f & 0x3F, "x": _i8(b[o + 1]), "y": _i8(b[o + 2]),
+                  "location": b[o + 3]})
+        _read_tail(b, o + 4, r)
+    elif cls == 11:  # BLOCKED (8.10)
+        if o + 1 > len(b):
+            raise FormatError("map: BLOCKED record runs past the body")
+        r["message"] = b[o]
+        _read_tail(b, o + 1, r)
+    else:
+        raise FormatError("map: class %d has no record layout" % cls)
+    return r
+
+
+# ---------------------------------------------------------------------------
+# Block decoding (SPEC-03 sections 3 to 7)
+# ---------------------------------------------------------------------------
+
+def _decode_pointer_table(body: bytes, start: int, cls: int) -> list:
+    """Pointer list at ``start`` (SPEC-03 6.2), records decoded per class.
+
+    Pointers are read until the read position reaches the smallest non-zero
+    pointer seen so far (the wastelib rule); lab data keeps pointers ascending
+    so the wllib rule agrees.
+    """
+    ptrs = []
+    pos = start
+    end_ptr = None
+    while end_ptr is None or pos < end_ptr:
+        p = _r16(body, pos)
+        ptrs.append(p)
+        pos += 2
+        if p and (end_ptr is None or p < end_ptr):
+            end_ptr = p
+    out = []
+    for p in ptrs:
+        if p == 0:
+            out.append(None)
+        else:
+            if p >= len(body):
+                raise FormatError("map: action pointer %d outside the body" % p)
+            out.append(decode_record(cls, body, p))
+    return out
+
+
+def decode_map(game: bytes, offset: int, map_size: int, tile_map_offset: int) -> dict:
+    """Decode the map block at ``offset`` (SPEC-03 sections 3 to 7)."""
+    if offset < 0 or offset + 4 > len(game):
+        raise FormatError("map: block header runs past the end of the file")
+    if game[offset:offset + 3] != b"msq" or game[offset + 3] not in (0x30, 0x31):
+        raise FormatError("map: bad block header %s"
+                          % bytes(game[offset:offset + 4]).hex(" ").upper())
+    if map_size not in (32, 64):
+        raise FormatError("map: unsupported map size %d" % map_size)
+    if tile_map_offset < 7:
+        raise FormatError("map: tile-map offset %d is too small" % tile_map_offset)
+
+    body_size = tile_map_offset - 7
+    body, plen = codecs.rotating_xor_decode_prefix(game, body_size, offset + 4)
+
+    t = offset + tile_map_offset
+    tsize = _r32(game, t)
+    if tsize != map_size * map_size:
+        raise FormatError("map: tile-map size %d != %d" % (tsize, map_size * map_size))
+    tiles, _end = huffman.decode(game, tsize, t + 8)
+
+    n = map_size * map_size
+    cm = body[:n // 2]
+    am = body[n // 2:n // 2 + n]
+    if len(cm) < n // 2 or len(am) < n:
+        raise FormatError("map: body is too short for a %d x %d map" % (map_size, map_size))
+    cdo = n // 2 + n
+    if cdo + CD_SIZE + MAPINFO_SIZE > len(body):
+        raise FormatError("map: central directory or map info runs past the body")
+    cd = body[cdo:cdo + CD_SIZE]
+    sd = {
+        "stringsOffset": _r16(cd, 0),
+        "mobNamesOffset": _r16(cd, 2),
+        "mobDataOffset": _r16(cd, 4),
+        "actionClassOffsets": [_r16(cd, 6 + 2 * i) for i in range(16)],
+        "specialsOffset": _r16(cd, 0x26),
+        "npcOffset": _r16(cd, 0x28),
+    }
+    for name in ("stringsOffset", "mobNamesOffset", "mobDataOffset", "specialsOffset", "npcOffset"):
+        v = sd[name]
+        if v and v >= len(body):
+            raise FormatError("map: central-directory %s %d outside the body" % (name, v))
+    for c, v in enumerate(sd["actionClassOffsets"]):
+        if v and v >= len(body):
+            raise FormatError("map: action-class offset %d (class %d) outside the body" % (v, c))
+
+    info = _decode_mapinfo(body[cdo + CD_SIZE:cdo + CD_SIZE + MAPINFO_SIZE])
+    if info["mapSize"] != map_size:
+        raise FormatError("map: map info size %d != %d" % (info["mapSize"], map_size))
+
+    # L-EN2: in lab data the encrypted prefix ends exactly at stringsOffset.
+    if plen != sd["stringsOffset"]:
+        raise FormatError("map: encrypted prefix ends at %d, stringsOffset is %d (L-EN2)"
+                          % (plen, sd["stringsOffset"]))
+
+    cls = [[(cm[(y * map_size + x) >> 1] >> 4) if x % 2 == 0
+            else (cm[(y * map_size + x) >> 1] & 0x0F)
+            for x in range(map_size)] for y in range(map_size)]
+    act = [list(am[y * map_size:(y + 1) * map_size]) for y in range(map_size)]
+    img = [list(tiles[y * map_size:(y + 1) * map_size]) for y in range(map_size)]
+
+    actions = {}
+    for c in range(16):
+        o = sd["actionClassOffsets"][c]
+        if o == 0:
+            continue
+        actions[str(c)] = _decode_pointer_table(body, o, c)
+
+    npcs = []
+    o = sd["npcOffset"]
+    if o and _r16(body, o) == 0:
+        pos, lo, ptrs = o + 2, None, []
+        while lo is None or pos < lo:
+            p = _r16(body, pos)
+            ptrs.append(p)
+            pos += 2
+            lo = p if lo is None or p < lo else lo
+        for p in ptrs:
+            if p + 0x100 > len(body):
+                raise FormatError("map: NPC pointer %d outside the body" % p)
+            npcs.append(containers.decode_character(body[p:p + 0x100]))
+
+    nm = (sd["stringsOffset"] - sd["mobDataOffset"]) // 8
+    names = []
+    p = sd["mobNamesOffset"]
+    for _ in range(nm):
+        e = body.find(b"\x00", p)
+        if e < 0:
+            raise FormatError("map: monster name %d is not NUL-terminated" % len(names))
+        names.append(body[p:e])
+        p = e + 1
+    mobs = []
+    for i in range(nm):
+        o = sd["mobDataOffset"] + 8 * i
+        if o + 8 > len(body):
+            raise FormatError("map: monster data runs past the body")
+        mobs.append(_decode_mob(body[o:o + 8], names[i]))
+
+    decoded = strings.decode_table(body, sd["stringsOffset"])
+    return {
+        "size": map_size,
+        "bodySize": body_size,
+        "encryptedPrefixLength": plen,
+        "centralDirectory": sd,
+        "info": info,
+        "cells": {"actionClass": cls, "action": act, "image": img},
+        "actions": actions,
+        "npcs": npcs,
+        "mobs": mobs,
+        "strings": [s.decode("latin-1") for s in decoded],
+    }
+
+
+def _decode_mapinfo(b: bytes) -> dict:
+    if len(b) < MAPINFO_SIZE:
+        raise FormatError("map: map-info block is shorter than 50 bytes")
+    d = {"unknown00": b[0], "unknown01": b[1], "mapSize": b[2],
+         "unknown03": b[3], "unknown04": b[4]}
+    for i, k in enumerate(MAPINFO_FIELDS):
+        d[k] = b[5 + i]
+    d["timePerStep"] = _r16(b, 0x0A)
+    d["healRate"] = b[0x0C]
+    d["combatStringIds"] = list(b[0x0D:0x32])
+    return d
+
+
+def _decode_mob(b: bytes, name: bytes) -> dict:
+    return {"name": name.decode("latin-1"), "sturdiness": _r16(b, 0),
+            "combatRating": b[2], "randomDamage": b[3], "maxGroup": b[4] >> 4,
+            "armorClass": b[4] & 15, "fixedDamage": b[5] >> 4,
+            "weaponType": b[5] & 15, "type": b[6], "portrait": b[7]}
+
+
+# ---------------------------------------------------------------------------
+# Loading through the tables (SPEC-02 3.4)
+# ---------------------------------------------------------------------------
+
+def load_map(data_dir: str, location: int) -> dict:
+    """Load the map for ``location`` through LABTABLES.BIN and GAME1/GAME2."""
+    import os
+
+    tables = containers.read_tables(os.path.join(data_dir, "LABTABLES.BIN"))
+    loc, disk, index = containers.resolve_location(tables, location)
+    if disk == 2:
+        name, off_index = "GAME1", index
+    elif disk == 1:
+        name, off_index = "GAME2", 20 + index
+    else:
+        raise FormatError("map: location %d has an invalid disk code %d" % (location, disk))
+    with open(os.path.join(data_dir, name), "rb") as fh:
+        game = fh.read()
+    offsets = tables["mapOffsets"]
+    if off_index >= len(offsets):
+        raise FormatError("map: map index %d is outside mapOffsets" % off_index)
+    offset = offsets[off_index]
+    sizes = tables["mapSizes"]
+    if loc >= len(sizes):
+        raise FormatError("map: location %d is outside mapSizes" % loc)
+    size = sizes[loc]
+    tmos = tables["tileMapOffsets"]
+    if loc >= len(tmos):
+        raise FormatError("map: location %d is outside tileMapOffsets" % loc)
+    return decode_map(game, offset, size, tmos[loc])
+
+
+# ---------------------------------------------------------------------------
+# Lab-rule semantics (SPEC-03 section 9)
+# ---------------------------------------------------------------------------
+
+def record_at(map: dict, x: int, y: int):
+    """The record for cell ``(x, y)``, or ``None`` (L-AC2, L-AC3, L-AC5)."""
+    size = map["size"]
+    if not (0 <= x < size and 0 <= y < size):
+        raise FormatError("map: cell (%d, %d) outside the %d x %d map" % (x, y, size, size))
+    cls = map["cells"]["actionClass"][y][x]
+    a = map["cells"]["action"][y][x]
+    if a == 0:
+        if cls in NEEDS_RECORD:
+            raise FormatError("map: class %d cell (%d, %d) has action byte 0 (L-AC5)"
+                              % (cls, x, y))
+        return None
+    table = map["actions"].get(str(cls))
+    if table is None:
+        return None
+    if a >= len(table):
+        raise FormatError("map: class %d cell (%d, %d) has action byte %d beyond the "
+                          "pointer list (%d entries) (L-AC5)" % (cls, x, y, a, len(table)))
+    rec = table[a]
+    if rec is None and cls in NEEDS_RECORD:
+        raise FormatError("map: class %d cell (%d, %d) points at a null record (L-AC5)"
+                          % (cls, x, y))
+    return rec
+
+
+def is_passable(map: dict, x: int, y: int) -> bool:
+    """Whether the party may step onto ``(x, y)`` (9.1, 9.6, L-MV1, L-MV2)."""
+    size = map["size"]
+    if not (0 <= x < size and 0 <= y < size):
+        return False
+    cls = map["cells"]["actionClass"][y][x]
+    if cls == 0:
+        return True
+    if cls == 11:
+        return False
+    if cls == 4:
+        rec = record_at(map, x, y)
+        return True if rec is None else not rec["impassable"]
+    if cls in (1, 3, 5, 6, 10):
+        return True
+    return True  # reserved classes are walkable (L-AC1)
+
+
+def apply_tail(record):
+    """``(newClass, newAction)`` for a record tail, or ``None`` (L-TL1)."""
+    nc = record.get("newClass", 255)
+    if nc >= 253:
+        return None
+    if nc >= 16:
+        return None
+    return [nc, record.get("newAction", 0)]
+
+
+def resolve_transition(tables: dict, record: dict, x: int, y: int, previous):
+    """Resolve a TRANSITION record to ``(location, x, y)`` (L-TR2, L-TR3, L-TR5)."""
+    t = record["location"]
+    if t == 255:
+        return (previous[0], previous[1], previous[2])
+    if 128 <= t <= 252:
+        shared = tables["sharedLocations"]
+        if t - 128 >= len(shared):
+            raise FormatError("map: shared location %d has no entry" % t)
+        t = shared[t - 128]
+    loc, _disk, _index = containers.resolve_location(tables, t)
+    if record.get("relative"):
+        tx = x + record["x"]
+        ty = y + record["y"]
+    else:
+        tx = record["x"] & 0xFF
+        ty = record["y"] & 0xFF
+    size = tables["mapSizes"][loc]
+    if not (0 <= tx < size and 0 <= ty < size):
+        raise FormatError("map: transition target (%d, %d) outside the %d x %d map (L-TR5)"
+                          % (tx, ty, size, size))
+    return [loc, tx, ty]
+
+
+def image_at(map: dict, x: int, y: int) -> int:
+    """The cell image, or the border image outside the map (L-MI5)."""
+    size = map["size"]
+    if not (0 <= x < size and 0 <= y < size):
+        return map["info"]["borderImage"]
+    return map["cells"]["image"][y][x]
+
+
+__all__ = [
+    "decode_map",
+    "load_map",
+    "record_at",
+    "is_passable",
+    "apply_tail",
+    "resolve_transition",
+    "image_at",
+    "decode_record",
+]

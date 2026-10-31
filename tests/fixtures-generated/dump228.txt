@@ -1,0 +1,14 @@
+keys=['location', 'name', 'width', 'height', 'tileset', 'info', 'conventions', 'strings', 'mobs', 'npcs', 'records', 'action_cells', 'tiles', 'action_class', 'action_value']
+tiles row20=[25, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25]
+action_class row20=[11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+
+--- reference bumps ---
+{"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+{"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 562, "type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+{"seq": 603, "type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+{"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+{"seq": 1018, "type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0}

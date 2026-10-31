@@ -1,0 +1,121 @@
+art[284] = ' 18  |.......;;;;;;;;...............|'
+art[285] = ' 19  |..............;.......T.......|'
+art[286] = ' 20  |..Y...........;...............|'
+art[287] = ' 21  |..............;..........Y....|'
+art[288] = ' 22  |..............;...............|'
+
+scenario.json: {"scenario": "Dry Fork", "version": "1.1", "authored": "2026-10-21", "content": "lab-original; no Interplay content", "rules": "SPEC-04 lab rules v1 (non-parity); map encoding per SPEC-03 section 9; containers per SPEC-02 section 12", "files": ["tiles.json", "portraits.json", "map0-overworld.json", "map1-saltwell.json", "map2-ninemile.json", "map3-pumphouse.json", "hooks.json", "strings.json", "paragraphs.json", "skills.json", "items.json", "shops.json", "encounters.json", "npcs.json", "party.json", "walkthrough.json", "rng-vectors.json", "walkthrough-reference-log.json"], "locations": [{"location": 0, "name": "Dry Fork overworld", "size": 64, "file": "map0-overworld.json", "location_code": 128, "game_file": "GAME1", "map_index": 0}, {"location": 1, "name": "Saltwell", "size": 32, "file": "map1-saltwell.json", "location_code": 129, "game_file": "GAME1", "map_index": 1}, {"location": 2, "name": "Ninemile", "size": 32, "file": "map2-ninemile.json", "location_code": 130, "game_file": "GAME1", "map_index": 2}, {"location": 3, "name": "Pumphouse Deep", "size": 32, "file": "map3-pumphouse.json", "location_code": 131, "game_file": "GAME1", "map_index": 3}], "start": {"location": 1, "x": 15, "y": 20, "hour": 8, "paragraph": 1, "seed": 20261021}, "labstr_tables": {"0": {"use": "intro and title (SPEC-02 L-ST4)", "strings": ["", "Dry Fork", "A lab scenario for the clean room engine.", "Press any key."]}, "1": {"use": "general messages (SPEC-02 L-ST4); index = id in strings.json, gaps ar
+
+test_m5_rules.py 505-525:
+ 505 '    subset("one overworld step later (10 minutes per step)", ckpt(ev, "b"),'
+ 506 '           {"location": 0, "x": 11, "y": 41, "steps": 12, "hour": 8, "minute": 21})'
+ 507 '    types = [strip(e) for e in ev if e.get("type") in ("map_change", "paragraph", "message")]'
+ 508 '    check_eq("paragraph and transition events on the way out (LR-25: no message event for a paragraph)", types,'
+ 509 '             [{"type": "paragraph", "n": 1}, {"type": "paragraph", "n": 2},'
+ 510 '              {"type": "map_change", "location": 0, "x": 10, "y": 41}])'
+ 511 ''
+ 512 ''
+ 513 'def test_bump_is_not_a_step(runner):'
+ 514 '    ev, _ = runner.run("bump", {"seed": SEED, "script": ["LEFT"] * 13 + [{"checkpoint": "a"}]})'
+ 515 '    subset("after 12 steps west and one bump (LR-15)", ckpt(ev, "a"),'
+ 516 '           {"location": 1, "x": 3, "y": 20, "steps": 12, "hour": 8, "minute": 12})'
+ 517 '    tail = [strip(e) for e in ev if e.get("type") != "checkpoint"][-2:]'
+ 518 '    check_eq("events of the bump into the cactus at (2, 20)", tail,'
+ 519 '             [{"type": "input", "key": "LEFT"}, {"type": "bump", "x": 2, "y": 20, "action_class": 11, "action": 0}])'
+ 520 ''
+ 521 ''
+ 522 'def test_rest(runner):'
+ 523 '    ev, _ = runner.run("rest", {"seed": SEED, "script": ["R", {"checkpoint": "a"}]})'
+ 524 '    subset("after one rest (LR-17)", ckpt(ev, "a"), {"steps": 0, "day": 1, "hour": 9, "minute": 0, "rng_state": SEED})'
+ 525 '    i = next((k for k, e in enumerate(ev) if e.get("type") == "input"), None)'
+
+test_m5_rules.py SEED / imports:
+   1 """M5: game rules (SPEC-04, lab rules v1). Table-driven cases whose expected
+   2 values come from the SPEC-04 formulas (restated independently in wl_support),
+   3 the worked examples of SPEC-04, and SPEC/scenario/rng-vectors.json; plus short
+   4 headless runs on the engine's compiled Dry Fork data, checked against values
+   5 derived from SPEC-04 and SPEC-05. API: SPEC-07 sections 2.7 to 2.9."""
+   6 
+   7 from __future__ import annotations
+   8 
+   9 import copy
+  10 
+  11 import pytest
+  12 
+  13 import wl_combat_ref as CR
+  14 import wl_support as W
+  15 from wl_support import (RefRng, call, check_bytes, check_eq, expect_error, fail, ref_ac, ref_advance_clock,
+  16                         ref_buy_price, ref_check_need, ref_damage_member, ref_flee_need, ref_jam_chance,
+  17                         ref_level_after, ref_max_hp, ref_melee_need, ref_monster_hp, ref_monster_need, ref_pay,
+  18                         ref_ranged_need, ref_sell_price, ref_skill_check, ref_speed_order, ref_xp_threshold)
+  19 
+  20 pytestmark = pytest.mark.milestone("M5")
+  21 
+  22 VECTORS = W.load_json(W.SCENARIO / "rng-vectors.json")["vectors"]
+  23 VSEEDS = [v["seed"] for v in VECTORS]
+  24 C = W.codecs_oracle()
+  25 
+  26 
+  27 def table(argnames, cases, ids=None):
+  28     """Run one test function over a table of cases inside a single test.
+  29 
+  30     Each SPEC-04 rule is one test; its table rows are checked in order and the
+  31     failure message names the first failing row only."""
+  32     names = [n.strip() for n in argnames.split(",")]
+  33 
+  34     def deco(fn):
+  35         def wrapper():
+  36             for case in cases:
+  37                 fn(**dict(zip(names, case if len(names) > 1 else (case,))))
+  38         wrapper.__name__ = fn.__name__
+  39         wrapper.__qualname__ = fn.__qualname__
+  40         wrapper.__doc__ = fn.__doc__
+
+reflog events with y==20:
+{"seq": 151, "type": "move", "location": 1, "x": 15, "y": 20, "steps": 48}
+{"seq": 583, "type": "move", "location": 2, "x": 22, "y": 20, "steps": 185}
+{"seq": 626, "type": "move", "location": 2, "x": 22, "y": 20, "steps": 203}
+{"seq": 1000, "type": "move", "location": 1, "x": 15, "y": 20, "steps": 350}
+
+reflog first 30 events:
+{"seq": 0, "type": "new_game", "seed": 20261021}
+{"seq": 1, "type": "paragraph", "n": 1}
+{"seq": 2, "type": "checkpoint", "name": "CP1", "state": {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map", "cell_changes": [], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "cond": 0, "money": 120, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 2], [7, 0]], "weapon_slot": 1, "armour_slot": 3}, {"slot": 2, "name": "Tobin Ash", "npc": 0, "level": 1, "xp": 90, "max_hp": 26, "hp": 26, "cond": 0, "money": 60, "ac": 2, "rank": "Drifter", "skill_points": 0, "items": [[5, 8], [6, 1], [1, 0]], "weapon_slot": 1, "armour_slot": 0}, {"slot": 3, "name": "Maro Quill", "npc": 0, "level": 1, "xp": 90, "max_hp": 21, "hp": 21, "cond": 0, "money": 80, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 1]], "weapon_slot": 1, "armour_slot": 0}, {"slot": 4, "name": "Dell Ostrow", "npc": 0, "level": 1, "xp": 90, "max_hp": 22, "hp": 22, "cond": 0, "money": 70, "ac": 2, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 1], [9, 3]], "weapon_slot": 1, "armour_slot": 0}], "rng_state": 20261021}}
+{"seq": 3, "type": "input", "key": "UP"}
+{"seq": 4, "type": "move", "location": 1, "x": 15, "y": 19, "steps": 1}
+{"seq": 5, "type": "input", "key": "UP"}
+{"seq": 6, "type": "move", "location": 1, "x": 15, "y": 18, "steps": 2}
+{"seq": 7, "type": "input", "key": "UP"}
+{"seq": 8, "type": "move", "location": 1, "x": 15, "y": 17, "steps": 3}
+{"seq": 9, "type": "input", "key": "UP"}
+{"seq": 10, "type": "move", "location": 1, "x": 15, "y": 16, "steps": 4}
+{"seq": 11, "type": "input", "key": "UP"}
+{"seq": 12, "type": "move", "location": 1, "x": 15, "y": 15, "steps": 5}
+{"seq": 13, "type": "input", "key": "UP"}
+{"seq": 14, "type": "move", "location": 1, "x": 15, "y": 14, "steps": 6}
+{"seq": 15, "type": "input", "key": "UP"}
+{"seq": 16, "type": "move", "location": 1, "x": 15, "y": 13, "steps": 7}
+{"seq": 17, "type": "input", "key": "UP"}
+{"seq": 18, "type": "move", "location": 1, "x": 15, "y": 12, "steps": 8}
+{"seq": 19, "type": "input", "key": "LEFT"}
+{"seq": 20, "type": "move", "location": 1, "x": 14, "y": 12, "steps": 9}
+{"seq": 21, "type": "input", "key": "UP"}
+{"seq": 22, "type": "move", "location": 1, "x": 14, "y": 11, "steps": 10}
+{"seq": 23, "type": "input", "key": "UP"}
+{"seq": 24, "type": "move", "location": 1, "x": 14, "y": 10, "steps": 11}
+{"seq": 25, "type": "input", "key": "UP"}
+{"seq": 26, "type": "move", "location": 1, "x": 14, "y": 9, "steps": 12}
+{"seq": 27, "type": "input", "key": "UP"}
+{"seq": 28, "type": "move", "location": 1, "x": 14, "y": 8, "steps": 13}
+{"seq": 29, "type": "input", "key": "LEFT"}
+
+reflog bumps:
+{"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+{"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 562, "type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+{"seq": 603, "type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+{"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+{"seq": 1018, "type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0}

@@ -1,0 +1,667 @@
+==================== map2-ninemile.json records
+{
+ "10": [
+  {
+   "relative": false,
+   "confirm": false,
+   "message": 0,
+   "x": 43,
+   "y": 28,
+   "location": 0,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "relative": false,
+   "confirm": false,
+   "message": 0,
+   "x": 43,
+   "y": 28,
+   "location": 0,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "relative": false,
+   "confirm": false,
+   "message": 0,
+   "x": 43,
+   "y": 28,
+   "location": 0,
+   "new_class": 255,
+   "new_action": 0
+  }
+ ],
+ "1": [
+  {
+   "messages": [
+    1
+   ],
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "messages": [
+    2
+   ],
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "messages": [
+    3
+   ],
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "messages": [
+    4
+   ],
+   "new_class": 255,
+   "new_action": 0
+  }
+ ],
+ "6": [
+  {
+   "shop": 1,
+   "message": 5,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "shop": 2,
+   "message": 6,
+   "new_class": 255,
+   "new_action": 0
+  }
+ ],
+ "5": [
+  {
+   "new_class": 0,
+   "new_action": 0,
+   "items": [
+    [
+     11,
+     true,
+     0
+    ]
+   ],
+   "cash": null
+  },
+  {
+   "new_class": 0,
+   "new_action": 0,
+   "items": [
+    [
+     10,
+     true,
+     0
+    ]
+   ],
+   "cash": null
+  }
+ ],
+ "4": [
+  {
+   "message": 0,
+   "impassable": false,
+   "tile": 29,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "message": 7,
+   "impassable": true,
+   "tile": 30,
+   "new_class": 4,
+   "new_action": 1
+  }
+ ],
+ "11": [
+  {
+   "message": 10,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "message": 12,
+   "new_class": 255,
+   "new_action": 0
+  }
+ ]
+}
+==================== map2-ninemile.json action_cells
+[
+ {
+  "x": 0,
+  "y": 15,
+  "tile": 18,
+  "class": 10,
+  "action": 1,
+  "note": "Ninemile west gate to overworld (43,28)"
+ },
+ {
+  "x": 0,
+  "y": 16,
+  "tile": 18,
+  "class": 10,
+  "action": 2,
+  "note": "Ninemile west gate to overworld (43,28)"
+ },
+ {
+  "x": 0,
+  "y": 17,
+  "tile": 18,
+  "class": 10,
+  "action": 3,
+  "note": "Ninemile west gate to overworld (43,28)"
+ },
+ {
+  "x": 2,
+  "y": 16,
+  "tile": 0,
+  "class": 1,
+  "action": 1,
+  "note": "Ninemile entry, paragraph 10"
+ },
+ {
+  "x": 7,
+  "y": 6,
+  "tile": 19,
+  "class": 1,
+  "action": 2,
+  "note": "Gunsmith doorway, paragraph 11"
+ },
+ {
+  "x": 7,
+  "y": 25,
+  "tile": 19,
+  "class": 1,
+  "action": 3,
+  "note": "Dining hall doorway, paragraph 15"
+ },
+ {
+  "x": 10,
+  "y": 9,
+  "tile": 0,
+  "class": 1,
+  "action": 4,
+  "note": "Sleeping dog message"
+ },
+ {
+  "x": 7,
+  "y": 5,
+  "tile": 17,
+  "class": 6,
+  "action": 1,
+  "note": "Shop list 1, Ninemile Gunsmith"
+ },
+ {
+  "x": 25,
+  "y": 5,
+  "tile": 17,
+  "class": 6,
+  "action": 2,
+  "note": "Shop list 2, Ninemile Outfitter"
+ },
+ {
+  "x": 26,
+  "y": 12,
+  "tile": 17,
+  "class": 5,
+  "action": 1,
+  "note": "Loot: Gate card"
+ },
+ {
+  "x": 10,
+  "y": 23,
+  "tile": 17,
+  "class": 5,
+  "action": 2,
+  "note": "Loot: Rope coil"
+ },
+ {
+  "x": 26,
+  "y": 14,
+  "tile": 20,
+  "class": 4,
+  "action": 2,
+  "note": "Lock: storehouse door, Tumblers 30"
+ },
+ {
+  "x": 18,
+  "y": 17,
+  "tile": 24,
+  "class": 11,
+  "action": 1,
+  "note": "NPC 0 of Ninemile: Teodor Lusk"
+ },
+ {
+  "x": 20,
+  "y": 4,
+  "tile": 24,
+  "class": 11,
+  "action": 2,
+  "note": "NPC 1 of Ninemile: Wren Abara (leader CHA 17)"
+ },
+ {
+  "x": 25,
+  "y": 21,
+  "tile": 22,
+  "class": 11,
+  "action": 0,
+  "note": "Healer's cot, Ninemile"
+ }
+]
+==================== map2-ninemile.json strings
+[
+ "",
+ "Read paragraph 10.",
+ "Read paragraph 11.",
+ "Read paragraph 15.",
+ "A dog asleep in the shade opens one eye and closes it again.",
+ "Ninemile Gunsmith.",
+ "Ninemile Outfitter.",
+ "A padlock hangs from the storehouse hasp.",
+ "Read paragraph 12.",
+ "The padlock holds.",
+ "Read paragraph 13.",
+ "Teodor squints at your leader and goes back to his clock.",
+ "Read paragraph 14.",
+ "Wren looks your leader up and down and laughs.",
+ "",
+ ""
+]
+==================== map3-pumphouse.json records
+{
+ "10": [
+  {
+   "relative": false,
+   "confirm": false,
+   "message": 0,
+   "x": 44,
+   "y": 48,
+   "location": 0,
+   "new_class": 255,
+   "new_action": 0
+  }
+ ],
+ "1": [
+  {
+   "messages": [
+    1
+   ],
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "messages": [
+    2
+   ],
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "messages": [
+    3
+   ],
+   "new_class": 255,
+   "new_action": 0
+  }
+ ],
+ "5": [
+  {
+   "new_class": 0,
+   "new_action": 0,
+   "items": [
+    [
+     9,
+     true,
+     3
+    ]
+   ],
+   "cash": null
+  },
+  {
+   "new_class": 0,
+   "new_action": 0,
+   "items": [
+    [
+     12,
+     true,
+     0
+    ]
+   ],
+   "cash": null
+  },
+  {
+   "new_class": 0,
+   "new_action": 0,
+   "items": [
+    [
+     9,
+     true,
+     3
+    ]
+   ],
+   "cash": null
+  }
+ ],
+ "3": [
+  {
+   "visible_distance": 3,
+   "hit_distance": 1,
+   "message": 4,
+   "groups": [
+    [
+     1,
+     false,
+     4
+    ],
+    [
+     0,
+     false,
+     0
+    ],
+    [
+     0,
+     false,
+     0
+    ]
+   ],
+   "proper_name": 0,
+   "friendly": 0,
+   "immobile": 0,
+   "new_class": 5,
+   "new_action": 1
+  },
+  {
+   "visible_distance": 3,
+   "hit_distance": 1,
+   "message": 5,
+   "groups": [
+    [
+     2,
+     true,
+     2
+    ],
+    [
+     0,
+     false,
+     0
+    ],
+    [
+     0,
+     false,
+     0
+    ]
+   ],
+   "proper_name": 0,
+   "friendly": 0,
+   "immobile": 0,
+   "new_class": 0,
+   "new_action": 0
+  }
+ ],
+ "4": [
+  {
+   "message": 0,
+   "impassable": false,
+   "tile": 37,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "message": 6,
+   "impassable": true,
+   "tile": 39,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "message": 7,
+   "impassable": true,
+   "tile": 40,
+   "new_class": 11,
+   "new_action": 0
+  },
+  {
+   "message": 0,
+   "impassable": false,
+   "tile": 37,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "message": 10,
+   "impassable": true,
+   "tile": 39,
+   "new_class": 4,
+   "new_action": 4
+  },
+  {
+   "message": 0,
+   "impassable": false,
+   "tile": 37,
+   "new_class": 255,
+   "new_action": 0
+  },
+  {
+   "message": 13,
+   "impassable": true,
+   "tile": 25,
+   "new_class": 4,
+   "new_action": 6
+  }
+ ],
+ "11": [
+  {
+   "message": 16,
+   "new_class": 255,
+   "new_action": 0
+  }
+ ]
+}
+==================== map3-pumphouse.json action_cells
+[
+ {
+  "x": 3,
+  "y": 1,
+  "tile": 31,
+  "class": 10,
+  "action": 1,
+  "note": "Pumphouse stairs to overworld (44,48)"
+ },
+ {
+  "x": 3,
+  "y": 3,
+  "tile": 27,
+  "class": 1,
+  "action": 1,
+  "note": "Foot of the stairs, paragraph 18"
+ },
+ {
+  "x": 17,
+  "y": 6,
+  "tile": 27,
+  "class": 1,
+  "action": 2,
+  "note": "Governor chamber, paragraph 22"
+ },
+ {
+  "x": 15,
+  "y": 20,
+  "tile": 27,
+  "class": 1,
+  "action": 3,
+  "note": "Pipe gallery message"
+ },
+ {
+  "x": 9,
+  "y": 6,
+  "tile": 27,
+  "class": 3,
+  "action": 1,
+  "note": "Encounter 5: pump crawlers, 4; then loot Field kit (status 3)"
+ },
+ {
+  "x": 10,
+  "y": 20,
+  "tile": 27,
+  "class": 3,
+  "action": 2,
+  "note": "Encounter 6: scrap drones, rnd(2)"
+ },
+ {
+  "x": 21,
+  "y": 4,
+  "tile": 27,
+  "class": 5,
+  "action": 2,
+  "note": "Loot: Governor valve"
+ },
+ {
+  "x": 12,
+  "y": 13,
+  "tile": 27,
+  "class": 5,
+  "action": 3,
+  "note": "Loot: Field kit (status 3)"
+ },
+ {
+  "x": 14,
+  "y": 12,
+  "tile": 29,
+  "class": 4,
+  "action": 2,
+  "note": "Door: spares cage gate, opened by the console"
+ },
+ {
+  "x": 26,
+  "y": 11,
+  "tile": 30,
+  "class": 4,
+  "action": 3,
+  "note": "Lock: console, Terminals 30; opens the cage gate (14,12)"
+ },
+ {
+  "x": 16,
+  "y": 6,
+  "tile": 29,
+  "class": 4,
+  "action": 5,
+  "note": "Lock: vault gate, key Gate card or Circuitry 60"
+ },
+ {
+  "x": 4,
+  "y": 20,
+  "tile": 15,
+  "class": 4,
+  "action": 7,
+  "note": "Lock: rubble, Scaling 35, tool Rope coil"
+ },
+ {
+  "x": 14,
+  "y": 14,
+  "tile": 24,
+  "class": 11,
+  "action": 1,
+  "note": "NPC 0 of Pumphouse Deep: Sallow Kett"
+ }
+]
+==================== map3-pumphouse.json strings
+[
+ "",
+ "Read paragraph 18.",
+ "Read paragraph 22.",
+ "Old pipes run along this gallery, sweating rust.",
+ "Read paragraph 19.",
+ "Two scrap drones lift off the pipes, whirring.",
+ "The way is shut.",
+ "A console with a dim green screen hums faintly.",
+ "Read paragraph 20.",
+ "The screen fills with symbols and then goes dark again.",
+ "A steel gate with a lock box at its centre.",
+ "Read paragraph 21.",
+ "The lock box clicks and stays shut.",
+ "A heap of rubble chokes the side passage.",
+ "You scramble over the rubble.",
+ "The rubble shifts under your hands and you slide back down.",
+ "Read paragraph 23.",
+ "Sallow shakes his head slowly.",
+ "",
+ ""
+]
+==================== reference log: bump events
+top keys ['events', 'note']
+{'seq': 1, 'type': 'paragraph', 'n': 1}
+{'seq': 47, 'type': 'paragraph', 'n': 3}
+{'seq': 52, 'type': 'message', 'location': 1, 'string': 5}
+{'seq': 99, 'type': 'paragraph', 'n': 3}
+{'seq': 127, 'type': 'bump', 'x': 8, 'y': 17, 'action_class': 11, 'action': 1}
+{'seq': 128, 'type': 'paragraph', 'n': 6}
+{'seq': 131, 'type': 'cell_change', 'location': 1, 'x': 8, 'y': 17, 'action_class': 0, 'action': 0, 'image': 28}
+{'seq': 170, 'type': 'paragraph', 'n': 2}
+{'seq': 208, 'type': 'paragraph', 'n': 7}
+{'seq': 218, 'type': 'paragraph', 'n': 8}
+{'seq': 219, 'type': 'check', 'member': 5, 'skill': 18, 'level': 2, 'need': 66, 'roll': 54, 'success': True}
+{'seq': 252, 'type': 'check', 'member': 1, 'skill': 22, 'level': 0, 'need': 46, 'roll': 79, 'success': False}
+{'seq': 261, 'type': 'check', 'member': 1, 'skill': 22, 'level': 0, 'need': 46, 'roll': 22, 'success': True}
+{'seq': 282, 'type': 'cell_change', 'location': 0, 'x': 30, 'y': 41, 'action_class': 5, 'action': 1, 'image': 13}
+{'seq': 284, 'type': 'cell_change', 'location': 0, 'x': 30, 'y': 41, 'action_class': 0, 'action': 0, 'image': 13}
+{'seq': 288, 'type': 'paragraph', 'n': 9}
+{'seq': 289, 'type': 'cell_change', 'location': 0, 'x': 31, 'y': 41, 'action_class': 0, 'action': 0, 'image': 22}
+{'seq': 349, 'type': 'paragraph', 'n': 10}
+{'seq': 380, 'type': 'paragraph', 'n': 11}
+{'seq': 383, 'type': 'message', 'location': 2, 'string': 5}
+{'seq': 396, 'type': 'paragraph', 'n': 11}
+{'seq': 439, 'type': 'message', 'location': 2, 'string': 6}
+{'seq': 503, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}
+{'seq': 504, 'type': 'message', 'location': 2, 'string': 7}
+{'seq': 505, 'type': 'check', 'member': 3, 'skill': 14, 'level': 2, 'need': 50, 'roll': 69, 'success': False}
+{'seq': 506, 'type': 'message', 'location': 2, 'string': 9}
+{'seq': 508, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}
+{'seq': 509, 'type': 'message', 'location': 2, 'string': 7}
+{'seq': 510, 'type': 'check', 'member': 3, 'skill': 14, 'level': 2, 'need': 50, 'roll': 57, 'success': False}
+{'seq': 511, 'type': 'message', 'location': 2, 'string': 9}
+{'seq': 513, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}
+{'seq': 514, 'type': 'message', 'location': 2, 'string': 7}
+{'seq': 515, 'type': 'check', 'member': 3, 'skill': 14, 'level': 2, 'need': 50, 'roll': 78, 'success': False}
+{'seq': 516, 'type': 'message', 'location': 2, 'string': 9}
+{'seq': 518, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}
+{'seq': 519, 'type': 'message', 'location': 2, 'string': 7}
+{'seq': 520, 'type': 'check', 'member': 3, 'skill': 14, 'level': 2, 'need': 50, 'roll': 21, 'success': True}
+{'seq': 521, 'type': 'unlock', 'x': 26, 'y': 14}
+{'seq': 522, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 14, 'action_class': 4, 'action': 1, 'image': 30}
+{'seq': 523, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 14, 'action_class': 4, 'action': 1, 'image': 29}
+{'seq': 525, 'type': 'paragraph', 'n': 12}
+{'seq': 528, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 14, 'action_class': 4, 'action': 1, 'image': 29}
+{'seq': 534, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 12, 'action_class': 0, 'action': 0, 'image': 27}
+{'seq': 540, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 14, 'action_class': 4, 'action': 1, 'image': 29}
+{'seq': 562, 'type': 'bump', 'x': 18, 'y': 17, 'action_class': 11, 'action': 1}
+{'seq': 563, 'type': 'paragraph', 'n': 13}
+{'seq': 566, 'type': 'cell_change', 'location': 2, 'x': 18, 'y': 17, 'action_class': 0, 'action': 0, 'image': 28}
+{'seq': 603, 'type': 'bump', 'x': 25, 'y': 21, 'action_class': 11, 'action': 0}
+{'seq': 675, 'type': 'paragraph', 'n': 10}
+{'seq': 724, 'type': 'paragraph', 'n': 18}
+{'seq': 744, 'type': 'paragraph', 'n': 19}
+{'seq': 745, 'type': 'check', 'member': 5, 'skill': 18, 'level': 2, 'need': 65, 'roll': 74, 'success': False}
+{'seq': 790, 'type': 'cell_change', 'location': 3, 'x': 9, 'y': 6, 'action_class': 5, 'action': 1, 'image': 37}
+{'seq': 792, 'type': 'cell_change', 'location': 3, 'x': 9, 'y': 6, 'action_class': 0, 'action': 0, 'image': 37}
+{'seq': 807, 'type': 'bump', 'x': 16, 'y': 6, 'action_class': 4, 'action': 5}
+{'seq': 808, 'type': 'message', 'location': 3, 'string': 10}
+{'seq': 809, 'type': 'key_used', 'member': 1, 'item': 11}
+{'seq': 810, 'type': 'unlock', 'x': 16, 'y': 6}
+{'seq': 811, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 39}
+{'seq': 812, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 37}
+{'seq': 813, 'type': 'paragraph', 'n': 21}
+{'seq': 816, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 37}
+{'seq': 819, 'type': 'paragraph', 'n': 22}
+{'seq': 834, 'type': 'cell_change', 'location': 3, 'x': 21, 'y': 4, 'action_class': 0, 'action': 0, 'image': 37}
+{'seq': 848, 'type': 'paragraph', 'n': 22}
+{'seq': 851, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 37}
+{'seq': 884, 'type': 'paragraph', 'n': 18}
+{'seq': 982, 'type': 'paragraph', 'n': 2}
+{'seq': 1018, 'type': 'bump', 'x': 15, 'y': 11, 'action_class': 11, 'action': 0}
+{'seq': 1019, 'type': 'paragraph', 'n': 24}

@@ -1,0 +1,150 @@
+{
+  "note": "Lab cell hooks (SPEC-04 section 6). Each hook sits on a class 11 cell or on a class 4 cell whose record is impassable, and runs after the SPEC-03 bump effect of that cell.",
+  "hooks": [
+    {
+      "kind": "lock",
+      "location": 2,
+      "x": 26,
+      "y": 14,
+      "skill": 14,
+      "difficulty": 30,
+      "key_item": 0,
+      "tool_item": 0,
+      "success_message": 8,
+      "fail_message": 9,
+      "remote": null,
+      "note": "Lock: storehouse door, Tumblers 30"
+    },
+    {
+      "kind": "lock",
+      "location": 0,
+      "x": 31,
+      "y": 55,
+      "skill": 17,
+      "difficulty": 25,
+      "key_item": 0,
+      "tool_item": 0,
+      "success_message": 11,
+      "fail_message": 12,
+      "remote": null,
+      "note": "Lock: ford, Fording 25"
+    },
+    {
+      "kind": "lock",
+      "location": 3,
+      "x": 26,
+      "y": 11,
+      "skill": 29,
+      "difficulty": 30,
+      "key_item": 0,
+      "tool_item": 0,
+      "success_message": 8,
+      "fail_message": 9,
+      "remote": {
+        "x": 14,
+        "y": 12,
+        "new_class": 4,
+        "new_action": 1
+      },
+      "note": "Lock: console, Terminals 30; opens the cage gate (14,12)"
+    },
+    {
+      "kind": "lock",
+      "location": 3,
+      "x": 16,
+      "y": 6,
+      "skill": 23,
+      "difficulty": 60,
+      "key_item": 11,
+      "tool_item": 0,
+      "success_message": 11,
+      "fail_message": 12,
+      "remote": null,
+      "note": "Lock: vault gate, key Gate card or Circuitry 60"
+    },
+    {
+      "kind": "lock",
+      "location": 3,
+      "x": 4,
+      "y": 20,
+      "skill": 16,
+      "difficulty": 35,
+      "key_item": 0,
+      "tool_item": 10,
+      "success_message": 14,
+      "fail_message": 15,
+      "remote": null,
+      "note": "Lock: rubble, Scaling 35, tool Rope coil"
+    },
+    {
+      "kind": "recruit",
+      "location": 1,
+      "x": 8,
+      "y": 17,
+      "npc": 0,
+      "min_leader_cha": 0,
+      "refuse_message": 7,
+      "cleared_image": 28,
+      "note": "NPC 0 of Saltwell: Orla Penn"
+    },
+    {
+      "kind": "recruit",
+      "location": 2,
+      "x": 18,
+      "y": 17,
+      "npc": 0,
+      "min_leader_cha": 10,
+      "refuse_message": 11,
+      "cleared_image": 28,
+      "note": "NPC 0 of Ninemile: Teodor Lusk"
+    },
+    {
+      "kind": "recruit",
+      "location": 2,
+      "x": 20,
+      "y": 4,
+      "npc": 1,
+      "min_leader_cha": 17,
+      "refuse_message": 13,
+      "cleared_image": 27,
+      "note": "NPC 1 of Ninemile: Wren Abara (leader CHA 17)"
+    },
+    {
+      "kind": "recruit",
+      "location": 3,
+      "x": 14,
+      "y": 14,
+      "npc": 0,
+      "min_leader_cha": 0,
+      "refuse_message": 17,
+      "cleared_image": 37,
+      "note": "NPC 0 of Pumphouse Deep: Sallow Kett"
+    },
+    {
+      "kind": "healer",
+      "location": 1,
+      "x": 22,
+      "y": 4,
+      "price": 30,
+      "note": "Saltwell healer, 30 coins"
+    },
+    {
+      "kind": "healer",
+      "location": 2,
+      "x": 25,
+      "y": 21,
+      "price": 40,
+      "note": "Ninemile healer, 40 coins"
+    },
+    {
+      "kind": "win",
+      "location": 1,
+      "x": 15,
+      "y": 11,
+      "item": 12,
+      "win_paragraph": 24,
+      "not_yet_paragraph": 4,
+      "note": "Fit the Governor valve"
+    }
+  ]
+}

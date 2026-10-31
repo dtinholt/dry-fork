@@ -1,0 +1,1372 @@
+---- CP3
+{
+ "location": 1,
+ "x": 8,
+ "y": 18,
+ "steps": 39,
+ "day": 1,
+ "hour": 8,
+ "minute": 39,
+ "mode": "map",
+ "cell_changes": [
+  [
+   1,
+   8,
+   17,
+   0,
+   0,
+   28
+  ]
+ ],
+ "party": [
+  {
+   "slot": 1,
+   "name": "Hessa Brand",
+   "npc": 0,
+   "level": 1,
+   "xp": 90,
+   "max_hp": 24,
+   "hp": 24,
+   "cond": 0,
+   "money": 120,
+   "ac": 3,
+   "rank": "Drifter",
+   "skill_points": 0,
+   "items": [
+    [
+     3,
+     6
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 3
+  },
+  {
+   "slot": 2,
+   "name": "Tobin Ash",
+   "npc": 0,
+   "level": 1,
+   "xp": 90,
+   "max_hp": 26,
+   "hp": 26,
+   "cond": 0,
+   "money": 40,
+   "ac": 3,
+   "rank": "Drifter",
+   "skill_points": 0,
+   "items": [
+    [
+     5,
+     8
+    ],
+    [
+     6,
+     1
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 3
+  },
+  {
+   "slot": 3,
+   "name": "Maro Quill",
+   "npc": 0,
+   "level": 1,
+   "xp": 90,
+   "max_hp": 21,
+   "hp": 21,
+   "cond": 0,
+   "money": 73,
+   "ac": 3,
+   "rank": "Drifter",
+   "skill_points": 0,
+   "items": [
+    [
+     3,
+     6
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0
+  },
+  {
+   "slot": 4,
+   "name": "Dell Ostrow",
+   "npc": 0,
+   "level": 1,
+   "xp": 90,
+   "max_hp": 22,
+   "hp": 22,
+   "cond": 0,
+   "money": 63,
+   "ac": 2,
+   "rank": "Drifter",
+   "skill_points": 0,
+   "items": [
+    [
+     3,
+     6
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     9,
+     3
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0
+  },
+  {
+   "slot": 5,
+   "name": "Orla Penn",
+   "npc": 1,
+   "level": 2,
+   "xp": 200,
+   "max_hp": 27,
+   "hp": 27,
+   "cond": 0,
+   "money": 25,
+   "ac": 3,
+   "rank": "Hand",
+   "skill_points": 0,
+   "items": [
+    [
+     5,
+     8
+    ],
+    [
+     6,
+     2
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0
+  }
+ ],
+ "rng_state": 20261021
+}
+---- CP4
+{
+ "location": 0,
+ "x": 30,
+ "y": 41,
+ "steps": 79,
+ "day": 1,
+ "hour": 12,
+ "minute": 19,
+ "mode": "map",
+ "cell_changes": [
+  [
+   0,
+   30,
+   41,
+   0,
+   0,
+   13
+  ],
+  [
+   1,
+   8,
+   17,
+   0,
+   0,
+   28
+  ]
+ ],
+ "party": [
+  {
+   "slot": 1,
+   "name": "Hessa Brand",
+   "npc": 0,
+   "level": 2,
+   "xp": 104,
+   "max_hp": 28,
+   "hp": 25,
+   "cond": 0,
+   "money": 195,
+   "ac": 3,
+   "rank": "Hand",
+   "skill_points": 2,
+   "items": [
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 3
+  },
+  {
+   "slot": 2,
+   "name": "Tobin Ash",
+   "npc": 0,
+   "level": 2,
+   "xp": 104,
+   "max_hp": 31,
+   "hp": 30,
+   "cond": 0,
+   "money": 40,
+   "ac": 3,
+   "rank": "Hand",
+   "skill_points": 2,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     1
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 3
+  },
+  {
+   "slot": 3,
+   "name": "Maro Quill",
+   "npc": 0,
+   "level": 2,
+   "xp": 104,
+   "max_hp": 25,
+   "hp": 25,
+   "cond": 0,
+   "money": 73,
+   "ac": 3,
+   "rank": "Hand",
+   "skill_points": 2,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0
+  },
+  {
+   "slot": 4,
+   "name": "Dell Ostrow",
+   "npc": 0,
+   "level": 2,
+   "xp": 104,
+   "max_hp": 26,
+   "hp": 22,
+   "cond": 0,
+   "money": 63,
+   "ac": 2,
+   "rank": "Hand",
+   "skill_points": 2,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     9,
+     3
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0
+  },
+  {
+   "slot": 5,
+   "name": "Orla Penn",
+   "npc": 1,
+   "level": 2,
+   "xp": 214,
+   "max_hp": 27,
+   "hp": 27,
+   "cond": 0,
+   "money": 25,
+   "ac": 3,
+   "rank": "Hand",
+   "skill_points": 0,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     2
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0
+  }
+ ],
+ "rng_state": 2973743393
+}
+---- items.json
+{
+ "record": "item id N = record N - 1 of every shop list; records 12 to 93 are eight zero bytes",
+ "type_byte": "itemType = byte >> 3 (lab: 1 melee, 2 ranged, 3 ammo, 4 armour, 5 medical, 6 tool, 7 quest, 8 burst); lowFlags = 0",
+ "damage_byte": "melee, ranged, burst, medical: high nibble = dice count, low nibble = die sides; armour: AC bonus",
+ "items": [
+  {
+   "id": 1,
+   "name": "Pipe club",
+   "price": 15,
+   "class": "melee",
+   "type_byte": 8,
+   "capacity": 0,
+   "skill": 1,
+   "damage": 22,
+   "ammo": 0,
+   "description": "A length of iron pipe with tape wound round one end."
+  },
+  {
+   "id": 2,
+   "name": "Hook knife",
+   "price": 12,
+   "class": "melee",
+   "type_byte": 8,
+   "capacity": 0,
+   "skill": 2,
+   "damage": 20,
+   "ammo": 0,
+   "description": "A short curved blade for cutting rope and hide."
+  },
+  {
+   "id": 3,
+   "name": "Ranch pistol",
+   "price": 60,
+   "class": "ranged",
+   "type_byte": 16,
+   "capacity": 6,
+   "skill": 4,
+   "damage": 24,
+   "ammo": 4,
+   "description": "A revolver that holds six rounds."
+  },
+  {
+   "id": 4,
+   "name": "Pistol rounds",
+   "price": 8,
+   "class": "ammo",
+   "type_byte": 24,
+   "capacity": 6,
+   "skill": 0,
+   "damage": 0,
+   "ammo": 0,
+   "description": "One box of six pistol rounds. One box fills the pistol once."
+  },
+  {
+   "id": 5,
+   "name": "Lever rifle",
+   "price": 140,
+   "class": "ranged",
+   "type_byte": 16,
+   "capacity": 8,
+   "skill": 5,
+   "damage": 38,
+   "ammo": 6,
+   "description": "A lever-action rifle that holds eight rounds."
+  },
+  {
+   "id": 6,
+   "name": "Rifle rounds",
+   "price": 14,
+   "class": "ammo",
+   "type_byte": 24,
+   "capacity": 8,
+   "skill": 0,
+   "damage": 0,
+   "ammo": 0,
+   "description": "One box of eight rifle rounds. One box fills the rifle once."
+  },
+  {
+   "id": 7,
+   "name": "Hide vest",
+   "price": 30,
+   "class": "armour",
+   "type_byte": 32,
+   "capacity": 0,
+   "skill": 0,
+   "damage": 1,
+   "ammo": 0,
+   "description": "Stitched goat hide over a canvas lining. AC 1."
+  },
+  {
+   "id": 8,
+   "name": "Plate jacket",
+   "price": 110,
+   "class": "armour",
+   "type_byte": 32,
+   "capacity": 0,
+   "skill": 0,
+   "damage": 3,
+   "ammo": 0,
+   "description": "Canvas jacket with flattened can lids sewn in rows. AC 3."
+  },
+  {
+   "id": 9,
+   "name": "Field kit",
+   "price": 25,
+   "class": "medical",
+   "type_byte": 40,
+   "capacity": 3,
+   "skill": 12,
+   "damage": 36,
+   "ammo": 0,
+   "description": "Bandages, splints and a bottle of spirit. Three uses, heals 2d4."
+  },
+  {
+   "id": 10,
+   "name": "Rope coil",
+   "price": 10,
+   "class": "tool",
+   "type_byte": 48,
+   "capacity": 0,
+   "skill": 16,
+   "damage": 0,
+   "ammo": 0,
+   "description": "Fifty feet of braided rope. Adds 20 to Scaling checks for the member who carries it."
+  },
+  {
+   "id": 11,
+   "name": "Gate card",
+   "price": 0,
+   "class": "quest",
+   "type_byte": 56,
+   "capacity": 0,
+   "skill": 0,
+   "damage": 0,
+   "ammo": 0,
+   "description": "A punched steel card stamped with the pumping company's mark."
+  },
+  {
+   "id": 12,
+   "name": "Governor valve",
+   "price": 0,
+   "class": "quest",
+   "type_byte": 56,
+   "capacity": 0,
+   "skill": 0,
+   "damage": 0,
+   "ammo": 0,
+   "description": "A brass valve the size of a fist, its spindle still greased."
+  }
+ ]
+}
+---- encounters.json
+{
+ "note": "Derived index of the six encounter types. The map files are authoritative.",
+ "derived_monster_values": "hp = floor(sturdiness / 4) + rnd(sturdiness) for sturdiness < 256; xp = sturdiness x (armor_class + 1); to-hit base = 20 + 5 x combat_rating; speed = combat_rating; ranged when weapon_type >= 3",
+ "monsters": [
+  {
+   "armor_class": 0,
+   "combat_rating": 2,
+   "fixed_damage": 0,
+   "max_group": 2,
+   "name": "stray dog",
+   "plural_suffix": "s",
+   "portrait": 1,
+   "random_damage": 1,
+   "sturdiness": 4,
+   "type": 1,
+   "weapon_type": 1
+  },
+  {
+   "armor_class": 0,
+   "combat_rating": 8,
+   "fixed_damage": 0,
+   "max_group": 6,
+   "name": "dust hound",
+   "plural_suffix": "s",
+   "portrait": 1,
+   "random_damage": 1,
+   "sturdiness": 8,
+   "type": 1,
+   "weapon_type": 1
+  },
+  {
+   "armor_class": 1,
+   "combat_rating": 6,
+   "fixed_damage": 0,
+   "max_group": 4,
+   "name": "raider",
+   "plural_suffix": "s",
+   "portrait": 1,
+   "random_damage": 1,
+   "sturdiness": 12,
+   "type": 3,
+   "weapon_type": 3
+  },
+  {
+   "armor_class": 1,
+   "combat_rating": 6,
+   "fixed_damage": 1,
+   "max_group": 4,
+   "name": "scavenger",
+   "plural_suffix": "s",
+   "portrait": 1,
+   "random_damage": 1,
+   "sturdiness": 12,
+   "type": 3,
+   "weapon_type": 2
+  },
+  {
+   "armor_class": 1,
+   "combat_rating": 7,
+   "fixed_damage": 0,
+   "max_group": 6,
+   "name": "pump crawler",
+   "plural_suffix": "s",
+   "portrait": 1,
+   "random_damage": 1,
+   "sturdiness": 14,
+   "type": 2,
+   "weapon_type": 1
+  },
+  {
+   "armor_class": 2,
+   "combat_rating": 7,
+   "fixed_damage": 1,
+   "max_group": 3,
+   "name": "scrap drone",
+   "plural_suffix": "s",
+   "portrait": 1,
+   "random_damage": 1,
+   "sturdiness": 10,
+   "type": 5,
+   "weapon_type": 4
+  },
+  {
+   "armor_class": 3,
+   "combat_rating": 5,
+   "fixed_damage": 1,
+   "max_group": 3,
+   "name": "glass beetle",
+   "plural_suffix": "s",
+   "portrait": 1,
+   "random_damage": 1,
+   "sturdiness": 16,
+   "type": 1,
+   "weapon_type": 1
+  }
+ ],
+ "encounters": [
+  {
+   "location": 0,
+   "x": 30,
+   "y": 41,
+   "slot": 1,
+   "note": "Encounter 1: road raiders, 3 raiders; then loot 75 coins",
+   "groups": [
+    [
+     "raider",
+     false,
+     3
+    ]
+   ],
+   "tail": [
+    5,
+    1
+   ]
+  },
+  {
+   "location": 0,
+   "x": 18,
+   "y": 12,
+   "slot": 2,
+   "note": "Encounter 2: dust hounds, rnd(4)",
+   "groups": [
+    [
+     "dust hound",
+     true,
+     4
+    ]
+   ],
+   "tail": [
+    0,
+    0
+   ]
+  },
+  {
+   "location": 0,
+   "x": 52,
+   "y": 35,
+   "slot": 3,
+   "note": "Encounter 3: glass beetles, 2",
+   "groups": [
+    [
+     "glass beetle",
+     false,
+     2
+    ]
+   ],
+   "tail": [
+    0,
+    0
+   ]
+  },
+  {
+   "location": 0,
+   "x": 22,
+   "y": 22,
+   "slot": 4,
+   "note": "Encounter 4: riverbed scavengers, 2 scavengers and 1 raider; then loot rnd(40) coins",
+   "groups": [
+    [
+     "scavenger",
+     false,
+     2
+    ],
+    [
+     "raider",
+     false,
+     1
+    ]
+   ],
+   "tail": [
+    5,
+    2
+   ]
+  },
+  {
+   "location": 3,
+   "x": 9,
+   "y": 6,
+   "slot": 1,
+   "note": "Encounter 5: pump crawlers, 4; then loot Field kit (status 3)",
+   "groups": [
+    [
+     "pump crawler",
+     false,
+     4
+    ]
+   ],
+   "tail": [
+    5,
+    1
+   ]
+  },
+  {
+   "location": 3,
+   "x": 10,
+   "y": 20,
+   "slot": 2,
+   "note": "Encounter 6: scrap drones, rnd(2)",
+   "groups": [
+    [
+     "scrap drone",
+     true,
+     2
+    ]
+   ],
+   "tail": [
+    0,
+    0
+   ]
+  }
+ ]
+}
+---- skills.json
+{
+ "note": "Entry 0 of the 36-entry table is a dummy (SPEC-02 section 3.3); skills use ids 1 to 35.",
+ "entry0": {
+  "id": 0,
+  "iq_req": 0,
+  "cost": 0,
+  "attr_offset": 0
+ },
+ "skills": [
+  {
+   "id": 1,
+   "name": "Bludgeon",
+   "iq_req": 3,
+   "attr": "STR",
+   "cost": 1,
+   "kind": "weapon",
+   "effect": "To-hit level for items whose skill byte is 1 (clubs, bars).",
+   "attr_offset": 14,
+   "labskill_bytes": [
+    25,
+    14
+   ]
+  },
+  {
+   "id": 2,
+   "name": "Edged arms",
+   "iq_req": 3,
+   "attr": "AGL",
+   "cost": 1,
+   "kind": "weapon",
+   "effect": "To-hit level for items whose skill byte is 2 (knives, hatchets).",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    25,
+    18
+   ]
+  },
+  {
+   "id": 3,
+   "name": "Grappling",
+   "iq_req": 3,
+   "attr": "STR",
+   "cost": 1,
+   "kind": "weapon",
+   "effect": "To-hit level when no weapon is equipped; unarmed attacks per action = 1 + floor(level / 2).",
+   "attr_offset": 14,
+   "labskill_bytes": [
+    25,
+    14
+   ]
+  },
+  {
+   "id": 4,
+   "name": "Handgun",
+   "iq_req": 5,
+   "attr": "AGL",
+   "cost": 1,
+   "kind": "weapon",
+   "effect": "To-hit level for items whose skill byte is 4 (pistols).",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    41,
+    18
+   ]
+  },
+  {
+   "id": 5,
+   "name": "Longarm",
+   "iq_req": 6,
+   "attr": "AGL",
+   "cost": 1,
+   "kind": "weapon",
+   "effect": "To-hit level for items whose skill byte is 5 (rifles).",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    49,
+    18
+   ]
+  },
+  {
+   "id": 6,
+   "name": "Spreadgun",
+   "iq_req": 6,
+   "attr": "AGL",
+   "cost": 1,
+   "kind": "weapon",
+   "effect": "To-hit level for items whose skill byte is 6 (shotguns). No such item in Dry Fork.",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    49,
+    18
+   ]
+  },
+  {
+   "id": 7,
+   "name": "Autofire",
+   "iq_req": 9,
+   "attr": "AGL",
+   "cost": 2,
+   "kind": "weapon",
+   "effect": "To-hit level for items whose skill byte is 7 (burst weapons). No such item in Dry Fork.",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    74,
+    18
+   ]
+  },
+  {
+   "id": 8,
+   "name": "Hurling",
+   "iq_req": 4,
+   "attr": "AGL",
+   "cost": 1,
+   "kind": "weapon",
+   "effect": "To-hit level for items whose skill byte is 8 (thrown). No such item in Dry Fork.",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    33,
+    18
+   ]
+  },
+  {
+   "id": 9,
+   "name": "Tube launcher",
+   "iq_req": 10,
+   "attr": "AGL",
+   "cost": 2,
+   "kind": "weapon",
+   "effect": "To-hit level for items whose skill byte is 9. No such item in Dry Fork.",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    82,
+    18
+   ]
+  },
+  {
+   "id": 10,
+   "name": "Archery",
+   "iq_req": 6,
+   "attr": "AGL",
+   "cost": 1,
+   "kind": "weapon",
+   "effect": "To-hit level for items whose skill byte is 10. No such item in Dry Fork.",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    49,
+    18
+   ]
+  },
+  {
+   "id": 11,
+   "name": "Evasion",
+   "iq_req": 8,
+   "attr": "AGL",
+   "cost": 2,
+   "kind": "combat",
+   "effect": "Adds its level to the member's AC.",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    66,
+    18
+   ]
+  },
+  {
+   "id": 12,
+   "name": "First aid",
+   "iq_req": 10,
+   "attr": "IQ",
+   "cost": 1,
+   "kind": "use",
+   "effect": "When the member uses a medical item, the heal adds 2 x level.",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    81,
+    15
+   ]
+  },
+  {
+   "id": 13,
+   "name": "Bonesetting",
+   "iq_req": 14,
+   "attr": "IQ",
+   "cost": 2,
+   "kind": "use",
+   "effect": "Use on an unconscious member: skill check, difficulty 20; success sets the target to 1 HP and conscious.",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    114,
+    15
+   ]
+  },
+  {
+   "id": 14,
+   "name": "Tumblers",
+   "iq_req": 9,
+   "attr": "AGL",
+   "cost": 1,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (locks).",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    73,
+    18
+   ]
+  },
+  {
+   "id": 15,
+   "name": "Strongbox",
+   "iq_req": 12,
+   "attr": "IQ",
+   "cost": 2,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (safes).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    98,
+    15
+   ]
+  },
+  {
+   "id": 16,
+   "name": "Scaling",
+   "iq_req": 3,
+   "attr": "STR",
+   "cost": 1,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (cliffs, walls).",
+   "attr_offset": 14,
+   "labskill_bytes": [
+    25,
+    14
+   ]
+  },
+  {
+   "id": 17,
+   "name": "Fording",
+   "iq_req": 3,
+   "attr": "STR",
+   "cost": 1,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (water).",
+   "attr_offset": 14,
+   "labskill_bytes": [
+    25,
+    14
+   ]
+  },
+  {
+   "id": 18,
+   "name": "Lookout",
+   "iq_req": 8,
+   "attr": "IQ",
+   "cost": 1,
+   "kind": "party",
+   "effect": "Surprise check at encounter start uses the best Lookout in the party.",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    65,
+    15
+   ]
+  },
+  {
+   "id": 19,
+   "name": "Trailcraft",
+   "iq_req": 8,
+   "attr": "IQ",
+   "cost": 1,
+   "kind": "party",
+   "effect": "Random encounter chance on map 0 falls by 5 per level of the best member.",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    65,
+    15
+   ]
+  },
+  {
+   "id": 20,
+   "name": "Haggling",
+   "iq_req": 7,
+   "attr": "CHA",
+   "cost": 1,
+   "kind": "party",
+   "effect": "Buy and sell prices use the best Haggling in the party.",
+   "attr_offset": 20,
+   "labskill_bytes": [
+    57,
+    20
+   ]
+  },
+  {
+   "id": 21,
+   "name": "Smooth talk",
+   "iq_req": 9,
+   "attr": "CHA",
+   "cost": 1,
+   "kind": "party",
+   "effect": "Lowers an NPC's leader-CHA requirement by 2 per level of the slot-1 member.",
+   "attr_offset": 20,
+   "labskill_bytes": [
+    73,
+    20
+   ]
+  },
+  {
+   "id": 22,
+   "name": "Gunsmithing",
+   "iq_req": 10,
+   "attr": "IQ",
+   "cost": 1,
+   "kind": "combat",
+   "effect": "Unjam check uses it; each level lowers the member's jam chance by 1 point (minimum 1).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    81,
+    15
+   ]
+  },
+  {
+   "id": 23,
+   "name": "Circuitry",
+   "iq_req": 12,
+   "attr": "IQ",
+   "cost": 2,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (wired locks).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    98,
+    15
+   ]
+  },
+  {
+   "id": 24,
+   "name": "Blasting",
+   "iq_req": 11,
+   "attr": "IQ",
+   "cost": 2,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (charges).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    90,
+    15
+   ]
+  },
+  {
+   "id": 25,
+   "name": "Engines",
+   "iq_req": 11,
+   "attr": "IQ",
+   "cost": 2,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (machinery).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    90,
+    15
+   ]
+  },
+  {
+   "id": 26,
+   "name": "Salvage",
+   "iq_req": 7,
+   "attr": "LCK",
+   "cost": 1,
+   "kind": "party",
+   "effect": "Victory money adds 5 x best level per monster killed.",
+   "attr_offset": 16,
+   "labskill_bytes": [
+    57,
+    16
+   ]
+  },
+  {
+   "id": 27,
+   "name": "Quiet foot",
+   "iq_req": 8,
+   "attr": "AGL",
+   "cost": 1,
+   "kind": "party",
+   "effect": "Random encounter chance on maps 1 to 3 falls by 5 per level of the best member.",
+   "attr_offset": 18,
+   "labskill_bytes": [
+    65,
+    18
+   ]
+  },
+  {
+   "id": 28,
+   "name": "Foraging",
+   "iq_req": 6,
+   "attr": "IQ",
+   "cost": 1,
+   "kind": "party",
+   "effect": "Rest heals each conscious member an extra HP equal to the best level.",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    49,
+    15
+   ]
+  },
+  {
+   "id": 29,
+   "name": "Terminals",
+   "iq_req": 13,
+   "attr": "IQ",
+   "cost": 2,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (consoles).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    106,
+    15
+   ]
+  },
+  {
+   "id": 30,
+   "name": "Signals",
+   "iq_req": 12,
+   "attr": "IQ",
+   "cost": 2,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (radios).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    98,
+    15
+   ]
+  },
+  {
+   "id": 31,
+   "name": "Mapcraft",
+   "iq_req": 8,
+   "attr": "IQ",
+   "cost": 1,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (route finding).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    65,
+    15
+   ]
+  },
+  {
+   "id": 32,
+   "name": "Beast lore",
+   "iq_req": 7,
+   "attr": "IQ",
+   "cost": 1,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (animals).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    57,
+    15
+   ]
+  },
+  {
+   "id": 33,
+   "name": "Dice and cards",
+   "iq_req": 6,
+   "attr": "LCK",
+   "cost": 1,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (games of chance).",
+   "attr_offset": 16,
+   "labskill_bytes": [
+    49,
+    16
+   ]
+  },
+  {
+   "id": 34,
+   "name": "Old script",
+   "iq_req": 11,
+   "attr": "IQ",
+   "cost": 1,
+   "kind": "barrier",
+   "effect": "Named by barrier checks (inscriptions).",
+   "attr_offset": 15,
+   "labskill_bytes": [
+    89,
+    15
+   ]
+  },
+  {
+   "id": 35,
+   "name": "Command",
+   "iq_req": 12,
+   "attr": "CHA",
+   "cost": 2,
+   "kind": "party",
+   "effect": "Flee chance adds 5 x level of the slot-1 member.",
+   "attr_offset": 20,
+   "labskill_bytes": [
+    98,
+    20
+   ]
+  }
+ ]
+}
+---- map0 mobs
+keys ['location', 'name', 'width', 'height', 'tileset', 'info', 'conventions', 'strings', 'mobs', 'npcs', 'records', 'action_cells', 'tiles', 'action_class', 'action_value']
+{
+ "info": {
+  "encounter_frequency": 0,
+  "tileset": 0,
+  "random_monster_types": 0,
+  "max_random_encounters": 0,
+  "border_image": 18,
+  "time_per_step": 2560,
+  "heal_rate": 0
+ },
+ "mobs": [
+  {
+   "name": "raider",
+   "plural_suffix": "s",
+   "sturdiness": 12,
+   "combat_rating": 6,
+   "random_damage": 1,
+   "max_group": 4,
+   "armor_class": 1,
+   "fixed_damage": 0,
+   "weapon_type": 3,
+   "type": 3,
+   "portrait": 1
+  },
+  {
+   "name": "dust hound",
+   "plural_suffix": "s",
+   "sturdiness": 8,
+   "combat_rating": 8,
+   "random_damage": 1,
+   "max_group": 6,
+   "armor_class": 0,
+   "fixed_damage": 0,
+   "weapon_type": 1,
+   "type": 1,
+   "portrait": 1
+  },
+  {
+   "name": "glass beetle",
+   "plural_suffix": "s",
+   "sturdiness": 16,
+   "combat_rating": 5,
+   "random_damage": 1,
+   "max_group": 3,
+   "armor_class": 3,
+   "fixed_damage": 1,
+   "weapon_type": 1,
+   "type": 1,
+   "portrait": 1
+  },
+  {
+   "name": "scavenger",
+   "plural_suffix": "s",
+   "sturdiness": 12,
+   "combat_rating": 6,
+   "random_damage": 1,
+   "max_group": 4,
+   "armor_class": 1,
+   "fixed_damage": 1,
+   "weapon_type": 2,
+   "type": 3,
+   "portrait": 1
+  }
+ ]
+}
+---- scenario.json
+{
+ "scenario": "Dry Fork",
+ "version": "1.1",
+ "authored": "2026-10-21",
+ "content": "lab-original; no Interplay content",
+ "rules": "SPEC-04 lab rules v1 (non-parity); map encoding per SPEC-03 section 9; containers per SPEC-02 section 12",
+ "files": [
+  "tiles.json",
+  "portraits.json",
+  "map0-overworld.json",
+  "map1-saltwell.json",
+  "map2-ninemile.json",
+  "map3-pumphouse.json",
+  "hooks.json",
+  "strings.json",
+  "paragraphs.json",
+  "skills.json",
+  "items.json",
+  "shops.json",
+  "encounters.json",
+  "npcs.json",
+  "party.json",
+  "walkthrough.json",
+  "rng-vectors.json",
+  "walkthrough-reference-log.json"
+ ],
+ "locations": [
+  {
+   "location": 0,
+   "name": "Dry Fork overworld",
+   "size": 64,
+   "file": "map0-overworld.json",
+   "location_code": 128,
+   "game_file": "GAME1",
+   "map_index": 0
+  },
+  {
+   "location": 1,
+   "name": "Saltwell",
+   "size": 32,
+   "file": "map1-saltwell.json",
+   "location_code": 129,
+   "game_file": "GAME1",
+   "map_index": 1
+  },
+  {
+   "location": 2,
+   "name": "Ninemile",
+   "size": 32,
+   "file": "map2-ninemile.json",
+   "location_code": 130,
+   "game_file": "GAME1",
+   "map_index": 2
+  },
+  {
+   "location": 3,
+   "name": "Pumphouse Deep",
+   "size": 32,
+   "file": "map3-pumphouse.json",
+   "location_code": 131,
+   "game_file": "GAME1",
+   "map_index": 3
+  }
+ ],
+ "start": {
+  "location": 1,
+  "x": 15,
+  "y": 20,
+  "hour": 8,
+  "paragraph": 1,
+  "seed": 20261021
+ },
+ "labstr_tables": {
+  "0": {
+   "use": "intro and title (SPEC-02 L-ST4)",
+   "strings": [
+    "",
+    "Dry Fork",
+    "A lab scenario for the clean room engine.",
+    "Press any key."
+   ]
+  },
+  "1": {
+   "use": "general messages (SPEC-02 L-ST4); index = id in strings.json, gaps are empty strings"
+  },
+  "2": {
+   "use": "inventory: index 0 empty, 1 to 35 skill names by skill id, 35 + N item name of item id N"
+  },
+  "3": {
+   "use": "rank names, index = level - 1",
+   "strings": [
+    "Drifter",
+    "Hand",
+    "Outrider",
+    "Warden",
+    "Steward",
+    "Mar

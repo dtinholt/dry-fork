@@ -1,0 +1,546 @@
+============================== headless.py 460-720
+   1             if isinstance(name, bytes):
+   2                 name = name.split(b"\x0a")[0].decode("latin-1")
+   3             else:
+   4                 name = str(name).split("\n")[0]
+   5             g["mob"] = mob
+   6             g["monster"] = name
+   7         return groups
+   8 
+   9     def group_event(self, g):
+  10         return {k: v for k, v in g.items() if k != "mob"}
+  11 
+  12     ATTR_ORDER = ("STR", "IQ", "LCK", "SPD", "AGL", "CHA")
+  13     ATTR_OFFSETS = {14: 0, 15: 1, 16: 2, 17: 3, 18: 4, 20: 5}
+  14 
+  15     def attr_value(self, member, skill):
+  16         """LR-13: the member's value of the attribute linked to ``skill``."""
+  17         idx = self.skill_attribute(skill)
+  18         attrs = member.get("attrs") or {}
+  19         return attrs.get(self.ATTR_ORDER[idx], 0)
+  20 
+  21     def monster_phase1(self):
+  22         return
+  23 
+  24     def party_phase1(self):
+  25         return
+  26 
+  27     def combat_round(self):
+  28         c = self.combat
+  29         if c is None:
+  30             return
+  31         rnd = c["round"] if c["round"] else 1
+  32         orders = {}
+  33         for i, _m in enumerate(self.party):
+  34             orders[str(i + 1)] = ["fire", 1]
+  35         self.emit("round_orders", round=rnd, orders=orders)
+  36         self.emit("round_start", round=rnd)
+  37         self.party_phase1()
+  38         self.monster_phase1()
+  39         self.end_of_round()
+  40 
+  41     # -- movement ----------------------------------------------------------
+  42 
+  43     def key_down(self):
+  44         self.move(0, 1)
+  45 
+  46     def key_up(self):
+  47         self.move(0, -1)
+  48 
+  49     def key_left(self):
+  50         self.move(-1, 0)
+  51 
+  52     def key_right(self):
+  53         self.move(1, 0)
+  54 
+  55     def move(self, dx, dy):
+  56         nx, ny = self.x + dx, self.y + dy
+  57         m = self.sc.map(self.location)
+  58         size = m["size"]
+  59         if not (0 <= nx < size and 0 <= ny < size):
+  60             self.emit("blocked", x=nx, y=ny)
+  61             return
+  62         if not maps.is_passable(m, nx, ny):
+  63             self.bump(nx, ny)
+  64             return
+  65         self.x, self.y = nx, ny
+  66         self.steps += 1
+  67         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+  68         self.advance_time(self.step_minutes())
+  69         self.after_move()
+  70 
+  71     def step_minutes(self):
+  72         m = self.sc.map(self.location)
+  73         tp = m["info"].get("timePerStep", 256)
+  74         return tp >> 8
+  75 
+  76     def cell_class_action(self, x, y):
+  77         m = self.sc.map(self.location)
+  78         size = m["size"]
+  79         if not (0 <= x < size and 0 <= y < size):
+  80             return 0, 0
+  81         return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+  82 
+  83     def show_message(self, index):
+  84         if not index:
+  85             return
+  86         text = self.sc.map_string(self.location, index)
+  87         if text.startswith("Read paragraph ") and text.endswith("."):
+  88             body = text[len("Read paragraph "):-1]
+  89             if body.isdigit():
+  90                 self.emit("paragraph", n=int(body))
+  91                 return
+  92         self.emit("message", location=self.location, string=index)
+  93 
+  94     def advance_time(self, minutes):
+  95         before_hour = self.hour
+  96         self.minute += minutes
+  97         while self.minute >= 60:
+  98             self.minute -= 60
+  99             self.hour += 1
+ 100         while self.hour >= 24:
+ 101             self.hour -= 24
+ 102             self.day += 1
+ 103             self.emit("day", day=self.day)
+ 104         if self.hour != before_hour:
+ 105             self.natural_heal()
+ 106 
+ 107     def natural_heal(self):
+ 108         healed = []
+ 109         for i, m in enumerate(self.party):
+ 110             if m.get("hp", 0) < m.get("max_hp", 0):
+ 111                 m["hp"] = m.get("max_hp", 0)
+ 112                 healed.append(i + 1)
+ 113         if healed:
+ 114             self.emit("natural_heal", members=healed)
+ 115 
+ 116     def after_move(self):
+ 117         m = self.sc.map(self.location)
+ 118         cls, action = self.cell_class_action(self.x, self.y)
+ 119         rec = maps.record_at(m, self.x, self.y)
+ 120         if cls == 10:
+ 121             self.transition(rec)
+ 122         elif cls == 6:
+ 123             self.open_shop(rec)
+ 124         elif cls == 3:
+ 125             self.start_encounter(rec)
+ 126         elif cls == 1 and rec is not None:
+ 127             for msg in rec.get("messages", []):
+ 128                 self.show_message(msg)
+ 129         elif cls == 5 and rec is not None:
+ 130             self.apply_loot(rec, self.x, self.y)
+ 131         elif cls == 4 and rec is not None and not rec.get("impassable"):
+ 132             self.show_message(rec.get("message", 0))
+ 133             self.apply_tail(rec, self.x, self.y)
+ 134 
+ 135     def transition(self, rec):
+ 136         loc, x, y = maps.resolve_transition(self.sc.tables, rec, self.x, self.y,
+ 137                                             (self.location, self.x, self.y))
+ 138         self.location, self.x, self.y = loc, x, y
+ 139         self.emit("map_change", location=loc, x=x, y=y)
+ 140 
+ 141     def bump(self, nx, ny):
+ 142         m = self.sc.map(self.location)
+ 143         rec = maps.record_at(m, nx, ny)
+ 144         cls, action = self.cell_class_action(nx, ny)
+ 145         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+ 146         self.bump_effect(rec, nx, ny, cls)
+ 147 
+ 148     def bump_effect(self, rec, nx, ny, cls=None):
+ 149         if cls is None:
+ 150             cls, _a = self.cell_class_action(nx, ny)
+ 151         if cls == 11:
+ 152             self.bump_blocked(rec, nx, ny)
+ 153         elif cls == 4:
+ 154             if rec is not None and rec.get("impassable"):
+ 155                 self.show_message(rec.get("message", 0))
+ 156                 self.apply_tail(rec, nx, ny)
+ 157                 self.run_hook_at(nx, ny)
+ 158             elif rec is not None:
+ 159                 self.show_message(rec.get("message", 0))
+ 160                 self.apply_tail(rec, nx, ny)
+ 161         elif cls == 3:
+ 162             self.start_encounter(rec)
+ 163 
+ 164     def bump_blocked(self, rec, nx, ny):
+ 165         if rec is not None:
+ 166             self.show_message(rec.get("message", 0))
+ 167             self.apply_tail(rec, nx, ny)
+ 168         self.run_hook_at(nx, ny)
+ 169 
+ 170     def run_hook_at(self, nx, ny):
+ 171         hook = self.sc.hook(self.location, nx, ny)
+ 172         if hook:
+ 173             self.run_hook(hook, nx, ny)
+ 174 
+ 175     def apply_tail(self, rec, x, y):
+ 176         tail = maps.apply_tail(rec)
+ 177         if tail is None:
+ 178             return
+ 179         m = self.sc.map(self.location)
+ 180         m["cells"]["actionClass"][y][x] = tail[0]
+ 181         m["cells"]["action"][y][x] = tail[1]
+ 182         self.cell_change(x, y, tail[0], tail[1], maps.image_at(m, x, y))
+ 183 
+ 184     def apply_loot(self, rec, x, y):
+ 185         for item in rec.get("items", []):
+ 186             iid = item[0] if isinstance(item, (list, tuple)) else item
+ 187             amount = item[1] if isinstance(item, (list, tuple)) and len(item) > 1 else 0
+ 188             placed = False
+ 189             for i, m in enumerate(self.party):
+ 190                 if len(m.get("items", [])) < 30:
+ 191                     self.add_item(i + 1, iid, 1)
+ 192                     slot = self.item_slot(i + 1, iid)
+ 193                     self.emit("item_gain", member=i + 1, item=iid, slot=slot,
+ 194                               status=amount)
+ 195                     placed = True
+ 196                     break
+ 197             if not placed:
+ 198                 self.emit("item_lost", item=iid)
+ 199         cash = rec.get("cash")
+ 200         if cash:
+ 201             m = self.party[0]
+ 202             m["money"] = m.get("money", 0) + cash
+ 203             self.emit("money", member=1, delta=cash, total=m["money"])
+ 204         self.apply_tail(rec, x, y)
+ 205 
+ 206     # -- cell changes ------------------------------------------------------
+ 207 
+ 208     def cell_change(self, x, y, action_class, action, image):
+ 209         self.cell_changes.append([self.location, x, y, action_class, action,
+ 210                                   image])
+ 211         self.emit("cell_change", location=self.location, x=x, y=y,
+ 212                   action_class=action_class, action=action, image=image)
+ 213 
+ 214     # -- hooks -------------------------------------------------------------
+ 215 
+ 216     def run_hook(self, hook, nx, ny):
+ 217         kind = hook.get("kind")
+ 218         if kind == "win":
+ 219             self.hook_win(hook, nx, ny)
+ 220         elif kind == "recruit":
+ 221             self.hook_recruit(hook, nx, ny)
+ 222         elif kind == "healer":
+ 223             self.hook_healer(hook, nx, ny)
+ 224         elif kind == "lock":
+ 225             self.bump_lock(None, nx, ny)
+ 226 
+ 227     def hook_win(self, hook, nx, ny):
+ 228         item = hook.get("item")
+ 229         if item is not None and not self.party_has(item):
+ 230             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+ 231             if para:
+ 232                 self.emit("paragraph", n=para)
+ 233             return
+ 234         para = self.hook_get(hook, "win_paragraph", "win_para")
+ 235         if para:
+ 236             self.emit("paragraph", n=para)
+ 237         self.mode = "won"
+ 238         self.emit("win", steps=self.steps, day=self.day,
+ 239                   minutes=self.hour * 60 + self.minute)
+ 240 
+ 241     def hook_get(self, hook, *names):
+ 242         for name in names:
+ 243             if name in hook and hook[name] is not None:
+ 244                 return hook[name]
+ 245         return None
+ 246 
+ 247     def hook_recruit(self, hook, nx, ny):
+ 248         para = self.hook_get(hook, "paragraph")
+ 249         if para:
+ 250             self.emit("paragraph", n=para)
+ 251         self.pending = "recruit"
+ 252         self.pending_hook = hook
+ 253         self.pending_cell = (nx, ny)
+ 254         self.emit("prompt", prompt="recruit")
+ 255 
+ 256     def hook_healer(self, hook, nx, ny):
+ 257         self.pending = "heal"
+ 258         self.pending_hook = hook
+ 259         self.pending_cell = (nx, ny)
+ 260         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+ 261 
+============================== headless.py 720-900
+   1 
+   2     # -- locks -------------------------------------------------------------
+   3 
+   4     def bump_lock(self, rec, nx, ny):
+   5         hook = self.sc.hook(self.location, nx, ny)
+   6         if hook is None:
+   7             return
+   8         msg = self.hook_get(hook, "success_message", "message")
+   9         if msg:
+  10             self.emit("message", location=self.location, string=msg)
+  11         key_item = hook.get("key_item")
+  12         if key_item is not None:
+  13             member = self.member_with_item(key_item)
+  14             if member is not None:
+  15                 self.emit("key_used", member=member, item=key_item)
+  16                 self.unlock(nx, ny, hook, member, xp=0)
+  17                 return
+  18         member = self.pick_member(hook.get("skill", 0))
+  19         skill = hook.get("skill", 0)
+  20         level = self.skill_level(self.party[member - 1], skill)
+  21         attr = self.skill_attribute(skill)
+  22         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+  23                                 hook.get("tool_item") is not None)
+  24         roll = self.rng.d100()
+  25         success = roll <= need
+  26         self.emit("check", member=member, skill=skill, level=level, need=need,
+  27                   roll=roll, success=success)
+  28         if success:
+  29             self.unlock(nx, ny, hook, member)
+  30         else:
+  31             self.emit("message", location=self.location,
+  32                       string=hook.get("fail_message", ""))
+  33 
+  34     def unlock(self, nx, ny, hook, member, xp=10):
+  35         self.emit("unlock", x=nx, y=ny)
+  36         m = self.sc.map(self.location)
+  37         rec = maps.record_at(m, nx, ny)
+  38         img = maps.image_at(m, nx, ny)
+  39         tail = maps.apply_tail(rec) if rec is not None else None
+  40         if tail is None:
+  41             tail = (0, 0)
+  42         m["cells"]["actionClass"][ny][nx] = tail[0]
+  43         m["cells"]["action"][ny][nx] = tail[1]
+  44         self.cell_change(nx, ny, tail[0], tail[1], img)
+  45         newimg = maps.image_at(m, nx, ny)
+  46         self.cell_change(nx, ny, tail[0], tail[1], newimg)
+  47         if xp:
+  48             mm = self.party[member - 1]
+  49             mm["xp"] = mm.get("xp", 0) + xp
+  50             self.emit("xp", member=member, delta=xp, total=mm["xp"])
+  51         para = self.hook_get(hook, "paragraph", "success_paragraph")
+  52         if para:
+  53             self.emit("paragraph", n=para)
+  54 
+  55     def member_with_item(self, item):
+  56         for i, m in enumerate(self.party):
+  57             for it in m.get("items", []):
+  58                 if it[0] == item and it[1] > 0:
+  59                     return i + 1
+  60         return None
+  61 
+  62     def pick_member(self, skill):
+  63         idx = self.skill_attribute(skill)
+  64         best = 1
+  65         best_key = None
+  66         for i, m in enumerate(self.party):
+  67             if m.get("cond", 0) != 0:
+  68                 continue
+  69             lvl = self.skill_level(m, skill)
+  70             attrs = m.get("attrs") or {}
+  71             a = attrs.get(self.ATTR_ORDER[idx], 0)
+  72             key = (lvl, a, -i)
+  73             if best_key is None or key > best_key:
+  74                 best_key = key
+  75                 best = i + 1
+  76         return best
+  77 
+  78     def skill_attribute(self, skill):
+  79         """LR-6: LABSKILL byte 1 is a record offset; map it to an attribute."""
+  80         tbl = getattr(self.sc, "skill_table", None)
+  81         if tbl:
+  82             try:
+  83                 off = tbl[skill][2]
+  84             except Exception:  # noqa: BLE001
+  85                 off = None
+  86             if off in self.ATTR_OFFSETS:
+  87                 return self.ATTR_OFFSETS[off]
+  88         return 1
+  89 
+  90     def end_of_round(self):
+  91         """LR-36: living melee groups above band 1 close in, then round += 1."""
+  92         c = self.combat
+  93         if c is None:
+  94             return
+  95         for i, g in enumerate(c["groups"]):
+  96             mob = g.get("mob") or {}
+  97             melee = mob.get("weaponType", 0) < 3
+  98             if melee and g["band"] > 1 and any(h > 0 for h in g["hp"]):
+  99                 g["band"] -= 1
+ 100                 self.emit("group_closes", group=i + 1, band=g["band"])
+ 101         c["round"] += 1
+ 102 
+ 103     def party_has(self, item):
+ 104         for m in self.party:
+ 105             for it in m.get("items", []):
+ 106                 if it[0] == item and it[1] > 0:
+ 107                     return True
+ 108         return False
+ 109 
+ 110     def skill_level(self, member, skill):
+ 111         for sid, lvl in member.get("skills", []):
+ 112             if sid == skill:
+ 113                 return lvl
+ 114         return 0
+ 115 
+ 116     # -- shops -------------------------------------------------------------
+ 117 
+ 118     def open_shop(self, rec):
+ 119         n = rec.get("shop", 0)
+ 120         self.show_message(rec.get("message", 0))
+ 121         self.mode = "shop"
+ 122         recs = self.sc.shops[n]["items"] if n in self.sc.shops else []
+ 123         items = [i + 1 for i, it in enumerate(recs) if 1 <= it.get("stock", 0) <= 255]
+ 124         self.shop = {"number": n, "recs": recs, "items": items}
+ 125         self.emit("shop_open", shop=n)
+ 126 
+ 127     def key_b(self):
+ 128         if self.mode != "shop":
+ 129             return False
+ 130         self.pending = "buy_item"
+ 131         self.emit("prompt", prompt="buy_item", items=list(self.shop["items"]))
+ 132 
+ 133     def key_s(self):
+ 134         if self.mode == "shop":
+ 135             self.pending = "sell_member"
+ 136             self.emit("prompt", prompt="member")
+ 137             return
+ 138         self.serial += 1
+ 139         self.save_game()
+ 140 
+ 141     def key_c(self):
+ 142         self.pending = "char_member"
+ 143         self.emit("prompt", prompt="member")
+ 144 
+ 145     def key_e(self):
+ 146         if self.mode != "char":
+ 147             return False
+ 148         self.pending = "equip_item"
+ 149         self.emit("prompt", prompt="item_slot")
+ 150 
+ 151     def key_x(self):
+ 152         if self.mode == "shop":
+ 153             self.mode = "map"
+ 154             self.shop = None
+ 155             self.pending = None
+ 156             self.emit("shop_close")
+ 157             return
+ 158         if self.mode == "char":
+ 159             self.mode = "map"
+ 160             self.pending = None
+ 161             self.emit("char_close")
+ 162             return
+ 163         return False
+ 164 
+ 165     def key_o(self):
+ 166         self.emit("prompt", prompt="load")
+ 167         self.pending = "load"
+ 168 
+ 169     def key_y(self):
+ 170         if self.pending == "load":
+ 171             self.pending = None
+ 172             self.load_game()
+ 173             return
+ 174         if self.pending == "recruit":
+ 175             self.pending = None
+ 176             self.do_recruit()
+ 177             return
+ 178         if self.pending == "heal":
+ 179             self.pending = None
+ 180             self.do_heal()
+ 181             return
+============================== headless.py 900-1000
+   1             return
+   2         return False
+   3 
+   4     def key_n(self):
+   5         if self.pending in ("recruit", "heal", "load"):
+   6             self.pending = None
+   7             return
+   8         return False
+   9 
+  10     def do_recruit(self):
+  11         hook = self.pending_hook
+  12         nx, ny = self.pending_cell
+  13         m = self.sc.map(self.location)
+  14         img = self.hook_get(hook, "cleared_image", "image")
+  15         m["cells"]["actionClass"][ny][nx] = 0
+  16         m["cells"]["action"][ny][nx] = 0
+  17         m["cells"]["image"][ny][nx] = img
+  18         self.cell_change(nx, ny, 0, 0, img)
+  19         slot = len(self.party) + 1
+  20         idx = hook.get("npc", 0) or 0
+  21         npcs = m.get("npcs", [])
+  22         ch = npcs[idx] if 0 <= idx < len(npcs) else {}
+  23         self.party.append(self.member_from_character(ch, slot))
+  24         self.emit("recruit", location=self.location, npc=idx, slot=slot)
+  25 
+  26     def member_from_character(self, ch, slot):
+  27         aff = ch.get("afflictions", 0)
+  28         cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+  29         return {
+  30             "slot": slot, "name": ch.get("name", ""), "npc": ch.get("npc", 0),
+  31             "level": ch.get("level", 1), "xp": ch.get("experience", 0),
+  32             "max_hp": ch.get("maxCon", 0), "hp": ch.get("curCon", 0),
+  33             "cond": cond, "money": ch.get("money", 0),
+  34             "ac": ch.get("armorClass", 0), "rank": ch.get("rank", ""),
+  35             "skill_points": ch.get("skillPoints", 0),
+  36             "items": [list(x) for x in ch.get("items", [])],
+  37             "skills": [list(x) for x in ch.get("skills", [])],
+  38             "weapon_slot": ch.get("weaponSlot", 0),
+  39             "armour_slot": ch.get("armorSlot", 0),
+  40             "attrs": {"STR": ch.get("strength", 0), "IQ": ch.get("intelligence", 0),
+  41                       "LCK": ch.get("luck", 0), "SPD": ch.get("speed", 0),
+  42                       "AGL": ch.get("agility", 0), "CHA": ch.get("charisma", 0)},
+  43             "gender": ch.get("gender", 0), "nationality": ch.get("nationality", 0),
+  44             "game_won": ch.get("gameWon", 0),
+  45         }
+  46 
+  47     def do_heal(self):
+  48         hook = self.pending_hook
+  49         price = hook.get("price", 0)
+  50         m = self.party[0]
+  51         m["money"] = m.get("money", 0) - price
+  52         self.emit("money", member=1, delta=-price, total=m["money"])
+  53         for mm in self.party:
+  54             mm["hp"] = mm.get("max_hp", 0)
+  55         self.emit("heal_all", price=price)
+  56 
+  57     # -- rest --------------------------------------------------------------
+  58 
+  59     def key_r(self):
+  60         self.advance_time(60)
+  61         self.emit("rest")
+  62 
+  63     # -- save / load -------------------------------------------------------
+  64 
+  65     def save_game(self):
+  66         self.emit("save", serial=self.serial)
+  67         self.saved[self.serial] = self.snapshot()
+  68         try:
+  69             self.write_save_files()
+  70         except Exception:  # noqa: BLE001
+  71             pass
+  72 
+  73     def write_save_files(self):
+  74         pass
+  75 
+  76     def load_game(self):
+  77         self.emit("load", serial=self.serial)
+  78 
+  79     # -- combat ------------------------------------------------------------
+  80 
+  81     def start_encounter(self, rec):
+  82         self.mode = "combat"
+  83         groups = self.build_groups(rec)
+  84         self.combat = {"groups": groups, "round": 0, "rec": rec, "surprised": False}
+  85         self.emit("encounter_start", groups=[self.group_event(g) for g in groups])
+  86         msg = (rec or {}).get("message", 0)
+  87         if msg:
+  88             self.show_message(msg)
+  89         if (rec or {}).get("friendly"):
+  90             self.emit("combat_end", result="friendly")
+  91             self.mode = "map"
+  92             self.apply_tail(rec, self.x, self.y)
+  93             return
+  94         if not groups:
+  95             self.emit("combat_end", result="victory", rounds=0)
+  96             self.mode = "map"
+  97             self.apply_tail(rec, self.x, self.y)
+  98             return
+  99         d_max = max(g["mob"].get("combatRating", 0) for g in groups)
+ 100         skill = 18
+ 101         member = self.pick_member(skill)

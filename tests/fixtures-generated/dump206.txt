@@ -1,0 +1,451 @@
+=== tests/conftest.py (239 lines) ===
+1: """Acceptance-test configuration for PREREG-W1 (SPEC-07).
+2: 
+3: - Registers the `milestone(name)` marker; every test carries exactly one.
+4: - Adds `--group M1` ... `--group M6` to select one milestone group.
+5: - Puts the project's src/ first on sys.path so `import wlengine` finds the
+6:   builder's package.
+7: - Provides the session fixtures: the SPEC-02/SPEC-03 fixture set, the engine's
+8:   compiled Dry Fork data, the oracle decoding of that data, and cached headless
+9:   runs.
+10: 
+11: Frozen with the tests (SPEC-07 section 6).
+12: """
+13: 
+14: from __future__ import annotations
+15: 
+16: import json
+17: import os
+18: import shutil
+19: import subprocess
+20: import sys
+21: from pathlib import Path
+22: 
+23: import pytest
+24: 
+25: sys.dont_write_bytecode = True
+26: _TESTS = Path(__file__).resolve().parent
+27: _SRC = _TESTS.parent / "src"
+28: for p in (str(_TESTS), str(_SRC)):
+29:     if p in sys.path:
+30:         sys.path.remove(p)
+31: sys.path.insert(0, str(_TESTS))
+32: sys.path.insert(0, str(_SRC))
+33: 
+34: import wl_support as W  # noqa: E402
+35: 
+36: MILESTONES = ("M1", "M2", "M3", "M4", "M5", "M6")
+37: sys.addaudithook(W.audit_hook)
+38: 
+39: 
+40: def pytest_addoption(parser):
+41:     parser.addoption("--group", action="store", default=None, metavar="M",
+42:                      help="run only the tests of one milestone group (M1 to M6), SPEC-07")
+43: 
+44: 
+45: def pytest_configure(config):
+46:     config.addinivalue_line("markers", "milestone(name): PREREG-W1 milestone group, M1 to M6 (SPEC-07)")
+47: 
+48: 
+49: def pytest_collection_modifyitems(config, items):
+50:     group = config.getoption("--group")
+51:     if group is not None and group not in MILESTONES:
+52:         raise pytest.UsageError("--group must be one of %s, got %r" % (", ".join(MILESTONES), group))
+53:     keep, drop = [], []
+54:     for it in items:
+55:         marks = [m.args[0] if m.args else None for m in it.iter_markers("milestone")]
+56:         if len(marks) != 1 or marks[0] not in MILESTONES:
+57:             raise pytest.UsageError("%s must carry exactly one milestone marker (got %r)" % (it.nodeid, marks))
+58:         (keep if group is None or marks[0] == group else drop).append(it)
+59:     if drop:
+60:         config.hook.pytest_deselected(items=drop)
+61:         items[:] = keep
+62: 
+63: 
+64: # ---------------------------------------------------------------------------
+65: # Session fixtures
+66: # ---------------------------------------------------------------------------
+67: 
+68: def _oracle(args: list[str], timeout: int = 300) -> subprocess.CompletedProcess:
+69:     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+70:     env.pop("PYTHONPATH", None)
+71:     return subprocess.run([sys.executable, str(_TESTS / "oracle_tool.py")] + args, capture_output=True,
+72:                           text=True, timeout=timeout, env=env, stdin=subprocess.DEVNULL)
+73: 
+74: 
+75: class FixtureSet:
+76:     def __init__(self, d: Path, manifest: dict) -> None:
+77:         self.dir = d
+78:         self.manifest = manifest
+79: 
+80:     def path(self, name: str) -> str:
+81:         return str(self.dir / name)
+82: 
+83:     def read(self, name: str) -> bytes:
+84:         return (self.dir / name).read_bytes()
+85: 
+86: 
+87: def _make_fixture_set(tmp_path_factory, seed: int) -> FixtureSet:
+88:     d = tmp_path_factory.mktemp("fixtures")
+89:     mand = tmp_path_factory.mktemp("manifest")
+90:     r = _oracle(["fixtures", str(d), str(mand), str(seed)])
+91:     if r.returncode != 0:
+92:         raise RuntimeError("fixture generator failed (test infrastructure): %s %s" % (r.stdout[-500:], r.stderr[-500:]))
+93:     W.FORBIDDEN_PREFIXES.append(str(mand) + os.sep)
+94:     return FixtureSet(d, json.loads((mand / "manifest.json").read_text()))
+95: 
+96: 
+97: @pytest.fixture(scope="session")
+98: def fixture_set(tmp_path_factory) -> FixtureSet:
+99:     """SPEC-02 section 12.8 / SPEC-03 section 12 fixtures (seed 19880101), manifest kept apart."""
+100:     return _make_fixture_set(tmp_path_factory, 19880101)
+101: 
+102: 
+103: @pytest.fixture(scope="session")
+104: def fixture_set_alt(tmp_path_factory) -> FixtureSet:
+105:     """The same generator with seed 20261022: same structure, different content (SPEC-07 section 5)."""
+106:     return _make_fixture_set(tmp_path_factory, 20261022)
+107: 
+108: 
+109: class Compiled:
+110:     def __init__(self, d: Path | None, error: str | None) -> None:
+111:         self.dir = d
+112:         self.error = error
+113: 
+114:     def need(self) -> Path:
+115:         if self.error:
+116:             W.fail("scenario compile failed, so this check cannot run: " + self.error)
+117:         return self.dir
+118: 
+119:     def copy(self, tmp_path_factory) -> Path:
+120:         src = self.need()
+121:         dst = tmp_path_factory.mktemp("data")
+122:         shutil.copytree(src, dst, dirs_exist_ok=True)
+123:         return dst
+124: 
+125: 
+126: @pytest.fixture(scope="session")
+127: def compiled(tmp_path_factory) -> Compiled:
+128:     """The engine's own compilation of SPEC/scenario (SPEC-05 section 13)."""
+129:     d = tmp_path_factory.mktemp("compiled")
+130:     try:
+131:         W.engine_ready()
+132:         fn = W.api("scenario.compile")
+133:     except pytest.fail.Exception as e:
+134:         return Compiled(None, str(e))
+135:     try:
+136:         W._armed(fn, str(W.SCENARIO), str(d), allow_reference_log=True)
+137:     except NotImplementedError as e:
+138:         return Compiled(None, "wlengine.scenario.compile: not implemented (%s)" % (e or "NotImplementedError"))
+139:     except Exception as e:  # noqa: BLE001
+140:         return Compiled(None, "wlengine.scenario.compile raised %s: %s" % (type(e).__name__, W.short(str(e), 200)))
+141:     if W._STATE["violations"]:
+142:         v = W._STATE["violations"][0]
+143:         W._STATE["violations"].clear()
+144:         if not v.startswith(str(W.SCENARIO)):
+145:             return Compiled(None, "wlengine.scenario.compile opened a file the engine must not read: %s" % v)
+146:     return Compiled(d, None)
+147: 
+148: 
+149: class OracleView:
+150:     def __init__(self, data: dict | None, error: str | None) -> None:
+151:         self.data = data or {}
+152:         self.error = error
+153: 
+154:     def oracle(self, section: str):
+155:         if self.error:
+156:             W.fail(self.error)
+157:         errs = self.data.get("errors", {})
+158:         if section in errs:
+159:             W.fail("reference reader rejected the compiled data (%s): %s" % (section, errs[section]))
+160:         if section not in self.data.get("oracle", {}):
+161:             W.fail("reference reader found no %s in the compiled data" % section)
+162:         return self.data["oracle"][section]
+163: 
+164:     def expected(self, section: str):
+165:         if self.error and not self.data.get("expected"):
+166:             W.fail(self.error)
+167:         return self.data["expected"][section]
+168: 
+169: 
+170: @pytest.fixture(scope="session")
+171: def oracle_view(compiled) -> OracleView:
+172:     if compiled.error:
+173:         return OracleView(None, "scenario compile failed, so this check cannot run: " + compiled.error)
+174:     r = _oracle(["compiled", str(compiled.dir), str(W.SCENARIO)])
+175:     try:
+176:         data = json.loads(r.stdout)
+177:     except ValueError:
+178:         raise RuntimeError("oracle tool failed (test infrastructure): %s" % r.stderr[-800:])
+179:     if "fatal" in data:
+180:         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+181:     return OracleView(data, None)
+182: 
+183: 
+184: @pytest.fixture(scope="session")
+185: def expected_view(tmp_path_factory) -> dict:
+186:     """Expected structures from the scenario JSON alone (no engine involved)."""
+187:     d = tmp_path_factory.mktemp("empty")
+188:     r = _oracle(["compiled", str(d), str(W.SCENARIO)])
+189:     data = json.loads(r.stdout)
+190:     if "fatal" in data:
+191:         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+192:     return data["expected"]
+193: 
+194: 
+195: class Runner:
+196:     """Cached headless runs on fresh copies of the compiled data."""
+197: 
+198:     def __init__(self, compiled: Compiled, tmp_path_factory) -> None:
+199:         self.compiled = compiled
+200:         self.tpf = tmp_path_factory
+201:         self.cache: dict = {}
+202: 
+203:     def run(self, key: str, script: dict, seed: int | None = None, data_dir: Path | None = None):
+204:         """Return (events, data_dir). Fails the test cleanly on any engine problem."""
+205:         ck = (key, seed, str(data_dir) if data_dir else None)
+206:         if ck in self.cache:
+207:             ev, dd, err = self.cache[ck]
+208:             if err:
+209:                 W.fail(err)
+210:             return ev, dd
+211:         dd = data_dir or self.compiled.copy(self.tpf)
+212:         err = None
+213:         ev = None
+214:         try:
+215:             ev = W.call("headless.run", str(dd), json.loads(json.dumps(script)), seed)
+216:             if not isinstance(ev, list) or not all(isinstance(e, dict) for e in ev):
+217:                 err = "wlengine.headless.run must return a list of event dicts, got %s" % type(ev).__name__
+218:         except pytest.fail.Exception as e:
+219:             err = str(e)
+220:         self.cache[ck] = (ev, dd, err)
+221:         if err:
+222:             W.fail(err)
+223:         return ev, dd
+224: 
+225: 
+226: @pytest.fixture(scope="session")
+227: def runner(compiled, tmp_path_factory) -> Runner:
+228:     return Runner(compiled, tmp_path_factory)
+229: 
+230: 
+231: @pytest.fixture(scope="session")
+232: def walkthrough() -> dict:
+233:     return W.load_json(W.SCENARIO / "walkthrough.json")
+234: 
+235: 
+236: @pytest.fixture(scope="session")
+237: def reference_log() -> list[dict]:
+238:     return W.load_json(W.REFERENCE_LOG)["events"]
+239: 
+=== SPEC/reference ===
+['__pycache__', 'codecs_ref.py', 'fixtures_gen.py']
+codecs_ref.py: 24238 bytes
+fixtures_gen.py: 51468 bytes
+=== SPEC-05 5.2 ===
+258: ### 5.2 Saltwell (location 1)
+259: 
+260: A fenced town. The dry goods store is the north-west building, the healer the
+261: north-east building, the pump stands in the square at (15,11), the gate is the
+262: gap in the south fence at (15,31) and (16,31).
+263: 
+264: ```text
+265:      00000000001111111111222222222233
+266:      01234567890123456789012345678901
+267:   0  ||||||||||||||||||||||||||||||||
+268:   1  |..............................|
+269:   2  |.#########......#############.|
+270:   3  |.#_______#......#___________#.|
+271:   4  |.#__nnn__#......#____h______#.|
+272:   5  |.#_______#......#___________#.|
+273:   6  |.#_______#..Y...#___________#.|
+274:   7  |.####/####......######/######.|
+275:   8  |.....;................;.......|
+276:   9  |.....;;;;;;;;;;;;;;;;;;;......|
+277:  10  |..T.........;;;;;.............|
+278:  11  |............;;P;;......Y......|
+279:  12  |............;;;;;.............|
+280:  13  |..............;...............|
+281:  14  |..............;.......b.......|
+282:  15  |..w...........;...............|
+283:  16  |..............;...............|
+284:  17  |.......p......;...............|
+285:  18  |.......;;;;;;;;...............|
+286:  19  |..............;.......T.......|
+287:  20  |..Y...........;...............|
+288:  21  |..............;..........Y....|
+289:  22  |..............;...............|
+290:  23  |.....b........;...............|
+291:  24  |..............;...............|
+292:  25  |..............;.........b.....|
+293:  26  |..............;...............|
+294:  27  |..T...........;...............|
+295:  28  |..............;...............|
+296:  29  |..............;...............|
+297:  30  |..............;;..............|
+298:  31  |||||||||||||||;;|||||||||||||||
+299: ```
+300: 
+301: Non-plain cells other than walls (196 wall cells):
+302: 
+303: | X | Y | Tile | Class | Action | Record | Note |
+304: | --- | --- | --- | --- | --- | --- | --- |
+305: | 22 | 4 | 22 | 11 | 0 | none | Healer's cot, Saltwell |
+306: | 6 | 5 | 17 | 6 | 1 | shop list 0, message 5 "Saltwell Dry Goods." | Shop list 0, Saltwell Dry Goods |
+307: | 6 | 7 | 19 | 1 | 2 | messages 2 "Read paragraph 3." | Dry goods doorway, paragraph 3 |
+308: | 23 | 7 | 19 | 1 | 3 | messages 3 "Read paragraph 5." | Healer's doorway, paragraph 5 |
+309: | 15 | 11 | 23 | 11 | 0 | none | Saltwell pump: win hook |
+310: | 13 | 12 | 18 | 1 | 4 | messages 4 "The trough is green at the edges and nearly empty." | Trough message |
+311: | 8 | 17 | 24 | 11 | 1 | message 6 "Read paragraph 6." | NPC 0 of Saltwell: Orla Penn |
+312: | 15 | 29 | 18 | 1 | 1 | messages 1 "Read paragraph 2." | Saltwell sign, paragraph 2 |
+313: | 15 | 31 | 18 | 10 | 1 | absolute, no confirm, message 0, target location 0 (10,41) | Saltwell gate to overworld (10,41) |
+314: | 16 | 31 | 18 | 10 | 2 | absolute, no confirm, message 0, target location 0 (10,41) | Saltwell gate to overworld (10,41) |
+315: 
+316: Strings:
+317: 
+318: | Index | Text |
+319: | --- | --- |
+320: | 0 | (empty) |
+321: | 1 | Read paragraph 2. |
+322: | 2 | Read paragraph 3. |
+323: | 3 | Read paragraph 5. |
+324: | 4 | The trough is green at the edges and nearly empty. |
+325: | 5 | Saltwell Dry Goods. |
+326: | 6 | Read paragraph 6. |
+327: | 7 | Orla shrugs. Some other time, then. |
+=== map1 action_cells ===
+[{"x": 15, "y": 31, "tile": 18, "class": 10, "action": 1, "note": "Saltwell gate to overworld (10,41)"}, {"x": 16, "y": 31, "tile": 18, "class": 10, "action": 2, "note": "Saltwell gate to overworld (10,41)"}, {"x": 15, "y": 29, "tile": 18, "class": 1, "action": 1, "note": "Saltwell sign, paragraph 2"}, {"x": 6, "y": 7, "tile": 19, "class": 1, "action": 2, "note": "Dry goods doorway, paragraph 3"}, {"x": 23, "y": 7, "tile": 19, "class": 1, "action": 3, "note": "Healer's doorway, paragraph 5"}, {"x": 13, "y": 12, "tile": 18, "class": 1, "action": 4, "note": "Trough message"}, {"x": 6, "y": 5, "tile": 17, "class": 6, "action": 1, "note": "Shop list 0, Saltwell Dry Goods"}, {"x": 8, "y": 17, "tile": 24, "class": 11, "action": 1, "note": "NPC 0 of Saltwell: Orla Penn"}, {"x": 22, "y": 4, "tile": 22, "class": 11, "action": 0, "note": "Healer's cot, Saltwell"}, {"x": 15, "y": 11, "tile": 23, "class": 11, "action": 0, "note": "Saltwell pump: win hook"}]
+=== map1 conventions ===
+"arrays are [y][x]; tiles hold tile ids (image = id + 10); action_value is the 1-based slot in records[class] (SPEC-03 L-AC2, L-AC3); records[c][i] is slot i + 1"
+=== scenario.json ===
+{
+ "scenario": "Dry Fork",
+ "version": "1.1",
+ "authored": "2026-10-21",
+ "content": "lab-original; no Interplay content",
+ "rules": "SPEC-04 lab rules v1 (non-parity); map encoding per SPEC-03 section 9; containers per SPEC-02 section 12",
+ "files": [
+  "tiles.json",
+  "portraits.json",
+  "map0-overworld.json",
+  "map1-saltwell.json",
+  "map2-ninemile.json",
+  "map3-pumphouse.json",
+  "hooks.json",
+  "strings.json",
+  "paragraphs.json",
+  "skills.json",
+  "items.json",
+  "shops.json",
+  "encounters.json",
+  "npcs.json",
+  "party.json",
+  "walkthrough.json",
+  "rng-vectors.json",
+  "walkthrough-reference-log.json"
+ ],
+ "locations": [
+  {
+   "location": 0,
+   "name": "Dry Fork overworld",
+   "size": 64,
+   "file": "map0-overworld.json",
+   "location_code": 128,
+   "game_file": "GAME1",
+   "map_index": 0
+  },
+  {
+   "location": 1,
+   "name": "Saltwell",
+   "size": 32,
+   "file": "map1-saltwell.json",
+   "location_code": 129,
+   "game_file": "GAME1",
+   "map_index": 1
+  },
+  {
+   "location": 2,
+   "name": "Ninemile",
+   "size": 32,
+   "file": "map2-ninemile.json",
+   "location_code": 130,
+   "game_file": "GAME1",
+   "map_index": 2
+  },
+  {
+   "location": 3,
+   "name": "Pumphouse Deep",
+   "size": 32,
+   "file": "map3-pumphouse.json",
+   "location_code": 131,
+   "game_file": "GAME1",
+   "map_index": 3
+  }
+ ],
+ "start": {
+  "location": 1,
+  "x": 15,
+  "y": 20,
+  "hour": 8,
+  "paragraph": 1,
+  "seed": 20261021
+ },
+ "labstr_tables": {
+  "0": {
+   "use": "intro and title (SPEC-02 L-ST4)",
+   "strings": [
+    "",
+    "Dry Fork",
+    "A lab scenario for the clean room engine.",
+    "Press any key."
+   ]
+  },
+  "1": {
+   "use": "general messages (SPEC-02 L-ST4); index = id in strings.json, gaps are empty strings"
+  },
+  "2": {
+   "use": "inventory: index 0 empty, 1 to 35 skill names by skill id, 35 + N item name of item id N"
+  },
+  "3": {
+   "use": "rank names, index = level - 1",
+   "strings": [
+    "Drifter",
+    "Hand",
+    "Outrider",
+    "Warden",
+    "Steward",
+    "Marshal",
+    "Old hand"
+   ]
+  },
+  "4": {
+   "use": "attribute names in record order",
+   "strings": [
+    "Strength",
+    "IQ",
+    "Luck",
+    "Speed",
+    "Agility",
+    "Dexterity",
+    "Charisma"
+   ]
+  },
+  "5": {
+   "use": "nationality names, index = nationality byte",
+   "strings": [
+    "Basin",
+    "Upland",
+    "Coast",
+    "Delta",
+    "Plateau"
+   ]
+  }
+ },
+ "compiled_files": {
+  "GAME1": "maps for locations 0 to 3 (map indexes 0 to 3), then the savegame built from party.json and start, then shop lists 0 to 2",
+  "LABTABLES.BIN": "SPEC-02 section 12.2; mapCounts [4, 0], shopListCounts [3, 0]",
+  "LABSTR.BIN": "SPEC-02 section 12.3, tables 0 to 5 above, dictionary D of SPEC-02 section 9.3",
+  "LABSKILL.BIN": "SPEC-04 section 3.2: 36 entries of 2 bytes in the WL.EXE skill-metadata format",
+  "LABHOOKS.JSON": "copy of hooks.json (SPEC-04 section 6)",
+  "PARAGRAPHS.JSON": "copy of paragraphs.json (SPEC-03 L-MS2: the paragraph book sits outside the binary formats)",
+  "ALLHTDS1"

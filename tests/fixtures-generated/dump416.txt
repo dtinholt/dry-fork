@@ -1,0 +1,10 @@
+maps module attrs: ['CD_SIZE', 'FormatError', 'LAB_CLASSES', 'MAPINFO_FIELDS', 'MAPINFO_SIZE', 'NEEDS_RECORD', 'annotations', 'apply_tail', 'codecs', 'containers', 'decode_map', 'decode_record', 'huffman', 'image_at', 'is_passable', 'load_map', 'record_at', 'resolve_transition', 'strings']
+compiled dir /Users/dtinholt/wasteland-build/runs/w1-2026-10-21/scratch/probe416-_z7pcwoo
+has load_map
+load_maps failed: AttributeError module 'wlengine.maps' has no attribute 'load_maps'
+json action_class y=20: [11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+json tiles y=20: [25, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25]
+json action_class y=14: [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 11]
+json tiles y=14: [25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 25]
+json tiles x=14 col: [25, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25]
+json tiles x=15 col: [25, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 23, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18]

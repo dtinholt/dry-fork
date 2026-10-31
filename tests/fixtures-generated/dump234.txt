@@ -1,0 +1,140 @@
+tiles.json keys: ['bpp', 'image_index', 'tile_size', 'tiles', 'tileset', 'walkable_note']
+tile 9: {"id": 9, "image": 19, "name": "boulder", "walkable": false, "description": "One round tan boulder with a dark crack, on sand."}
+tile 10: {"id": 10, "image": 20, "name": "dead tree", "walkable": false, "description": "Bare grey trunk with three forked branches."}
+tile 11: {"id": 11, "image": 21, "name": "cactus", "walkable": false, "description": "Single green column cactus with two arms."}
+tile 16: {"id": 16, "image": 26, "name": "adobe wall", "walkable": false, "description": "Tan mud-brick wall with two darker brick courses."}
+tile 17: {"id": 17, "image": 27, "name": "plank floor", "walkable": true, "description": "Brown floorboards running vertically."}
+tile 18: {"id": 18, "image": 28, "name": "street", "walkable": true, "description": "Packed earth, darker than sand, with faint cart marks."}
+tile 19: {"id": 19, "image": 29, "name": "doorway", "walkable": true, "description": "Open door frame in an adobe wall, dark interior strip."}
+tile 21: {"id": 21, "image": 31, "name": "counter", "walkable": false, "description": "Waist-high wooden counter seen from above, with a ledger."}
+tile 22: {"id": 22, "image": 32, "name": "healer's cot", "walkable": false, "description": "Narrow cot with a white sheet and a red cross on the blanket."}
+tile 23: {"id": 23, "image": 33, "name": "pump head", "walkable": false, "description": "Iron hand-pump with a curved handle over a stone trough."}
+tile 24: {"id": 24, "image": 34, "name": "townsperson", "walkable": false, "description": "Standing figure in a long coat and wide hat, seen from above."}
+tile 25: {"id": 25, "image": 35, "name": "fence", "walkable": false, "description": "Split-rail fence running left to right."}
+tile 26: {"id": 26, "image": 36, "name": "well", "walkable": false, "description": "Round stone well with a dark centre."}
+---- SPEC-05 section 3 ----
+## 3. Tiles
+
+Tileset 0 holds 32 tiles. A cell's image byte is tile id + 10 (SPEC-03 section
+7). Passability comes only from the action class (SPEC-03 L-MV2): the scenario
+puts class 11 with action 0 on every cell that shows a tile marked "no" below,
+unless section 5 lists another class for that cell. The glyph is the curses
+character of SPEC-06 section 2.3.
+
+| Id | Image | Name | Walkable | Description |
+| --- | --- | --- | --- | --- |
+| 0 | 10 | sand | yes | Pale wind-rippled sand, the default ground of the overworld. |
+| 1 | 11 | hardpan | yes | Cracked grey clay flat with hairline fissures. |
+| 2 | 12 | scrub | yes | Low grey-green brush in clumps on sand. |
+| 3 | 13 | road | yes | Two rutted wheel tracks with a hump of weeds between them. |
+| 4 | 14 | gravel bed | yes | Rounded river stones in a dry channel, lighter than sand. |
+| 5 | 15 | salt crust | yes | White salt plate with a faint hexagonal crack pattern. |
+| 6 | 16 | ford stones | yes | Flat stepping stones laid across dark water. |
+| 7 | 17 | deep water | no | Slow dark-green water with a single highlight ripple. |
+| 8 | 18 | mesa rock | no | Layered red-brown cliff face with a shadowed lower third. |
+| 9 | 19 | boulder | no | One round tan boulder with a dark crack, on sand. |
+| 10 | 20 | dead tree | no | Bare grey trunk with three forked branches. |
+| 11 | 21 | cactus | no | Single green column cactus with two arms. |
+| 12 | 22 | plank bridge | yes | Weathered boards running left to right, rope rails top and bottom. |
+| 13 | 23 | town marker | yes | Overworld icon: three small flat-roofed huts in a cluster. |
+| 14 | 24 | cave mouth | yes | Overworld icon: a black arch cut into a rock hump. |
+| 15 | 25 | rubble | no | Heap of broken concrete and bent rebar. |
+| 16 | 26 | adobe wall | no | Tan mud-brick wall with two darker brick courses. |
+| 17 | 27 | plank floor | yes | Brown floorboards running vertically. |
+| 18 | 28 | street | yes | Packed earth, darker than sand, with faint cart marks. |
+| 19 | 29 | doorway | yes | Open door frame in an adobe wall, dark interior strip. |
+| 20 | 30 | locked door | no | Heavy plank door with a black iron hasp and padlock. |
+| 21 | 31 | counter | no | Waist-high wooden counter seen from above, with a ledger. |
+| 22 | 32 | healer's cot | no | Narrow cot with a white sheet and a red cross on the blanket. |
+| 23 | 33 | pump head | no | Iron hand-pump with a curved handle over a stone trough. |
+| 24 | 34 | townsperson | no | Standing figure in a long coat and wide hat, seen from above. |
+| 25 | 35 | fence | no | Split-rail fence running left to right. |
+| 26 | 36 | well | no | Round stone well with a dark centre. |
+| 27 | 37 | concrete floor | yes | Grey poured floor with an expansion joint across it. |
+| 28 | 38 | concrete wall | no | Dark grey block wall with a lighter top edge. |
+| 29 | 39 | steel gate | no | Barred steel gate, five vertical bars, a lock box at the centre. |
+| 30 | 40 | console | no | Metal desk with a dim green screen and a row of
+---- bump at seq 127 ----
+   {"seq": 123, "type": "move", "location": 1, "x": 7, "y": 18, "steps": 38}
+   {"seq": 124, "type": "input", "key": "RIGHT"}
+   {"seq": 125, "type": "move", "location": 1, "x": 8, "y": 18, "steps": 39}
+   {"seq": 126, "type": "input", "key": "UP"}
+   {"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+   {"seq": 128, "type": "paragraph", "n": 6}
+   {"seq": 129, "type": "prompt", "prompt": "recruit"}
+---- bump at seq 503 ----
+   {"seq": 499, "type": "move", "location": 2, "x": 25, "y": 15, "steps": 161}
+   {"seq": 500, "type": "input", "key": "RIGHT"}
+   {"seq": 501, "type": "move", "location": 2, "x": 26, "y": 15, "steps": 162}
+   {"seq": 502, "type": "input", "key": "UP"}
+   {"seq": 503, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+   {"seq": 504, "type": "message", "location": 2, "string": 7}
+   {"seq": 505, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 69, "success": false}
+---- bump at seq 508 ----
+   {"seq": 504, "type": "message", "location": 2, "string": 7}
+   {"seq": 505, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 69, "success": false}
+   {"seq": 506, "type": "message", "location": 2, "string": 9}
+   {"seq": 507, "type": "input", "key": "UP"}
+   {"seq": 508, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+   {"seq": 509, "type": "message", "location": 2, "string": 7}
+   {"seq": 510, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+---- bump at seq 513 ----
+   {"seq": 509, "type": "message", "location": 2, "string": 7}
+   {"seq": 510, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+   {"seq": 511, "type": "message", "location": 2, "string": 9}
+   {"seq": 512, "type": "input", "key": "UP"}
+   {"seq": 513, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+   {"seq": 514, "type": "message", "location": 2, "string": 7}
+   {"seq": 515, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+---- bump at seq 518 ----
+   {"seq": 514, "type": "message", "location": 2, "string": 7}
+   {"seq": 515, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+   {"seq": 516, "type": "message", "location": 2, "string": 9}
+   {"seq": 517, "type": "input", "key": "UP"}
+   {"seq": 518, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+   {"seq": 519, "type": "message", "location": 2, "string": 7}
+   {"seq": 520, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 21, "success": true}
+---- bump at seq 562 ----
+   {"seq": 558, "type": "move", "location": 2, "x": 19, "y": 16, "steps": 176}
+   {"seq": 559, "type": "input", "key": "LEFT"}
+   {"seq": 560, "type": "move", "location": 2, "x": 18, "y": 16, "steps": 177}
+   {"seq": 561, "type": "input", "key": "DOWN"}
+   {"seq": 562, "type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+   {"seq": 563, "type": "paragraph", "n": 13}
+   {"seq": 564, "type": "prompt", "prompt": "recruit"}
+---- bump at seq 603 ----
+   {"seq": 599, "type": "move", "location": 2, "x": 25, "y": 23, "steps": 193}
+   {"seq": 600, "type": "input", "key": "UP"}
+   {"seq": 601, "type": "move", "location": 2, "x": 25, "y": 22, "steps": 194}
+   {"seq": 602, "type": "input", "key": "UP"}
+   {"seq": 603, "type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+   {"seq": 604, "type": "prompt", "prompt": "heal", "price": 40}
+   {"seq": 605, "type": "input", "key": "Y"}
+---- bump at seq 807 ----
+   {"seq": 803, "type": "move", "location": 3, "x": 14, "y": 6, "steps": 264}
+   {"seq": 804, "type": "input", "key": "RIGHT"}
+   {"seq": 805, "type": "move", "location": 3, "x": 15, "y": 6, "steps": 265}
+   {"seq": 806, "type": "input", "key": "RIGHT"}
+   {"seq": 807, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+   {"seq": 808, "type": "message", "location": 3, "string": 10}
+   {"seq": 809, "type": "key_used", "member": 1, "item": 11}
+---- bump at seq 1018 ----
+   {"seq": 1014, "type": "move", "location": 1, "x": 15, "y": 13, "steps": 357}
+   {"seq": 1015, "type": "input", "key": "UP"}
+   {"seq": 1016, "type": "move", "location": 1, "x": 15, "y": 12, "steps": 358}
+   {"seq": 1017, "type": "input", "key": "UP"}
+   {"seq": 1018, "type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0}
+   {"seq": 1019, "type": "paragraph", "n": 24}
+   {"seq": 1020, "type": "win", "steps": 358, "day": 2, "minutes": 428}
+---- checkpoints ----
+seq 2 name CP1 loc 1 x 15 y 20 steps 0
+seq 94 name CP2 loc 1 x 6 y 5 steps 24
+seq 133 name CP3 loc 1 x 8 y 18 steps 39
+seq 285 name CP4 loc 0 x 30 y 41 steps 79
+seq 460 name CP5-pre-save loc 2 x 25 y 5 steps 145
+seq 467 name CP5 loc 2 x 25 y 5 steps 145
+seq 535 name CP6 loc 2 x 26 y 12 steps 165
+seq 608 name CP7 loc 2 x 25 y 22 steps 194
+seq 793 name CP8 loc 3 x 9 y 6 steps 259
+seq 835 name CP9 loc 3 x 21 y 4 steps 273
+seq 1021 name CP10 loc 1 x 15 y 12 steps 358

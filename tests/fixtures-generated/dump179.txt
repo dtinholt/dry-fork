@@ -1,0 +1,148 @@
+our events: 989, reference: 1022
+ref checkpoints ['CP1', 'CP10', 'CP2', 'CP3', 'CP4', 'CP5', 'CP5-pre-save', 'CP6', 'CP7', 'CP8', 'CP9']
+our checkpoints ['CP1', 'CP10', 'CP2', 'CP3', 'CP4', 'CP5', 'CP5-pre-save', 'CP6', 'CP7', 'CP8', 'CP9']
+=== CP1: 0 field diffs
+=== CP10: 2 field diffs
+    cell_changes: ours=[[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27], [2, 18, 17, 0, 0, 28], [3, 9, 6, 5, 1, 37], [3, 9, 6, 0, 0, 37], [3, 16, 6, 4, 4, 39], [3, 16, 6, 4, 4, 37], [3, 21, 4, 0, 0, 37]] ref=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29], [3, 9, 6, 0, 0, 37], [3, 16, 6, 4, 4, 37], [3, 21, 4, 0, 0, 37]]
+    rng_state: ours=1547336489 ref=1205497775
+    party[0].items ours=[[3, 6], [4, 2], [7, 0], [8, 0], [11, 1], [9, 1], [12, 1]] ref=[[3, 4], [4, 1], [7, 0], [8, 0], [11, 0], [9, 3], [12, 0]]
+    party[0].rank ours='Drifter' ref='Hand'
+    party[0].skill_points ours=0 ref=2
+    party[1].items ours=[[5, 8], [6, 2], [7, 0]] ref=[[5, 0], [6, 2], [7, 0]]
+    party[1].rank ours='Drifter' ref='Hand'
+    party[1].skill_points ours=0 ref=2
+    party[2].items ours=[[3, 6], [4, 2]] ref=[[3, 5], [4, 1]]
+    party[2].rank ours='Drifter' ref='Hand'
+    party[2].skill_points ours=0 ref=2
+    party[3].items ours=[[3, 6], [4, 2], [9, 3]] ref=[[3, 5], [4, 1], [9, 3]]
+    party[3].rank ours='Drifter' ref='Hand'
+    party[3].skill_points ours=0 ref=2
+    party[4].items ours=[[5, 8], [6, 2]] ref=[[5, 0], [6, 2]]
+=== CP2: 0 field diffs
+=== CP3: 0 field diffs
+=== CP4: 2 field diffs
+    cell_changes: ours=[[1, 8, 17, 0, 0, 28], [0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13]] ref=[[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]]
+    rng_state: ours=90935533 ref=2973743393
+    party[0].hp ours=24 ref=25
+    party[0].items ours=[[3, 6], [4, 2], [7, 0]] ref=[[3, 0], [4, 2], [7, 0]]
+    party[0].rank ours='Drifter' ref='Hand'
+    party[0].skill_points ours=0 ref=2
+    party[1].hp ours=25 ref=30
+    party[1].items ours=[[5, 8], [6, 1], [7, 0]] ref=[[5, 3], [6, 1], [7, 0]]
+    party[1].rank ours='Drifter' ref='Hand'
+    party[1].skill_points ours=0 ref=2
+    party[2].hp ours=21 ref=25
+    party[2].items ours=[[3, 6], [4, 2]] ref=[[3, 1], [4, 2]]
+    party[2].rank ours='Drifter' ref='Hand'
+    party[2].skill_points ours=0 ref=2
+    party[3].hp ours=18 ref=22
+    party[3].items ours=[[3, 6], [4, 2], [9, 3]] ref=[[3, 1], [4, 2], [9, 3]]
+    party[3].rank ours='Drifter' ref='Hand'
+    party[3].skill_points ours=0 ref=2
+    party[4].items ours=[[5, 8], [6, 2]] ref=[[5, 3], [6, 2]]
+=== CP5: 2 field diffs
+    cell_changes: ours=[[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]] ref=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28]]
+    rng_state: ours=90935533 ref=2973743393
+    party[0].items ours=[[3, 6], [4, 2], [7, 0], [8, 0]] ref=[[3, 0], [4, 2], [7, 0], [8, 0]]
+    party[0].rank ours='Drifter' ref='Hand'
+    party[0].skill_points ours=0 ref=2
+    party[1].items ours=[[5, 8], [6, 2], [7, 0]] ref=[[5, 3], [6, 2], [7, 0]]
+    party[1].rank ours='Drifter' ref='Hand'
+    party[1].skill_points ours=0 ref=2
+    party[2].items ours=[[3, 6], [4, 2]] ref=[[3, 1], [4, 2]]
+    party[2].rank ours='Drifter' ref='Hand'
+    party[2].skill_points ours=0 ref=2
+    party[3].items ours=[[3, 6], [4, 2], [9, 3]] ref=[[3, 1], [4, 2], [9, 3]]
+    party[3].rank ours='Drifter' ref='Hand'
+    party[3].skill_points ours=0 ref=2
+    party[4].items ours=[[5, 8], [6, 2]] ref=[[5, 3], [6, 2]]
+=== CP5-pre-save: 2 field diffs
+    cell_changes: ours=[[1, 8, 17, 0, 0, 28], [0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13]] ref=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28]]
+    rng_state: ours=90935533 ref=2973743393
+    party[0].items ours=[[3, 6], [4, 2], [7, 0], [8, 0]] ref=[[3, 0], [4, 2], [7, 0], [8, 0]]
+    party[0].rank ours='Drifter' ref='Hand'
+    party[0].skill_points ours=0 ref=2
+    party[1].items ours=[[5, 8], [6, 2], [7, 0]] ref=[[5, 3], [6, 2], [7, 0]]
+    party[1].rank ours='Drifter' ref='Hand'
+    party[1].skill_points ours=0 ref=2
+    party[2].items ours=[[3, 6], [4, 2]] ref=[[3, 1], [4, 2]]
+    party[2].rank ours='Drifter' ref='Hand'
+    party[2].skill_points ours=0 ref=2
+    party[3].items ours=[[3, 6], [4, 2], [9, 3]] ref=[[3, 1], [4, 2], [9, 3]]
+    party[3].rank ours='Drifter' ref='Hand'
+    party[3].skill_points ours=0 ref=2
+    party[4].items ours=[[5, 8], [6, 2]] ref=[[5, 3], [6, 2]]
+=== CP6: 2 field diffs
+    cell_changes: ours=[[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27]] ref=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29]]
+    rng_state: ours=2578932118 ref=68685520
+    party[0].items ours=[[3, 6], [4, 2], [7, 0], [8, 0], [11, 1]] ref=[[3, 0], [4, 2], [7, 0], [8, 0], [11, 0]]
+    party[0].rank ours='Drifter' ref='Hand'
+    party[0].skill_points ours=0 ref=2
+    party[1].items ours=[[5, 8], [6, 2], [7, 0]] ref=[[5, 3], [6, 2], [7, 0]]
+    party[1].rank ours='Drifter' ref='Hand'
+    party[1].skill_points ours=0 ref=2
+    party[2].items ours=[[3, 6], [4, 2]] ref=[[3, 1], [4, 2]]
+    party[2].rank ours='Drifter' ref='Hand'
+    party[2].skill_points ours=0 ref=2
+    party[3].items ours=[[3, 6], [4, 2], [9, 3]] ref=[[3, 1], [4, 2], [9, 3]]
+    party[3].rank ours='Drifter' ref='Hand'
+    party[3].skill_points ours=0 ref=2
+    party[4].items ours=[[5, 8], [6, 2]] ref=[[5, 3], [6, 2]]
+=== CP7: 2 field diffs
+    cell_changes: ours=[[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27], [2, 18, 17, 0, 0, 28]] ref=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29]]
+    rng_state: ours=2578932118 ref=68685520
+    party[0].items ours=[[3, 6], [4, 2], [7, 0], [8, 0], [11, 1]] ref=[[3, 0], [4, 2], [7, 0], [8, 0], [11, 0]]
+    party[0].rank ours='Drifter' ref='Hand'
+    party[0].skill_points ours=0 ref=2
+    party[1].items ours=[[5, 8], [6, 2], [7, 0]] ref=[[5, 3], [6, 2], [7, 0]]
+    party[1].rank ours='Drifter' ref='Hand'
+    party[1].skill_points ours=0 ref=2
+    party[2].items ours=[[3, 6], [4, 2]] ref=[[3, 1], [4, 2]]
+    party[2].rank ours='Drifter' ref='Hand'
+    party[2].skill_points ours=0 ref=2
+    party[3].items ours=[[3, 6], [4, 2], [9, 3]] ref=[[3, 1], [4, 2], [9, 3]]
+    party[3].rank ours='Drifter' ref='Hand'
+    party[3].skill_points ours=0 ref=2
+    party[4].items ours=[[5, 8], [6, 2]] ref=[[5, 3], [6, 2]]
+=== CP8: 2 field diffs
+    cell_changes: ours=[[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27], [2, 18, 17, 0, 0, 28], [3, 9, 6, 5, 1, 37], [3, 9, 6, 0, 0, 37]] ref=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29], [3, 9, 6, 0, 0, 37]]
+    rng_state: ours=1547336489 ref=1205497775
+    party[0].items ours=[[3, 6], [4, 2], [7, 0], [8, 0], [11, 1], [9, 1]] ref=[[3, 4], [4, 1], [7, 0], [8, 0], [11, 0], [9, 3]]
+    party[0].rank ours='Drifter' ref='Hand'
+    party[0].skill_points ours=0 ref=2
+    party[1].hp ours=31 ref=26
+    party[1].items ours=[[5, 8], [6, 2], [7, 0]] ref=[[5, 0], [6, 2], [7, 0]]
+    party[1].rank ours='Drifter' ref='Hand'
+    party[1].skill_points ours=0 ref=2
+    party[2].hp ours=24 ref=25
+    party[2].items ours=[[3, 6], [4, 2]] ref=[[3, 5], [4, 1]]
+    party[2].rank ours='Drifter' ref='Hand'
+    party[2].skill_points ours=0 ref=2
+    party[3].hp ours=25 ref=26
+    party[3].items ours=[[3, 6], [4, 2], [9, 3]] ref=[[3, 5], [4, 1], [9, 3]]
+    party[3].rank ours='Drifter' ref='Hand'
+    party[3].skill_points ours=0 ref=2
+    party[4].hp ours=25 ref=27
+    party[4].items ours=[[5, 8], [6, 2]] ref=[[5, 0], [6, 2]]
+    party[5].hp ours=26 ref=22
+=== CP9: 2 field diffs
+    cell_changes: ours=[[0, 30, 41, 5, 1, 13], [0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 4, 1, 29], [2, 26, 12, 0, 0, 27], [2, 18, 17, 0, 0, 28], [3, 9, 6, 5, 1, 37], [3, 9, 6, 0, 0, 37], [3, 16, 6, 4, 4, 39], [3, 16, 6, 4, 4, 37], [3, 21, 4, 0, 0, 37]] ref=[[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29], [3, 9, 6, 0, 0, 37], [3, 16, 6, 4, 4, 37], [3, 21, 4, 0, 0, 37]]
+    rng_state: ours=1547336489 ref=1205497775
+    party[0].items ours=[[3, 6], [4, 2], [7, 0], [8, 0], [11, 1], [9, 1], [12, 1]] ref=[[3, 4], [4, 1], [7, 0], [8, 0], [11, 0], [9, 3], [12, 0]]
+    party[0].rank ours='Drifter' ref='Hand'
+    party[0].skill_points ours=0 ref=2
+    party[1].hp ours=31 ref=27
+    party[1].items ours=[[5, 8], [6, 2], [7, 0]] ref=[[5, 0], [6, 2], [7, 0]]
+    party[1].rank ours='Drifter' ref='Hand'
+    party[1].skill_points ours=0 ref=2
+    party[2].items ours=[[3, 6], [4, 2]] ref=[[3, 5], [4, 1]]
+    party[2].rank ours='Drifter' ref='Hand'
+    party[2].skill_points ours=0 ref=2
+    party[3].items ours=[[3, 6], [4, 2], [9, 3]] ref=[[3, 5], [4, 1], [9, 3]]
+    party[3].rank ours='Drifter' ref='Hand'
+    party[3].skill_points ours=0 ref=2
+    party[4].items ours=[[5, 8], [6, 2]] ref=[[5, 0], [6, 2]]
+    party[5].hp ours=26 ref=23
+=== first event divergence at index 242
+    ours {"level": 0, "member": 1, "need": 46, "roll": 58, "seq": 242, "skill": 22, "success": false, "type": "check"}
+    ref  {"key": "A", "seq": 242, "type": "input"}

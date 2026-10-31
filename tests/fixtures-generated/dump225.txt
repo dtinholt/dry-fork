@@ -1,0 +1,361 @@
+--- reference seq 230..300 ---
+{"seq": 230, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 2, "need": 22, "roll": 60, "hit": false}
+{"seq": 231, "type": "monster_dies", "group": 1, "index": 1}
+{"seq": 232, "type": "input", "key": "A"}
+{"seq": 233, "type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 234, "type": "round_start", "round": 2}
+{"seq": 235, "type": "jam", "member": 1, "roll": 4, "chance": 4}
+{"seq": 236, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 75, "hit": false}
+{"seq": 237, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 48, "hit": false}
+{"seq": 238, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 15, "hit": true, "damage": 8}
+{"seq": 239, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 78, "hit": false}
+{"seq": 240, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 4, "need": 28, "roll": 2, "hit": true, "damage": 4}
+{"seq": 241, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 75, "hit": false}
+{"seq": 242, "type": "input", "key": "A"}
+{"seq": 243, "type": "round_orders", "round": 3, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 244, "type": "round_start", "round": 3}
+{"seq": 245, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 98, "hit": false}
+{"seq": 246, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 33, "hit": true, "damage": 3}
+{"seq": 247, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 68, "hit": false}
+{"seq": 248, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 85, "hit": false}
+{"seq": 249, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 42, "hit": false}
+{"seq": 250, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 3, "need": 22, "roll": 66, "hit": false}
+{"seq": 251, "type": "monster_dies", "group": 1, "index": 2}
+{"seq": 252, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 79, "success": false}
+{"seq": 253, "type": "input", "key": "A"}
+{"seq": 254, "type": "round_orders", "round": 4, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 255, "type": "round_start", "round": 4}
+{"seq": 256, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 85, "hit": false}
+{"seq": 257, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 38, "hit": true, "damage": 3}
+{"seq": 258, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 19, "hit": true, "damage": 4}
+{"seq": 259, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 69, "hit": false}
+{"seq": 260, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 19, "hit": true, "damage": 3}
+{"seq": 261, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 22, "success": true}
+{"seq": 262, "type": "unjammed", "member": 1}
+{"seq": 263, "type": "input", "key": "A"}
+{"seq": 264, "type": "round_orders", "round": 5, "orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 265, "type": "round_start", "round": 5}
+{"seq": 266, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 34, "hit": true, "damage": 8}
+{"seq": 267, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 39, "hit": true, "damage": 7}
+{"seq": 268, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 33, "hit": true, "damage": 7}
+{"seq": 269, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 12, "hit": true, "damage": 7}
+{"seq": 270, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 94, "hit": false}
+{"seq": 271, "type": "monster_dies", "group": 1, "index": 3}
+{"seq": 272, "type": "combat_end", "result": "victory", "rounds": 5}
+{"seq": 273, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 274, "type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+{"seq": 275, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 276, "type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+{"seq": 277, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 278, "type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+{"seq": 279, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 280, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+{"seq": 281, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 282, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 283, "type": "money", "member": 1, "delta": 75, "total": 195}
+{"seq": 284, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+{"seq": 285, "type": "checkpoint", "name": "CP4", "state": {"location": 0, "x": 30, "y": 41, "steps": 79, "day": 1, "hour": 12, "minute": 19, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "m
+{"seq": 286, "type": "input", "key": "RIGHT"}
+{"seq": 287, "type": "move", "location": 0, "x": 31, "y": 41, "steps": 80}
+{"seq": 288, "type": "paragraph", "n": 9}
+{"seq": 289, "type": "cell_change", "location": 0, "x": 31, "y": 41, "action_class": 0, "action": 0, "image": 22}
+{"seq": 290, "type": "input", "key": "RIGHT"}
+{"seq": 291, "type": "move", "location": 0, "x": 32, "y": 41, "steps": 81}
+{"seq": 292, "type": "input", "key": "UP"}
+{"seq": 293, "type": "move", "location": 0, "x": 32, "y": 40, "steps": 82}
+{"seq": 294, "type": "input", "key": "UP"}
+{"seq": 295, "type": "move", "location": 0, "x": 32, "y": 39, "steps": 83}
+{"seq": 296, "type": "input", "key": "UP"}
+{"seq": 297, "type": "move", "location": 0, "x": 32, "y": 38, "steps": 84}
+{"seq": 298, "type": "natural_heal", "members": [1, 2, 4]}
+{"seq": 299, "type": "input", "key": "UP"}
+{"seq": 300, "type": "move", "location": 0, "x": 32, "y": 37, "steps": 85}
+
+--- ours ---
+{"seq": 0, "type": "new_game", "seed": 20261021}
+{"seq": 1, "type": "paragraph", "n": 1}
+{"seq": 2, "type": "checkpoint", "name": "CP1", "state": {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map", "cell_changes": [], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "con
+{"seq": 3, "type": "input", "key": "UP"}
+{"seq": 4, "type": "move", "location": 1, "x": 15, "y": 19, "steps": 1}
+{"seq": 5, "type": "input", "key": "UP"}
+{"seq": 6, "type": "move", "location": 1, "x": 15, "y": 18, "steps": 2}
+{"seq": 7, "type": "input", "key": "UP"}
+{"seq": 8, "type": "move", "location": 1, "x": 15, "y": 17, "steps": 3}
+{"seq": 9, "type": "input", "key": "UP"}
+{"seq": 10, "type": "move", "location": 1, "x": 15, "y": 16, "steps": 4}
+{"seq": 11, "type": "input", "key": "UP"}
+{"seq": 12, "type": "move", "location": 1, "x": 15, "y": 15, "steps": 5}
+{"seq": 13, "type": "input", "key": "UP"}
+{"seq": 14, "type": "move", "location": 1, "x": 15, "y": 14, "steps": 6}
+{"seq": 15, "type": "input", "key": "UP"}
+{"seq": 16, "type": "move", "location": 1, "x": 15, "y": 13, "steps": 7}
+{"seq": 17, "type": "input", "key": "UP"}
+{"seq": 18, "type": "move", "location": 1, "x": 15, "y": 12, "steps": 8}
+{"seq": 19, "type": "input", "key": "LEFT"}
+{"seq": 20, "type": "move", "location": 1, "x": 14, "y": 12, "steps": 9}
+{"seq": 21, "type": "input", "key": "UP"}
+{"seq": 22, "type": "move", "location": 1, "x": 14, "y": 11, "steps": 10}
+{"seq": 23, "type": "input", "key": "UP"}
+{"seq": 24, "type": "move", "location": 1, "x": 14, "y": 10, "steps": 11}
+{"seq": 25, "type": "input", "key": "UP"}
+{"seq": 26, "type": "move", "location": 1, "x": 14, "y": 9, "steps": 12}
+{"seq": 27, "type": "input", "key": "UP"}
+{"seq": 28, "type": "move", "location": 1, "x": 14, "y": 8, "steps": 13}
+{"seq": 29, "type": "input", "key": "LEFT"}
+{"seq": 30, "type": "move", "location": 1, "x": 13, "y": 8, "steps": 14}
+{"seq": 31, "type": "input", "key": "LEFT"}
+{"seq": 32, "type": "move", "location": 1, "x": 12, "y": 8, "steps": 15}
+{"seq": 33, "type": "input", "key": "LEFT"}
+{"seq": 34, "type": "move", "location": 1, "x": 11, "y": 8, "steps": 16}
+{"seq": 35, "type": "input", "key": "LEFT"}
+{"seq": 36, "type": "move", "location": 1, "x": 10, "y": 8, "steps": 17}
+{"seq": 37, "type": "input", "key": "LEFT"}
+{"seq": 38, "type": "move", "location": 1, "x": 9, "y": 8, "steps": 18}
+{"seq": 39, "type": "input", "key": "LEFT"}
+{"seq": 40, "type": "move", "location": 1, "x": 8, "y": 8, "steps": 19}
+{"seq": 41, "type": "input", "key": "LEFT"}
+{"seq": 42, "type": "move", "location": 1, "x": 7, "y": 8, "steps": 20}
+{"seq": 43, "type": "input", "key": "LEFT"}
+{"seq": 44, "type": "move", "location": 1, "x": 6, "y": 8, "steps": 21}
+{"seq": 45, "type": "input", "key": "UP"}
+{"seq": 46, "type": "move", "location": 1, "x": 6, "y": 7, "steps": 22}
+{"seq": 47, "type": "paragraph", "n": 3}
+{"seq": 48, "type": "input", "key": "UP"}
+{"seq": 49, "type": "move", "location": 1, "x": 6, "y": 6, "steps": 23}
+{"seq": 50, "type": "input", "key": "UP"}
+{"seq": 51, "type": "move", "location": 1, "x": 6, "y": 5, "steps": 24}
+{"seq": 52, "type": "message", "location": 1, "string": 5}
+{"seq": 53, "type": "shop_open", "shop": 0}
+{"seq": 54, "type": "input", "key": "B"}
+{"seq": 55, "type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+{"seq": 56, "type": "input", "key": "c"}
+{"seq": 57, "type": "prompt", "prompt": "member"}
+{"seq": 58, "type": "input", "key": "3"}
+{"seq": 59, "type": "money", "member": 3, "delta": -7, "total": 73}
+{"seq": 60, "type": "buy", "member": 3, "item": 4, "price": 7, "slot": 2, "status": 2}
+{"seq": 61, "type": "input", "key": "B"}
+{"seq": 62, "type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+{"seq": 63, "type": "input", "key": "c"}
+{"seq": 64, "type": "prompt", "prompt": "member"}
+{"seq": 65, "type": "input", "key": "4"}
+{"seq": 66, "type": "money", "member": 4, "delta": -7, "total": 63}
+{"seq": 67, "type": "buy", "member": 4, "item": 4, "price": 7, "slot": 2, "status": 2}
+{"seq": 68, "type": "input", "key": "S"}
+{"seq": 69, "type": "prompt", "prompt": "member"}
+{"seq": 70, "type": "input", "key": "2"}
+{"seq": 71, "type": "prompt", "prompt": "item_slot"}
+{"seq": 72, "type": "input", "key": "c"}
+{"seq": 73, "type": "sell", "member": 2, "item": 1, "price": 8, "slot": 3}
+{"seq": 74, "type": "money", "member": 2, "delta": 8, "total": 68}
+{"seq": 75, "type": "input", "key": "B"}
+{"seq": 76, "type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+{"seq": 77, "type": "input", "key": "d"}
+{"seq": 78, "type": "prompt", "prompt": "member"}
+{"seq": 79, "type": "input", "key": "2"}
+{"seq": 80, "type": "money", "member": 2, "delta": -28, "total": 40}
+{"seq": 81, "type": "buy", "member": 2, "item": 7, "price": 28, "slot": 3, "status": 0}
+{"seq": 82, "type": "input", "key": "X"}
+{"seq": 83, "type": "shop_close"}
+{"seq": 84, "type": "input", "key": "C"}
+{"seq": 85, "type": "prompt", "prompt": "member"}
+{"seq": 86, "type": "input", "key": "2"}
+{"seq": 87, "type": "char_open", "member": 2}
+{"seq": 88, "type": "input", "key": "E"}
+{"seq": 89, "type": "prompt", "prompt": "item_slot"}
+{"seq": 90, "type": "input", "key": "c"}
+{"seq": 91, "type": "equip", "member": 2, "slot": 3, "item": 7, "ac": 3}
+{"seq": 92, "type": "input", "key": "X"}
+{"seq": 93, "type": "char_close"}
+{"seq": 94, "type": "checkpoint", "name": "CP2", "state": {"location": 1, "x": 6, "y": 5, "steps": 24, "day": 1, "hour": 8, "minute": 24, "mode": "map", "cell_changes": [], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "co
+{"seq": 95, "type": "input", "key": "DOWN"}
+{"seq": 96, "type": "move", "location": 1, "x": 6, "y": 6, "steps": 25}
+{"seq": 97, "type": "input", "key": "DOWN"}
+{"seq": 98, "type": "move", "location": 1, "x": 6, "y": 7, "steps": 26}
+{"seq": 99, "type": "paragraph", "n": 3}
+{"seq": 100, "type": "input", "key": "DOWN"}
+{"seq": 101, "type": "move", "location": 1, "x": 6, "y": 8, "steps": 27}
+{"seq": 102, "type": "input", "key": "RIGHT"}
+{"seq": 103, "type": "move", "location": 1, "x": 7, "y": 8, "steps": 28}
+{"seq": 104, "type": "input", "key": "DOWN"}
+{"seq": 105, "type": "move", "location": 1, "x": 7, "y": 9, "steps": 29}
+{"seq": 106, "type": "input", "key": "DOWN"}
+{"seq": 107, "type": "move", "location": 1, "x": 7, "y": 10, "steps": 30}
+{"seq": 108, "type": "input", "key": "DOWN"}
+{"seq": 109, "type": "move", "location": 1, "x": 7, "y": 11, "steps": 31}
+{"seq": 110, "type": "input", "key": "DOWN"}
+{"seq": 111, "type": "move", "location": 1, "x": 7, "y": 12, "steps": 32}
+{"seq": 112, "type": "input", "key": "DOWN"}
+{"seq": 113, "type": "move", "location": 1, "x": 7, "y": 13, "steps": 33}
+{"seq": 114, "type": "input", "key": "DOWN"}
+{"seq": 115, "type": "move", "location": 1, "x": 7, "y": 14, "steps": 34}
+{"seq": 116, "type": "input", "key": "DOWN"}
+{"seq": 117, "type": "move", "location": 1, "x": 7, "y": 15, "steps": 35}
+{"seq": 118, "type": "input", "key": "DOWN"}
+{"seq": 119, "type": "move", "location": 1, "x": 7, "y": 16, "steps": 36}
+{"seq": 120, "type": "input", "key": "DOWN"}
+{"seq": 121, "type": "move", "location": 1, "x": 7, "y": 17, "steps": 37}
+{"seq": 122, "type": "input", "key": "DOWN"}
+{"seq": 123, "type": "move", "location": 1, "x": 7, "y": 18, "steps": 38}
+{"seq": 124, "type": "input", "key": "RIGHT"}
+{"seq": 125, "type": "move", "location": 1, "x": 8, "y": 18, "steps": 39}
+{"seq": 126, "type": "input", "key": "UP"}
+{"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+{"seq": 128, "type": "paragraph", "n": 6}
+{"seq": 129, "type": "prompt", "prompt": "recruit"}
+{"seq": 130, "type": "input", "key": "Y"}
+{"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 132, "type": "recruit", "location": 1, "npc": 0, "slot": 5}
+{"seq": 133, "type": "checkpoint", "name": "CP3", "state": {"location": 1, "x": 8, "y": 18, "steps": 39, "day": 1, "hour": 8, "minute": 39, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_
+{"seq": 134, "type": "input", "key": "RIGHT"}
+{"seq": 135, "type": "move", "location": 1, "x": 9, "y": 18, "steps": 40}
+{"seq": 136, "type": "input", "key": "RIGHT"}
+{"seq": 137, "type": "move", "location": 1, "x": 10, "y": 18, "steps": 41}
+{"seq": 138, "type": "input", "key": "RIGHT"}
+{"seq": 139, "type": "move", "location": 1, "x": 11, "y": 18, "steps": 42}
+{"seq": 140, "type": "input", "key": "RIGHT"}
+{"seq": 141, "type": "move", "location": 1, "x": 12, "y": 18, "steps": 43}
+{"seq": 142, "type": "input", "key": "RIGHT"}
+{"seq": 143, "type": "move", "location": 1, "x": 13, "y": 18, "steps": 44}
+{"seq": 144, "type": "input", "key": "RIGHT"}
+{"seq": 145, "type": "move", "location": 1, "x": 14, "y": 18, "steps": 45}
+{"seq": 146, "type": "input", "key": "RIGHT"}
+{"seq": 147, "type": "move", "location": 1, "x": 15, "y": 18, "steps": 46}
+{"seq": 148, "type": "input", "key": "DOWN"}
+{"seq": 149, "type": "move", "location": 1, "x": 15, "y": 19, "steps": 47}
+{"seq": 150, "type": "input", "key": "DOWN"}
+{"seq": 151, "type": "move", "location": 1, "x": 15, "y": 20, "steps": 48}
+{"seq": 152, "type": "input", "key": "DOWN"}
+{"seq": 153, "type": "move", "location": 1, "x": 15, "y": 21, "steps": 49}
+{"seq": 154, "type": "input", "key": "DOWN"}
+{"seq": 155, "type": "move", "location": 1, "x": 15, "y": 22, "steps": 50}
+{"seq": 156, "type": "input", "key": "DOWN"}
+{"seq": 157, "type": "move", "location": 1, "x": 15, "y": 23, "steps": 51}
+{"seq": 158, "type": "input", "key": "DOWN"}
+{"seq": 159, "type": "move", "location": 1, "x": 15, "y": 24, "steps": 52}
+{"seq": 160, "type": "input", "key": "DOWN"}
+{"seq": 161, "type": "move", "location": 1, "x": 15, "y": 25, "steps": 53}
+{"seq": 162, "type": "input", "key": "DOWN"}
+{"seq": 163, "type": "move", "location": 1, "x": 15, "y": 26, "steps": 54}
+{"seq": 164, "type": "input", "key": "DOWN"}
+{"seq": 165, "type": "move", "location": 1, "x": 15, "y": 27, "steps": 55}
+{"seq": 166, "type": "input", "key": "DOWN"}
+{"seq": 167, "type": "move", "location": 1, "x": 15, "y": 28, "steps": 56}
+{"seq": 168, "type": "input", "key": "DOWN"}
+{"seq": 169, "type": "move", "location": 1, "x": 15, "y": 29, "steps": 57}
+{"seq": 170, "type": "paragraph", "n": 2}
+{"seq": 171, "type": "input", "key": "DOWN"}
+{"seq": 172, "type": "move", "location": 1, "x": 15, "y": 30, "steps": 58}
+{"seq": 173, "type": "input", "key": "DOWN"}
+{"seq": 174, "type": "move", "location": 1, "x": 15, "y": 31, "steps": 59}
+{"seq": 175, "type": "map_change", "location": 0, "x": 10, "y": 41}
+{"seq": 176, "type": "input", "key": "RIGHT"}
+{"seq": 177, "type": "move", "location": 0, "x": 11, "y": 41, "steps": 60}
+{"seq": 178, "type": "input", "key": "RIGHT"}
+{"seq": 179, "type": "move", "location": 0, "x": 12, "y": 41, "steps": 61}
+{"seq": 180, "type": "input", "key": "RIGHT"}
+{"seq": 181, "type": "move", "location": 0, "x": 13, "y": 41, "steps": 62}
+{"seq": 182, "type": "input", "key": "RIGHT"}
+{"seq": 183, "type": "move", "location": 0, "x": 14, "y": 41, "steps": 63}
+{"seq": 184, "type": "input", "key": "RIGHT"}
+{"seq": 185, "type": "move", "location": 0, "x": 15, "y": 41, "steps": 64}
+{"seq": 186, "type": "input", "key": "RIGHT"}
+{"seq": 187, "type": "move", "location": 0, "x": 16, "y": 41, "steps": 65}
+{"seq": 188, "type": "input", "key": "RIGHT"}
+{"seq": 189, "type": "move", "location": 0, "x": 17, "y": 41, "steps": 66}
+{"seq": 190, "type": "input", "key": "RIGHT"}
+{"seq": 191, "type": "move", "location": 0, "x": 18, "y": 41, "steps": 67}
+{"seq": 192, "type": "input", "key": "RIGHT"}
+{"seq": 193, "type": "move", "location": 0, "x": 19, "y": 41, "steps": 68}
+{"seq": 194, "type": "input", "key": "RIGHT"}
+{"seq": 195, "type": "move", "location": 0, "x": 20, "y": 41, "steps": 69}
+{"seq": 196, "type": "input", "key": "RIGHT"}
+{"seq": 197, "type": "move", "location": 0, "x": 21, "y": 41, "steps": 70}
+{"seq": 198, "type": "input", "key": "RIGHT"}
+{"seq": 199, "type": "move", "location": 0, "x": 22, "y": 41, "steps": 71}
+{"seq": 200, "type": "input", "key": "RIGHT"}
+{"seq": 201, "type": "move", "location": 0, "x": 23, "y": 41, "steps": 72}
+{"seq": 202, "type": "input", "key": "RIGHT"}
+{"seq": 203, "type": "move", "location": 0, "x": 24, "y": 41, "steps": 73}
+{"seq": 204, "type": "input", "key": "RIGHT"}
+{"seq": 205, "type": "move", "location": 0, "x": 25, "y": 41, "steps": 74}
+{"seq": 206, "type": "input", "key": "RIGHT"}
+{"seq": 207, "type": "move", "location": 0, "x": 26, "y": 41, "steps": 75}
+{"seq": 208, "type": "paragraph", "n": 7}
+{"seq": 209, "type": "input", "key": "RIGHT"}
+{"seq": 210, "type": "move", "location": 0, "x": 27, "y": 41, "steps": 76}
+{"seq": 211, "type": "input", "key": "RIGHT"}
+{"seq": 212, "type": "move", "location": 0, "x": 28, "y": 41, "steps": 77}
+{"seq": 213, "type": "input", "key": "RIGHT"}
+{"seq": 214, "type": "move", "location": 0, "x": 29, "y": 41, "steps": 78}
+{"seq": 215, "type": "input", "key": "RIGHT"}
+{"seq": 216, "type": "move", "location": 0, "x": 30, "y": 41, "steps": 79}
+{"seq": 217, "type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [14, 12, 14]}]}
+{"seq": 218, "type": "paragraph", "n": 8}
+{"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 54, "success": true}
+{"seq": 220, "type": "input", "key": "A"}
+{"seq": 221, "type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 222, "type": "round_start", "round": 1}
+{"seq": 223, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 53, "hit": true, "damage": 6}
+{"seq": 224, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 38, "hit": true, "damage": 4}
+{"seq": 225, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 46, "roll": 32, "hit": true, "damage": 6}
+{"seq": 226, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 92, "hit": false}
+{"seq": 227, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 56, "hit": true, "damage": 3}
+{"seq": 228, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 1, "need": 22, "roll": 61, "hit": false}
+{"seq": 229, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 16, "hit": true, "damage": 1}
+{"seq": 230, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 2, "need": 22, "roll": 60, "hit": false}
+{"seq": 231, "type": "monster_dies", "group": 1, "index": 1}
+{"seq": 232, "type": "input", "key": "A"}
+{"seq": 233, "type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 234, "type": "round_start", "round": 2}
+{"seq": 235, "type": "jam", "member": 1, "roll": 4, "chance": 4}
+{"seq": 236, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 75, "hit": false}
+{"seq": 237, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 48, "hit": false}
+{"seq": 238, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 15, "hit": true, "damage": 8}
+{"seq": 239, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 78, "hit": false}
+{"seq": 240, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 4, "need": 28, "roll": 2, "hit": true, "damage": 4}
+{"seq": 241, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 75, "hit": false}
+{"seq": 242, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 58, "success": false}
+{"seq": 243, "type": "input", "key": "A"}
+{"seq": 244, "type": "round_orders", "round": 3, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 245, "type": "round_start", "round": 3}
+{"seq": 246, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 2, "need": 57, "roll": 55, "hit": true, "damage": 1}
+{"seq": 247, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 66, "hit": false}
+{"seq": 248, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 38, "hit": true, "damage": 5}
+{"seq": 249, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 42, "hit": true, "damage": 5}
+{"seq": 250, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 79, "hit": false}
+{"seq": 251, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 5, "need": 22, "roll": 85, "hit": false}
+{"seq": 252, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 38, "hit": false}
+{"seq": 253, "type": "monster_dies", "group": 1, "index": 2}
+{"seq": 254, "type": "input", "key": "A"}
+{"seq": 255, "type": "round_orders", "round": 4, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 256, "type": "round_start", "round": 4}
+{"seq": 257, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 3, "need": 57, "roll": 72, "hit": false}
+{"seq": 258, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 72, "hit": false}
+{"seq": 259, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 69, "hit": false}
+{"seq": 260, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 19, "hit": true, "damage": 3}
+{"seq": 261, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 72, "hit": false}
+{"seq": 262, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 4, "need": 28, "roll": 19, "hit": true, "damage": 3}
+{"seq": 263, "type": "input", "key": "A"}
+{"seq": 264, "type": "round_orders", "round": 5, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 265, "type": "round_start", "round": 5}
+{"seq": 266, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 3, "need": 57, "roll": 39, "hit": true, "damage": 7}
+{"seq": 267, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 33, "hit": true, "damage": 10}
+{"seq": 268, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 75, "hit": false}
+{"seq": 269, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 36, "hit": true, "damage": 2}
+{"seq": 270, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 57, "hit": true, "damage": 9}
+{"seq": 271, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 50, "hit": false}
+{"seq": 272, "type": "monster_dies", "group": 1, "index": 3}
+{"seq": 273, "type": "combat_end", "result": "victory", "rounds": 5}
+{"seq": 274, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 275, "type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+{"seq": 276, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 277, "type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+{"seq": 278, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 279, "type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+{"seq": 280, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 281, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+{"seq": 282, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 283, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 284, "type": "money", "member": 1, "delta": 75, "total": 195}
+{"seq": 285, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+{"seq": 286, "type": "checkpoint", "name": "CP4", "state": {"location": 0, "x": 30, "y": 41, "steps": 79, "day": 1, "hour": 12, "minute": 19, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]], "rng_state": 1425556049, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, 

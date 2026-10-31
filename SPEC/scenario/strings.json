@@ -1,0 +1,213 @@
+{
+  "table": 1,
+  "control_tokens": {
+    "{name}": "byte 0x0B, the acting member's name",
+    "{num}": "byte 0x0F, the event's number"
+  },
+  "strings": [
+    {
+      "id": 1,
+      "text": "There is no room in the party."
+    },
+    {
+      "id": 2,
+      "text": "Not enough money."
+    },
+    {
+      "id": 3,
+      "text": "{name} has no room for that."
+    },
+    {
+      "id": 4,
+      "text": "The way is shut."
+    },
+    {
+      "id": 5,
+      "text": "That cannot be equipped."
+    },
+    {
+      "id": 6,
+      "text": "Nothing happens."
+    },
+    {
+      "id": 7,
+      "text": "{name} is now level {num}."
+    },
+    {
+      "id": 8,
+      "text": "{name} gains {num} experience."
+    },
+    {
+      "id": 9,
+      "text": "{name} is unconscious."
+    },
+    {
+      "id": 10,
+      "text": "{name} is dead."
+    },
+    {
+      "id": 11,
+      "text": "{name}'s weapon jams."
+    },
+    {
+      "id": 12,
+      "text": "{name} clears the jam."
+    },
+    {
+      "id": 13,
+      "text": "{name} reloads."
+    },
+    {
+      "id": 14,
+      "text": "Click."
+    },
+    {
+      "id": 15,
+      "text": "The party is surprised!"
+    },
+    {
+      "id": 16,
+      "text": "The party wins the fight."
+    },
+    {
+      "id": 17,
+      "text": "The party has fallen."
+    },
+    {
+      "id": 18,
+      "text": "The party gets away."
+    },
+    {
+      "id": 19,
+      "text": "The party cannot get away."
+    },
+    {
+      "id": 20,
+      "text": "Game saved."
+    },
+    {
+      "id": 21,
+      "text": "Game loaded."
+    },
+    {
+      "id": 22,
+      "text": "Load the saved game? (Y/N)"
+    },
+    {
+      "id": 23,
+      "text": "Heal the party for {num}? (Y/N)"
+    },
+    {
+      "id": 24,
+      "text": "Take this one into the party? (Y/N)"
+    },
+    {
+      "id": 25,
+      "text": "Buy, Sell, or eXit?"
+    },
+    {
+      "id": 26,
+      "text": "Which member? (1 to 7)"
+    },
+    {
+      "id": 27,
+      "text": "Which item?"
+    },
+    {
+      "id": 28,
+      "text": "No one has room."
+    },
+    {
+      "id": 29,
+      "text": "The party finds {num} coins."
+    },
+    {
+      "id": 30,
+      "text": "The party is healed."
+    },
+    {
+      "id": 31,
+      "text": "That cannot be sold."
+    },
+    {
+      "id": 32,
+      "text": "No ammunition for that weapon."
+    },
+    {
+      "id": 33,
+      "text": "{name} is not conscious."
+    },
+    {
+      "id": 40,
+      "text": "A padlock hangs from the storehouse hasp."
+    },
+    {
+      "id": 41,
+      "text": "The padlock holds."
+    },
+    {
+      "id": 42,
+      "text": "Dark water, too deep to wade without care."
+    },
+    {
+      "id": 43,
+      "text": "The current pushes you back to the bank."
+    },
+    {
+      "id": 44,
+      "text": "A console with a dim green screen hums faintly."
+    },
+    {
+      "id": 45,
+      "text": "The screen fills with symbols and then goes dark again."
+    },
+    {
+      "id": 46,
+      "text": "A steel gate with a lock box at its centre."
+    },
+    {
+      "id": 47,
+      "text": "The lock box clicks and stays shut."
+    },
+    {
+      "id": 48,
+      "text": "A heap of rubble chokes the side passage."
+    },
+    {
+      "id": 49,
+      "text": "The rubble shifts under your hands and you slide back down."
+    },
+    {
+      "id": 50,
+      "text": "{name} takes a punched steel card."
+    },
+    {
+      "id": 51,
+      "text": "{name} lifts the governor valve from its slot."
+    },
+    {
+      "id": 52,
+      "text": "{name} takes a field kit from the shelf."
+    },
+    {
+      "id": 53,
+      "text": "{name} takes a rope coil from a hook."
+    },
+    {
+      "id": 60,
+      "text": "Orla shrugs. Some other time, then."
+    },
+    {
+      "id": 61,
+      "text": "Teodor squints at your leader and goes back to his clock."
+    },
+    {
+      "id": 62,
+      "text": "Wren looks your leader up and down and laughs."
+    },
+    {
+      "id": 63,
+      "text": "Sallow shakes his head slowly."
+    }
+  ]
+}

@@ -1,0 +1,410 @@
+=== headless.py (1274 lines) ===
+   19 NAMED_TOKENS = ("UP", "DOWN", "LEFT", "RIGHT", "ESC", "ENTER")
+   22 def is_token(key):
+   23     if not isinstance(key, str):
+   25     if key in NAMED_TOKENS:
+   27     return len(key) == 1 and 0x20 <= ord(key) <= 0x7E
+   34 def _load_scenario(data_dir):
+   37     if loader is not None:
+   40     if cls is not None:
+   43             if fn is not None:
+   54 class Engine(CombatMixin):
+   57     def __init__(self, data_dir, seed=None, options=None):
+   93     def emit(self, type_, **kw):
+  100     def checkpoint(self, name):
+  103     def snapshot(self):
+  114             "rng_state": self.rng.state if self.rng is not None else None,
+  119     def sorted_cell_changes(self):
+  126         return [last[k] for k in sorted(last, key=lambda k: (k[0], k[1], k[2]))]
+  128     def member_snapshot(self, member):
+  150     def item_table(self):
+  151         if self._items is not None:
+  154         if tbl is None:
+  156             if fn is not None:
+  158         if tbl is None:
+  160         if isinstance(tbl, list):
+  165     def item(self, iid):
+  168     def item_price(self, iid):
+  170         if isinstance(it, dict):
+  174     def item_name(self, iid):
+  176         if isinstance(it, dict):
+  182     def new_game(self, seed):
+  202     def run_script(self, script):
+  204             if isinstance(item, dict):
+  205                 if "checkpoint" in item:
+  207                 elif "repeat_until" in item:
+  212                 if not is_token(item):
+  217     def run_repeat(self, item):
+  220     def input(self, key):
+  221         self.emit("input", key=key)
+  222         if not self.dispatch(str(key)):
+  223             self.emit("ignored", key=key)
+  225     def dispatch(self, key):
+  226         low = key.lower()
+  227         if self.pending == "char_member" and key.isdigit():
+  228             member = int(key)
+  229             if 1 <= member <= len(self.party):
+  236         if self.mode == "shop":
+  237             return self.shop_key(key, low)
+  238         if self.mode == "char":
+  239             return self.char_key(key, low)
+  240         if self.mode == "combat":
+  241             return self.combat_key(key, low)
+  243         if handler is None:
+  249     def member_items(self, member):
+  252     def add_item(self, member, iid, count=1):
+  255             if entry[0] == iid:
+  261     def add_item_status(self, member, iid, status):
+  267     def remove_item(self, member, iid, count=1):
+  270             if entry[0] == iid:
+  272                 if entry[1] <= 0:
+  277     def item_slot(self, member, iid):
+  279             if entry[0] == iid:
+  285     def shop_items(self):
+  286         if self.shop is None:
+  290     def shop_recs(self):
+  291         if self.shop is None:
+  295     def item_record(self, iid):
+  297         if not recs:
+  298             recs = self.sc.shops[0]["items"] if self.sc.shops else []
+  299         if 1 <= iid <= len(recs):
+  303     def best_skill(self, skill):
+  306             if m.get("hp", 0) <= 0:
+  311     def haggling(self):
+  314     def buy_price(self, price):
+  318     def sell_price(self, price):
+  322     def shop_key(self, key, low):
+  323         if self.pending == "buy_item" and low.isalpha():
+  326             if 0 <= idx < len(items):
+  332         if self.pending == "buy_member" and low.isdigit():
+  334             if 1 <= member <= len(self.party):
+  339         if self.pending == "sell_member" and low.isdigit():
+  341             if 1 <= member <= len(self.party):
+  347         if self.pending == "sell_item" and low.isalpha():
+  350             if 0 <= idx < len(items):
+  355         if self.pending == "char_member" and low.isdigit():
+  357             if 1 <= member <= len(self.party):
+  364         if low == "b":
+  368         if low == "s":
+  372         if low == "c":
+  376         if low == "x":
+  384     def shop_buy(self, member, iid):
+  392         if itype == 3:  # ammunition stacks
+  394                 if entry[0] == iid and entry[1] < 127:
+  399         status = 1 if itype == 3 else (rec.get("capacity", 0) if itype == 5 else 0)
+  402             if entry[0] == 0:
+  405         if slot is None:
+  406             if len(items) >= 30:
+  416     def shop_sell(self, member, iid):
+  418         if rec.get("type", 0) == 7:
+  425         if 0 <= slot < len(items):
+  428         if m.get("armour_slot", 0) == slot + 1:
+  431         if m.get("weapon_slot", 0) == slot + 1:
+  436     def recompute_ac(self, member):
+  443         if aslot and 0 <= aslot - 1 < len(items):
+  445             if rec:
+  452     def char_key(self, key, low):
+  453         if low == "e":
+  457         if low == "x":
+  462         if self.pending == "equip_item" and low.isalpha():
+  465             if 0 <= idx < len(items):
+  472     def equip(self, member, slot, iid):
+  480     def combat_key(self, key, low):
+  481         if low == "a":
+  484         if low == "f":
+  489     def build_groups(self, rec):
+  497             if isinstance(name, bytes):
+  505     def group_event(self, g):
+  506         out = {k: (list(v) if isinstance(v, list) else v) for k, v in g.items() if k != "mob"}
+  512     def attr_value(self, member, skill):
+  518     # -- movement ----------------------------------------------------------
+  520     def key_down(self):
+  521         self.move(0, 1)
+  523     def key_up(self):
+  524         self.move(0, -1)
+  526     def key_left(self):
+  527         self.move(-1, 0)
+  529     def key_right(self):
+  530         self.move(1, 0)
+  532     def move(self, dx, dy):
+  536         if not (0 <= nx < size and 0 <= ny < size):
+  540         if cls == 11 or not maps.is_passable(m, nx, ny):
+  541             self.bump(nx, ny)
+  546         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+  548         self.after_move(ox, oy)
+  550     def step_minutes(self):
+  555     def cell_class_action(self, x, y):
+  558         if not (0 <= x < size and 0 <= y < size):
+  562     def show_message(self, index):
+  563         if not index:
+  566         if text.startswith("Read paragraph ") and text.endswith("."):
+  568             if body.isdigit():
+  573     def advance_time(self, minutes):
+  586         if self.hour != before_hour:
+  591     def natural_heal(self):
+  594             if m.get("cond", 0) != 0:
+  596             if m.get("hp", 0) < m.get("max_hp", 0):
+  599         if healed:
+  602     def after_move(self, ox=None, oy=None):
+  606         if cls == 10:
+  608         elif cls == 6:
+  610         elif cls == 3:
+  612         elif cls == 1 and rec is not None:
+  616         elif cls == 5 and rec is not None:
+  618         elif cls == 4 and rec is not None and not rec.get("impassable"):
+  619             # SPEC-03 9.6: set the cell image to r.tile, move, show r.message,
+  622             if tile is not None:
+  628     def transition(self, rec, ox=None, oy=None):
+  631         if rec.get("location", 0) != 255:
+  633             self.prev_x = self.x if ox is None else ox
+  634             self.prev_y = self.y if oy is None else oy
+  638     def bump(self, nx, ny):
+  642         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+  643         self.bump_effect(rec, nx, ny, cls)
+  645     def bump_effect(self, rec, nx, ny, cls=None):
+  646         if cls is None:
+  648         if cls == 11:
+  649             self.bump_blocked(rec, nx, ny)
+  650         elif cls == 4:
+  651             if rec is not None and rec.get("impassable"):
+  653                 if self.sc.hook(self.location, nx, ny):
+  657             elif rec is not None:
+  660         elif cls == 3:
+  663     def bump_blocked(self, rec, nx, ny):
+  664         if rec is not None:
+  669     def run_hook_at(self, nx, ny):
+  671         if hook:
+  674     def apply_tail(self, rec, x, y):
+  676         if tail is None:
+  684         if newrec is not None and "tile" in newrec:
+  686             if newimg != img:
+  690     def apply_loot(self, rec, x, y):
+  692             if isinstance(item, (list, tuple)):
+  694                 fixed = bool(item[1]) if len(item) > 1 else True
+  695                 amount = item[2] if len(item) > 2 else 0
+  698             status = amount if fixed else self.rng.rnd(amount)
+  701                 if len(m.get("items", [])) < 30:
+  708             if not placed:
+  711         if cash:
+  712             if isinstance(cash, (list, tuple)):
+  713                 fixed = bool(cash[0]) if len(cash) > 1 else True
+  714                 amount = cash[1] if len(cash) > 1 else cash[0]
+  717             amount = amount if fixed else self.rng.rnd(amount)
+  725     def cell_change(self, x, y, action_class, action, image):
+  733     def run_hook(self, hook, nx, ny):
+  735         if kind == "win":
+  737         elif kind == "recruit":
+  739         elif kind == "healer":
+  741         elif kind == "lock":
+  742             self.bump_lock(None, nx, ny)
+  744     def hook_win(self, hook, nx, ny):
+  746         if item is not None and not self.party_has(item):
+  748             if para:
+  752         if para:
+  758     def hook_get(self, hook, *names):
+  760             if name in hook and hook[name] is not None:
+  764     def hook_recruit(self, hook, nx, ny):
+  766         if para:
+  773     def hook_healer(self, hook, nx, ny):
+  781     def bump_lock(self, rec, nx, ny):
+  783         if hook is None:
+  786         if key_item is not None:
+  788             if member is not None:
+  802         if success:
+  807     def unlock(self, nx, ny, hook, member, xp=10):
+  812         tail = maps.apply_tail(rec) if rec is not None else None
+  813         if tail is None:
+  820         if newrec is not None and "tile" in newrec:
+  824         if xp:
+  830     def member_with_item(self, item):
+  834         (a key card sits in the list with status 0).
+  837             if m.get("cond", 0) == 2:
+  840                 if it[0] == item:
+  844     def pick_member(self, skill):
+  849             if m.get("cond", 0) != 0:
+  854             key = (lvl, a, -i)
+  855             if best_key is None or key > best_key:
+  856                 best_key = key
+  860     def skill_attribute(self, skill):
+  863         if tbl:
+  868             if off in self.ATTR_OFFSETS:
+  872     def attr_value(self, member, skill):
+  878     def end_of_round(self):
+  881         if c is None:
+  886             if melee and g["band"] > 1 and any(h > 0 for h in g["hp"]):
+  891     def party_has(self, item):
+  894                 if it[0] == item:
+  898     def skill_level(self, member, skill):
+  900             if sid == skill:
+  906     def open_shop(self, rec):
+  910         recs = self.sc.shops[n]["items"] if n in self.sc.shops else []
+  911         items = [i + 1 for i, it in enumerate(recs) if 1 <= it.get("stock", 0) <= 255]
+  915     def key_b(self):
+  916         if self.mode != "shop":
+  921     def key_s(self):
+  922         if self.mode == "shop":
+  929     def key_c(self):
+  933     def key_e(self):
+  934         if self.mode != "char":
+  939     def key_x(self):
+  940         if self.mode == "shop":
+  946         if self.mode == "char":
+  953     def key_o(self):
+  957     def key_y(self):
+  958         if self.pending == "load":
+  962         if self.pending == "recruit":
+  966         if self.pending == "heal":
+  972     def key_n(self):
+  973         if self.pending in ("recruit", "heal", "load"):
+  978     def do_recruit(self):
+  990         ch = npcs[idx] if 0 <= idx < len(npcs) else {}
+  994     def member_from_character(self, ch, slot):
+  996         cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+ 1015     def do_heal(self):
+ 1027     def key_r(self):
+ 1033     def save_game(self):
+ 1041     def write_save_files(self):
+ 1047             "rng_state": self.rng.state if self.rng is not None else 0,
+ 1065     def build_savegame_payload(self):
+ 1083     def character_dict(self, m):
+ 1102     def load_game(self):
+ 1105         if ls_path.is_file():
+ 1109             if self.rng is not None:
+ 1131     def restore_party(self, sg):
+ 1136             if not slot:
+ 1139             if not ch.get("name"):
+ 1142         if party:
+ 1147     def start_encounter(self, rec):
+ 1156         if msg:
+ 1158         if (rec or {}).get("friendly"):
+ 1163         if not groups:
+ 1175         if not res["success"]:
+ 1180     def key_a(self):
+ 1181         if self.mode != "combat":
+ 1188     def run_repeat(self, item):
+ 1190         if isinstance(spec, dict):
+ 1192             if script is None:
+ 1195             if until is None:
+ 1204             if until is None or self._until_met(until):
+ 1208     def _until_met(self, until):
+ 1209         if isinstance(until, str):
+ 1210             if until.startswith("mode:"):
+ 1212             if until.startswith("cell:"):
+ 1214                 if len(parts) == 3:
+ 1220         if isinstance(until, dict):
+ 1222                 if all(e.get(k) == v for k, v in until.items()):
+ 1232 def first_frame_state(data_dir, seed=None):
+ 1242     eng.new_game(seed if seed is not None else 1)
+ 1260 def run(data_dir, options=None, seed=None, *args, **kwargs):
+ 1261     if isinstance(options, str):
+ 1266     if isinstance(options, (list, tuple)):
+ 1269     if seed is None:
+
+=== maps.py key lines ===
+    9 decoded dict: ``record_at``, ``is_passable``, ``apply_tail``,
+   10 ``resolve_transition`` and ``image_at``.
+   26 MAPINFO_FIELDS = ("encounterFrequency", "tileset", "randomMonsterTypes",
+   33 def _r16(b: bytes, o: int) -> int:
+   39 def _r32(b: bytes, o: int) -> int:
+   45 def _i8(v: int) -> int:
+   53 def _read_tail(b: bytes, o: int, r: dict) -> int:
+   69 def decode_record(cls: int, b: bytes, o: int) -> dict:
+  104         r["message"], r["impassable"], r["tile"] = b[o], bool(b[o + 1] & 0x80), b[o + 1] & 0x7F
+  155 def _decode_pointer_table(body: bytes, start: int, cls: int) -> list:
+  182 def decode_map(game: bytes, offset: int, map_size: int, tile_map_offset: int) -> dict:
+  201     tiles, _end = huffman.decode(game, tsize, t + 8)
+  241     img = [list(tiles[y * map_size:(y + 1) * map_size]) for y in range(map_size)]
+  287         "cells": {"actionClass": cls, "action": act, "image": img},
+  295 def _decode_mapinfo(b: bytes) -> dict:
+  308 def _decode_mob(b: bytes, name: bytes) -> dict:
+  319 def load_map(data_dir: str, location: int) -> dict:
+  351 def record_at(map: dict, x: int, y: int):
+  376 def is_passable(map: dict, x: int, y: int) -> bool:
+  388         return True if rec is None else not rec["impassable"]
+  391     return True  # reserved classes are walkable (L-AC1)
+  394 def apply_tail(record):
+  404 def resolve_transition(tables: dict, record: dict, x: int, y: int, previous):
+  428 def image_at(map: dict, x: int, y: int) -> int:
+  429     """The cell image, or the border image outside the map (L-MI5)."""
+  433     return map["cells"]["image"][y][x]
+  440     "is_passable",
+  443     "image_at",
+
+=== scenario.py key lines ===
+   31 MAPINFO_FIELDS = ("encounterFrequency", "tileset", "randomMonsterTypes",
+   44 def _u16(v: int) -> bytes:
+   48 def _u32(v: int) -> bytes:
+   52 def _fixed(text, n: int) -> bytes:
+   57 def _load_json(path: str):
+   62 def _write(out_dir: str, name: str, data: bytes) -> None:
+   67 def _pad4(lst: list) -> list:
+   75 def _tail(nc: int, na: int) -> bytes:
+   79 def encode_record(cls: int, r: dict) -> bytes:
+   92         return bytes((r["message"], (0x80 if r["impassable"] else 0) | r["tile"])) + _tail(nc, na)
+  111 def encode_mapinfo(size: int, mi: dict) -> bytes:
+  121 def encode_mob(m: dict) -> bytes:
+  133 def build_map(m: dict, disk: int = 0):
+  136     cls, act, img = m["class"], m["action"], m["image"]
+  149     def emit_table(c: int) -> None:
+  224 def _record_from_json(c: int, r: dict) -> dict:
+  232         d = {"message": r["message"], "impassable": r["impassable"], "tile": r["tile"]}
+  247 def _character_from_json(p: dict, npc: int, catalog: dict, ranks: list) -> dict:
+  270 def _map_from_json(m: dict, size: int, catalog: dict, ranks: list) -> dict:
+  272     mi = {"encounterFrequency": info["encounter_frequency"], "tileset": info["tileset"],
+  275           "borderImage": info["border_image"], "timePerStep": info["time_per_step"],
+  291     return {"size": size, "class": m["action_class"], "action": m["action_value"],
+  292             "image": [[t + 10 for t in row] for row in m["tiles"]],
+  303 def _build_savegame(scenario_dir: str, scen: dict, catalog: dict, ranks: list) -> bytes:
+  320 def _shop_items(sh: dict, catalog: dict) -> list:
+  339 def _encode_labtables(t: dict) -> bytes:
+  352 def _build_labtables(map_facts: list, sg_off: int, tileset_size: int,
+  367         "tilesetOffsets": [0] * 9,
+  368         "tilesetSizes": [tileset_size] + [0] * 8,
+  381 def _labstr_file(tables: list) -> bytes:
+  393 def _build_labstr(scenario_dir: str, scen: dict) -> bytes:
+  409 def _build_labskill(scenario_dir: str) -> bytes:
+  423 def _planes_encode(pix: list, bytes_per_row: int) -> bytes:
+  436 def _mask_encode(mask: list) -> bytes:
+  447 def _cursor_encode(pix: list, vis: list) -> bytes:
+  451             def byte(src, x0, fn):
+  461 def _portrait_anim_encode(scripts: list, updates: list) -> bytes:
+  475 def _ending_anim_encode(updates: list) -> bytes:
+  486 def _placeholder_tile(t: int) -> list:
+  499 def _placeholder_portrait(p: int) -> list:
+  508 def _build_allhtds(scenario_dir: str) -> bytes:
+  509     tiles = _load_json(os.path.join(scenario_dir, "tiles.json"))["tiles"]
+  511                    for t in sorted(tiles, key=lambda k: k["id"]))
+  515 def _build_allpics(scenario_dir: str):
+  529 def _build_sprites():
+  540 def _build_font() -> bytes:
+  549 def _build_cursors() -> bytes:
+  558 def _build_title() -> bytes:
+  563 def _build_ending() -> bytes:
+  576 def compile(scenario_dir: str, out_dir: str) -> None:
+  586 def _call(mod, names, *args, **kwargs):
+  597     def __init__(self, data_dir):
+  612     def _read(self, name):
+  619     def _json(self, name):
+  627     def _load(self):
+  654     def _load_maps(self):
+  670     def _load_savegame(self):
+  681     def _load_shops(self):
+  690     def party_from_savegame(self):
+  717     def _load_game1(self, raw):
+  741     def _load_labtables(self, raw):
+  758     def _load_labstr(self, raw):
+  766     def _load_labskill(self, raw):
+  776     def map(self, location):
+  779     def location_name(self, location):
+  783     def hook(self, location, x, y):
+  789     def paragraph(self, n):
+  792     def premade_party(self):
+  795     def shop_items(self, n):
+  799     def item(self, item_id):
+  808     def skill(self, skill_id):
+  815     def skill_name(self, skill_id):
+  821     def rank(self, level):
+  828     def ui(self, n):
+  834     def map_string(self, location, n):
+  841 def load(data_dir):
+  846 def _compile(scenario_dir: str, out_dir: str) -> None:

@@ -1,0 +1,183 @@
+---- last 80 events ----
+{"seq": 942, "type": "move", "location": 0, "x": 28, "y": 40, "steps": 322}
+{"seq": 943, "type": "input", "key": "LEFT"}
+{"seq": 944, "type": "move", "location": 0, "x": 27, "y": 40, "steps": 323}
+{"seq": 945, "type": "input", "key": "LEFT"}
+{"seq": 946, "type": "move", "location": 0, "x": 26, "y": 40, "steps": 324}
+{"seq": 947, "type": "input", "key": "LEFT"}
+{"seq": 948, "type": "move", "location": 0, "x": 25, "y": 40, "steps": 325}
+{"seq": 949, "type": "input", "key": "LEFT"}
+{"seq": 950, "type": "move", "location": 0, "x": 24, "y": 40, "steps": 326}
+{"seq": 951, "type": "input", "key": "LEFT"}
+{"seq": 952, "type": "move", "location": 0, "x": 23, "y": 40, "steps": 327}
+{"seq": 953, "type": "input", "key": "LEFT"}
+{"seq": 954, "type": "move", "location": 0, "x": 22, "y": 40, "steps": 328}
+{"seq": 955, "type": "input", "key": "LEFT"}
+{"seq": 956, "type": "move", "location": 0, "x": 21, "y": 40, "steps": 329}
+{"seq": 957, "type": "input", "key": "LEFT"}
+{"seq": 958, "type": "move", "location": 0, "x": 20, "y": 40, "steps": 330}
+{"seq": 959, "type": "input", "key": "LEFT"}
+{"seq": 960, "type": "move", "location": 0, "x": 19, "y": 40, "steps": 331}
+{"seq": 961, "type": "input", "key": "LEFT"}
+{"seq": 962, "type": "move", "location": 0, "x": 18, "y": 40, "steps": 332}
+{"seq": 963, "type": "input", "key": "LEFT"}
+{"seq": 964, "type": "move", "location": 0, "x": 17, "y": 40, "steps": 333}
+{"seq": 965, "type": "input", "key": "LEFT"}
+{"seq": 966, "type": "move", "location": 0, "x": 16, "y": 40, "steps": 334}
+{"seq": 967, "type": "input", "key": "LEFT"}
+{"seq": 968, "type": "move", "location": 0, "x": 15, "y": 40, "steps": 335}
+{"seq": 969, "type": "input", "key": "LEFT"}
+{"seq": 970, "type": "move", "location": 0, "x": 14, "y": 40, "steps": 336}
+{"seq": 971, "type": "input", "key": "LEFT"}
+{"seq": 972, "type": "move", "location": 0, "x": 13, "y": 40, "steps": 337}
+{"seq": 973, "type": "input", "key": "LEFT"}
+{"seq": 974, "type": "move", "location": 0, "x": 12, "y": 40, "steps": 338}
+{"seq": 975, "type": "input", "key": "LEFT"}
+{"seq": 976, "type": "move", "location": 0, "x": 11, "y": 40, "steps": 339}
+{"seq": 977, "type": "input", "key": "LEFT"}
+{"seq": 978, "type": "move", "location": 0, "x": 10, "y": 40, "steps": 340}
+{"seq": 979, "type": "map_change", "location": 1, "x": 15, "y": 30}
+{"seq": 980, "type": "input", "key": "UP"}
+{"seq": 981, "type": "move", "location": 1, "x": 15, "y": 29, "steps": 341}
+{"seq": 982, "type": "paragraph", "n": 2}
+{"seq": 983, "type": "input", "key": "UP"}
+{"seq": 984, "type": "move", "location": 1, "x": 15, "y": 28, "steps": 342}
+{"seq": 985, "type": "input", "key": "UP"}
+{"seq": 986, "type": "move", "location": 1, "x": 15, "y": 27, "steps": 343}
+{"seq": 987, "type": "input", "key": "UP"}
+{"seq": 988, "type": "move", "location": 1, "x": 15, "y": 26, "steps": 344}
+{"seq": 989, "type": "input", "key": "UP"}
+{"seq": 990, "type": "move", "location": 1, "x": 15, "y": 25, "steps": 345}
+{"seq": 991, "type": "input", "key": "UP"}
+{"seq": 992, "type": "move", "location": 1, "x": 15, "y": 24, "steps": 346}
+{"seq": 993, "type": "input", "key": "UP"}
+{"seq": 994, "type": "move", "location": 1, "x": 15, "y": 23, "steps": 347}
+{"seq": 995, "type": "input", "key": "UP"}
+{"seq": 996, "type": "move", "location": 1, "x": 15, "y": 22, "steps": 348}
+{"seq": 997, "type": "input", "key": "UP"}
+{"seq": 998, "type": "move", "location": 1, "x": 15, "y": 21, "steps": 349}
+{"seq": 999, "type": "input", "key": "UP"}
+{"seq": 1000, "type": "move", "location": 1, "x": 15, "y": 20, "steps": 350}
+{"seq": 1001, "type": "input", "key": "UP"}
+{"seq": 1002, "type": "move", "location": 1, "x": 15, "y": 19, "steps": 351}
+{"seq": 1003, "type": "input", "key": "UP"}
+{"seq": 1004, "type": "move", "location": 1, "x": 15, "y": 18, "steps": 352}
+{"seq": 1005, "type": "input", "key": "UP"}
+{"seq": 1006, "type": "move", "location": 1, "x": 15, "y": 17, "steps": 353}
+{"seq": 1007, "type": "input", "key": "UP"}
+{"seq": 1008, "type": "move", "location": 1, "x": 15, "y": 16, "steps": 354}
+{"seq": 1009, "type": "input", "key": "UP"}
+{"seq": 1010, "type": "move", "location": 1, "x": 15, "y": 15, "steps": 355}
+{"seq": 1011, "type": "input", "key": "UP"}
+{"seq": 1012, "type": "move", "location": 1, "x": 15, "y": 14, "steps": 356}
+{"seq": 1013, "type": "input", "key": "UP"}
+{"seq": 1014, "type": "move", "location": 1, "x": 15, "y": 13, "steps": 357}
+{"seq": 1015, "type": "input", "key": "UP"}
+{"seq": 1016, "type": "move", "location": 1, "x": 15, "y": 12, "steps": 358}
+{"seq": 1017, "type": "input", "key": "UP"}
+{"seq": 1018, "type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0}
+{"seq": 1019, "type": "paragraph", "n": 24}
+{"seq": 1020, "type": "win", "steps": 358, "day": 2, "minutes": 428}
+{"seq": 1021, "type": "checkpoint", "name": "CP10", "state": {"location": 1, "x": 15, "y": 12, "steps": 358, "day": 2, "hour": 7, "minute": 8, "mode": "won", "cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14,
+---- SPEC-04 section 5 ----
+## 5. Movement and time
+
+The order of a move is SPEC-03 section 9.6. This section adds what happens
+around it.
+
+**LR-15, lab rule v1 (non-parity). Steps.** A move that changes the party's
+cell increases the step counter by 1, including the step onto a transition
+cell; arriving on the target of a transition is not a step. A bump (class 11,
+or class 4 impassable), a blocked move, a look or an interaction is not a step
+and takes no time.
+
+**LR-16, lab rule v1 (non-parity). Clock.** After each step the engine adds
+the time per step of the map the step started on (SPEC-03 L-MI2: high byte
+minutes, low byte seconds) to the clock. Seconds carry into minutes. The clock
+is a day number from 1 and a time of day in minutes from 0 to 1439. A new game
+starts on day 1 at the scenario's start hour, minute 0, second 0.
+
+**LR-17, lab rule v1 (non-parity). Natural healing, days and rest.** Each time
+an advance of the clock crosses a full hour, every conscious member below maxHP
+gains 1 HP (one `natural_heal` event listing the slots that gained, omitted if
+none), and if the new hour is 0 the day number increases by 1 (`day` event).
+Several hours crossed in one advance are processed one by one, in order. The
+rest command advances the clock by 60 minutes with these effects, then every
+conscious member gains HP equal to the best Foraging (28) level among conscious
+members, capped at maxHP. Rest is allowed in map mode only and is not a step.
+The map-info heal rate is not used (SPEC-03 L-MI4).
+
+## 6. Lab cell hooks
+
+SPEC-03 lab data has no records for skill checks, recruits, healers or winning
+(it reserves class 2 and the others). The lab adds these as hooks keyed by
+cell, in LABHOOKS.JSON, compiled from `SPEC/scenario/hooks.json`.
+
+**LR-18, lab rule v1 (non-parity). Where hooks run.** A hook belongs to one
+cell `(location, x, y)` whose current class is 11, or 4 with an impassable
+record. When the party bumps that cell (or interacts with it, SPEC-06 section
+3), the engine first does exactly what SPEC-03 section 9.6 says for the class
+(show the record message, apply a BLOCKED tail), then runs the hook. A hook on
+a cell whose current class is anything else does nothing. At most one hook per
+cell.
+
+**LR-19, lab rule v1 (non-parity). Cell changes.** The engine keeps a table of
+cell changes: for a cell `(location, x, y)`, its current class, action byte and
+image. Applying a record tail (SPEC-03 L-TL1), setting a DOOR image, a lock's
+remote change and a recruit's change all write to th
+---- SPEC-05 14.1 ----
+### 14.1 Step list
+
+Direction runs are written "UP x8". Menu keys are single characters: shop `B`
+buy, `S` sell, `X` leave, an item letter, then a member digit; character screen
+`C`, member digit, `E` equip, slot letter, `X`; `S` save, `O` load, `Y` yes.
+Notes in brackets are what the step triggers with seed 20261021.
+
+**To CP1** (step 0): 
+
+**To CP2** (step 24): UP x8, LEFT, UP x4, LEFT x8, UP (paragraph 3), UP, UP (message 5; shop list 0 opens), B, c, 3 (slot 3 buys item 4 for 7), B, c, 4 (slot 4 buys item 4 for 7), S, 2, c (slot 2 sells item 1 for 8), B, d, 2 (slot 2 buys item 7 for 28), X, C, 2, E, c (slot 2 equips item 7, AC 3), X
+
+**To CP3** (step 39): DOWN, DOWN (paragraph 3), DOWN, RIGHT, DOWN x10, RIGHT, UP (paragraph 6; prompt recruit), Y (recruit into slot 5)
+
+**To CP4** (step 79): RIGHT x7, DOWN x10, DOWN (paragraph 2), DOWN, DOWN (enter location 0 at (10,41)), RIGHT x15, RIGHT (paragraph 7), RIGHT x3, RIGHT (encounter: 3 raider; paragraph 8), repeat [A] until mode:map (max 30; reference seed: 5 rounds)
+
+**To CP5-pre-save** (step 145): RIGHT (paragraph 9), RIGHT, UP x13, RIGHT x11, RIGHT (enter location 2 at (1,16)), RIGHT (paragraph 10), UP x9, RIGHT x5, UP (paragraph 11), UP (message 5; shop list 1 opens), B, d, 2 (slot 2 buys item 6 for 13), X, DOWN (paragraph 11), DOWN, RIGHT x16, UP x2, RIGHT, RIGHT (message 6; shop list 2 opens), B, c, 1 (slot 1 buys item 8 for 104), X, C, 1, E, d (slot 1 equips item 8, AC 5), X
+
+**To CP5** (step 145): S (saved), O (prompt load), Y (loaded)
+
+**To CP6** (step 165): LEFT x2, DOWN x4, LEFT, DOWN x6, RIGHT x4, repeat [UP] until cell:2,26,14 (max 40; reference seed: 4 rounds), UP x2, UP (slot 1 gains item 11)
+
+**To CP7** (step 194): DOWN x4, LEFT x8, DOWN (paragraph 13; prompt recruit), Y (recruit into slot 6), RIGHT x4, DOWN x8, RIGHT x3, UP x2, UP (prompt heal), Y (healed for 40)
+
+**To CP8** (step 259): DOWN x2, LEFT x3, UP x8, LEFT x19, LEFT (paragraph 10), LEFT, LEFT (enter location 0 at (43,28)), DOWN, RIGHT, DOWN x17, DOWN (enter location 3 at (3,2)), DOWN (paragraph 18), DOWN x3, RIGHT x5, RIGHT (encounter: 4 pump crawler; paragraph 19), repeat [A] until mode:map (max 30; reference seed: 3 rounds)
+
+**To CP9** (step 273): RIGHT x6, RIGHT (message 10; unlock (16,6); paragraph 21), RIGHT, RIGHT (paragraph 22), UP x2, RIGHT x3, RIGHT (slot 1 gains item 12)
+
+**To CP10** (step 358): DOWN, LEFT x3, DOWN, LEFT (paragraph 22), LEFT x14, UP x2, UP (paragraph 18), UP, UP (enter location 0 at (44,48)), LEFT, UP x7, LEFT x13, UP, LEFT x19, LEFT (enter location 1 at (15,30)), UP (paragraph 2), UP x17, UP (paragraph 24; win)
+
+### 14.2 Checkpoints and expected outcomes
+
+Positions are (x, y). Money is coins. "Items" lists the non-ammunition item ids
+held, sorted. Cell changes are written (location, x, y) -> (class, action,
+image). Hit points are asserted at CP1, CP2, CP3 (all members at maxHP) and at
+CP7 (all members at maxHP after the healer); elsewhere they depend on the
+random stream and appear only in `reference_seeded`.
+
+**CP1**: New game in Saltwell: four PCs at (15,20), 08:00 day 1, paragraph 1 shown.
+Location 1 at (15,20), step 0, day 1 08:00, mode `map`.
+Cell changes: none.
+
+| Slot | Name | Level | XP | Max HP | Money | AC | Rank | Weapon slot | Armour slot | Items |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Hessa Brand | 1 | 90 | 24 | 120 | 3 | Drifter | 1 | 3 | [3, 7] |
+| 2 | Tobin Ash | 1 | 90 | 26 | 60 | 2 | Drifter | 1 | 0 | [1, 5] |
+| 3 | Maro Quill | 1 | 90 | 21 | 80 | 3 | Drifter | 1 | 0 | [3] |
+| 4 | Dell Ostrow | 1 | 90 | 22 | 70 | 2 | Drifter | 1 | 0 | [3, 9] |
+
+**CP2**: Saltwell Dry Goods: two boxes of pistol rounds bought, pipe club sold, hide vest bought and worn by Tobin.
+Location 1 at (6,5), step 24, day 1 08:24, mode `map`.
+Cell changes: none.
+
+| Slot | Name | Level | XP | Max HP | Money | AC | Rank | Weapon slot | Armour slot | Items |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Hessa Brand | 1 | 90 | 2

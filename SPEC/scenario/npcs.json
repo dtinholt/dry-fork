@@ -1,0 +1,41 @@
+{
+  "note": "Derived index of the four recruits. Records live in each map's NPC section.",
+  "npcs": [
+    {
+      "name": "Orla Penn",
+      "location": 1,
+      "x": 8,
+      "y": 17,
+      "npc_index": 0,
+      "min_leader_cha": 0,
+      "portrait": 1
+    },
+    {
+      "name": "Teodor Lusk",
+      "location": 2,
+      "x": 18,
+      "y": 17,
+      "npc_index": 0,
+      "min_leader_cha": 10,
+      "portrait": 2
+    },
+    {
+      "name": "Wren Abara",
+      "location": 2,
+      "x": 20,
+      "y": 4,
+      "npc_index": 1,
+      "min_leader_cha": 17,
+      "portrait": 3
+    },
+    {
+      "name": "Sallow Kett",
+      "location": 3,
+      "x": 14,
+      "y": 14,
+      "npc_index": 0,
+      "min_leader_cha": 0,
+      "portrait": 4
+    }
+  ]
+}

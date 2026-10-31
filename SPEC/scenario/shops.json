@@ -1,0 +1,39 @@
+{
+  "stock_byte": "0 not sold here; 1 to 255 sold here, never decremented in v1",
+  "note": "Shop lists are numbered from 0 (SPEC-02 L-SH3). Every list carries the same 12 item records; only the stock byte differs.",
+  "shops": [
+    {
+      "number": 0,
+      "name": "Saltwell Dry Goods",
+      "stock": {
+        "1": 255,
+        "3": 4,
+        "4": 255,
+        "7": 3,
+        "9": 255,
+        "10": 255
+      }
+    },
+    {
+      "number": 1,
+      "name": "Ninemile Gunsmith",
+      "stock": {
+        "3": 2,
+        "4": 255,
+        "5": 2,
+        "6": 255
+      }
+    },
+    {
+      "number": 2,
+      "name": "Ninemile Outfitter",
+      "stock": {
+        "2": 255,
+        "7": 255,
+        "8": 2,
+        "9": 255,
+        "10": 255
+      }
+    }
+  ]
+}

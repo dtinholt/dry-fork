@@ -1,0 +1,39 @@
+map keys: ['actions', 'bodySize', 'cells', 'centralDirectory', 'encryptedPrefixLength', 'info', 'mobs', 'npcs', 'size', 'strings']
+map repr: {"size": 32, "bodySize": 2144, "encryptedPrefixLength": 1957}
+npcs = [{'name': 'Orla Penn', 'strength': 13, 'intelligence': 11, 'luck': 14, 'speed': 14, 'agility': 15, 'dexterity': 0, 'charisma': 11, 'money': 25, 'gender': 1, 'nationality': 1, 'armorClass': 3, 'maxCon': 27, 'curCon': 27, 'weaponSlot': 1, 'skillPoints': 0, 'experience': 200, 'level': 2, 'armorSlot': 0, 'lastCon': 0, 'afflictions': 0, 'npc': 1, 'itemRefuse': 0, 'skillRefuse': 0, 'attribRefuse': 0, 'tradeRefuse': 0, 'joinString': 0, 'willingness': 0, 'rank': 'Hand', 'gameWon': 0, 'specialPromotion': 0, 'skills': [[5, 2], [18, 2], [19, 1]], 'items': [[5, 8], [6, 2]]}]
+mobs = [{'name': 'stray dog\n\ns\n', 'sturdiness': 4, 'combatRating': 2, 'randomDamage': 1, 'maxGroup': 2, 'armorClass': 0, 'fixedDamage': 0, 'weaponType': 1, 'type': 1, 'portrait': 1}]
+strings = ['', 'Read paragraph 2.', 'Read paragraph 3.', 'Read paragraph 5.', 'The trough is green at the edges and nearly empty.', 'Saltwell Dry Goods.', 'Read paragraph 6.', 'Orla shrugs. Some other time, then.']
+passable(3,20)=False passable(2,20)=True
+record_at(3,20)=None
+record_at(2,20)=None
+
+events:
+{"seq": 0, "type": "new_game", "seed": 20261021}
+{"seq": 1, "type": "paragraph", "n": 1}
+{"seq": 2, "type": "input", "key": "LEFT"}
+{"seq": 3, "type": "move", "location": 1, "x": 14, "y": 20, "steps": 1}
+{"seq": 4, "type": "input", "key": "LEFT"}
+{"seq": 5, "type": "move", "location": 1, "x": 13, "y": 20, "steps": 2}
+{"seq": 6, "type": "input", "key": "LEFT"}
+{"seq": 7, "type": "move", "location": 1, "x": 12, "y": 20, "steps": 3}
+{"seq": 8, "type": "input", "key": "LEFT"}
+{"seq": 9, "type": "move", "location": 1, "x": 11, "y": 20, "steps": 4}
+{"seq": 10, "type": "input", "key": "LEFT"}
+{"seq": 11, "type": "move", "location": 1, "x": 10, "y": 20, "steps": 5}
+{"seq": 12, "type": "input", "key": "LEFT"}
+{"seq": 13, "type": "move", "location": 1, "x": 9, "y": 20, "steps": 6}
+{"seq": 14, "type": "input", "key": "LEFT"}
+{"seq": 15, "type": "move", "location": 1, "x": 8, "y": 20, "steps": 7}
+{"seq": 16, "type": "input", "key": "LEFT"}
+{"seq": 17, "type": "move", "location": 1, "x": 7, "y": 20, "steps": 8}
+{"seq": 18, "type": "input", "key": "LEFT"}
+{"seq": 19, "type": "move", "location": 1, "x": 6, "y": 20, "steps": 9}
+{"seq": 20, "type": "input", "key": "LEFT"}
+{"seq": 21, "type": "move", "location": 1, "x": 5, "y": 20, "steps": 10}
+{"seq": 22, "type": "input", "key": "LEFT"}
+{"seq": 23, "type": "move", "location": 1, "x": 4, "y": 20, "steps": 11}
+{"seq": 24, "type": "input", "key": "LEFT"}
+{"seq": 25, "type": "bump", "x": 3, "y": 20, "action_class": 11, "action": 0}
+{"seq": 26, "type": "input", "key": "LEFT"}
+{"seq": 27, "type": "bump", "x": 3, "y": 20, "action_class": 11, "action": 0}
+{"seq": 28, "type": "checkpoint", "name": "a", "state": {"location": 1, "x": 4, "y": 20, "steps": 11, "day": 1, "hour": 8, "minute": 11, "mode": "map", "cell_changes": [], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "con

@@ -1,0 +1,1948 @@
+checkpoint names: ['CP1', 'CP2', 'CP3', 'CP4', 'CP5-pre-save', 'CP5', 'CP6', 'CP7', 'CP8', 'CP9', 'CP10']
+======================================================================
+CP CP3
+{
+ "cell_changes": [
+  [
+   1,
+   8,
+   17,
+   0,
+   0,
+   28
+  ]
+ ],
+ "day": 1,
+ "hour": 8,
+ "location": 1,
+ "minute": 39,
+ "mode": "map",
+ "party": [
+  {
+   "ac": 3,
+   "armour_slot": 3,
+   "cond": 0,
+   "hp": 24,
+   "items": [
+    [
+     3,
+     6
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "level": 1,
+   "max_hp": 24,
+   "money": 120,
+   "name": "Hessa Brand",
+   "npc": 0,
+   "rank": "Drifter",
+   "skill_points": 0,
+   "slot": 1,
+   "weapon_slot": 1,
+   "xp": 90
+  },
+  {
+   "ac": 3,
+   "armour_slot": 3,
+   "cond": 0,
+   "hp": 26,
+   "items": [
+    [
+     5,
+     8
+    ],
+    [
+     6,
+     1
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "level": 1,
+   "max_hp": 26,
+   "money": 40,
+   "name": "Tobin Ash",
+   "npc": 0,
+   "rank": "Drifter",
+   "skill_points": 0,
+   "slot": 2,
+   "weapon_slot": 1,
+   "xp": 90
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 21,
+   "items": [
+    [
+     3,
+     6
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "level": 1,
+   "max_hp": 21,
+   "money": 73,
+   "name": "Maro Quill",
+   "npc": 0,
+   "rank": "Drifter",
+   "skill_points": 0,
+   "slot": 3,
+   "weapon_slot": 1,
+   "xp": 90
+  },
+  {
+   "ac": 2,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 22,
+   "items": [
+    [
+     3,
+     6
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     9,
+     3
+    ]
+   ],
+   "level": 1,
+   "max_hp": 22,
+   "money": 63,
+   "name": "Dell Ostrow",
+   "npc": 0,
+   "rank": "Drifter",
+   "skill_points": 0,
+   "slot": 4,
+   "weapon_slot": 1,
+   "xp": 90
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 27,
+   "items": [
+    [
+     5,
+     8
+    ],
+    [
+     6,
+     2
+    ]
+   ],
+   "level": 2,
+   "max_hp": 27,
+   "money": 25,
+   "name": "Orla Penn",
+   "npc": 1,
+   "rank": "Hand",
+   "skill_points": 0,
+   "slot": 5,
+   "weapon_slot": 1,
+   "xp": 200
+  }
+ ],
+ "rng_state": 20261021,
+ "steps": 39,
+ "x": 8,
+ "y": 18
+}
+======================================================================
+CP CP4
+{
+ "cell_changes": [
+  [
+   0,
+   30,
+   41,
+   0,
+   0,
+   13
+  ],
+  [
+   1,
+   8,
+   17,
+   0,
+   0,
+   28
+  ]
+ ],
+ "day": 1,
+ "hour": 12,
+ "location": 0,
+ "minute": 19,
+ "mode": "map",
+ "party": [
+  {
+   "ac": 3,
+   "armour_slot": 3,
+   "cond": 0,
+   "hp": 25,
+   "items": [
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "level": 2,
+   "max_hp": 28,
+   "money": 195,
+   "name": "Hessa Brand",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 1,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 3,
+   "cond": 0,
+   "hp": 30,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     1
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "level": 2,
+   "max_hp": 31,
+   "money": 40,
+   "name": "Tobin Ash",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 2,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 25,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "level": 2,
+   "max_hp": 25,
+   "money": 73,
+   "name": "Maro Quill",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 3,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 2,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 22,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     9,
+     3
+    ]
+   ],
+   "level": 2,
+   "max_hp": 26,
+   "money": 63,
+   "name": "Dell Ostrow",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 4,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 27,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     2
+    ]
+   ],
+   "level": 2,
+   "max_hp": 27,
+   "money": 25,
+   "name": "Orla Penn",
+   "npc": 1,
+   "rank": "Hand",
+   "skill_points": 0,
+   "slot": 5,
+   "weapon_slot": 1,
+   "xp": 214
+  }
+ ],
+ "rng_state": 2973743393,
+ "steps": 79,
+ "x": 30,
+ "y": 41
+}
+======================================================================
+CP CP5-pre-save
+{
+ "cell_changes": [
+  [
+   0,
+   30,
+   41,
+   0,
+   0,
+   13
+  ],
+  [
+   0,
+   31,
+   41,
+   0,
+   0,
+   22
+  ],
+  [
+   1,
+   8,
+   17,
+   0,
+   0,
+   28
+  ]
+ ],
+ "day": 1,
+ "hour": 17,
+ "location": 2,
+ "minute": 28,
+ "mode": "map",
+ "party": [
+  {
+   "ac": 5,
+   "armour_slot": 4,
+   "cond": 0,
+   "hp": 28,
+   "items": [
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     7,
+     0
+    ],
+    [
+     8,
+     0
+    ]
+   ],
+   "level": 2,
+   "max_hp": 28,
+   "money": 91,
+   "name": "Hessa Brand",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 1,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 3,
+   "cond": 0,
+   "hp": 31,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     2
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "level": 2,
+   "max_hp": 31,
+   "money": 27,
+   "name": "Tobin Ash",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 2,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 25,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "level": 2,
+   "max_hp": 25,
+   "money": 73,
+   "name": "Maro Quill",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 3,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 2,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 26,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     9,
+     3
+    ]
+   ],
+   "level": 2,
+   "max_hp": 26,
+   "money": 63,
+   "name": "Dell Ostrow",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 4,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 27,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     2
+    ]
+   ],
+   "level": 2,
+   "max_hp": 27,
+   "money": 25,
+   "name": "Orla Penn",
+   "npc": 1,
+   "rank": "Hand",
+   "skill_points": 0,
+   "slot": 5,
+   "weapon_slot": 1,
+   "xp": 214
+  }
+ ],
+ "rng_state": 2973743393,
+ "steps": 145,
+ "x": 25,
+ "y": 5
+}
+======================================================================
+CP CP5
+{
+ "cell_changes": [
+  [
+   0,
+   30,
+   41,
+   0,
+   0,
+   13
+  ],
+  [
+   0,
+   31,
+   41,
+   0,
+   0,
+   22
+  ],
+  [
+   1,
+   8,
+   17,
+   0,
+   0,
+   28
+  ]
+ ],
+ "day": 1,
+ "hour": 17,
+ "location": 2,
+ "minute": 28,
+ "mode": "map",
+ "party": [
+  {
+   "ac": 5,
+   "armour_slot": 4,
+   "cond": 0,
+   "hp": 28,
+   "items": [
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     7,
+     0
+    ],
+    [
+     8,
+     0
+    ]
+   ],
+   "level": 2,
+   "max_hp": 28,
+   "money": 91,
+   "name": "Hessa Brand",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 1,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 3,
+   "cond": 0,
+   "hp": 31,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     2
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "level": 2,
+   "max_hp": 31,
+   "money": 27,
+   "name": "Tobin Ash",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 2,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 25,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "level": 2,
+   "max_hp": 25,
+   "money": 73,
+   "name": "Maro Quill",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 3,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 2,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 26,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     9,
+     3
+    ]
+   ],
+   "level": 2,
+   "max_hp": 26,
+   "money": 63,
+   "name": "Dell Ostrow",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 4,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 27,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     2
+    ]
+   ],
+   "level": 2,
+   "max_hp": 27,
+   "money": 25,
+   "name": "Orla Penn",
+   "npc": 1,
+   "rank": "Hand",
+   "skill_points": 0,
+   "slot": 5,
+   "weapon_slot": 1,
+   "xp": 214
+  }
+ ],
+ "rng_state": 2973743393,
+ "steps": 145,
+ "x": 25,
+ "y": 5
+}
+======================================================================
+CP CP6
+{
+ "cell_changes": [
+  [
+   0,
+   30,
+   41,
+   0,
+   0,
+   13
+  ],
+  [
+   0,
+   31,
+   41,
+   0,
+   0,
+   22
+  ],
+  [
+   1,
+   8,
+   17,
+   0,
+   0,
+   28
+  ],
+  [
+   2,
+   26,
+   12,
+   0,
+   0,
+   27
+  ],
+  [
+   2,
+   26,
+   14,
+   4,
+   1,
+   29
+  ]
+ ],
+ "day": 1,
+ "hour": 17,
+ "location": 2,
+ "minute": 48,
+ "mode": "map",
+ "party": [
+  {
+   "ac": 5,
+   "armour_slot": 4,
+   "cond": 0,
+   "hp": 28,
+   "items": [
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     7,
+     0
+    ],
+    [
+     8,
+     0
+    ],
+    [
+     11,
+     0
+    ]
+   ],
+   "level": 2,
+   "max_hp": 28,
+   "money": 91,
+   "name": "Hessa Brand",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 1,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 3,
+   "cond": 0,
+   "hp": 31,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     2
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "level": 2,
+   "max_hp": 31,
+   "money": 27,
+   "name": "Tobin Ash",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 2,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 25,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "level": 2,
+   "max_hp": 25,
+   "money": 73,
+   "name": "Maro Quill",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 3,
+   "weapon_slot": 1,
+   "xp": 114
+  },
+  {
+   "ac": 2,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 26,
+   "items": [
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     9,
+     3
+    ]
+   ],
+   "level": 2,
+   "max_hp": 26,
+   "money": 63,
+   "name": "Dell Ostrow",
+   "npc": 0,
+   "rank": "Hand",
+   "skill_points": 2,
+   "slot": 4,
+   "weapon_slot": 1,
+   "xp": 104
+  },
+  {
+   "ac": 3,
+   "armour_slot": 0,
+   "cond": 0,
+   "hp": 27,
+   "items": [
+    [
+     5,
+     3
+    ],
+    [
+     6,
+     2
+    ]
+   ],
+   "level": 2,
+   "max_hp": 27,
+   "money": 25,
+   "name": "Orla Penn",
+   "npc": 1,
+   "rank": "Hand",
+   "skill_points": 0,
+   "slot": 5,
+   "weapon_slot": 1,
+   "xp": 214
+  }
+ ],
+ "rng_state": 68685520,
+ "steps": 165,
+ "x": 26,
+ "y": 12
+}
+======================================================================
+EVENTS (type, key fields)
+   0 new_game {"seed": 20261021}
+   1 {"n": 1, "seq": 1, "type": "paragraph"}
+   2 checkpoint CP1
+   3 {"key": "UP", "seq": 3, "type": "input"}
+   4 {"location": 1, "seq": 4, "steps": 1, "type": "move", "x": 15, "y": 19}
+   5 {"key": "UP", "seq": 5, "type": "input"}
+   6 {"location": 1, "seq": 6, "steps": 2, "type": "move", "x": 15, "y": 18}
+   7 {"key": "UP", "seq": 7, "type": "input"}
+   8 {"location": 1, "seq": 8, "steps": 3, "type": "move", "x": 15, "y": 17}
+   9 {"key": "UP", "seq": 9, "type": "input"}
+  10 {"location": 1, "seq": 10, "steps": 4, "type": "move", "x": 15, "y": 16}
+  11 {"key": "UP", "seq": 11, "type": "input"}
+  12 {"location": 1, "seq": 12, "steps": 5, "type": "move", "x": 15, "y": 15}
+  13 {"key": "UP", "seq": 13, "type": "input"}
+  14 {"location": 1, "seq": 14, "steps": 6, "type": "move", "x": 15, "y": 14}
+  15 {"key": "UP", "seq": 15, "type": "input"}
+  16 {"location": 1, "seq": 16, "steps": 7, "type": "move", "x": 15, "y": 13}
+  17 {"key": "UP", "seq": 17, "type": "input"}
+  18 {"location": 1, "seq": 18, "steps": 8, "type": "move", "x": 15, "y": 12}
+  19 {"key": "LEFT", "seq": 19, "type": "input"}
+  20 {"location": 1, "seq": 20, "steps": 9, "type": "move", "x": 14, "y": 12}
+  21 {"key": "UP", "seq": 21, "type": "input"}
+  22 {"location": 1, "seq": 22, "steps": 10, "type": "move", "x": 14, "y": 11}
+  23 {"key": "UP", "seq": 23, "type": "input"}
+  24 {"location": 1, "seq": 24, "steps": 11, "type": "move", "x": 14, "y": 10}
+  25 {"key": "UP", "seq": 25, "type": "input"}
+  26 {"location": 1, "seq": 26, "steps": 12, "type": "move", "x": 14, "y": 9}
+  27 {"key": "UP", "seq": 27, "type": "input"}
+  28 {"location": 1, "seq": 28, "steps": 13, "type": "move", "x": 14, "y": 8}
+  29 {"key": "LEFT", "seq": 29, "type": "input"}
+  30 {"location": 1, "seq": 30, "steps": 14, "type": "move", "x": 13, "y": 8}
+  31 {"key": "LEFT", "seq": 31, "type": "input"}
+  32 {"location": 1, "seq": 32, "steps": 15, "type": "move", "x": 12, "y": 8}
+  33 {"key": "LEFT", "seq": 33, "type": "input"}
+  34 {"location": 1, "seq": 34, "steps": 16, "type": "move", "x": 11, "y": 8}
+  35 {"key": "LEFT", "seq": 35, "type": "input"}
+  36 {"location": 1, "seq": 36, "steps": 17, "type": "move", "x": 10, "y": 8}
+  37 {"key": "LEFT", "seq": 37, "type": "input"}
+  38 {"location": 1, "seq": 38, "steps": 18, "type": "move", "x": 9, "y": 8}
+  39 {"key": "LEFT", "seq": 39, "type": "input"}
+  40 {"location": 1, "seq": 40, "steps": 19, "type": "move", "x": 8, "y": 8}
+  41 {"key": "LEFT", "seq": 41, "type": "input"}
+  42 {"location": 1, "seq": 42, "steps": 20, "type": "move", "x": 7, "y": 8}
+  43 {"key": "LEFT", "seq": 43, "type": "input"}
+  44 {"location": 1, "seq": 44, "steps": 21, "type": "move", "x": 6, "y": 8}
+  45 {"key": "UP", "seq": 45, "type": "input"}
+  46 {"location": 1, "seq": 46, "steps": 22, "type": "move", "x": 6, "y": 7}
+  47 {"n": 3, "seq": 47, "type": "paragraph"}
+  48 {"key": "UP", "seq": 48, "type": "input"}
+  49 {"location": 1, "seq": 49, "steps": 23, "type": "move", "x": 6, "y": 6}
+  50 {"key": "UP", "seq": 50, "type": "input"}
+  51 {"location": 1, "seq": 51, "steps": 24, "type": "move", "x": 6, "y": 5}
+  52 {"location": 1, "seq": 52, "string": 5, "type": "message"}
+  53 shop_open {"shop": 0}
+  54 {"key": "B", "seq": 54, "type": "input"}
+  55 {"items": [1, 3, 4, 7, 9, 10], "prompt": "buy_item", "seq": 55, "type": "prompt"}
+  56 {"key": "c", "seq": 56, "type": "input"}
+  57 {"prompt": "member", "seq": 57, "type": "prompt"}
+  58 {"key": "3", "seq": 58, "type": "input"}
+  59 {"delta": -7, "member": 3, "seq": 59, "total": 73, "type": "money"}
+  60 {"item": 4, "member": 3, "price": 7, "seq": 60, "slot": 2, "status": 2, "type": "buy"}
+  61 {"key": "B", "seq": 61, "type": "input"}
+  62 {"items": [1, 3, 4, 7, 9, 10], "prompt": "buy_item", "seq": 62, "type": "prompt"}
+  63 {"key": "c", "seq": 63, "type": "input"}
+  64 {"prompt": "member", "seq": 64, "type": "prompt"}
+  65 {"key": "4", "seq": 65, "type": "input"}
+  66 {"delta": -7, "member": 4, "seq": 66, "total": 63, "type": "money"}
+  67 {"item": 4, "member": 4, "price": 7, "seq": 67, "slot": 2, "status": 2, "type": "buy"}
+  68 {"key": "S", "seq": 68, "type": "input"}
+  69 {"prompt": "member", "seq": 69, "type": "prompt"}
+  70 {"key": "2", "seq": 70, "type": "input"}
+  71 {"prompt": "item_slot", "seq": 71, "type": "prompt"}
+  72 {"key": "c", "seq": 72, "type": "input"}
+  73 sell {"item": 1, "member": 2, "price": 8, "slot": 3}
+  74 {"delta": 8, "member": 2, "seq": 74, "total": 68, "type": "money"}
+  75 {"key": "B", "seq": 75, "type": "input"}
+  76 {"items": [1, 3, 4, 7, 9, 10], "prompt": "buy_item", "seq": 76, "type": "prompt"}
+  77 {"key": "d", "seq": 77, "type": "input"}
+  78 {"prompt": "member", "seq": 78, "type": "prompt"}
+  79 {"key": "2", "seq": 79, "type": "input"}
+  80 {"delta": -28, "member": 2, "seq": 80, "total": 40, "type": "money"}
+  81 {"item": 7, "member": 2, "price": 28, "seq": 81, "slot": 3, "status": 0, "type": "buy"}
+  82 {"key": "X", "seq": 82, "type": "input"}
+  83 shop_close {}
+  84 {"key": "C", "seq": 84, "type": "input"}
+  85 {"prompt": "member", "seq": 85, "type": "prompt"}
+  86 {"key": "2", "seq": 86, "type": "input"}
+  87 char_open {"member": 2}
+  88 {"key": "E", "seq": 88, "type": "input"}
+  89 {"prompt": "item_slot", "seq": 89, "type": "prompt"}
+  90 {"key": "c", "seq": 90, "type": "input"}
+  91 {"ac": 3, "item": 7, "member": 2, "seq": 91, "slot": 3, "type": "equip"}
+  92 {"key": "X", "seq": 92, "type": "input"}
+  93 char_close {}
+  94 checkpoint CP2
+  95 {"key": "DOWN", "seq": 95, "type": "input"}
+  96 {"location": 1, "seq": 96, "steps": 25, "type": "move", "x": 6, "y": 6}
+  97 {"key": "DOWN", "seq": 97, "type": "input"}
+  98 {"location": 1, "seq": 98, "steps": 26, "type": "move", "x": 6, "y": 7}
+  99 {"n": 3, "seq": 99, "type": "paragraph"}
+ 100 {"key": "DOWN", "seq": 100, "type": "input"}
+ 101 {"location": 1, "seq": 101, "steps": 27, "type": "move", "x": 6, "y": 8}
+ 102 {"key": "RIGHT", "seq": 102, "type": "input"}
+ 103 {"location": 1, "seq": 103, "steps": 28, "type": "move", "x": 7, "y": 8}
+ 104 {"key": "DOWN", "seq": 104, "type": "input"}
+ 105 {"location": 1, "seq": 105, "steps": 29, "type": "move", "x": 7, "y": 9}
+ 106 {"key": "DOWN", "seq": 106, "type": "input"}
+ 107 {"location": 1, "seq": 107, "steps": 30, "type": "move", "x": 7, "y": 10}
+ 108 {"key": "DOWN", "seq": 108, "type": "input"}
+ 109 {"location": 1, "seq": 109, "steps": 31, "type": "move", "x": 7, "y": 11}
+ 110 {"key": "DOWN", "seq": 110, "type": "input"}
+ 111 {"location": 1, "seq": 111, "steps": 32, "type": "move", "x": 7, "y": 12}
+ 112 {"key": "DOWN", "seq": 112, "type": "input"}
+ 113 {"location": 1, "seq": 113, "steps": 33, "type": "move", "x": 7, "y": 13}
+ 114 {"key": "DOWN", "seq": 114, "type": "input"}
+ 115 {"location": 1, "seq": 115, "steps": 34, "type": "move", "x": 7, "y": 14}
+ 116 {"key": "DOWN", "seq": 116, "type": "input"}
+ 117 {"location": 1, "seq": 117, "steps": 35, "type": "move", "x": 7, "y": 15}
+ 118 {"key": "DOWN", "seq": 118, "type": "input"}
+ 119 {"location": 1, "seq": 119, "steps": 36, "type": "move", "x": 7, "y": 16}
+ 120 {"key": "DOWN", "seq": 120, "type": "input"}
+ 121 {"location": 1, "seq": 121, "steps": 37, "type": "move", "x": 7, "y": 17}
+ 122 {"key": "DOWN", "seq": 122, "type": "input"}
+ 123 {"location": 1, "seq": 123, "steps": 38, "type": "move", "x": 7, "y": 18}
+ 124 {"key": "RIGHT", "seq": 124, "type": "input"}
+ 125 {"location": 1, "seq": 125, "steps": 39, "type": "move", "x": 8, "y": 18}
+ 126 {"key": "UP", "seq": 126, "type": "input"}
+ 127 {"action": 1, "action_class": 11, "seq": 127, "type": "bump", "x": 8, "y": 17}
+ 128 {"n": 6, "seq": 128, "type": "paragraph"}
+ 129 {"prompt": "recruit", "seq": 129, "type": "prompt"}
+ 130 {"key": "Y", "seq": 130, "type": "input"}
+ 131 {"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+ 132 {"location": 1, "npc": 0, "seq": 132, "slot": 5, "type": "recruit"}
+ 133 checkpoint CP3
+ 134 {"key": "RIGHT", "seq": 134, "type": "input"}
+ 135 {"location": 1, "seq": 135, "steps": 40, "type": "move", "x": 9, "y": 18}
+ 136 {"key": "RIGHT", "seq": 136, "type": "input"}
+ 137 {"location": 1, "seq": 137, "steps": 41, "type": "move", "x": 10, "y": 18}
+ 138 {"key": "RIGHT", "seq": 138, "type": "input"}
+ 139 {"location": 1, "seq": 139, "steps": 42, "type": "move", "x": 11, "y": 18}
+ 140 {"key": "RIGHT", "seq": 140, "type": "input"}
+ 141 {"location": 1, "seq": 141, "steps": 43, "type": "move", "x": 12, "y": 18}
+ 142 {"key": "RIGHT", "seq": 142, "type": "input"}
+ 143 {"location": 1, "seq": 143, "steps": 44, "type": "move", "x": 13, "y": 18}
+ 144 {"key": "RIGHT", "seq": 144, "type": "input"}
+ 145 {"location": 1, "seq": 145, "steps": 45, "type": "move", "x": 14, "y": 18}
+ 146 {"key": "RIGHT", "seq": 146, "type": "input"}
+ 147 {"location": 1, "seq": 147, "steps": 46, "type": "move", "x": 15, "y": 18}
+ 148 {"key": "DOWN", "seq": 148, "type": "input"}
+ 149 {"location": 1, "seq": 149, "steps": 47, "type": "move", "x": 15, "y": 19}
+ 150 {"key": "DOWN", "seq": 150, "type": "input"}
+ 151 {"location": 1, "seq": 151, "steps": 48, "type": "move", "x": 15, "y": 20}
+ 152 {"key": "DOWN", "seq": 152, "type": "input"}
+ 153 {"location": 1, "seq": 153, "steps": 49, "type": "move", "x": 15, "y": 21}
+ 154 {"key": "DOWN", "seq": 154, "type": "input"}
+ 155 {"location": 1, "seq": 155, "steps": 50, "type": "move", "x": 15, "y": 22}
+ 156 {"key": "DOWN", "seq": 156, "type": "input"}
+ 157 {"location": 1, "seq": 157, "steps": 51, "type": "move", "x": 15, "y": 23}
+ 158 {"key": "DOWN", "seq": 158, "type": "input"}
+ 159 {"location": 1, "seq": 159, "steps": 52, "type": "move", "x": 15, "y": 24}
+ 160 {"key": "DOWN", "seq": 160, "type": "input"}
+ 161 {"location": 1, "seq": 161, "steps": 53, "type": "move", "x": 15, "y": 25}
+ 162 {"key": "DOWN", "seq": 162, "type": "input"}
+ 163 {"location": 1, "seq": 163, "steps": 54, "type": "move", "x": 15, "y": 26}
+ 164 {"key": "DOWN", "seq": 164, "type": "input"}
+ 165 {"location": 1, "seq": 165, "steps": 55, "type": "move", "x": 15, "y": 27}
+ 166 {"key": "DOWN", "seq": 166, "type": "input"}
+ 167 {"location": 1, "seq": 167, "steps": 56, "type": "move", "x": 15, "y": 28}
+ 168 {"key": "DOWN", "seq": 168, "type": "input"}
+ 169 {"location": 1, "seq": 169, "steps": 57, "type": "move", "x": 15, "y": 29}
+ 170 {"n": 2, "seq": 170, "type": "paragraph"}
+ 171 {"key": "DOWN", "seq": 171, "type": "input"}
+ 172 {"location": 1, "seq": 172, "steps": 58, "type": "move", "x": 15, "y": 30}
+ 173 {"key": "DOWN", "seq": 173, "type": "input"}
+ 174 {"location": 1, "seq": 174, "steps": 59, "type": "move", "x": 15, "y": 31}
+ 175 map_change {"location": 0, "x": 10, "y": 41}
+ 176 {"key": "RIGHT", "seq": 176, "type": "input"}
+ 177 {"location": 0, "seq": 177, "steps": 60, "type": "move", "x": 11, "y": 41}
+ 178 {"key": "RIGHT", "seq": 178, "type": "input"}
+ 179 {"location": 0, "seq": 179, "steps": 61, "type": "move", "x": 12, "y": 41}
+ 180 {"key": "RIGHT", "seq": 180, "type": "input"}
+ 181 {"location": 0, "seq": 181, "steps": 62, "type": "move", "x": 13, "y": 41}
+ 182 {"key": "RIGHT", "seq": 182, "type": "input"}
+ 183 {"location": 0, "seq": 183, "steps": 63, "type": "move", "x": 14, "y": 41}
+ 184 {"key": "RIGHT", "seq": 184, "type": "input"}
+ 185 {"location": 0, "seq": 185, "steps": 64, "type": "move", "x": 15, "y": 41}
+ 186 {"key": "RIGHT", "seq": 186, "type": "input"}
+ 187 {"location": 0, "seq": 187, "steps": 65, "type": "move", "x": 16, "y": 41}
+ 188 {"key": "RIGHT", "seq": 188, "type": "input"}
+ 189 {"location": 0, "seq": 189, "steps": 66, "type": "move", "x": 17, "y": 41}
+ 190 {"key": "RIGHT", "seq": 190, "type": "input"}
+ 191 {"location": 0, "seq": 191, "steps": 67, "type": "move", "x": 18, "y": 41}
+ 192 {"key": "RIGHT", "seq": 192, "type": "input"}
+ 193 {"location": 0, "seq": 193, "steps": 68, "type": "move", "x": 19, "y": 41}
+ 194 {"key": "RIGHT", "seq": 194, "type": "input"}
+ 195 {"location": 0, "seq": 195, "steps": 69, "type": "move", "x": 20, "y": 41}
+ 196 {"key": "RIGHT", "seq": 196, "type": "input"}
+ 197 {"location": 0, "seq": 197, "steps": 70, "type": "move", "x": 21, "y": 41}
+ 198 {"key": "RIGHT", "seq": 198, "type": "input"}
+ 199 {"location": 0, "seq": 199, "steps": 71, "type": "move", "x": 22, "y": 41}
+ 200 {"key": "RIGHT", "seq": 200, "type": "input"}
+ 201 {"location": 0, "seq": 201, "steps": 72, "type": "move", "x": 23, "y": 41}
+ 202 {"key": "RIGHT", "seq": 202, "type": "input"}
+ 203 {"location": 0, "seq": 203, "steps": 73, "type": "move", "x": 24, "y": 41}
+ 204 {"key": "RIGHT", "seq": 204, "type": "input"}
+ 205 {"location": 0, "seq": 205, "steps": 74, "type": "move", "x": 25, "y": 41}
+ 206 {"key": "RIGHT", "seq": 206, "type": "input"}
+ 207 {"location": 0, "seq": 207, "steps": 75, "type": "move", "x": 26, "y": 41}
+ 208 {"n": 7, "seq": 208, "type": "paragraph"}
+ 209 {"key": "RIGHT", "seq": 209, "type": "input"}
+ 210 {"location": 0, "seq": 210, "steps": 76, "type": "move", "x": 27, "y": 41}
+ 211 {"key": "RIGHT", "seq": 211, "type": "input"}
+ 212 {"location": 0, "seq": 212, "steps": 77, "type": "move", "x": 28, "y": 41}
+ 213 {"key": "RIGHT", "seq": 213, "type": "input"}
+ 214 {"location": 0, "seq": 214, "steps": 78, "type": "move", "x": 29, "y": 41}
+ 215 {"key": "RIGHT", "seq": 215, "type": "input"}
+ 216 {"location": 0, "seq": 216, "steps": 79, "type": "move", "x": 30, "y": 41}
+ 217 {"groups": [{"band": 3, "count": 3, "hp": [14, 12, 14], "monster": "raider"}], "seq": 217, "type": "encounter_start"}
+ 218 {"n": 8, "seq": 218, "type": "paragraph"}
+ 219 {"level": 2, "member": 5, "need": 66, "roll": 54, "seq": 219, "skill": 18, "success": true, "type": "check"}
+ 220 {"key": "A", "seq": 220, "type": "input"}
+ 221 {"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 1, "seq": 221, "type": "round_orders"}
+ 222 {"round": 1, "seq": 222, "type": "round_start"}
+ 223 {"damage": 6, "group": 1, "hit": true, "member": 1, "need": 57, "roll": 53, "seq": 223, "side": "party", "target": 1, "type": "attack"}
+ 224 {"damage": 4, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 38, "seq": 224, "side": "party", "target": 1, "type": "attack"}
+ 225 {"damage": 6, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 32, "seq": 225, "side": "party", "target": 1, "type": "attack"}
+ 226 {"group": 1, "hit": false, "member": 4, "need": 44, "roll": 92, "seq": 226, "side": "party", "target": 2, "type": "attack"}
+ 227 {"damage": 3, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 56, "seq": 227, "side": "party", "target": 2, "type": "attack"}
+ 228 {"attacker": 1, "group": 1, "hit": false, "member": 1, "need": 22, "roll": 61, "seq": 228, "side": "monsters", "type": "attack"}
+ 229 {"attacker": 2, "damage": 1, "group": 1, "hit": true, "member": 2, "need": 22, "roll": 16, "seq": 229, "side": "monsters", "type": "attack"}
+ 230 {"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 60, "seq": 230, "side": "monsters", "type": "attack"}
+ 231 {"group": 1, "index": 1, "seq": 231, "type": "monster_dies"}
+ 232 {"key": "A", "seq": 232, "type": "input"}
+ 233 {"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 2, "seq": 233, "type": "round_orders"}
+ 234 {"round": 2, "seq": 234, "type": "round_start"}
+ 235 {"chance": 4, "member": 1, "roll": 4, "seq": 235, "type": "jam"}
+ 236 {"group": 1, "hit": false, "member": 2, "need": 55, "roll": 75, "seq": 236, "side": "party", "target": 2, "type": "attack"}
+ 237 {"group": 1, "hit": false, "member": 3, "need": 46, "roll": 48, "seq": 237, "side": "party", "target": 2, "type": "attack"}
+ 238 {"damage": 8, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 15, "seq": 238, "side": "party", "target": 2, "type": "attack"}
+ 239 {"group": 1, "hit": false, "member": 5, "need": 58, "roll": 78, "seq": 239, "side": "party", "target": 2, "type": "attack"}
+ 240 {"attacker": 2, "damage": 4, "group": 1, "hit": true, "member": 4, "need": 28, "roll": 2, "seq": 240, "side": "monsters", "type": "attack"}
+ 241 {"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 75, "seq": 241, "side": "monsters", "type": "attack"}
+ 242 {"key": "A", "seq": 242, "type": "input"}
+ 243 {"orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 3, "seq": 243, "type": "round_orders"}
+ 244 {"round": 3, "seq": 244, "type": "round_start"}
+ 245 {"group": 1, "hit": false, "member": 2, "need": 55, "roll": 98, "seq": 245, "side": "party", "target": 2, "type": "attack"}
+ 246 {"damage": 3, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 33, "seq": 246, "side": "party", "target": 2, "type": "attack"}
+ 247 {"group": 1, "hit": false, "member": 4, "need": 44, "roll": 68, "seq": 247, "side": "party", "target": 3, "type": "attack"}
+ 248 {"group": 1, "hit": false, "member": 5, "need": 58, "roll": 85, "seq": 248, "side": "party", "target": 3, "type": "attack"}
+ 249 {"attacker": 2, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 42, "seq": 249, "side": "monsters", "type": "attack"}
+ 250 {"attacker": 3, "group": 1, "hit": false, "member": 3, "need": 22, "roll": 66, "seq": 250, "side": "monsters", "type": "attack"}
+ 251 {"group": 1, "index": 2, "seq": 251, "type": "monster_dies"}
+ 252 {"level": 0, "member": 1, "need": 46, "roll": 79, "seq": 252, "skill": 22, "success": false, "type": "check"}
+ 253 {"key": "A", "seq": 253, "type": "input"}
+ 254 {"orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 4, "seq": 254, "type": "round_orders"}
+ 255 {"round": 4, "seq": 255, "type": "round_start"}
+ 256 {"group": 1, "hit": false, "member": 2, "need": 55, "roll": 85, "seq": 256, "side": "party", "target": 3, "type": "attack"}
+ 257 {"damage": 3, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 38, "seq": 257, "side": "party", "target": 3, "type": "attack"}
+ 258 {"damage": 4, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 19, "seq": 258, "side": "party", "target": 3, "type": "attack"}
+ 259 {"group": 1, "hit": false, "member": 5, "need": 58, "roll": 69, "seq": 259, "side": "party", "target": 3, "type": "attack"}
+ 260 {"attacker": 3, "damage": 3, "group": 1, "hit": true, "member": 1, "need": 22, "roll": 19, "seq": 260, "side": "monsters", "type": "attack"}
+ 261 {"level": 0, "member": 1, "need": 46, "roll": 22, "seq": 261, "skill": 22, "success": true, "type": "check"}
+ 262 {"member": 1, "seq": 262, "type": "unjammed"}
+ 263 {"key": "A", "seq": 263, "type": "input"}
+ 264 {"orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 5, "seq": 264, "type": "round_orders"}
+ 265 {"round": 5, "seq": 265, "type": "round_start"}
+ 266 {"damage": 8, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 34, "seq": 266, "side": "party", "target": 3, "type": "attack"}
+ 267 {"damage": 7, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 39, "seq": 267, "side": "party", "target": 3, "type": "attack"}
+ 268 {"damage": 7, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 33, "seq": 268, "side": "party", "target": 3, "type": "attack"}
+ 269 {"damage": 7, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 12, "seq": 269, "side": "party", "target": 3, "type": "attack"}
+ 270 {"attacker": 3, "group": 1, "hit": false, "member": 1, "need": 22, "roll": 94, "seq": 270, "side": "monsters", "type": "attack"}
+ 271 {"group": 1, "index": 3, "seq": 271, "type": "monster_dies"}
+ 272 {"result": "victory", "rounds": 5, "seq": 272, "type": "combat_end"}
+ 273 {"delta": 14, "member": 1, "seq": 273, "total": 104, "type": "xp"}
+ 274 {"level": 2, "max_hp": 28, "member": 1, "rank": "Hand", "seq": 274, "type": "promote"}
+ 275 {"delta": 14, "member": 2, "seq": 275, "total": 104, "type": "xp"}
+ 276 {"level": 2, "max_hp": 31, "member": 2, "rank": "Hand", "seq": 276, "type": "promote"}
+ 277 {"delta": 14, "member": 3, "seq": 277, "total": 104, "type": "xp"}
+ 278 {"level": 2, "max_hp": 25, "member": 3, "rank": "Hand", "seq": 278, "type": "promote"}
+ 279 {"delta": 14, "member": 4, "seq": 279, "total": 104, "type": "xp"}
+ 280 {"level": 2, "max_hp": 26, "member": 4, "rank": "Hand", "seq": 280, "type": "promote"}
+ 281 {"delta": 14, "member": 5, "seq": 281, "total": 214, "type": "xp"}
+ 282 {"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 282, "type": "cell_change", "x": 30, "y": 41}
+ 283 {"delta": 75, "member": 1, "seq": 283, "total": 195, "type": "money"}
+ 284 {"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 284, "type": "cell_change", "x": 30, "y": 41}
+ 285 checkpoint CP4
+ 286 {"key": "RIGHT", "seq": 286, "type": "input"}
+ 287 {"location": 0, "seq": 287, "steps": 80, "type": "move", "x": 31, "y": 41}
+ 288 {"n": 9, "seq": 288, "type": "paragraph"}
+ 289 {"action": 0, "action_class": 0, "image": 22, "location": 0, "seq": 289, "type": "cell_change", "x": 31, "y": 41}
+ 290 {"key": "RIGHT", "seq": 290, "type": "input"}
+ 291 {"location": 0, "seq": 291, "steps": 81, "type": "move", "x": 32, "y": 41}
+ 292 {"key": "UP", "seq": 292, "type": "input"}
+ 293 {"location": 0, "seq": 293, "steps": 82, "type": "move", "x": 32, "y": 40}
+ 294 {"key": "UP", "seq": 294, "type": "input"}
+ 295 {"location": 0, "seq": 295, "steps": 83, "type": "move", "x": 32, "y": 39}
+ 296 {"key": "UP", "seq": 296, "type": "input"}
+ 297 {"location": 0, "seq": 297, "steps": 84, "type": "move", "x": 32, "y": 38}
+ 298 natural_heal {"members": [1, 2, 4]}
+ 299 {"key": "UP", "seq": 299, "type": "input"}
+ 300 {"location": 0, "seq": 300, "steps": 85, "type": "move", "x": 32, "y": 37}
+ 301 {"key": "UP", "seq": 301, "type": "input"}
+ 302 {"location": 0, "seq": 302, "steps": 86, "type": "move", "x": 32, "y": 36}
+ 303 {"key": "UP", "seq": 303, "type": "input"}
+ 304 {"location": 0, "seq": 304, "steps": 87, "type": "move", "x": 32, "y": 35}
+ 305 {"key": "UP", "seq": 305, "type": "input"}
+ 306 {"location": 0, "seq": 306, "steps": 88, "type": "move", "x": 32, "y": 34}
+ 307 {"key": "UP", "seq": 307, "type": "input"}
+ 308 {"location": 0, "seq": 308, "steps": 89, "type": "move", "x": 32, "y": 33}
+ 309 {"key": "UP", "seq": 309, "type": "input"}
+ 310 {"location": 0, "seq": 310, "steps": 90, "type": "move", "x": 32, "y": 32}
+ 311 natural_heal {"members": [1, 4]}
+ 312 {"key": "UP", "seq": 312, "type": "input"}
+ 313 {"location": 0, "seq": 313, "steps": 91, "type": "move", "x": 32, "y": 31}
+ 314 {"key": "UP", "seq": 314, "type": "input"}
+ 315 {"location": 0, "seq": 315, "steps": 92, "type": "move", "x": 32, "y": 30}
+ 316 {"key": "UP", "seq": 316, "type": "input"}
+ 317 {"location": 0, "seq": 317, "steps": 93, "type": "move", "x": 32, "y": 29}
+ 318 {"key": "UP", "seq": 318, "type": "input"}
+ 319 {"location": 0, "seq": 319, "steps": 94, "type": "move", "x": 32, "y": 28}
+ 320 {"key": "RIGHT", "seq": 320, "type": "input"}
+ 321 {"location": 0, "seq": 321, "steps": 95, "type": "move", "x": 33, "y": 28}
+ 322 {"key": "RIGHT", "seq": 322, "type": "input"}
+ 323 {"location": 0, "seq": 323, "steps": 96, "type": "move", "x": 34, "y": 28}
+ 324 natural_heal {"members": [1, 4]}
+ 325 {"key": "RIGHT", "seq": 325, "type": "input"}
+ 326 {"location": 0, "seq": 326, "steps": 97, "type": "move", "x": 35, "y": 28}
+ 327 {"key": "RIGHT", "seq": 327, "type": "input"}
+ 328 {"location": 0, "seq": 328, "steps": 98, "type": "move", "x": 36, "y": 28}
+ 329 {"key": "RIGHT", "seq": 329, "type": "input"}
+ 330 {"location": 0, "seq": 330, "steps": 99, "type": "move", "x": 37, "y": 28}
+ 331 {"key": "RIGHT", "seq": 331, "type": "input"}
+ 332 {"location": 0, "seq": 332, "steps": 100, "type": "move", "x": 38, "y": 28}
+ 333 {"key": "RIGHT", "seq": 333, "type": "input"}
+ 334 {"location": 0, "seq": 334, "steps": 101, "type": "move", "x": 39, "y": 28}
+ 335 {"key": "RIGHT", "seq": 335, "type": "input"}
+ 336 {"location": 0, "seq": 336, "steps": 102, "type": "move", "x": 40, "y": 28}
+ 337 natural_heal {"members": [4]}
+ 338 {"key": "RIGHT", "seq": 338, "type": "input"}
+ 339 {"location": 0, "seq": 339, "steps": 103, "type": "move", "x": 41, "y": 28}
+ 340 {"key": "RIGHT", "seq": 340, "type": "input"}
+ 341 {"location": 0, "seq": 341, "steps": 104, "type": "move", "x": 42, "y": 28}
+ 342 {"key": "RIGHT", "seq": 342, "type": "input"}
+ 343 {"location": 0, "seq": 343, "steps": 105, "type": "move", "x": 43, "y": 28}
+ 344 {"key": "RIGHT", "seq": 344, "type": "input"}
+ 345 {"location": 0, "seq": 345, "steps": 106, "type": "move", "x": 44, "y": 28}
+ 346 map_change {"location": 2, "x": 1, "y": 16}
+ 347 {"key": "RIGHT", "seq": 347, "type": "input"}
+ 348 {"location": 2, "seq": 348, "steps": 107, "type": "move", "x": 2, "y": 16}
+ 349 {"n": 10, "seq": 349, "type": "paragraph"}
+ 350 {"key": "UP", "seq": 350, "type": "input"}
+ 351 {"location": 2, "seq": 351, "steps": 108, "type": "move", "x": 2, "y": 15}
+ 352 {"key": "UP", "seq": 352, "type": "input"}
+ 353 {"location": 2, "seq": 353, "steps": 109, "type": "move", "x": 2, "y": 14}
+ 354 {"key": "UP", "seq": 354, "type": "input"}
+ 355 {"location": 2, "seq": 355, "steps": 110, "type": "move", "x": 2, "y": 13}
+ 356 {"key": "UP", "seq": 356, "type": "input"}
+ 357 {"location": 2, "seq": 357, "steps": 111, "type": "move", "x": 2, "y": 12}
+ 358 {"key": "UP", "seq": 358, "type": "input"}
+ 359 {"location": 2, "seq": 359, "steps": 112, "type": "move", "x": 2, "y": 11}
+ 360 {"key": "UP", "seq": 360, "type": "input"}
+ 361 {"location": 2, "seq": 361, "steps": 113, "type": "move", "x": 2, "y": 10}
+ 362 {"key": "UP", "seq": 362, "type": "input"}
+ 363 {"location": 2, "seq": 363, "steps": 114, "type": "move", "x": 2, "y": 9}
+ 364 {"key": "UP", "seq": 364, "type": "input"}
+ 365 {"location": 2, "seq": 365, "steps": 115, "type": "move", "x": 2, "y": 8}
+ 366 {"key": "UP", "seq": 366, "type": "input"}
+ 367 {"location": 2, "seq": 367, "steps": 116, "type": "move", "x": 2, "y": 7}
+ 368 {"key": "RIGHT", "seq": 368, "type": "input"}
+ 369 {"location": 2, "seq": 369, "steps": 117, "type": "move", "x": 3, "y": 7}
+ 370 {"key": "RIGHT", "seq": 370, "type": "input"}
+ 371 {"location": 2, "seq": 371, "steps": 118, "type": "move", "x": 4, "y": 7}
+ 372 {"key": "RIGHT", "seq": 372, "type": "input"}
+ 373 {"location": 2, "seq": 373, "steps": 119, "type": "move", "x": 5, "y": 7}
+ 374 {"key": "RIGHT", "seq": 374, "type": "input"}
+ 375 {"location": 2, "seq": 375, "steps": 120, "type": "move", "x": 6, "y": 7}
+ 376 {"key": "RIGHT", "seq": 376, "type": "input"}
+ 377 {"location": 2, "seq": 377, "steps": 121, "type": "move", "x": 7, "y": 7}
+ 378 {"key": "UP", "seq": 378, "type": "input"}
+ 379 {"location": 2, "seq": 379, "steps": 122, "type": "move", "x": 7, "y": 6}
+ 380 {"n": 11, "seq": 380, "type": "paragraph"}
+ 381 {"key": "UP", "seq": 381, "type": "input"}
+ 382 {"location": 2, "seq": 382, "steps": 123, "type": "move", "x": 7, "y": 5}
+ 383 {"location": 2, "seq": 383, "string": 5, "type": "message"}
+ 384 shop_open {"shop": 1}
+ 385 {"key": "B", "seq": 385, "type": "input"}
+ 386 {"items": [3, 4, 5, 6], "prompt": "buy_item", "seq": 386, "type": "prompt"}
+ 387 {"key": "d", "seq": 387, "type": "input"}
+ 388 {"prompt": "member", "seq": 388, "type": "prompt"}
+ 389 {"key": "2", "seq": 389, "type": "input"}
+ 390 {"delta": -13, "member": 2, "seq": 390, "total": 27, "type": "money"}
+ 391 {"item": 6, "member": 2, "price": 13, "seq": 391, "slot": 2, "status": 2, "type": "buy"}
+ 392 {"key": "X", "seq": 392, "type": "input"}
+ 393 shop_close {}
+ 394 {"key": "DOWN", "seq": 394, "type": "input"}
+ 395 {"location": 2, "seq": 395, "steps": 124, "type": "move", "x": 7, "y": 6}
+ 396 {"n": 11, "seq": 396, "type": "paragraph"}
+ 397 {"key": "DOWN", "seq": 397, "type": "input"}
+ 398 {"location": 2, "seq": 398, "steps": 125, "type": "move", "x": 7, "y": 7}
+ 399 {"key": "RIGHT", "seq": 399, "type": "input"}
+ 400 {"location": 2, "seq": 400, "steps": 126, "type": "move", "x": 8, "y": 7}
+ 401 {"key": "RIGHT", "seq": 401, "type": "input"}
+ 402 {"location": 2, "seq": 402, "steps": 127, "type": "move", "x": 9, "y": 7}
+ 403 {"key": "RIGHT", "seq": 403, "type": "input"}
+ 404 {"location": 2, "seq": 404, "steps": 128, "type": "move", "x": 10, "y": 7}
+ 405 {"key": "RIGHT", "seq": 405, "type": "input"}
+ 406 {"location": 2, "seq": 406, "steps": 129, "type": "move", "x": 11, "y": 7}
+ 407 {"key": "RIGHT", "seq": 407, "type": "input"}
+ 408 {"location": 2, "seq": 408, "steps": 130, "type": "move", "x": 12, "y": 7}
+ 409 {"key": "RIGHT", "seq": 409, "type": "input"}
+ 410 {"location": 2, "seq": 410, "steps": 131, "type": "move", "x": 13, "y": 7}
+ 411 {"key": "RIGHT", "seq": 411, "type": "input"}
+ 412 {"location": 2, "seq": 412, "steps": 132, "type": "move", "x": 14, "y": 7}
+ 413 {"key": "RIGHT", "seq": 413, "type": "input"}
+ 414 {"location": 2, "seq": 414, "steps": 133, "type": "move", "x": 15, "y": 7}
+ 415 {"key": "RIGHT", "seq": 415, "type": "input"}
+ 416 {"location": 2, "seq": 416, "steps": 134, "type": "move", "x": 16, "y": 7}
+ 417 {"key": "RIGHT", "seq": 417, "type": "input"}
+ 418 {"location": 2, "seq": 418, "steps": 135, "type": "move", "x": 17, "y": 7}
+ 419 {"key": "RIGHT", "seq": 419, "type": "input"}
+ 420 {"location": 2, "seq": 420, "steps": 136, "type": "move", "x": 18, "y": 7}
+ 421 {"key": "RIGHT", "seq": 421, "type": "input"}
+ 422 {"location": 2, "seq": 422, "steps": 137, "type": "move", "x": 19, "y": 7}
+ 423 {"key": "RIGHT", "seq": 423, "type": "input"}
+ 424 {"location": 2, "seq": 424, "steps": 138, "type": "move", "x": 20, "y": 7}
+ 425 {"key": "RIGHT", "seq": 425, "type": "input"}
+ 426 {"location": 2, "seq": 426, "steps": 139, "type": "move", "x": 21, "y": 7}
+ 427 {"key": "RIGHT", "seq": 427, "type": "input"}
+ 428 {"location": 2, "seq": 428, "steps": 140, "type": "move", "x": 22, "y": 7}
+ 429 {"key": "RIGHT", "seq": 429, "type": "input"}
+ 430 {"location": 2, "seq": 430, "steps": 141, "type": "move", "x": 23, "y": 7}
+ 431 {"key": "UP", "seq": 431, "type": "input"}
+ 432 {"location": 2, "seq": 432, "steps": 142, "type": "move", "x": 23, "y": 6}
+ 433 {"key": "UP", "seq": 433, "type": "input"}
+ 434 {"location": 2, "seq": 434, "steps": 143, "type": "move", "x": 23, "y": 5}
+ 435 {"key": "RIGHT", "seq": 435, "type": "input"}
+ 436 {"location": 2, "seq": 436, "steps": 144, "type": "move", "x": 24, "y": 5}
+ 437 {"key": "RIGHT", "seq": 437, "type": "input"}
+ 438 {"location": 2, "seq": 438, "steps": 145, "type": "move", "x": 25, "y": 5}
+ 439 {"location": 2, "seq": 439, "string": 6, "type": "message"}
+ 440 shop_open {"shop": 2}
+ 441 {"key": "B", "seq": 441, "type": "input"}
+ 442 {"items": [2, 7, 8, 9, 10], "prompt": "buy_item", "seq": 442, "type": "prompt"}
+ 443 {"key": "c", "seq": 443, "type": "input"}
+ 444 {"prompt": "member", "seq": 444, "type": "prompt"}
+ 445 {"key": "1", "seq": 445, "type": "input"}
+ 446 {"delta": -104, "member": 1, "seq": 446, "total": 91, "type": "money"}
+ 447 {"item": 8, "member": 1, "price": 104, "seq": 447, "slot": 4, "status": 0, "type": "buy"}
+ 448 {"key": "X", "seq": 448, "type": "input"}
+ 449 shop_close {}
+ 450 {"key": "C", "seq": 450, "type": "input"}
+ 451 {"prompt": "member", "seq": 451, "type": "prompt"}
+ 452 {"key": "1", "seq": 452, "type": "input"}
+ 453 char_open {"member": 1}
+ 454 {"key": "E", "seq": 454, "type": "input"}
+ 455 {"prompt": "item_slot", "seq": 455, "type": "prompt"}
+ 456 {"key": "d", "seq": 456, "type": "input"}
+ 457 {"ac": 5, "item": 8, "member": 1, "seq": 457, "slot": 4, "type": "equip"}
+ 458 {"key": "X", "seq": 458, "type": "input"}
+ 459 char_close {}
+ 460 checkpoint CP5-pre-save
+ 461 {"key": "S", "seq": 461, "type": "input"}
+ 462 {"seq": 462, "serial": 1, "type": "save"}
+ 463 {"key": "O", "seq": 463, "type": "input"}
+ 464 {"prompt": "load", "seq": 464, "type": "prompt"}
+ 465 {"key": "Y", "seq": 465, "type": "input"}
+ 466 {"seq": 466, "serial": 1, "type": "load"}
+ 467 checkpoint CP5
+ 468 {"key": "LEFT", "seq": 468, "type": "input"}
+ 469 {"location": 2, "seq": 469, "steps": 146, "type": "move", "x": 24, "y": 5}
+ 470 {"key": "LEFT", "seq": 470, "type": "input"}
+ 471 {"location": 2, "seq": 471, "steps": 147, "type": "move", "x": 23, "y": 5}
+ 472 {"key": "DOWN", "seq": 472, "type": "input"}
+ 473 {"location": 2, "seq": 473, "steps": 148, "type": "move", "x": 23, "y": 6}
+ 474 {"key": "DOWN", "seq": 474, "type": "input"}
+ 475 {"location": 2, "seq": 475, "steps": 149, "type": "move", "x": 23, "y": 7}
+ 476 {"key": "DOWN", "seq": 476, "type": "input"}
+ 477 {"location": 2, "seq": 477, "steps": 150, "type": "move", "x": 23, "y": 8}
+ 478 {"key": "DOWN", "seq": 478, "type": "input"}
+ 479 {"location": 2, "seq": 479, "steps": 151, "type": "move", "x": 23, "y": 9}
+ 480 {"key": "LEFT", "seq": 480, "type": "input"}
+ 481 {"location": 2, "seq": 481, "steps": 152, "type": "move", "x": 22, "y": 9}
+ 482 {"key": "DOWN", "seq": 482, "type": "input"}
+ 483 {"location": 2, "seq": 483, "steps": 153, "type": "move", "x": 22, "y": 10}
+ 484 {"key": "DOWN", "seq": 484, "type": "input"}
+ 485 {"location": 2, "seq": 485, "steps": 154, "type": "move", "x": 22, "y": 11}
+ 486 {"key": "DOWN", "seq": 486, "type": "input"}
+ 487 {"location": 2, "seq": 487, "steps": 155, "type": "move", "x": 22, "y": 12}
+ 488 {"key": "DOWN", "seq": 488, "type": "input"}
+ 489 {"location": 2, "seq": 489, "steps": 156, "type": "move", "x": 22, "y": 13}
+ 490 {"key": "DOWN", "seq": 490, "type": "input"}
+ 491 {"location": 2, "seq": 491, "steps": 157, "type": "move", "x": 22, "y": 14}
+ 492 {"key": "DOWN", "seq": 492, "type": "input"}
+ 493 {"location": 2, "seq": 493, "steps": 158, "type": "move", "x": 22, "y": 15}
+ 494 {"key": "RIGHT", "seq": 494, "type": "input"}
+ 495 {"location": 2, "seq": 495, "steps": 159, "type": "move", "x": 23, "y": 15}
+ 496 {"key": "RIGHT", "seq": 496, "type": "input"}
+ 497 {"location": 2, "seq": 497, "steps": 160, "type": "move", "x": 24, "y": 15}
+ 498 {"key": "RIGHT", "seq": 498, "type": "input"}
+ 499 {"location": 2, "seq": 499, "steps": 161, "type": "move", "x": 25, "y": 15}
+ 500 {"key": "RIGHT", "seq": 500, "type": "input"}
+ 501 {"location": 2, "seq": 501, "steps": 162, "type": "move", "x": 26, "y": 15}
+ 502 {"key": "UP", "seq": 502, "type": "input"}
+ 503 {"action": 2, "action_class": 4, "seq": 503, "type": "bump", "x": 26, "y": 14}
+ 504 {"location": 2, "seq": 504, "string": 7, "type": "message"}
+ 505 {"level": 2, "member": 3, "need": 50, "roll": 69, "seq": 505, "skill": 14, "success": false, "type": "check"}
+ 506 {"location": 2, "seq": 506, "string": 9, "type": "message"}
+ 507 {"key": "UP", "seq": 507, "type": "input"}
+ 508 {"action": 2, "action_class": 4, "seq": 508, "type": "bump", "x": 26, "y": 14}
+ 509 {"location": 2, "seq": 509, "string": 7, "type": "message"}
+ 510 {"level": 2, "member": 3, "need": 50, "roll": 57, "seq": 510, "skill": 14, "success": false, "type": "check"}
+ 511 {"location": 2, "seq": 511, "string": 9, "type": "message"}
+ 512 {"key": "UP", "seq": 512, "type": "input"}
+ 513 {"action": 2, "action_class": 4, "seq": 513, "type": "bump", "x": 26, "y": 14}
+ 514 {"location": 2, "seq": 514, "string": 7, "type": "message"}
+ 515 {"level": 2, "member": 3, "need": 50, "roll": 78, "seq": 515, "skill": 14, "success": false, "type": "check"}
+ 516 {"location": 2, "seq": 516, "string": 9, "type": "message"}
+ 517 {"key": "UP", "seq": 517, "type": "input"}
+ 518 {"action": 2, "action_class": 4, "seq": 518, "type": "bump", "x": 26, "y": 14}
+ 519 {"location": 2, "seq": 519, "string": 7, "type": "message"}
+ 520 {"level": 2, "member": 3, "need": 50, "roll": 21, "seq": 520, "skill": 14, "success": true, "type": "check"}
+ 521 {"seq": 521, "type": "unlock", "x": 26, "y": 14}
+ 522 {"action": 1, "action_class": 4, "image": 30, "location": 2, "seq": 522, "type": "cell_change", "x": 26, "y": 14}
+ 523 {"action": 1, "action_class": 4, "image": 29, "location": 2, "seq": 523, "type": "cell_change", "x": 26, "y": 14}
+ 524 {"delta": 10, "member": 3, "seq": 524, "total": 114, "type": "xp"}
+ 525 {"n": 12, "seq": 525, "type": "paragraph"}
+ 526 {"key": "UP", "seq": 526, "type": "input"}
+ 527 {"location": 2, "seq": 527, "steps": 163, "type": "move", "x": 26, "y": 14}
+ 528 {"action": 1, "action_class": 4, "image": 29, "location": 2, "seq": 528, "type": "cell_change", "x": 26, "y": 14}
+ 529 {"key": "UP", "seq": 529, "type": "input"}
+ 530 {"location": 2, "seq": 530, "steps": 164, "type": "move", "x": 26, "y": 13}
+ 531 {"key": "UP", "seq": 531, "type": "input"}
+ 532 {"location": 2, "seq": 532, "steps": 165, "type": "move", "x": 26, "y": 12}
+ 533 item_gain {"item": 11, "member": 1, "slot": 5, "status": 0}
+ 534 {"action": 0, "action_class": 0, "image": 27, "location": 2, "seq": 534, "type": "cell_change", "x": 26, "y": 12}
+ 535 checkpoint CP6
+ 536 {"key": "DOWN", "seq": 536, "type": "input"}
+ 537 {"location": 2, "seq": 537, "steps": 166, "type": "move", "x": 26, "y": 13}
+ 538 {"key": "DOWN", "seq": 538, "type": "input"}
+ 539 {"location": 2, "seq": 539, "steps": 167, "type": "move", "x": 26, "y": 14}
+ 540 {"action": 1, "action_class": 4, "image": 29, "location": 2, "seq": 540, "type": "cell_change", "x": 26, "y": 14}
+ 541 {"key": "DOWN", "seq": 541, "type": "input"}
+ 542 {"location": 2, "seq": 542, "steps": 168, "type": "move", "x": 26, "y": 15}
+ 543 {"key": "DOWN", "seq": 543, "type": "input"}
+ 544 {"location": 2, "seq": 544, "steps": 169, "type": "move", "x": 26, "y": 16}
+ 545 {"key": "LEFT", "seq": 545, "type": "input"}
+ 546 {"location": 2, "seq": 546, "steps": 170, "type": "move", "x": 25, "y": 16}
+ 547 {"key": "LEFT", "seq": 547, "type": "input"}
+ 548 {"location": 2, "seq": 548, "steps": 171, "type": "move", "x": 24, "y": 16}
+ 549 {"key": "LEFT", "seq": 549, "type": "input"}
+ 550 {"location": 2, "seq": 550, "steps": 172, "type": "move", "x": 23, "y": 16}
+ 551 {"key": "LEFT", "seq": 551, "type": "input"}
+ 552 {"location": 2, "seq": 552, "steps": 173, "type": "move", "x": 22, "y": 16}
+ 553 {"key": "LEFT", "seq": 553, "type": "input"}
+ 554 {"location": 2, "seq": 554, "steps": 174, "type": "move", "x": 21, "y": 16}
+ 555 {"key": "LEFT", "seq": 555, "type": "input"}
+ 556 {"location": 2, "seq": 556, "steps": 175, "type": "move", "x": 20, "y": 16}
+ 557 {"key": "LEFT", "seq": 557, "type": "input"}
+ 558 {"location": 2, "seq": 558, "steps": 176, "type": "move", "x": 19, "y": 16}
+ 559 {"key": "LEFT", "seq": 559, "type": "input"}
+ 560 {"location": 2, "seq": 560, "steps": 177, "type": "move", "x": 18, "y": 16}
+ 561 {"key": "DOWN", "seq": 561, "type": "input"}
+ 562 {"action": 1, "action_class": 11, "seq": 562, "type": "bump", "x": 18, "y": 17}
+ 563 {"n": 13, "seq": 563, "type": "paragraph"}
+ 564 {"prompt": "recruit", "seq": 564, "type": "prompt"}
+ 565 {"key": "Y", "seq": 565, "type": "input"}
+ 566 {"action": 0, "action_class": 0, "image": 28, "location": 2, "seq": 566, "type": "cell_change", "x": 18, "y": 17}
+ 567 {"location": 2, "npc": 0, "seq": 567, "slot": 6, "type": "recruit"}
+ 568 {"key": "RIGHT", "seq": 568, "type": "input"}
+ 569 {"location": 2, "seq": 569, "steps": 178, "type": "move", "x": 19, "y": 16}
+ 570 {"key": "RIGHT", "seq": 570, "type": "input"}
+ 571 {"location": 2, "seq": 571, "steps": 179, "type": "move", "x": 20, "y": 16}
+ 572 {"key": "RIGHT", "seq": 572, "type": "input"}
+ 573 {"location": 2, "seq": 573, "steps": 180, "type": "move", "x": 21, "y": 16}
+ 574 {"key": "RIGHT", "seq": 574, "type": "input"}
+ 575 {"location": 2, "seq": 575, "steps": 181, "type": "move", "x": 22, "y": 16}
+ 576 {"key": "DOWN", "seq": 576, "type": "input"}
+ 577 {"location": 2, "seq": 577, "steps": 182, "type": "move", "x": 22, "y": 17}
+ 578 {"key": "DOWN", "seq": 578, "type": "input"}
+ 579 {"location": 2, "seq": 579, "steps": 183, "type": "move", "x": 22, "y": 18}
+ 580 {"key": "DOWN", "seq": 580, "type": "input"}
+ 581 {"location": 2, "seq": 581, "steps": 184, "type": "move", "x": 22, "y": 19}
+ 582 {"key": "DOWN", "seq": 582, "type": "input"}
+ 583 {"location": 2, "seq": 583, "steps": 185, "type": "move", "x": 22, "y": 20}
+ 584 {"key": "DOWN", "seq": 584, "type": "input"}
+ 585 {"location": 2, "seq": 585, "steps": 186, "type": "move", "x": 22, "y": 21}
+ 586 {"key": "DOWN", "seq": 586, "type": "input"}
+ 587 {"location": 2, "seq": 587, "steps": 187, "type": "move", "x": 22, "y": 22}
+ 588 {"key": "DOWN", "seq": 588, "type": "input"}
+ 589 {"location": 2, "seq": 589, "steps": 188, "type": "move", "x": 22, "y": 23}
+ 590 {"key": "DOWN", "seq": 590, "type": "input"}
+ 591 {"location": 2, "seq": 591, "steps": 189, "type": "move", "x": 22, "y": 24}
+ 592 {"key": "RIGHT", "seq": 592, "type": "input"}
+ 593 {"location": 2, "seq": 593, "steps": 190, "type": "move", "x": 23, "y": 24}
+ 594 {"key": "RIGHT", "seq": 594, "type": "input"}
+ 595 {"location": 2, "seq": 595, "steps": 191, "type": "move", "x": 24, "y": 24}
+ 596 {"key": "RIGHT", "seq": 596, "type": "input"}
+ 597 {"location": 2, "seq": 597, "steps": 192, "type": "move", "x": 25, "y": 24}
+ 598 {"key": "UP", "seq": 598, "type": "input"}
+ 599 {"location": 2, "seq": 599, "steps": 193, "type": "move", "x": 25, "y": 23}
+ 600 {"key": "UP", "seq": 600, "type": "input"}
+ 601 {"location": 2, "seq": 601, "steps": 194, "type": "move", "x": 25, "y": 22}
+ 602 {"key": "UP", "seq": 602, "type": "input"}
+ 603 {"action": 0, "action_class": 11, "seq": 603, "type": "bump", "x": 25, "y": 21}
+ 604 {"price": 40, "prompt": "heal", "seq": 604, "type": "prompt"}
+ 605 {"key": "Y", "seq": 605, "type": "input"}
+ 606 {"delta": -40, "member": 1, "seq": 606, "total": 51, "type": "money"}
+ 607 heal_all {"price": 40}
+ 608 checkpoint CP7
+ 609 {"key": "DOWN", "seq": 609, "type": "input"}
+ 610 {"location": 2, "seq": 610, "steps": 195, "type": "move", "x": 25, "y": 23}
+ 611 {"key": "DOWN", "seq": 611, "type": "input"}
+ 612 {"location": 2, "seq": 612, "steps": 196, "type": "move", "x": 25, "y": 24}
+ 613 {"key": "LEFT", "seq": 613, "type": "input"}
+ 614 {"location": 2, "seq": 614, "steps": 197, "type": "move", "x": 24, "y": 24}
+ 615 {"key": "LEFT", "seq": 615, "type": "input"}
+ 616 {"location": 2, "seq": 616, "steps": 198, "type": "move", "x": 23, "y": 24}
+ 617 {"key": "LEFT", "seq": 617, "type": "input"}
+ 618 {"location": 2, "seq": 618, "steps": 199, "type": "move", "x": 22, "y": 24}
+ 619 {"key": "UP", "seq": 619, "type": "input"}
+ 620 {"location": 2, "seq": 620, "steps": 200, "type": "move", "x": 22, "y": 23}
+ 621 {"key": "UP", "seq": 621, "type": "input"}
+ 622 {"location": 2, "seq": 622, "steps": 201, "type": "move", "x": 22, "y": 22}
+ 623 {"key": "UP", "seq": 623, "type": "input"}
+ 624 {"location": 2, "seq": 624, "steps": 202, "type": "move", "x": 22, "y": 21}
+ 625 {"key": "UP", "seq": 625, "type": "input"}
+ 626 {"location": 2, "seq": 626, "steps": 203, "type": "move", "x": 22, "y": 20}
+ 627 {"key": "UP", "seq": 627, "type": "input"}
+ 628 {"location": 2, "seq": 628, "steps": 204, "type": "move", "x": 22, "y": 19}
+ 629 {"key": "UP", "seq": 629, "type": "input"}
+ 630 {"location": 2, "seq": 630, "steps": 205, "type": "move", "x": 22, "y": 18}
+ 631 {"key": "UP", "seq": 631, "type": "input"}
+ 632 {"location": 2, "seq": 632, "steps": 206, "type": "move", "x": 22, "y": 17}
+ 633 {"key": "UP", "seq": 633, "type": "input"}
+ 634 {"location": 2, "seq": 634, "steps": 207, "type": "move", "x": 22, "y": 16}
+ 635 {"key": "LEFT", "seq": 635, "type": "input"}
+ 636 {"location": 2, "seq": 636, "steps": 208, "type": "move", "x": 21, "y": 16}
+ 637 {"key": "LEFT", "seq": 637, "type": "input"}
+ 638 {"location": 2, "seq": 638, "steps": 209, "type": "move", "x": 20, "y": 16}
+ 639 {"key": "LEFT", "seq": 639, "type": "input"}
+ 640 {"location": 2, "seq": 640, "steps": 210, "type": "move", "x": 19, "y": 16}
+ 641 {"key": "LEFT", "seq": 641, "type": "input"}
+ 642 {"location": 2, "seq": 642, "steps": 211, "type": "move", "x": 18, "y": 16}
+ 643 {"key": "LEFT", "seq": 643, "type": "input"}
+ 644 {"location": 2, "seq": 644, "steps": 212, "type": "move", "x": 17, "y": 16}
+ 645 {"key": "LEFT", "seq": 645, "type": "input"}
+ 646 {"location": 2, "seq": 646, "steps": 213, "type": "move", "x": 16, "y": 16}
+ 647 {"key": "LEFT", "seq": 647, "type": "input"}
+ 648 {"location": 2, "seq": 648, "steps": 214, "type": "move", "x": 15, "y": 16}
+ 649 {"key": "LEFT", "seq": 649, "type": "input"}
+ 650 {"location": 2, "seq": 650, "steps": 215, "type": "move", "x": 14, "y": 16}
+ 651 {"key": "LEFT", "seq": 651, "type": "input"}
+ 652 {"location": 2, "seq": 652, "steps": 216, "type": "move", "x": 13, "y": 16}
+ 653 {"key": "LEFT", "seq": 653, "type": "input"}
+ 654 {"location": 2, "seq": 654, "steps": 217, "type": "move", "x": 12, "y": 16}
+ 655 {"key": "LEFT", "seq": 655, "type": "input"}
+ 656 {"location": 2, "seq": 656, "steps": 218, "type": "move", "x": 11, "y": 16}
+ 657 {"key": "LEFT", "seq": 657, "type": "input"}
+ 658 {"location": 2, "seq": 658, "steps": 219, "type": "move", "x": 10, "y": 16}
+ 659 {"key": "LEFT", "seq": 659, "type": "input"}
+ 660 {"location": 2, "seq": 660, "steps": 220, "type": "move", "x": 9, "y": 16}
+ 661 {"key": "LEFT", "seq": 661, "type": "input"}
+ 662 {"location": 2, "seq": 662, "steps": 221, "type": "move", "x": 8, "y": 16}
+ 663 {"key": "LEFT", "seq": 663, "type": "input"}
+ 664 {"location": 2, "seq": 664, "steps": 222, "type": "move", "x": 7, "y": 16}
+ 665 {"key": "LEFT", "seq": 665, "type": "input"}
+ 666 {"location": 2, "seq": 666, "steps": 223, "type": "move", "x": 6, "y": 16}
+ 667 {"key": "LEFT", "seq": 667, "type": "input"}
+ 668 {"location": 2, "seq": 668, "steps": 224, "type": "move", "x": 5, "y": 16}
+ 669 {"key": "LEFT", "seq": 669, "type": "input"}
+ 670 {"location": 2, "seq": 670, "steps": 225, "type": "move", "x": 4, "y": 16}
+ 671 {"key": "LEFT", "seq": 671, "type": "input"}
+ 672 {"location": 2, "seq": 672, "steps": 226, "type": "move", "x": 3, "y": 16}
+ 673 {"key": "LEFT", "seq": 673, "type": "input"}
+ 674 {"location": 2, "seq": 674, "steps": 227, "type": "move", "x": 2, "y": 16}
+ 675 {"n": 10, "seq": 675, "type": "paragraph"}
+ 676 {"key": "LEFT", "seq": 676, "type": "input"}
+ 677 {"location": 2, "seq": 677, "steps": 228, "type": "move", "x": 1, "y": 16}
+ 678 {"key": "LEFT", "seq": 678, "type": "input"}
+ 679 {"location": 2, "seq": 679, "steps": 229, "type": "move", "x": 0, "y": 16}
+ 680 map_change {"location": 0, "x": 43, "y": 28}
+ 681 {"key": "DOWN", "seq": 681, "type": "input"}
+ 682 {"location": 0, "seq": 682, "steps": 230, "type": "move", "x": 43, "y": 29}
+ 683 {"key": "RIGHT", "seq": 683, "type": "input"}
+ 684 {"location": 0, "seq": 684, "steps": 231, "type": "move", "x": 44, "y": 29}
+ 685 {"key": "DOWN", "seq": 685, "type": "input"}
+ 686 {"location": 0, "seq": 686, "steps": 232, "type": "move", "x": 44, "y": 30}
+ 687 {"key": "DOWN", "seq": 687, "type": "input"}
+ 688 {"location": 0, "seq": 688, "steps": 233, "type": "move", "x": 44, "y": 31}
+ 689 {"key": "DOWN", "seq": 689, "type": "input"}
+ 690 {"location": 0, "seq": 690, "steps": 234, "type": "move", "x": 44, "y": 32}
+ 691 {"key": "DOWN", "seq": 691, "type": "input"}
+ 692 {"location": 0, "seq": 692, "steps": 235, "type": "move", "x": 44, "y": 33}
+ 693 {"key": "DOWN", "seq": 693, "type": "input"}
+ 694 {"location": 0, "seq": 694, "steps": 236, "type": "move", "x": 44, "y": 34}
+ 695 {"key": "DOWN", "seq": 695, "type": "input"}
+ 696 {"location": 0, "seq": 696, "steps": 237, "type": "move", "x": 44, "y": 35}
+ 697 {"key": "DOWN", "seq": 697, "type": "input"}
+ 698 {"location": 0, "seq": 698, "steps": 238, "type": "move", "x": 44, "y": 36}
+ 699 {"key": "DOWN", "seq": 699, "type": "input"}
+ 700 {"location": 0, "seq": 700, "steps": 239, "type": "move", "x": 44, "y": 37}
+ 701 {"key": "DOWN", "seq": 701, "type": "input"}
+ 702 {"location": 0, "seq": 702, "steps": 240, "type": "move", "x": 44, "y": 38}
+ 703 {"key": "DOWN", "seq": 703, "type": "input"}
+ 704 {"location": 0, "seq": 704, "steps": 241, "type": "move", "x": 44, "y": 39}
+ 705 {"key": "DOWN", "seq": 705, "type": "input"}
+ 706 {"location": 0, "seq": 706, "steps": 242, "type": "move", "x": 44, "y": 40}
+ 707 {"key": "DOWN", "seq": 707, "type": "input"}
+ 708 {"location": 0, "seq": 708, "steps": 243, "type": "move", "x": 44, "y": 41}
+ 709 {"key": "DOWN", "seq": 709, "type": "input"}
+ 710 {"location": 0, "seq": 710, "steps": 244, "type": "move", "x": 44, "y": 42}
+ 711 {"key": "DOWN", "seq": 711, "type": "input"}
+ 712 {"location": 0, "seq": 712, "steps": 245, "type": "move", "x": 44, "y": 43}
+ 713 {"key": "DOWN", "seq": 713, "type": "input"}
+ 714 {"location": 0, "seq": 714, "steps": 246, "type": "move", "x": 44, "y": 44}
+ 715 {"key": "DOWN", "seq": 715, "type": "input"}
+ 716 {"location": 0, "seq": 716, "steps": 247, "type": "move", "x": 44, "y": 45}
+ 717 {"key": "DOWN", "seq": 717, "type": "input"}
+ 718 {"location": 0, "seq": 718, "steps": 248, "type": "move", "x": 44, "y": 46}
+ 719 {"key": "DOWN", "seq": 719, "type": "input"}
+ 720 {"location": 0, "seq": 720, "steps": 249, "type": "move", "x": 44, "y": 47}
+ 721 map_change {"location": 3, "x": 3, "y": 2}
+ 722 {"key": "DOWN", "seq": 722, "type": "input"}
+ 723 {"location": 3, "seq": 723, "steps": 250, "type": "move", "x": 3, "y": 3}
+ 724 {"n": 18, "seq": 724, "type": "paragraph"}
+ 725 {"key": "DOWN", "seq": 725, "type": "input"}
+ 726 {"location": 3, "seq": 726, "steps": 251, "type": "move", "x": 3, "y": 4}
+ 727 {"key": "DOWN", "seq": 727, "type": "input"}
+ 728 {"location": 3, "seq": 728, "steps": 252, "type": "move", "x": 3, "y": 5}
+ 729 {"key": "DOWN", "seq": 729, "type": "input"}
+ 730 {"location": 3, "seq": 730, "steps": 253, "type": "move", "x": 3, "y": 6}
+ 731 {"key": "RIGHT", "seq": 731, "type": "input"}
+ 732 {"location": 3, "seq": 732, "steps": 254, "type": "move", "x": 4, "y": 6}
+ 733 {"key": "RIGHT", "seq": 733, "type": "input"}
+ 734 {"location": 3, "seq": 734, "steps": 255, "type": "move", "x": 5, "y": 6}
+ 735 {"key": "RIGHT", "seq": 735, "type": "input"}
+ 736 {"location": 3, "seq": 736, "steps": 256, "type": "move", "x": 6, "y": 6}
+ 737 {"key": "RIGHT", "seq": 737, "type": "input"}
+ 738 {"location": 3, "seq": 738, "steps": 257, "type": "move", "x": 7, "y": 6}
+ 739 {"key": "RIGHT", "seq": 739, "type": "input"}
+ 740 {"location": 3, "seq": 740, "steps": 258, "type": "move", "x": 8, "y": 6}
+ 741 {"key": "RIGHT", "seq": 741, "type": "input"}
+ 742 {"location": 3, "seq": 742, "steps": 259, "type": "move", "x": 9, "y": 6}
+ 743 {"groups": [{"band": 2, "count": 4, "hp": [9, 5, 10, 17], "monster": "pump crawler"}], "seq": 743, "type": "encounter_start"}
+ 744 {"n": 19, "seq": 744, "type": "paragraph"}
+ 745 {"level": 2, "member": 5, "need": 65, "roll": 74, "seq": 745, "skill": 18, "success": false, "type": "check"}
+ 746 surprised {}
+ 747 {"round": 0, "seq": 747, "type": "round_start"}
+ 748 {"band": 1, "group": 1, "seq": 748, "type": "group_closes"}
+ 749 {"key": "A", "seq": 749, "type": "input"}
+ 750 {"orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["melee", 1]}, "round": 1, "seq": 750, "type": "round_orders"}
+ 751 {"round": 1, "seq": 751, "type": "round_start"}
+ 752 {"damage": 4, "group": 1, "hit": true, "member": 2, "need": 65, "roll": 53, "seq": 752, "side": "party", "target": 1, "type": "attack"}
+ 753 {"damage": 2, "group": 1, "hit": true, "member": 3, "need": 56, "roll": 12, "seq": 753, "side": "party", "target": 1, "type": "attack"}
+ 754 {"group": 1, "hit": false, "member": 4, "need": 54, "roll": 90, "seq": 754, "side": "party", "target": 1, "type": "attack"}
+ 755 {"damage": 8, "group": 1, "hit": true, "member": 5, "need": 68, "roll": 26, "seq": 755, "side": "party", "target": 1, "type": "attack"}
+ 756 {"group": 1, "index": 1, "seq": 756, "type": "monster_dies"}
+ 757 {"member": 1, "seq": 757, "status": 6, "type": "reload"}
+ 758 {"group": 1, "hit": false, "member": 6, "need": 52, "roll": 95, "seq": 758, "side": "party", "target": 2, "type": "attack"}
+ 759 {"attacker": 2, "group": 1, "hit": false, "member": 1, "need": 25, "roll": 54, "seq": 759, "side": "monsters", "type": "attack"}
+ 760 {"attacker": 3, "damage": 4, "group": 1, "hit": true, "member": 6, "need": 37, "roll": 29, "seq": 760, "side": "monsters", "type": "attack"}
+ 761 {"attacker": 4, "group": 1, "hit": false, "member": 4, "need": 43, "roll": 93, "seq": 761, "side": "monsters", "type": "attack"}
+ 762 {"key": "A", "seq": 762, "type": "input"}
+ 763 {"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["reload"], "4": ["reload"], "5": ["fire", 1], "6": ["melee", 1]}, "round": 2, "seq": 763, "type": "round_orders"}
+ 764 {"round": 2, "seq": 764, "type": "round_start"}
+ 765 {"damage": 6, "group": 1, "hit": true, "member": 1, "need": 67, "roll": 25, "seq": 765, "side": "party", "target": 2, "type": "attack"}
+ 766 {"damage": 7, "group": 1, "hit": true, "member": 2, "need": 65, "roll": 35, "seq": 766, "side": "party", "target": 3, "type": "attack"}
+ 767 {"group": 1, "hit": false, "member": 5, "need": 68, "roll": 89, "seq": 767, "side": "party", "target": 3, "type": "attack"}
+ 768 {"group": 1, "index": 2, "seq": 768, "type": "monster_dies"}
+ 769 {"member": 3, "seq": 769, "status": 6, "type": "reload"}
+ 770 {"member": 4, "seq": 770, "status": 6, "type": "reload"}
+ 771 {"damage": 4, "group": 1, "hit": true, "member": 6, "need": 52, "roll": 50, "seq": 771, "side": "party", "target": 3, "type": "attack"}
+ 772 {"group": 1, "index": 3, "seq": 772, "type": "monster_dies"}
+ 773 {"attacker": 4, "damage": 5, "group": 1, "hit": true, "member": 2, "need": 37, "roll": 24, "seq": 773, "side": "monsters", "type": "attack"}
+ 774 {"key": "A", "seq": 774, "type": "input"}
+ 775 {"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["melee", 1]}, "round": 3, "seq": 775, "type": "round_orders"}
+ 776 {"round": 3, "seq": 776, "type": "round_start"}
+ 777 {"damage": 8, "group": 1, "hit": true, "member": 1, "need": 67, "roll": 4, "seq": 777, "side": "party", "target": 4, "type": "attack"}
+ 778 {"damage": 5, "group": 1, "hit": true, "member": 2, "need": 65, "roll": 19, "seq": 778, "side": "party", "target": 4, "type": "attack"}
+ 779 {"damage": 6, "group": 1, "hit": true, "member": 3, "need": 56, "roll": 13, "seq": 779, "side": "party", "target": 4, "type": "attack"}
+ 780 {"damage": 6, "group": 1, "hit": true, "member": 4, "need": 54, "roll": 32, "seq": 780, "side": "party", "target": 4, "type": "attack"}
+ 781 {"group": 1, "hit": false, "member": 5, "need": 68, "roll": 76, "seq": 781, "side": "party", "target": 4, "type": "attack"}
+ 782 {"group": 1, "index": 4, "seq": 782, "type": "monster_dies"}
+ 783 {"result": "victory", "rounds": 3, "seq": 783, "type": "combat_end"}
+ 784 {"delta": 18, "member": 1, "seq": 784, "total": 122, "type": "xp"}
+ 785 {"delta": 18, "member": 2, "seq": 785, "total": 122, "type": "xp"}
+ 786 {"delta": 18, "member": 3, "seq": 786, "total": 132, "type": "xp"}
+ 787 {"delta": 18, "member": 4, "seq": 787, "total": 122, "type": "xp"}
+ 788 {"delta": 18, "member": 5, "seq": 788, "total": 232, "type": "xp"}
+ 789 {"delta": 18, "member": 6, "seq": 789, "total": 168, "type": "xp"}
+ 790 {"action": 1, "action_class": 5, "image": 37, "location": 3, "seq": 790, "type": "cell_change", "x": 9, "y": 6}
+ 791 item_gain {"item": 9, "member": 1, "slot": 6, "status": 3}
+ 792 {"action": 0, "action_class": 0, "image": 37, "location": 3, "seq": 792, "type": "cell_change", "x": 9, "y": 6}
+ 793 checkpoint CP8
+ 794 {"key": "RIGHT", "seq": 794, "type": "input"}
+ 795 {"location": 3, "seq": 795, "steps": 260, "type": "move", "x": 10, "y": 6}
+ 796 {"key": "RIGHT", "seq": 796, "type": "input"}
+ 797 {"location": 3, "seq": 797, "steps": 261, "type": "move", "x": 11, "y": 6}
+ 798 {"key": "RIGHT", "seq": 798, "type": "input"}
+ 799 {"location": 3, "seq": 799, "steps": 262, "type": "move", "x": 12, "y": 6}
+ 800 {"key": "RIGHT", "seq": 800, "type": "input"}
+ 801 {"location": 3, "seq": 801, "steps": 263, "type": "move", "x": 13, "y": 6}
+ 802 {"key": "RIGHT", "seq": 802, "type": "input"}
+ 803 {"location": 3, "seq": 803, "steps": 264, "type": "move", "x": 14, "y": 6}
+ 804 {"key": "RIGHT", "seq": 804, "type": "input"}
+ 805 {"location": 3, "seq": 805, "steps": 265, "type": "move", "x": 15, "y": 6}
+ 806 {"key": "RIGHT", "seq": 806, "type": "input"}
+ 807 {"action": 5, "action_class": 4, "seq": 807, "type": "bump", "x": 16, "y": 6}
+ 808 {"location": 3, "seq": 808, "string": 10, "type": "message"}
+ 809 key_used {"item": 11, "member": 1}
+ 810 {"seq": 810, "type": "unlock", "x": 16, "y": 6}
+ 811 {"action": 4, "action_class": 4, "image": 39, "location": 3, "seq": 811, "type": "cell_change", "x": 16, "y": 6}
+ 812 {"action": 4, "action_class": 4, "image": 37, "location": 3, "seq": 812, "type": "cell_change", "x": 16, "y": 6}
+ 813 {"n": 21, "seq": 813, "type": "paragraph"}
+ 814 {"key": "RIGHT", "seq": 814, "type": "input"}
+ 815 {"location": 3, "seq": 815, "steps": 266, "type": "move", "x": 16, "y": 6}
+ 816 {"action": 4, "action_class": 4, "image": 37, "location": 3, "seq": 816, "type": "cell_change", "x": 16, "y": 6}
+ 817 {"key": "RIGHT", "seq": 817, "type": "input"}
+ 818 {"location": 3, "seq": 818, "steps": 267, "type": "move", "x": 17, "y": 6}
+ 819 {"n": 22, "seq": 819, "type": "paragraph"}
+ 820 {"key": "UP", "seq": 820, "type": "input"}
+ 821 {"location": 3, "seq": 821, "steps": 268, "type": "move", "x": 17, "y": 5}
+ 822 {"key": "UP", "seq": 822, "type": "input"}
+ 823 {"location": 3, "seq": 823, "steps": 269, "type": "move", "x": 17, "y": 4}
+ 824 {"key": "RIGHT", "seq": 824, "type": "input"}
+ 825 {"location": 3, "seq": 825, "steps": 270, "type": "move", "x": 18, "y": 4}
+ 826 {"key": "RIGHT", "seq": 826, "type": "input"}
+ 827 {"location": 3, "seq": 827, "steps": 271, "type": "move", "x": 19, "y": 4}
+ 828 {"key": "RIGHT", "seq": 828, "type": "input"}
+ 829 {"location": 3, "seq": 829, "steps": 272, "type": "move", "x": 20, "y": 4}
+ 830 {"key": "RIGHT", "seq": 830, "type": "input"}
+ 831 {"location": 3, "seq": 831, "steps": 273, "type": "move", "x": 21, "y": 4}
+ 832 natural_heal {"members": [2, 6]}
+ 833 item_gain {"item": 12, "member": 1, "slot": 7, "status": 0}
+ 834 {"action": 0, "action_class": 0, "image": 37, "location": 3, "seq": 834, "type": "cell_change", "x": 21, "y": 4}
+ 835 checkpoint CP9
+ 836 {"key": "DOWN", "seq": 836, "type": "input"}
+ 837 {"location": 3, "seq": 837, "steps": 274, "type": "move", "x": 21, "y": 5}
+ 838 {"key": "LEFT", "seq": 838, "type": "input"}
+ 839 {"location": 3, "seq": 839, "steps": 275, "type": "move", "x": 20, "y": 5}
+ 840 {"key": "LEFT", "seq": 840, "type": "input"}
+ 841 {"location": 3, "seq": 841, "steps": 276, "type": "move", "x": 19, "y": 5}
+ 842 {"key": "LEFT", "seq": 842, "type": "input"}
+ 843 {"location": 3, "seq": 843, "steps": 277, "type": "move", "x": 18, "y": 5}
+ 844 {"key": "DOWN", "seq": 844, "type": "input"}
+ 845 {"location": 3, "seq": 845, "steps": 278, "type": "move", "x": 18, "y": 6}
+ 846 {"key": "LEFT", "seq": 846, "type": "input"}
+ 847 {"location": 3, "seq": 847, "steps": 279, "type": "move", "x": 17, "y": 6}
+ 848 {"n": 22, "seq": 848, "type": "paragraph"}
+ 849 {"key": "LEFT", "seq": 849, "type": "input"}
+ 850 {"location": 3, "seq": 850, "steps": 280, "type": "move", "x": 16, "y": 6}
+ 851 {"action": 4, "action_class": 4, "image": 37, "location": 3, "seq": 851, "type": "cell_change", "x": 16, "y": 6}
+ 852 {"key": "LEFT", "seq": 852, "type": "input"}
+ 853 {"location": 3, "seq": 853, "steps": 281, "type": "move", "x": 15, "y": 6}
+ 854 {"key": "LEFT", "seq": 854, "type": "input"}
+ 855 {"location": 3, "seq": 855, "steps": 282, "type": "move", "x": 14, "y": 6}
+ 856 {"key": "LEFT", "seq": 856, "type": "input"}
+ 857 {"location": 3, "seq": 857, "steps": 283, "type": "move", "x": 13, "y": 6}
+ 858 {"key": "LEFT", "seq": 858, "type": "input"}
+ 859 {"location": 3, "seq": 859, "steps": 284, "type": "move", "x": 12, "y": 6}
+ 860 {"key": "LEFT", "seq": 860, "type": "input"}
+ 861 {"location": 3, "seq": 861, "steps": 285, "type": "move", "x": 11, "y": 6}
+ 862 {"key": "LEFT", "seq": 862, "type": "input"}
+ 863 {"location": 3, "seq": 863, "steps": 286, "type": "move", "x": 10, "y": 6}
+ 864 {"key": "LEFT", "seq": 864, "type": "input"}
+ 865 {"location": 3, "seq": 865, "steps": 287, "type": "move", "x": 9, "y": 6}
+ 866 {"key": "LEFT", "seq": 866, "type": "input"}
+ 867 {"location": 3, "seq": 867, "steps": 288, "type": "move", "x": 8, "y": 6}
+ 868 {"key": "LEFT", "seq": 868, "type": "input"}
+ 869 {"location": 3, "seq": 869, "steps": 289, "type": "move", "x": 7, "y": 6}
+ 870 {"key": "LEFT", "seq": 870, "type": "input"}
+ 871 {"location": 3, "seq": 871, "steps": 290, "type": "move", "x": 6, "y": 6}
+ 872 {"key": "LEFT", "seq": 872, "type": "input"}
+ 873 {"location": 3, "seq": 873, "steps": 291, "type": "move", "x": 5, "y": 6}
+ 874 {"key": "LEFT", "seq": 874, "type": "input"}
+ 875 {"location": 3, "seq": 875, "steps": 292, "type": "move", "x": 4, "y": 6}
+ 876 {"key": "LEFT", "seq": 876, "type": "input"}
+ 877 {"location": 3, "seq": 877, "steps": 293, "type": "move", "x": 3, "y": 6}
+ 878 {"key": "UP", "seq": 878, "type": "input"}
+ 879 {"location": 3, "seq": 879, "steps": 294, "type": "move", "x": 3, "y": 5}
+ 880 {"key": "UP", "seq": 880, "type": "input"}
+ 881 {"location": 3, "seq": 881, "steps": 295, "type": "move", "x": 3, "y": 4}
+ 882 {"key": "UP", "seq": 882, "type": "input"}
+ 883 {"location": 3, "seq": 883, "steps": 296, "type": "move", "x": 3, "y": 3}
+ 884 {"n": 18, "seq": 884, "type": "paragraph"}
+ 885 {"key": "UP", "seq": 885, "type": "input"}
+ 886 {"location": 3, "seq": 886, "steps": 297, "type": "move", "x": 3, "y": 2}
+ 887 {"key": "UP", "seq": 887, "type": "input"}
+ 888 {"location": 3, "seq": 888, "steps": 298, "type": "move", "x": 3, "y": 1}
+ 889 map_change {"location": 0, "x": 44, "y": 48}
+ 890 {"key": "LEFT", "seq": 890, "type": "input"}
+ 891 {"location": 0, "seq": 891, "steps": 299, "type": "move", "x": 43, "y": 48}
+ 892 natural_heal {"members": [2, 6]}
+ 893 day {"day": 2}
+ 894 {"key": "UP", "seq": 894, "type": "input"}
+ 895 {"location": 0, "seq": 895, "steps": 300, "type": "move", "x": 43, "y": 47}
+ 896 {"key": "UP", "seq": 896, "type": "input"}
+ 897 {"location": 0, "seq": 897, "steps": 301, "type": "move", "x": 43, "y": 46}
+ 898 {"key": "UP", "seq": 898, "type": "input"}
+ 899 {"location": 0, "seq": 899, "steps": 302, "type": "move", "x": 43, "y": 45}
+ 900 {"key": "UP", "seq": 900, "type": "input"}
+ 901 {"location": 0, "seq": 901, "steps": 303, "type": "move", "x": 43, "y": 44}
+ 902 {"key": "UP", "seq": 902, "type": "input"}
+ 903 {"location": 0, "seq": 903, "steps": 304, "type": "move", "x": 43, "y": 43}
+ 904 {"key": "UP", "seq": 904, "type": "input"}
+ 905 {"location": 0, "seq": 905, "steps": 305, "type": "move", "x": 43, "y": 42}
+ 906 natural_heal {"members": [2, 6]}
+ 907 {"key": "UP", "seq": 907, "type": "input"}
+ 908 {"location": 0, "seq": 908, "steps": 306, "type": "move", "x": 43, "y": 41}
+ 909 {"key": "LEFT", "seq": 909, "type": "input"}
+ 910 {"location": 0, "seq": 910, "steps": 307, "type": "move", "x": 42, "y": 41}
+ 911 {"key": "LEFT", "seq": 911, "type": "input"}
+ 912 {"location": 0, "seq": 912, "steps": 308, "type": "move", "x": 41, "y": 41}
+ 913 {"key": "LEFT", "seq": 913, "type": "input"}
+ 914 {"location": 0, "seq": 914, "steps": 309, "type": "move", "x": 40, "y": 41}
+ 915 {"key": "LEFT", "seq": 915, "type": "input"}
+ 916 {"location": 0, "seq": 916, "steps": 310, "type": "move", "x": 39, "y": 41}
+ 917 {"key": "LEFT", "seq": 917, "type": "input"}
+ 918 {"location": 0, "seq": 918, "steps": 311, "type": "move", "x": 38, "y": 41}
+ 919 natural_heal {"members": [2, 6]}
+ 920 {"key": "LEFT", "seq": 920, "type": "input"}
+ 921 {"location": 0, "seq": 921, "steps": 312, "type": "move", "x": 37, "y": 41}
+ 922 {"key": "LEFT", "seq": 922, "type": "input"}
+ 923 {"location": 0, "seq": 923, "steps": 313, "type": "move", "x": 36, "y": 41}
+ 924 {"key": "LEFT", "seq": 924, "type": "input"}
+ 925 {"location": 0, "seq": 925, "steps": 314, "type": "move", "x": 35, "y": 41}
+ 926 {"key": "LEFT", "seq": 926, "type": "input"}
+ 927 {"location": 0, "seq": 927, "steps": 315, "type": "move", "x": 34, "y": 41}
+ 928 {"key": "LEFT", "seq": 928, "type": "input"}
+ 929 {"location": 0, "seq": 929, "steps": 316, "type": "move", "x": 33, "y": 41}
+ 930 {"key": "LEFT", "seq": 930, "type": "input"}
+ 931 {"location": 0, "seq": 931, "steps": 317, "type": "move", "x": 32, "y": 41}
+ 932 natural_heal {"members": [2]}
+ 933 {"key": "LEFT", "seq": 933, "type": "input"}
+ 934 {"location": 0, "seq": 934, "steps": 318, "type": "move", "x": 31, "y": 41}
+ 935 {"key": "LEFT", "seq": 935, "type": "input"}
+ 936 {"location": 0, "seq": 936, "steps": 319, "type": "move", "x": 30, "y": 41}
+ 937 {"key": "UP", "seq": 937, "type": "input"}
+ 938 {"location": 0, "seq": 938, "steps": 320, "type": "move", "x": 30, "y": 40}
+ 939 {"key": "LEFT", "seq": 939, "type": "input"}
+ 940 {"location": 0, "seq": 940, "steps": 321, "type": "move", "x": 29, "y": 40}
+ 941 {"key": "LEFT", "seq": 941, "type": "input"}
+ 942 {"location": 0, "seq": 942, "steps": 322, "type": "move", "x": 28, "y": 40}
+ 943 {"key": "LEFT", "seq": 943, "type": "input"}
+ 944 {"location": 0, "seq": 944, "steps": 323, "type": "move", "x": 27, "y": 40}
+ 945 {"key": "LEFT", "seq": 945, "type": "input"}
+ 946 {"location": 0, "seq": 946, "steps": 324, "type": "move", "x": 26, "y": 40}
+ 947 {"key": "LEFT", "seq": 947, "type": "input"}
+ 948 {"location": 0, "seq": 948, "steps": 325, "type": "move", "x": 25, "y": 40}
+ 949 {"key": "LEFT", "seq": 949, "type": "input"}
+ 950 {"location": 0, "seq": 950, "steps": 326, "type": "move", "x": 24, "y": 40}
+ 951 {"key": "LEFT", "seq": 951, "type": "input"}
+ 952 {"location": 0, "seq": 952, "steps": 327, "type": "move", "x": 23, "y": 40}
+ 953 {"key": "LEFT", "seq": 953, "type": "input"}
+ 954 {"location": 0, "seq": 954, "steps": 328, "type": "move", "x": 22, "y": 40}
+ 955 {"key": "LEFT", "seq": 955, "type": "input"}
+ 956 {"location": 0, "seq": 956, "steps": 329, "type": "move", "x": 21, "y": 40}
+ 957 {"key": "LEFT", "seq": 957, "type": "input"}
+ 958 {"location": 0, "seq": 958, "steps": 330, "type": "move", "x": 20, "y": 40}
+ 959 {"key": "LEFT", "seq": 959, "type": "input"}
+ 960 {"location": 0, "seq": 960, "steps": 331, "type": "move", "x": 19, "y": 40}
+ 961 {"key": "LEFT", "seq": 961, "type": "input"}
+ 962 {"location": 0, "seq": 962, "steps": 332, "type": "move", "x": 18, "y": 40}
+ 963 {"key": "LEFT", "seq": 963, "type": "input"}
+ 964 {"location": 0, "seq": 964, "steps": 333, "type": "move", "x": 17, "y": 40}
+ 965 {"key": "LEFT", "seq": 965, "type": "input"}
+ 966 {"location": 0, "seq": 966, "steps": 334, "type": "move", "x": 16, "y": 40}
+ 967 {"key": "LEFT", "seq": 967, "type": "input"}
+ 968 {"location": 0, "seq": 968, "steps": 335, "type": "move", "x": 15, "y": 40}
+ 969 {"key": "LEFT", "seq": 969, "type": "input"}
+ 970 {"location": 0, "seq": 970, "steps": 336, "type": "move", "x": 14, "y": 40}
+ 971 {"key": "LEFT", "seq": 971, "type": "input"}
+ 972 {"location": 0, "seq": 972, "steps": 337, "type": "move", "x": 13, "y": 40}
+ 973 {"key": "LEFT", "seq": 973, "type": "input"}
+ 974 {"location": 0, "seq": 974, "steps": 338, "type": "move", "x": 12, "y": 40}
+ 975 {"key": "LEFT", "seq": 975, "type": "input"}
+ 976 {"location": 0, "seq": 976, "steps": 339, "type": "move", "x": 11, "y": 40}
+ 977 {"key": "LEFT", "seq": 977, "type": "input"}
+ 978 {"location": 0, "seq": 978, "steps": 340, "type": "move", "x": 10, "y": 40}
+ 979 map_change {"location": 1, "x": 15, "y": 30}
+ 980 {"key": "UP", "seq": 980, "type": "input"}
+ 981 {"location": 1, "seq": 981, "steps": 341, "type": "move", "x": 15, "y": 29}
+ 982 {"n": 2, "seq": 982, "type": "paragraph"}
+ 983 {"key": "UP", "seq": 983, "type": "input"}
+ 984 {"location": 1, "seq": 984, "steps": 342, "type": "move", "x": 15, "y": 28}
+ 985 {"key": "UP", "seq": 985, "type": "input"}
+ 986 {"location": 1, "seq": 986, "steps": 343, "type": "move", "x": 15, "y": 27}
+ 987 {"key": "UP", "seq": 987, "type": "input"}
+ 988 {"location": 1, "seq": 988, "steps": 344, "type": "move", "x": 15, "y": 26}
+ 989 {"key": "UP", "seq": 989, "type": "input"}
+ 990 {"location": 1, "seq": 990, "steps": 345, "type": "move", "x": 15, "y": 25}
+ 991 {"key": "UP", "seq": 991, "type": "input"}
+ 992 {"location": 1, "seq": 992, "steps": 346, "type": "move", "x": 15, "y": 24}
+ 993 {"key": "UP", "seq": 993, "type": "input"}
+ 994 {"location": 1, "seq": 994, "steps": 347, "type": "move", "x": 15, "y": 23}
+ 995 {"key": "UP", "seq": 995, "type": "input"}
+ 996 {"location": 1, "seq": 996, "steps": 348, "type": "move", "x": 15, "y": 22}
+ 997 {"key": "UP", "seq": 997, "type": "input"}
+ 998 {"location": 1, "seq": 998, "steps": 349, "type": "move", "x": 15, "y": 21}
+ 999 {"key": "UP", "seq": 999, "type": "input"}
+1000 {"location": 1, "seq": 1000, "steps": 350, "type": "move", "x": 15, "y": 20}
+1001 {"key": "UP", "seq": 1001, "type": "input"}
+1002 {"location": 1, "seq": 1002, "steps": 351, "type": "move", "x": 15, "y": 19}
+1003 {"key": "UP", "seq": 1003, "type": "input"}
+1004 {"location": 1, "seq": 1004, "steps": 352, "type": "move", "x": 15, "y": 18}
+1005 {"key": "UP", "seq": 1005, "type": "input"}
+1006 {"location": 1, "seq": 1006, "steps": 353, "type": "move", "x": 15, "y": 17}
+1007 {"key": "UP", "seq": 1007, "type": "input"}
+1008 {"location": 1, "seq": 1008, "steps": 354, "type": "move", "x": 15, "y": 16}
+1009 {"key": "UP", "seq": 1009, "type": "input"}
+1010 {"location": 1, "seq": 1010, "steps": 355, "type": "move", "x": 15, "y": 15}
+1011 {"key": "UP", "seq": 1011, "type": "input"}
+1012 {"location": 1, "seq": 1012, "steps": 356, "type": "move", "x": 15, "y": 14}
+1013 {"key": "UP", "seq": 1013, "type": "input"}
+1014 {"location": 1, "seq": 1014, "steps": 357, "type": "move", "x": 15, "y": 13}
+1015 {"key": "UP", "seq": 1015, "type": "input"}
+1016 {"location": 1, "seq": 1016, "steps": 358, "type": "move", "x": 15, "y": 12}
+1017 {"key": "UP", "seq": 1017, "type": "input"}
+1018 {"action": 0, "action_class": 11, "seq": 1018, "type": "bump", "x": 15, "y": 11}
+1019 {"n": 24, "seq": 1019, "type": "paragraph"}
+1020 {"day": 2, "minutes": 428, "seq": 1020, "steps": 358, "type": "win"}
+1021 checkpoint CP10

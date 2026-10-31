@@ -1,0 +1,1390 @@
+=== combat.py 200-520 ===
+src/wlengine/combat.py:200:                                      target["ac"], c["band"])
+src/wlengine/combat.py:201:             roll = self.rng.d100()
+src/wlengine/combat.py:202:             hit = roll <= need
+src/wlengine/combat.py:203:             ev = {"side": "party", "member": i + 1, "group": target["group"] + 1,
+src/wlengine/combat.py:204:                   "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+src/wlengine/combat.py:205:             if hit:
+src/wlengine/combat.py:206:                 n, s = weapon_dice(rec)
+src/wlengine/combat.py:207:                 dmg = self.rng.dice(n, s)
+src/wlengine/combat.py:208:                 ev["damage"] = dmg
+src/wlengine/combat.py:209:                 pend[target["group"]][target["index"]] += dmg
+src/wlengine/combat.py:210:             self.emit("attack", **ev)
+src/wlengine/combat.py:211: 
+src/wlengine/combat.py:212:     def monster_phase1(self):
+src/wlengine/combat.py:213:         c = self.combat
+src/wlengine/combat.py:214:         if c is None:
+src/wlengine/combat.py:215:             return
+src/wlengine/combat.py:216:         pend = c["pending_members"]
+src/wlengine/combat.py:217:         conscious = [i + 1 for i, m in enumerate(self.party) if _alive(m)]
+src/wlengine/combat.py:218:         for gi, g in enumerate(c["groups"]):
+src/wlengine/combat.py:219:             mob = g["mob"]
+src/wlengine/combat.py:220:             if mob.get("weaponType", 0) < 3:
+src/wlengine/combat.py:221:                 continue
+src/wlengine/combat.py:222:             for mi, hp in enumerate(g["hp"]):
+src/wlengine/combat.py:223:                 if hp <= 0:
+src/wlengine/combat.py:224:                     continue
+src/wlengine/combat.py:225:                 if not conscious:
+src/wlengine/combat.py:226:                     break
+src/wlengine/combat.py:227:                 t = conscious[self.rng.roll(len(conscious)) - 1]
+src/wlengine/combat.py:228:                 m = self.party[t - 1]
+src/wlengine/combat.py:229:                 need = rules.monster_need(mob.get("combatRating", 0), m.get("ac", 0), c["band"])
+src/wlengine/combat.py:230:                 roll = self.rng.d100()
+src/wlengine/combat.py:231:                 hit = roll <= need
+src/wlengine/combat.py:232:                 ev = {"side": "monsters", "group": gi + 1, "attacker": mi + 1, "member": t,
+src/wlengine/combat.py:233:                       "need": need, "roll": roll, "hit": hit}
+src/wlengine/combat.py:234:                 if hit:
+src/wlengine/combat.py:235:                     dmg = self.rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+src/wlengine/combat.py:236:                     ev["damage"] = dmg
+src/wlengine/combat.py:237:                     pend[t] = pend.get(t, 0) + dmg
+src/wlengine/combat.py:238:                 self.emit("attack", **ev)
+src/wlengine/combat.py:239: 
+src/wlengine/combat.py:240:     def apply_phase1(self):
+src/wlengine/combat.py:241:         c = self.combat
+src/wlengine/combat.py:242:         for gi, g in enumerate(c["groups"]):
+src/wlengine/combat.py:243:             pend = c["pending_monsters"][gi]
+src/wlengine/combat.py:244:             for mi in range(len(g["hp"])):
+src/wlengine/combat.py:245:                 if g["hp"][mi] > 0 and pend[mi]:
+src/wlengine/combat.py:246:                     g["hp"][mi] -= pend[mi]
+src/wlengine/combat.py:247:                     if g["hp"][mi] <= 0:
+src/wlengine/combat.py:248:                         c["kills"] += 1
+src/wlengine/combat.py:249:                         c["last_death_round"] = c["round"]
+src/wlengine/combat.py:250:                         self.emit("monster_dies", group=gi + 1, index=mi + 1)
+src/wlengine/combat.py:251:         for slot in sorted(c["pending_members"]):
+src/wlengine/combat.py:252:             dmg = c["pending_members"][slot]
+src/wlengine/combat.py:253:             if dmg and _alive(self.party[slot - 1]):
+src/wlengine/combat.py:254:                 self.apply_member_damage(slot, dmg)
+src/wlengine/combat.py:255: 
+src/wlengine/combat.py:256:     def apply_member_damage(self, slot, dmg):
+src/wlengine/combat.py:257:         m = self.party[slot - 1]
+src/wlengine/combat.py:258:         res = rules.damage_member(m.get("hp", 0), dmg)
+src/wlengine/combat.py:259:         m["hp"] = res["hp"]
+src/wlengine/combat.py:260:         if res.get("cond"):
+src/wlengine/combat.py:261:             m["cond"] = res["cond"]
+src/wlengine/combat.py:262:             self.emit("death" if res["cond"] == 2 else "unconscious", member=slot)
+src/wlengine/combat.py:263: 
+src/wlengine/combat.py:264:     # -- phase 2 (LR-35) ---------------------------------------------------
+src/wlengine/combat.py:265: 
+src/wlengine/combat.py:266:     def phase2(self):
+src/wlengine/combat.py:267:         c = self.combat
+src/wlengine/combat.py:268:         actors = []
+src/wlengine/combat.py:269:         fired = c.get("fired") or set()
+src/wlengine/combat.py:270:         for i, m in enumerate(self.party):
+src/wlengine/combat.py:271:             if not _alive(m):
+src/wlengine/combat.py:272:                 continue
+src/wlengine/combat.py:273:             if (i + 1) in fired:
+src/wlengine/combat.py:274:                 continue
+src/wlengine/combat.py:275:             actors.append({"side": "party", "slot": i + 1, "speed": self.member_speed(m)})
+src/wlengine/combat.py:276:         for gi, g in enumerate(c["groups"]):
+src/wlengine/combat.py:277:             if g["mob"].get("weaponType", 0) >= 3:
+src/wlengine/combat.py:278:                 continue
+src/wlengine/combat.py:279:             for mi, hp in enumerate(g["hp"]):
+src/wlengine/combat.py:280:                 if hp <= 0:
+src/wlengine/combat.py:281:                     continue
+src/wlengine/combat.py:282:                 actors.append({"side": "monster", "group": gi, "index": mi,
+src/wlengine/combat.py:283:                                "speed": g["mob"].get("combatRating", 0)})
+src/wlengine/combat.py:284:         for a in rules.speed_order(actors):
+src/wlengine/combat.py:285:             if c.get("over"):
+src/wlengine/combat.py:286:                 return
+src/wlengine/combat.py:287:             if a["side"] == "party":
+src/wlengine/combat.py:288:                 self.member_phase2(a["slot"])
+src/wlengine/combat.py:289:             else:
+src/wlengine/combat.py:290:                 self.monster_phase2(a["group"], a["index"])
+src/wlengine/combat.py:291:             if self.check_end():
+src/wlengine/combat.py:292:                 return
+src/wlengine/combat.py:293: 
+src/wlengine/combat.py:294:     def member_speed(self, member):
+src/wlengine/combat.py:295:         return (member.get("attrs") or {}).get("SPD", 0)
+src/wlengine/combat.py:296: 
+src/wlengine/combat.py:297:     def member_phase2(self, slot):
+src/wlengine/combat.py:298:         m = self.party[slot - 1]
+src/wlengine/combat.py:299:         if not _alive(m):
+src/wlengine/combat.py:300:             return
+src/wlengine/combat.py:301:         if m.get("jammed"):
+src/wlengine/combat.py:302:             self.unjam(slot)
+src/wlengine/combat.py:303:             return
+src/wlengine/combat.py:304:         rec, _iid = self.member_weapon(m)
+src/wlengine/combat.py:305:         if rec is not None and rec.get("skill") in RANGED_SKILLS and self.weapon_ammo(m) > 0:
+src/wlengine/combat.py:306:             self.fire(slot, rec)
+src/wlengine/combat.py:307:             return
+src/wlengine/combat.py:308:         if self.combat["band"] <= 1:
+src/wlengine/combat.py:309:             self.melee_attack(slot)
+src/wlengine/combat.py:310:         else:
+src/wlengine/combat.py:311:             self.advance()
+src/wlengine/combat.py:312: 
+src/wlengine/combat.py:313:     def fire(self, slot, rec):
+src/wlengine/combat.py:314:         m = self.party[slot - 1]
+src/wlengine/combat.py:315:         target = self.pick_monster_target()
+src/wlengine/combat.py:316:         if target is None:
+src/wlengine/combat.py:317:             return
+src/wlengine/combat.py:318:         self.spend_ammo(m)
+src/wlengine/combat.py:319:         need = rules.ranged_need(self.skill_level(m, rec.get("skill", 0)),
+src/wlengine/combat.py:320:                                  (m.get("attrs") or {}).get("AGL", 0),
+src/wlengine/combat.py:321:                                  target["ac"], self.combat["band"])
+src/wlengine/combat.py:322:         roll = self.rng.d100()
+src/wlengine/combat.py:323:         hit = roll <= need
+src/wlengine/combat.py:324:         ev = {"side": "party", "member": slot, "group": target["group"] + 1,
+src/wlengine/combat.py:325:               "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+src/wlengine/combat.py:326:         if hit:
+src/wlengine/combat.py:327:             n, s = weapon_dice(rec)
+src/wlengine/combat.py:328:             dmg = self.rng.dice(n, s)
+src/wlengine/combat.py:329:             ev["damage"] = dmg
+src/wlengine/combat.py:330:             self.damage_monster(target["group"], target["index"], dmg)
+src/wlengine/combat.py:331:         self.emit("attack", **ev)
+src/wlengine/combat.py:332: 
+src/wlengine/combat.py:333:     def melee_attack(self, slot):
+src/wlengine/combat.py:334:         m = self.party[slot - 1]
+src/wlengine/combat.py:335:         target = self.pick_monster_target()
+src/wlengine/combat.py:336:         if target is None:
+src/wlengine/combat.py:337:             return
+src/wlengine/combat.py:338:         rec, _iid = self.member_weapon(m)
+src/wlengine/combat.py:339:         level = self.skill_level(m, rec.get("skill", 0)) if rec else 0
+src/wlengine/combat.py:340:         need = rules.melee_need(level, (m.get("attrs") or {}).get("STR", 0), target["ac"])
+src/wlengine/combat.py:341:         roll = self.rng.d100()
+src/wlengine/combat.py:342:         hit = roll <= need
+src/wlengine/combat.py:343:         ev = {"side": "party", "member": slot, "group": target["group"] + 1,
+src/wlengine/combat.py:344:               "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+src/wlengine/combat.py:345:         if hit:
+src/wlengine/combat.py:346:             if rec is not None:
+src/wlengine/combat.py:347:                 n, s = weapon_dice(rec)
+src/wlengine/combat.py:348:             else:
+src/wlengine/combat.py:349:                 n, s = 1, 2
+src/wlengine/combat.py:350:             dmg = self.rng.dice(n, s) + rules.melee_damage_bonus(
+src/wlengine/combat.py:351:                 (m.get("attrs") or {}).get("STR", 0))
+src/wlengine/combat.py:352:             ev["damage"] = dmg
+src/wlengine/combat.py:353:             self.damage_monster(target["group"], target["index"], dmg)
+src/wlengine/combat.py:354:         self.emit("attack", **ev)
+src/wlengine/combat.py:355: 
+src/wlengine/combat.py:356:     def monster_phase2(self, gi, mi):
+src/wlengine/combat.py:357:         c = self.combat
+src/wlengine/combat.py:358:         g = c["groups"][gi]
+src/wlengine/combat.py:359:         mob = g["mob"]
+src/wlengine/combat.py:360:         target = self.pick_random_member()
+src/wlengine/combat.py:361:         if target is None:
+src/wlengine/combat.py:362:             return
+src/wlengine/combat.py:363:         m = self.party[target["slot"] - 1]
+src/wlengine/combat.py:364:         need = rules.monster_need(mob.get("combatRating", 0), m.get("ac", 0), c["band"])
+src/wlengine/combat.py:365:         roll = self.rng.d100()
+src/wlengine/combat.py:366:         hit = roll <= need
+src/wlengine/combat.py:367:         ev = {"side": "monsters", "group": gi + 1, "attacker": mi + 1, "member": target["slot"],
+src/wlengine/combat.py:368:               "need": need, "roll": roll, "hit": hit}
+src/wlengine/combat.py:369:         if hit:
+src/wlengine/combat.py:370:             dmg = self.rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+src/wlengine/combat.py:371:             ev["damage"] = dmg
+src/wlengine/combat.py:372:             self.apply_member_damage(target["slot"], dmg)
+src/wlengine/combat.py:373:         self.emit("attack", **ev)
+src/wlengine/combat.py:374: 
+src/wlengine/combat.py:375:     def unjam(self, slot):
+src/wlengine/combat.py:376:         m = self.party[slot - 1]
+src/wlengine/combat.py:377:         level = self.skill_level(m, GUNSMITHING)
+src/wlengine/combat.py:378:         res = rules.skill_check(self.rng, level, (m.get("attrs") or {}).get("IQ", 0), 0)
+src/wlengine/combat.py:379:         self.emit("check", member=slot, skill=GUNSMITHING, level=level, **res)
+src/wlengine/combat.py:380:         if res.get("success"):
+src/wlengine/combat.py:381:             m["jammed"] = False
+src/wlengine/combat.py:382:             self.emit("unjammed", member=slot)
+src/wlengine/combat.py:383: 
+src/wlengine/combat.py:384:     def advance(self):
+src/wlengine/combat.py:385:         c = self.combat
+src/wlengine/combat.py:386:         c["band"] = max(1, c["band"] - 1)
+src/wlengine/combat.py:387:         self.emit("advance", band=c["band"])
+src/wlengine/combat.py:388: 
+src/wlengine/combat.py:389:     def damage_monster(self, gi, mi, dmg):
+src/wlengine/combat.py:390:         c = self.combat
+src/wlengine/combat.py:391:         g = c["groups"][gi]
+src/wlengine/combat.py:392:         if g["hp"][mi] <= 0:
+src/wlengine/combat.py:393:             return
+src/wlengine/combat.py:394:         g["hp"][mi] -= dmg
+src/wlengine/combat.py:395:         if g["hp"][mi] <= 0:
+src/wlengine/combat.py:396:             c["kills"] += 1
+src/wlengine/combat.py:397:             c["last_death_round"] = c["round"]
+src/wlengine/combat.py:398:             self.emit("monster_dies", group=gi + 1, index=mi + 1)
+src/wlengine/combat.py:399: 
+src/wlengine/combat.py:400:     # -- rounds ------------------------------------------------------------
+src/wlengine/combat.py:401: 
+src/wlengine/combat.py:402:     def reset_phase(self):
+src/wlengine/combat.py:403:         c = self.combat
+src/wlengine/combat.py:404:         c["fired"] = set()
+src/wlengine/combat.py:405:         c["pending_monsters"] = [[0] * len(g["hp"]) for g in c["groups"]]
+src/wlengine/combat.py:406:         c["pending_members"] = {}
+src/wlengine/combat.py:407: 
+src/wlengine/combat.py:408:     def check_end(self):
+src/wlengine/combat.py:409:         c = self.combat
+src/wlengine/combat.py:410:         if c is None or c.get("over"):
+src/wlengine/combat.py:411:             return True
+src/wlengine/combat.py:412:         if not any(hp > 0 for g in c["groups"] for hp in g["hp"]):
+src/wlengine/combat.py:413:             self.victory()
+src/wlengine/combat.py:414:             return True
+src/wlengine/combat.py:415:         if not any(_alive(m) for m in self.party):
+src/wlengine/combat.py:416:             self.defeat()
+src/wlengine/combat.py:417:             return True
+src/wlengine/combat.py:418:         return False
+src/wlengine/combat.py:419: 
+src/wlengine/combat.py:420:     def combat_round(self):
+src/wlengine/combat.py:421:         c = self.combat
+src/wlengine/combat.py:422:         if c is None:
+src/wlengine/combat.py:423:             return
+src/wlengine/combat.py:424:         rnd = c["round"] if c["round"] else 1
+src/wlengine/combat.py:425:         c["round"] = rnd
+src/wlengine/combat.py:426:         orders = self.auto_orders()
+src/wlengine/combat.py:427:         self.emit("round_orders", round=rnd, orders=orders)
+src/wlengine/combat.py:428:         self.emit("round_start", round=rnd)
+src/wlengine/combat.py:429:         self.reset_phase()
+src/wlengine/combat.py:430:         self.party_phase1()
+src/wlengine/combat.py:431:         self.monster_phase1()
+src/wlengine/combat.py:432:         self.apply_phase1()
+src/wlengine/combat.py:433:         if self.check_end():
+src/wlengine/combat.py:434:             return
+src/wlengine/combat.py:435:         self.phase2()
+src/wlengine/combat.py:436:         if self.check_end():
+src/wlengine/combat.py:437:             return
+src/wlengine/combat.py:438:         self.end_of_round()
+src/wlengine/combat.py:439: 
+src/wlengine/combat.py:440:     def surprise_round(self):
+src/wlengine/combat.py:441:         c = self.combat
+src/wlengine/combat.py:442:         if c is None:
+src/wlengine/combat.py:443:             return
+src/wlengine/combat.py:444:         c["round"] = 0
+src/wlengine/combat.py:445:         self.emit("round_start", round=0)
+src/wlengine/combat.py:446:         self.reset_phase()
+src/wlengine/combat.py:447:         self.monster_phase1()
+src/wlengine/combat.py:448:         self.apply_phase1()
+src/wlengine/combat.py:449:         if self.check_end():
+src/wlengine/combat.py:450:             return
+src/wlengine/combat.py:451:         self.end_of_round()
+src/wlengine/combat.py:452: 
+src/wlengine/combat.py:453:     # -- victory and defeat (LR-44 to LR-46) -------------------------------
+src/wlengine/combat.py:454: 
+src/wlengine/combat.py:455:     def victory(self):
+src/wlengine/combat.py:456:         c = self.combat
+src/wlengine/combat.py:457:         if c is None or c.get("over"):
+src/wlengine/combat.py:458:             return
+src/wlengine/combat.py:459:         c["over"] = True
+src/wlengine/combat.py:460:         rounds = c.get("last_death_round") or c["round"]
+src/wlengine/combat.py:461:         self.emit("combat_end", result="victory", rounds=rounds)
+src/wlengine/combat.py:462:         total = 0
+src/wlengine/combat.py:463:         for gi, g in enumerate(c["groups"]):
+src/wlengine/combat.py:464:             mob = g["mob"]
+src/wlengine/combat.py:465:             killed = sum(1 for hp in g["hp"] if hp <= 0)
+src/wlengine/combat.py:466:             total += killed * mob.get("sturdiness", 0) * (mob.get("armorClass", 0) + 1)
+src/wlengine/combat.py:467:         alive = [i + 1 for i, m in enumerate(self.party) if not m.get("cond") == 2]
+src/wlengine/combat.py:468:         share = total // len(alive) if alive else 0
+src/wlengine/combat.py:469:         for slot in range(1, len(self.party) + 1):
+src/wlengine/combat.py:470:             m = self.party[slot - 1]
+src/wlengine/combat.py:471:             m["xp"] = m.get("xp", 0) + share
+src/wlengine/combat.py:472:             self.emit("xp", member=slot, delta=share, total=m["xp"])
+src/wlengine/combat.py:473:             lvl0 = m.get("level", 1)
+src/wlengine/combat.py:474:             lvl = rules.level_after(lvl0, m["xp"])
+src/wlengine/combat.py:475:             if lvl > lvl0:
+src/wlengine/combat.py:476:                 m["level"] = lvl
+src/wlengine/combat.py:477:                 m["max_hp"] = rules.max_hp((m.get("attrs") or {}).get("STR", 0), lvl)
+src/wlengine/combat.py:478:                 self.emit("promote", member=slot, level=lvl, max_hp=m["max_hp"],
+src/wlengine/combat.py:479:                           rank=RANKS[min(lvl, 7) - 1])
+src/wlengine/combat.py:480:         money = 5 * self.best_salvage() * c["kills"]
+src/wlengine/combat.py:481:         if money:
+src/wlengine/combat.py:482:             self.party[0]["money"] = self.party[0].get("money", 0) + money
+src/wlengine/combat.py:483:             self.emit("money", member=1, delta=money, total=self.party[0]["money"])
+src/wlengine/combat.py:484:         rec = c.get("rec")
+src/wlengine/combat.py:485:         self.combat = None
+src/wlengine/combat.py:486:         self.mode = "map"
+src/wlengine/combat.py:487:         # LR-44: after the victory the encounter cell's tail is applied; if that
+src/wlengine/combat.py:488:         # turns the cell into a LOOT cell, the loot fires at once (and its own
+src/wlengine/combat.py:489:         # tail is applied afterwards).
+src/wlengine/combat.py:490:         if rec is not None:
+src/wlengine/combat.py:491:             self.apply_tail(rec, self.x, self.y)
+src/wlengine/combat.py:492:             cls, _a = self.cell_class_action(self.x, self.y)
+src/wlengine/combat.py:493:             if cls == 5:
+src/wlengine/combat.py:494:                 lrec = maps.record_at(self.sc.map(self.location), self.x, self.y)
+src/wlengine/combat.py:495:                 if lrec is not None:
+src/wlengine/combat.py:496:                     self.apply_loot(lrec, self.x, self.y)
+src/wlengine/combat.py:497: 
+src/wlengine/combat.py:498:     def best_salvage(self):
+src/wlengine/combat.py:499:         best = 0
+src/wlengine/combat.py:500:         for m in self.party:
+src/wlengine/combat.py:501:             if m.get("cond") == 2 or m.get("hp", 0) <= 0:
+src/wlengine/combat.py:502:                 continue
+src/wlengine/combat.py:503:             best = max(best, self.skill_level(m, SALVAGE))
+src/wlengine/combat.py:504:         return best
+src/wlengine/combat.py:505: 
+src/wlengine/combat.py:506:     def defeat(self):
+src/wlengine/combat.py:507:         c = self.combat
+src/wlengine/combat.py:508:         if c is None or c.get("over"):
+src/wlengine/combat.py:509:             return
+src/wlengine/combat.py:510:         c["over"] = True
+src/wlengine/combat.py:511:         self.emit("combat_end", result="defeat")
+src/wlengine/combat.py:512:         self.emit("game_over")
+src/wlengine/combat.py:513:         self.combat = None
+src/wlengine/combat.py:514:         self.mode = "gameover"
+src/wlengine/combat.py:515: 
+---
+=== headless.py: bump/move/step ===
+src/wlengine/headless.py:55:         self.steps = 0
+src/wlengine/headless.py:56:         self.day = 1
+src/wlengine/headless.py:57:         self.hour = 0
+src/wlengine/headless.py:58:         self.minute = 0
+src/wlengine/headless.py:59:         self.prev_x = 0
+src/wlengine/headless.py:60:         self.prev_y = 0
+src/wlengine/headless.py:61:         self.prev_location = 0
+src/wlengine/headless.py:62:         self.cell_changes = []
+src/wlengine/headless.py:63:         self.rng = None
+src/wlengine/headless.py:64:         self.seed = seed
+src/wlengine/headless.py:65:         self.party = []
+src/wlengine/headless.py:66:         self.serial = 0
+src/wlengine/headless.py:67:         self.paragraph = 0
+src/wlengine/headless.py:68:         self.shop = None
+src/wlengine/headless.py:69:         self.pending = None
+src/wlengine/headless.py:70:         self.pending_member = None
+src/wlengine/headless.py:71:         self.pending_item = None
+src/wlengine/headless.py:72:         self.pending_hook = None
+src/wlengine/headless.py:73:         self.pending_cell = (0, 0)
+src/wlengine/headless.py:74:         self.combat = None
+src/wlengine/headless.py:75:         self.saved = {}
+src/wlengine/headless.py:76:         self.script_seed = None
+src/wlengine/headless.py:77:         self._items = None
+src/wlengine/headless.py:78: 
+src/wlengine/headless.py:79:     # -- event log ---------------------------------------------------------
+src/wlengine/headless.py:80: 
+---
+src/wlengine/headless.py:81:     def emit(self, type_, **kw):
+src/wlengine/headless.py:82:         ev = {"seq": self._seq, "type": type_}
+src/wlengine/headless.py:83:         ev.update(kw)
+src/wlengine/headless.py:84:         self._seq += 1
+src/wlengine/headless.py:85:         self.events.append(ev)
+src/wlengine/headless.py:86:         return ev
+src/wlengine/headless.py:87: 
+---
+src/wlengine/headless.py:96:             "steps": self.steps,
+src/wlengine/headless.py:97:             "day": self.day,
+src/wlengine/headless.py:98:             "hour": self.hour,
+src/wlengine/headless.py:99:             "minute": self.minute,
+src/wlengine/headless.py:100:             "mode": self.mode,
+src/wlengine/headless.py:101:             "cell_changes": self.sorted_cell_changes(),
+src/wlengine/headless.py:102:             "rng_state": self.rng.state if self.rng is not None else None,
+src/wlengine/headless.py:103:             "party": [self.member_snapshot(i + 1)
+src/wlengine/headless.py:104:                       for i in range(len(self.party))],
+src/wlengine/headless.py:105:         }
+src/wlengine/headless.py:106: 
+src/wlengine/headless.py:107:     def sorted_cell_changes(self):
+src/wlengine/headless.py:108:         """LR-57: the snapshot's cell changes are sorted by (location, y, x)
+src/wlengine/headless.py:109:         and a cell that changed more than once keeps only its last change."""
+src/wlengine/headless.py:110:         last = {}
+src/wlengine/headless.py:111:         for c in self.cell_changes:
+src/wlengine/headless.py:112:             last[(c[0], c[1], c[2])] = list(c)
+src/wlengine/headless.py:113:         return [last[k] for k in sorted(last, key=lambda k: (k[0], k[2], k[1]))]
+src/wlengine/headless.py:114: 
+src/wlengine/headless.py:115:     def member_snapshot(self, member):
+src/wlengine/headless.py:116:         m = self.party[member - 1]
+src/wlengine/headless.py:117:         return {
+src/wlengine/headless.py:118:             "slot": member,
+src/wlengine/headless.py:119:             "name": m.get("name", ""),
+src/wlengine/headless.py:120:             "npc": m.get("npc", 0),
+src/wlengine/headless.py:121:             "level": m.get("level", 1),
+---
+src/wlengine/headless.py:122:             "xp": m.get("xp", 0),
+src/wlengine/headless.py:123:             "max_hp": m.get("max_hp", 0),
+src/wlengine/headless.py:124:             "hp": m.get("hp", 0),
+src/wlengine/headless.py:125:             "cond": m.get("cond", 0),
+src/wlengine/headless.py:126:             "money": m.get("money", 0),
+---
+src/wlengine/headless.py:127:             "ac": m.get("ac", 0),
+src/wlengine/headless.py:128:             "rank": m.get("rank", 0),
+src/wlengine/headless.py:129:             "skill_points": m.get("skill_points", 0),
+src/wlengine/headless.py:130:             "items": [list(it) for it in m.get("items", [])],
+src/wlengine/headless.py:131:             "weapon_slot": m.get("weapon_slot", -1),
+src/wlengine/headless.py:132:             "armour_slot": m.get("armour_slot", -1),
+---
+src/wlengine/headless.py:133:         }
+src/wlengine/headless.py:134: 
+src/wlengine/headless.py:135:     # -- item table --------------------------------------------------------
+src/wlengine/headless.py:136: 
+---
+src/wlengine/headless.py:179:         self.steps = 0
+src/wlengine/headless.py:180:         self.cell_changes = []
+src/wlengine/headless.py:181:         self.mode = "map"
+src/wlengine/headless.py:182:         self.party = self.sc.premade_party()
+src/wlengine/headless.py:183:         self.emit("new_game", seed=seed)
+src/wlengine/headless.py:184:         self.paragraph = start.get("paragraph", 1)
+src/wlengine/headless.py:185:         self.emit("paragraph", n=self.paragraph)
+src/wlengine/headless.py:186: 
+src/wlengine/headless.py:187:     # -- script ------------------------------------------------------------
+src/wlengine/headless.py:188: 
+src/wlengine/headless.py:189:     def run_script(self, script):
+src/wlengine/headless.py:190:         for item in script:
+src/wlengine/headless.py:191:             if isinstance(item, dict):
+src/wlengine/headless.py:192:                 if "checkpoint" in item:
+src/wlengine/headless.py:193:                     self.checkpoint(item["checkpoint"])
+src/wlengine/headless.py:194:                 elif "repeat_until" in item:
+src/wlengine/headless.py:195:                     self.run_repeat(item)
+src/wlengine/headless.py:196:                 else:
+src/wlengine/headless.py:197:                     raise ScriptError("unknown script item %r" % (item,))
+src/wlengine/headless.py:198:             else:
+src/wlengine/headless.py:199:                 self.input(item)
+src/wlengine/headless.py:200:         return self.events
+src/wlengine/headless.py:201: 
+src/wlengine/headless.py:202:     def run_repeat(self, item):
+src/wlengine/headless.py:203:         raise ScriptError("repeat_until not supported yet")
+src/wlengine/headless.py:204: 
+---
+src/wlengine/headless.py:205:     def input(self, key):
+---
+src/wlengine/headless.py:511:     def move(self, dx, dy):
+src/wlengine/headless.py:512:         nx, ny = self.x + dx, self.y + dy
+src/wlengine/headless.py:513:         m = self.sc.map(self.location)
+src/wlengine/headless.py:514:         size = m["size"]
+src/wlengine/headless.py:515:         if not (0 <= nx < size and 0 <= ny < size):
+src/wlengine/headless.py:516:             self.emit("blocked", x=nx, y=ny)
+src/wlengine/headless.py:517:             return
+src/wlengine/headless.py:518:         cls, _action = self.cell_class_action(nx, ny)
+src/wlengine/headless.py:519:         if cls == 11 or not maps.is_passable(m, nx, ny):
+src/wlengine/headless.py:520:             self.bump(nx, ny)
+src/wlengine/headless.py:521:             return
+src/wlengine/headless.py:522:         ox, oy = self.x, self.y
+src/wlengine/headless.py:523:         self.x, self.y = nx, ny
+src/wlengine/headless.py:524:         self.steps += 1
+src/wlengine/headless.py:525:         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+src/wlengine/headless.py:526:         self.advance_time(self.step_minutes())
+src/wlengine/headless.py:527:         self.after_move(ox, oy)
+src/wlengine/headless.py:528: 
+src/wlengine/headless.py:529:     def step_minutes(self):
+src/wlengine/headless.py:530:         m = self.sc.map(self.location)
+src/wlengine/headless.py:531:         tp = m["info"].get("timePerStep", 256)
+src/wlengine/headless.py:532:         return tp >> 8
+src/wlengine/headless.py:533: 
+src/wlengine/headless.py:534:     def cell_class_action(self, x, y):
+src/wlengine/headless.py:535:         m = self.sc.map(self.location)
+src/wlengine/headless.py:536:         size = m["size"]
+---
+src/wlengine/headless.py:537:         if not (0 <= x < size and 0 <= y < size):
+src/wlengine/headless.py:538:             return 0, 0
+src/wlengine/headless.py:539:         return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+src/wlengine/headless.py:540: 
+src/wlengine/headless.py:541:     def show_message(self, index):
+src/wlengine/headless.py:542:         if not index:
+src/wlengine/headless.py:543:             return
+src/wlengine/headless.py:544:         text = self.sc.map_string(self.location, index)
+src/wlengine/headless.py:545:         if text.startswith("Read paragraph ") and text.endswith("."):
+---
+src/wlengine/headless.py:546:             body = text[len("Read paragraph "):-1]
+src/wlengine/headless.py:547:             if body.isdigit():
+src/wlengine/headless.py:548:                 self.emit("paragraph", n=int(body))
+src/wlengine/headless.py:549:                 return
+---
+src/wlengine/headless.py:550:         self.emit("message", location=self.location, string=index)
+---
+src/wlengine/headless.py:603:     def bump(self, nx, ny):
+src/wlengine/headless.py:604:         m = self.sc.map(self.location)
+src/wlengine/headless.py:605:         rec = maps.record_at(m, nx, ny)
+src/wlengine/headless.py:606:         cls, action = self.cell_class_action(nx, ny)
+src/wlengine/headless.py:607:         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+src/wlengine/headless.py:608:         self.bump_effect(rec, nx, ny, cls)
+src/wlengine/headless.py:609: 
+src/wlengine/headless.py:610:     def bump_effect(self, rec, nx, ny, cls=None):
+src/wlengine/headless.py:611:         if cls is None:
+src/wlengine/headless.py:612:             cls, _a = self.cell_class_action(nx, ny)
+src/wlengine/headless.py:613:         if cls == 11:
+src/wlengine/headless.py:614:             self.bump_blocked(rec, nx, ny)
+src/wlengine/headless.py:615:         elif cls == 4:
+src/wlengine/headless.py:616:             if rec is not None and rec.get("impassable"):
+src/wlengine/headless.py:617:                 self.show_message(rec.get("message", 0))
+src/wlengine/headless.py:618:                 if self.sc.hook(self.location, nx, ny):
+src/wlengine/headless.py:619:                     self.run_hook_at(nx, ny)
+src/wlengine/headless.py:620:                 else:
+src/wlengine/headless.py:621:                     self.apply_tail(rec, nx, ny)
+src/wlengine/headless.py:622:             elif rec is not None:
+src/wlengine/headless.py:623:                 self.show_message(rec.get("message", 0))
+src/wlengine/headless.py:624:                 self.apply_tail(rec, nx, ny)
+src/wlengine/headless.py:625:         elif cls == 3:
+src/wlengine/headless.py:626:             self.start_encounter(rec)
+src/wlengine/headless.py:627: 
+src/wlengine/headless.py:628:     def bump_blocked(self, rec, nx, ny):
+---
+src/wlengine/headless.py:629:         if rec is not None:
+src/wlengine/headless.py:630:             self.show_message(rec.get("message", 0))
+src/wlengine/headless.py:631:             self.apply_tail(rec, nx, ny)
+src/wlengine/headless.py:632:         self.run_hook_at(nx, ny)
+---
+src/wlengine/headless.py:633: 
+---
+src/wlengine/headless.py:634:     def run_hook_at(self, nx, ny):
+src/wlengine/headless.py:635:         hook = self.sc.hook(self.location, nx, ny)
+---
+src/wlengine/headless.py:636:         if hook:
+src/wlengine/headless.py:637:             self.run_hook(hook, nx, ny)
+src/wlengine/headless.py:638: 
+src/wlengine/headless.py:639:     def apply_tail(self, rec, x, y):
+---
+src/wlengine/headless.py:640:         tail = maps.apply_tail(rec)
+src/wlengine/headless.py:641:         if tail is None:
+src/wlengine/headless.py:642:             return
+src/wlengine/headless.py:643:         m = self.sc.map(self.location)
+src/wlengine/headless.py:644:         m["cells"]["actionClass"][y][x] = tail[0]
+src/wlengine/headless.py:645:         m["cells"]["action"][y][x] = tail[1]
+src/wlengine/headless.py:646:         img = maps.image_at(m, x, y)
+src/wlengine/headless.py:647:         newrec = maps.record_at(m, x, y)
+src/wlengine/headless.py:648:         if newrec is not None and "tile" in newrec:
+src/wlengine/headless.py:649:             img = newrec["tile"]
+src/wlengine/headless.py:650:             m["cells"]["image"][y][x] = img
+src/wlengine/headless.py:651:         self.cell_change(x, y, tail[0], tail[1], img)
+src/wlengine/headless.py:652: 
+src/wlengine/headless.py:653:     def apply_loot(self, rec, x, y):
+---
+src/wlengine/headless.py:654:         for item in rec.get("items", []):
+src/wlengine/headless.py:655:             if isinstance(item, (list, tuple)):
+src/wlengine/headless.py:656:                 iid = item[0]
+src/wlengine/headless.py:657:                 fixed = bool(item[1]) if len(item) > 1 else True
+src/wlengine/headless.py:658:                 amount = item[2] if len(item) > 2 else 0
+src/wlengine/headless.py:659:             else:
+src/wlengine/headless.py:660:                 iid, fixed, amount = item, True, 0
+src/wlengine/headless.py:661:             status = amount if fixed else self.rng.rnd(amount)
+src/wlengine/headless.py:662:             placed = False
+src/wlengine/headless.py:663:             for i, m in enumerate(self.party):
+src/wlengine/headless.py:664:                 if len(m.get("items", [])) < 30:
+src/wlengine/headless.py:665:                     self.add_item(i + 1, iid, 1)
+src/wlengine/headless.py:666:                     slot = self.item_slot(i + 1, iid) + 1
+src/wlengine/headless.py:667:                     self.emit("item_gain", member=i + 1, item=iid, slot=slot,
+src/wlengine/headless.py:668:                               status=status)
+src/wlengine/headless.py:669:                     placed = True
+src/wlengine/headless.py:670:                     break
+src/wlengine/headless.py:671:             if not placed:
+src/wlengine/headless.py:672:                 self.emit("item_lost", item=iid)
+src/wlengine/headless.py:673:         cash = rec.get("cash")
+src/wlengine/headless.py:674:         if cash:
+src/wlengine/headless.py:675:             if isinstance(cash, (list, tuple)):
+src/wlengine/headless.py:676:                 fixed = bool(cash[0]) if len(cash) > 1 else True
+---
+src/wlengine/headless.py:688:     def cell_change(self, x, y, action_class, action, image):
+src/wlengine/headless.py:689:         self.cell_changes.append([self.location, x, y, action_class, action,
+src/wlengine/headless.py:690:                                   image])
+src/wlengine/headless.py:691:         self.emit("cell_change", location=self.location, x=x, y=y,
+src/wlengine/headless.py:692:                   action_class=action_class, action=action, image=image)
+src/wlengine/headless.py:693: 
+src/wlengine/headless.py:694:     # -- hooks -------------------------------------------------------------
+src/wlengine/headless.py:695: 
+src/wlengine/headless.py:696:     def run_hook(self, hook, nx, ny):
+src/wlengine/headless.py:697:         kind = hook.get("kind")
+src/wlengine/headless.py:698:         if kind == "win":
+src/wlengine/headless.py:699:             self.hook_win(hook, nx, ny)
+src/wlengine/headless.py:700:         elif kind == "recruit":
+src/wlengine/headless.py:701:             self.hook_recruit(hook, nx, ny)
+src/wlengine/headless.py:702:         elif kind == "healer":
+src/wlengine/headless.py:703:             self.hook_healer(hook, nx, ny)
+src/wlengine/headless.py:704:         elif kind == "lock":
+src/wlengine/headless.py:705:             self.bump_lock(None, nx, ny)
+src/wlengine/headless.py:706: 
+src/wlengine/headless.py:707:     def hook_win(self, hook, nx, ny):
+src/wlengine/headless.py:708:         item = hook.get("item")
+src/wlengine/headless.py:709:         if item is not None and not self.party_has(item):
+src/wlengine/headless.py:710:             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+src/wlengine/headless.py:711:             if para:
+src/wlengine/headless.py:712:                 self.emit("paragraph", n=para)
+src/wlengine/headless.py:713:             return
+---
+src/wlengine/headless.py:714:         para = self.hook_get(hook, "win_paragraph", "win_para")
+---
+src/wlengine/headless.py:715:         if para:
+src/wlengine/headless.py:716:             self.emit("paragraph", n=para)
+---
+src/wlengine/headless.py:717:         self.mode = "won"
+src/wlengine/headless.py:718:         self.emit("win", steps=self.steps, day=self.day,
+src/wlengine/headless.py:719:                   minutes=self.hour * 60 + self.minute)
+src/wlengine/headless.py:720: 
+src/wlengine/headless.py:721:     def hook_get(self, hook, *names):
+src/wlengine/headless.py:722:         for name in names:
+src/wlengine/headless.py:723:             if name in hook and hook[name] is not None:
+src/wlengine/headless.py:724:                 return hook[name]
+src/wlengine/headless.py:725:         return None
+src/wlengine/headless.py:726: 
+src/wlengine/headless.py:727:     def hook_recruit(self, hook, nx, ny):
+src/wlengine/headless.py:728:         para = self.hook_get(hook, "paragraph")
+src/wlengine/headless.py:729:         if para:
+src/wlengine/headless.py:730:             self.emit("paragraph", n=para)
+---
+src/wlengine/headless.py:731:         self.pending = "recruit"
+src/wlengine/headless.py:732:         self.pending_hook = hook
+src/wlengine/headless.py:733:         self.pending_cell = (nx, ny)
+src/wlengine/headless.py:734:         self.emit("prompt", prompt="recruit")
+src/wlengine/headless.py:735: 
+src/wlengine/headless.py:736:     def hook_healer(self, hook, nx, ny):
+src/wlengine/headless.py:737:         self.pending = "heal"
+src/wlengine/headless.py:738:         self.pending_hook = hook
+src/wlengine/headless.py:739:         self.pending_cell = (nx, ny)
+src/wlengine/headless.py:740:         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+src/wlengine/headless.py:741: 
+src/wlengine/headless.py:742:     # -- locks -------------------------------------------------------------
+src/wlengine/headless.py:743: 
+---
+src/wlengine/headless.py:744:     def bump_lock(self, rec, nx, ny):
+src/wlengine/headless.py:745:         hook = self.sc.hook(self.location, nx, ny)
+src/wlengine/headless.py:746:         if hook is None:
+src/wlengine/headless.py:747:             return
+src/wlengine/headless.py:748:         key_item = hook.get("key_item")
+src/wlengine/headless.py:749:         if key_item is not None:
+src/wlengine/headless.py:750:             member = self.member_with_item(key_item)
+src/wlengine/headless.py:751:             if member is not None:
+src/wlengine/headless.py:752:                 self.emit("key_used", member=member, item=key_item)
+src/wlengine/headless.py:753:                 self.unlock(nx, ny, hook, member, xp=0)
+src/wlengine/headless.py:754:                 return
+src/wlengine/headless.py:755:         member = self.pick_member(hook.get("skill", 0))
+src/wlengine/headless.py:756:         skill = hook.get("skill", 0)
+src/wlengine/headless.py:757:         level = self.skill_level(self.party[member - 1], skill)
+src/wlengine/headless.py:758:         attr = self.attr_value(self.party[member - 1], skill)
+src/wlengine/headless.py:759:         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+src/wlengine/headless.py:760:                                 bool(hook.get("tool_item")))
+src/wlengine/headless.py:761:         roll = self.rng.d100()
+src/wlengine/headless.py:762:         success = roll <= need
+src/wlengine/headless.py:763:         self.emit("check", member=member, skill=skill, level=level, need=need,
+src/wlengine/headless.py:764:                   roll=roll, success=success)
+src/wlengine/headless.py:765:         if success:
+src/wlengine/headless.py:766:             self.unlock(nx, ny, hook, member)
+src/wlengine/headless.py:767:         else:
+src/wlengine/headless.py:768:             self.show_message(hook.get("fail_message", 0))
+src/wlengine/headless.py:769: 
+---
+src/wlengine/headless.py:780:         self.cell_change(nx, ny, tail[0], tail[1], img)
+src/wlengine/headless.py:781:         newimg = img
+src/wlengine/headless.py:782:         newrec = maps.record_at(m, nx, ny)
+src/wlengine/headless.py:783:         if newrec is not None and "tile" in newrec:
+src/wlengine/headless.py:784:             newimg = newrec["tile"]
+src/wlengine/headless.py:785:             m["cells"]["image"][ny][nx] = newimg
+src/wlengine/headless.py:786:         self.cell_change(nx, ny, tail[0], tail[1], newimg)
+src/wlengine/headless.py:787:         if xp:
+src/wlengine/headless.py:788:             mm = self.party[member - 1]
+src/wlengine/headless.py:789:             mm["xp"] = mm.get("xp", 0) + xp
+src/wlengine/headless.py:790:             self.emit("xp", member=member, delta=xp, total=mm["xp"])
+src/wlengine/headless.py:791:         self.show_message(hook.get("success_message", 0))
+src/wlengine/headless.py:792: 
+src/wlengine/headless.py:793:     def member_with_item(self, item):
+src/wlengine/headless.py:794:         for i, m in enumerate(self.party):
+src/wlengine/headless.py:795:             for it in m.get("items", []):
+src/wlengine/headless.py:796:                 if it[0] == item and it[1] > 0:
+src/wlengine/headless.py:797:                     return i + 1
+src/wlengine/headless.py:798:         return None
+src/wlengine/headless.py:799: 
+src/wlengine/headless.py:800:     def pick_member(self, skill):
+src/wlengine/headless.py:801:         idx = self.skill_attribute(skill)
+src/wlengine/headless.py:802:         best = 1
+src/wlengine/headless.py:803:         best_key = None
+src/wlengine/headless.py:804:         for i, m in enumerate(self.party):
+src/wlengine/headless.py:805:             if m.get("cond", 0) != 0:
+---
+src/wlengine/headless.py:806:                 continue
+src/wlengine/headless.py:807:             lvl = self.skill_level(m, skill)
+src/wlengine/headless.py:808:             attrs = m.get("attrs") or {}
+src/wlengine/headless.py:809:             a = attrs.get(self.ATTR_ORDER[idx], 0)
+src/wlengine/headless.py:810:             key = (lvl, a, -i)
+src/wlengine/headless.py:811:             if best_key is None or key > best_key:
+---
+src/wlengine/headless.py:942:         self.cell_change(nx, ny, 0, 0, img)
+src/wlengine/headless.py:943:         slot = len(self.party) + 1
+src/wlengine/headless.py:944:         idx = hook.get("npc", 0) or 0
+src/wlengine/headless.py:945:         npcs = m.get("npcs", [])
+src/wlengine/headless.py:946:         ch = npcs[idx] if 0 <= idx < len(npcs) else {}
+src/wlengine/headless.py:947:         self.party.append(self.member_from_character(ch, slot))
+src/wlengine/headless.py:948:         self.emit("recruit", location=self.location, npc=idx, slot=slot)
+src/wlengine/headless.py:949: 
+src/wlengine/headless.py:950:     def member_from_character(self, ch, slot):
+src/wlengine/headless.py:951:         aff = ch.get("afflictions", 0)
+src/wlengine/headless.py:952:         cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+src/wlengine/headless.py:953:         return {
+src/wlengine/headless.py:954:             "slot": slot, "name": ch.get("name", ""), "npc": ch.get("npc", 0),
+src/wlengine/headless.py:955:             "level": ch.get("level", 1), "xp": ch.get("experience", 0),
+src/wlengine/headless.py:956:             "max_hp": ch.get("maxCon", 0), "hp": ch.get("curCon", 0),
+src/wlengine/headless.py:957:             "cond": cond, "money": ch.get("money", 0),
+src/wlengine/headless.py:958:             "ac": ch.get("armorClass", 0), "rank": ch.get("rank", ""),
+src/wlengine/headless.py:959:             "skill_points": ch.get("skillPoints", 0),
+src/wlengine/headless.py:960:             "items": [list(x) for x in ch.get("items", [])],
+src/wlengine/headless.py:961:             "skills": [list(x) for x in ch.get("skills", [])],
+src/wlengine/headless.py:962:             "weapon_slot": ch.get("weaponSlot", 0),
+src/wlengine/headless.py:963:             "armour_slot": ch.get("armorSlot", 0),
+src/wlengine/headless.py:964:             "attrs": {"STR": ch.get("strength", 0), "IQ": ch.get("intelligence", 0),
+src/wlengine/headless.py:965:                       "LCK": ch.get("luck", 0), "SPD": ch.get("speed", 0),
+src/wlengine/headless.py:966:                       "AGL": ch.get("agility", 0), "CHA": ch.get("charisma", 0)},
+src/wlengine/headless.py:967:             "gender": ch.get("gender", 0), "nationality": ch.get("nationality", 0),
+---
+src/wlengine/headless.py:1000:         cc = sorted([list(c) for c in self.cell_changes], key=lambda c: (c[0], c[2], c[1]))
+src/wlengine/headless.py:1001:         blob = labstate.encode_labstate({
+src/wlengine/headless.py:1002:             "steps": self.steps, "day": self.day, "seconds": 0, "pad": 0,
+src/wlengine/headless.py:1003:             "rng_state": self.rng.state if self.rng is not None else 0,
+src/wlengine/headless.py:1004:             "cell_changes": cc,
+src/wlengine/headless.py:1005:         })
+src/wlengine/headless.py:1006:         try:
+src/wlengine/headless.py:1007:             (dd / "LABSTATE.BIN").write_bytes(blob)
+src/wlengine/headless.py:1008:         except OSError:
+src/wlengine/headless.py:1009:             pass
+src/wlengine/headless.py:1010:         # GAME1 savegame block (LR-55)
+src/wlengine/headless.py:1011:         try:
+src/wlengine/headless.py:1012:             block = self.build_savegame_payload()
+src/wlengine/headless.py:1013:             path = dd / "GAME1"
+src/wlengine/headless.py:1014:             data = bytearray(path.read_bytes())
+src/wlengine/headless.py:1015:             off = self.sc.tables["savegameOffsets"][0]
+src/wlengine/headless.py:1016:             data[off:off + len(block)] = block
+=== headless.py: class 1 / print / tail ===
+src/wlengine/headless.py:67:         self.paragraph = 0
+src/wlengine/headless.py:68:         self.shop = None
+src/wlengine/headless.py:69:         self.pending = None
+src/wlengine/headless.py:70:         self.pending_member = None
+src/wlengine/headless.py:71:         self.pending_item = None
+src/wlengine/headless.py:72:         self.pending_hook = None
+src/wlengine/headless.py:73:         self.pending_cell = (0, 0)
+src/wlengine/headless.py:74:         self.combat = None
+src/wlengine/headless.py:75:         self.saved = {}
+src/wlengine/headless.py:76:         self.script_seed = None
+src/wlengine/headless.py:77:         self._items = None
+src/wlengine/headless.py:78: 
+src/wlengine/headless.py:79:     # -- event log ---------------------------------------------------------
+src/wlengine/headless.py:80: 
+src/wlengine/headless.py:81:     def emit(self, type_, **kw):
+src/wlengine/headless.py:82:         ev = {"seq": self._seq, "type": type_}
+src/wlengine/headless.py:83:         ev.update(kw)
+src/wlengine/headless.py:84:         self._seq += 1
+src/wlengine/headless.py:85:         self.events.append(ev)
+src/wlengine/headless.py:86:         return ev
+src/wlengine/headless.py:87: 
+---
+src/wlengine/headless.py:184:         self.paragraph = start.get("paragraph", 1)
+src/wlengine/headless.py:185:         self.emit("paragraph", n=self.paragraph)
+src/wlengine/headless.py:186: 
+src/wlengine/headless.py:187:     # -- script ------------------------------------------------------------
+src/wlengine/headless.py:188: 
+src/wlengine/headless.py:189:     def run_script(self, script):
+src/wlengine/headless.py:190:         for item in script:
+src/wlengine/headless.py:191:             if isinstance(item, dict):
+src/wlengine/headless.py:192:                 if "checkpoint" in item:
+src/wlengine/headless.py:193:                     self.checkpoint(item["checkpoint"])
+src/wlengine/headless.py:194:                 elif "repeat_until" in item:
+src/wlengine/headless.py:195:                     self.run_repeat(item)
+src/wlengine/headless.py:196:                 else:
+src/wlengine/headless.py:197:                     raise ScriptError("unknown script item %r" % (item,))
+src/wlengine/headless.py:198:             else:
+src/wlengine/headless.py:199:                 self.input(item)
+src/wlengine/headless.py:200:         return self.events
+src/wlengine/headless.py:201: 
+src/wlengine/headless.py:202:     def run_repeat(self, item):
+src/wlengine/headless.py:203:         raise ScriptError("repeat_until not supported yet")
+src/wlengine/headless.py:204: 
+---
+src/wlengine/headless.py:205:     def input(self, key):
+---
+src/wlengine/headless.py:545:         if text.startswith("Read paragraph ") and text.endswith("."):
+src/wlengine/headless.py:546:             body = text[len("Read paragraph "):-1]
+src/wlengine/headless.py:547:             if body.isdigit():
+src/wlengine/headless.py:548:                 self.emit("paragraph", n=int(body))
+src/wlengine/headless.py:549:                 return
+src/wlengine/headless.py:550:         self.emit("message", location=self.location, string=index)
+src/wlengine/headless.py:551: 
+src/wlengine/headless.py:552:     def advance_time(self, minutes):
+src/wlengine/headless.py:553:         before_hour = self.hour
+src/wlengine/headless.py:554:         self.minute += minutes
+src/wlengine/headless.py:555:         while self.minute >= 60:
+src/wlengine/headless.py:556:             self.minute -= 60
+src/wlengine/headless.py:557:             self.hour += 1
+src/wlengine/headless.py:558:         while self.hour >= 24:
+src/wlengine/headless.py:559:             self.hour -= 24
+src/wlengine/headless.py:560:             self.day += 1
+src/wlengine/headless.py:561:             self.emit("day", day=self.day)
+src/wlengine/headless.py:562:         if self.hour != before_hour:
+src/wlengine/headless.py:563:             self.natural_heal()
+src/wlengine/headless.py:564: 
+src/wlengine/headless.py:565:     def natural_heal(self):
+---
+src/wlengine/headless.py:566:         healed = []
+---
+src/wlengine/headless.py:567:         for i, m in enumerate(self.party):
+src/wlengine/headless.py:568:             if m.get("hp", 0) < m.get("max_hp", 0):
+---
+src/wlengine/headless.py:710:             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+src/wlengine/headless.py:711:             if para:
+src/wlengine/headless.py:712:                 self.emit("paragraph", n=para)
+src/wlengine/headless.py:713:             return
+src/wlengine/headless.py:714:         para = self.hook_get(hook, "win_paragraph", "win_para")
+src/wlengine/headless.py:715:         if para:
+src/wlengine/headless.py:716:             self.emit("paragraph", n=para)
+src/wlengine/headless.py:717:         self.mode = "won"
+src/wlengine/headless.py:718:         self.emit("win", steps=self.steps, day=self.day,
+src/wlengine/headless.py:719:                   minutes=self.hour * 60 + self.minute)
+src/wlengine/headless.py:720: 
+src/wlengine/headless.py:721:     def hook_get(self, hook, *names):
+src/wlengine/headless.py:722:         for name in names:
+src/wlengine/headless.py:723:             if name in hook and hook[name] is not None:
+src/wlengine/headless.py:724:                 return hook[name]
+src/wlengine/headless.py:725:         return None
+src/wlengine/headless.py:726: 
+src/wlengine/headless.py:727:     def hook_recruit(self, hook, nx, ny):
+src/wlengine/headless.py:728:         para = self.hook_get(hook, "paragraph")
+src/wlengine/headless.py:729:         if para:
+src/wlengine/headless.py:730:             self.emit("paragraph", n=para)
+---
+src/wlengine/headless.py:731:         self.pending = "recruit"
+src/wlengine/headless.py:732:         self.pending_hook = hook
+---
+src/wlengine/headless.py:733:         self.pending_cell = (nx, ny)
+src/wlengine/headless.py:734:         self.emit("prompt", prompt="recruit")
+---
+src/wlengine/headless.py:735: 
+src/wlengine/headless.py:736:     def hook_healer(self, hook, nx, ny):
+---
+src/wlengine/headless.py:737:         self.pending = "heal"
+src/wlengine/headless.py:738:         self.pending_hook = hook
+src/wlengine/headless.py:739:         self.pending_cell = (nx, ny)
+src/wlengine/headless.py:740:         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+src/wlengine/headless.py:741: 
+src/wlengine/headless.py:742:     # -- locks -------------------------------------------------------------
+src/wlengine/headless.py:743: 
+src/wlengine/headless.py:744:     def bump_lock(self, rec, nx, ny):
+src/wlengine/headless.py:745:         hook = self.sc.hook(self.location, nx, ny)
+src/wlengine/headless.py:746:         if hook is None:
+src/wlengine/headless.py:747:             return
+src/wlengine/headless.py:748:         key_item = hook.get("key_item")
+---
+src/wlengine/headless.py:749:         if key_item is not None:
+src/wlengine/headless.py:750:             member = self.member_with_item(key_item)
+---
+=== maps.py: tail ===
+src/wlengine/maps.py:9: decoded dict: ``record_at``, ``is_passable``, ``apply_tail``,
+src/wlengine/maps.py:10: ``resolve_transition`` and ``image_at``.
+src/wlengine/maps.py:11: """
+src/wlengine/maps.py:12: 
+src/wlengine/maps.py:13: from __future__ import annotations
+src/wlengine/maps.py:14: 
+src/wlengine/maps.py:15: from . import codecs, containers, huffman, strings
+src/wlengine/maps.py:16: from .errors import FormatError
+src/wlengine/maps.py:17: 
+src/wlengine/maps.py:18: # Classes that need a record: a null pointer or an out-of-range action byte is
+src/wlengine/maps.py:19: # a data error for these (L-AC5).
+src/wlengine/maps.py:20: NEEDS_RECORD = (1, 3, 5, 6, 10)
+src/wlengine/maps.py:21: 
+src/wlengine/maps.py:22: # Classes the lab defines; everything else is reserved (L-AC1).
+src/wlengine/maps.py:23: LAB_CLASSES = (0, 1, 3, 4, 5, 6, 10, 11)
+src/wlengine/maps.py:24: 
+src/wlengine/maps.py:25: # Map-info field order after the five leading bytes (SPEC-03 5.5).
+src/wlengine/maps.py:26: MAPINFO_FIELDS = ("encounterFrequency", "tileset", "randomMonsterTypes",
+src/wlengine/maps.py:27:                   "maxRandomEncounters", "borderImage")
+src/wlengine/maps.py:28: 
+src/wlengine/maps.py:29: CD_SIZE = 42
+---
+src/wlengine/maps.py:53: def _read_tail(b: bytes, o: int, r: dict) -> int:
+src/wlengine/maps.py:54:     """Common tail (8.3): u8 newActionClass, u8 newAction when < 253."""
+src/wlengine/maps.py:55:     if o >= len(b):
+src/wlengine/maps.py:56:         raise FormatError("map: record tail runs past the body")
+src/wlengine/maps.py:57:     nc = b[o]
+src/wlengine/maps.py:58:     o += 1
+src/wlengine/maps.py:59:     if nc < 253:
+src/wlengine/maps.py:60:         if o >= len(b):
+src/wlengine/maps.py:61:             raise FormatError("map: record tail runs past the body")
+src/wlengine/maps.py:62:         r["newClass"], r["newAction"] = nc, b[o]
+src/wlengine/maps.py:63:         o += 1
+src/wlengine/maps.py:64:     else:
+src/wlengine/maps.py:65:         r["newClass"], r["newAction"] = nc, 0
+src/wlengine/maps.py:66:     return o
+src/wlengine/maps.py:67: 
+src/wlengine/maps.py:68: 
+src/wlengine/maps.py:69: def decode_record(cls: int, b: bytes, o: int) -> dict:
+src/wlengine/maps.py:70:     """Decode one action record of class ``cls`` at body offset ``o``."""
+src/wlengine/maps.py:71:     if o < 0 or o >= len(b):
+src/wlengine/maps.py:72:         raise FormatError("map: record offset %d outside the body" % o)
+src/wlengine/maps.py:73:     r: dict = {}
+---
+src/wlengine/maps.py:74:     if cls == 1:  # PRINT (8.4)
+---
+src/wlengine/maps.py:75:         msgs = []
+src/wlengine/maps.py:76:         while True:
+---
+src/wlengine/maps.py:77:             if o >= len(b):
+src/wlengine/maps.py:78:                 raise FormatError("map: PRINT record runs past the body")
+src/wlengine/maps.py:79:             m = b[o]
+src/wlengine/maps.py:80:             o += 1
+src/wlengine/maps.py:81:             msgs.append(m & 0x7F)
+---
+src/wlengine/maps.py:85:         _read_tail(b, o, r)
+src/wlengine/maps.py:86:     elif cls == 3 or cls == 15:  # FIXED_ENCOUNTER / RANDOM_ENCOUNTER (8.5)
+src/wlengine/maps.py:87:         if o + 10 > len(b):
+src/wlengine/maps.py:88:             raise FormatError("map: encounter record runs past the body")
+src/wlengine/maps.py:89:         r["visibleDistance"], r["hitDistance"], r["message"] = b[o], b[o + 1], b[o + 2]
+src/wlengine/maps.py:90:         o += 3
+src/wlengine/maps.py:91:         groups = []
+src/wlengine/maps.py:92:         for _ in range(3):
+src/wlengine/maps.py:93:             groups.append([b[o], bool(b[o + 1] & 0x80), b[o + 1] & 0x7F])
+src/wlengine/maps.py:94:             o += 2
+src/wlengine/maps.py:95:         r["groups"] = groups
+src/wlengine/maps.py:96:         f = b[o]
+src/wlengine/maps.py:97:         o += 1
+src/wlengine/maps.py:98:         r.update({"properName": f & 1, "friendly": (f >> 1) & 1,
+src/wlengine/maps.py:99:                   "immobile": (f >> 2) & 1, "npc": f >> 4})
+src/wlengine/maps.py:100:         _read_tail(b, o, r)
+src/wlengine/maps.py:101:     elif cls == 4:  # MASK (8.7)
+src/wlengine/maps.py:102:         if o + 2 > len(b):
+src/wlengine/maps.py:103:             raise FormatError("map: MASK record runs past the body")
+src/wlengine/maps.py:104:         r["message"], r["impassable"], r["tile"] = b[o], bool(b[o + 1] & 0x80), b[o + 1] & 0x7F
+src/wlengine/maps.py:105:         _read_tail(b, o + 2, r)
+---
+src/wlengine/maps.py:106:     elif cls == 5:  # LOOT (8.8, wllib layout)
+src/wlengine/maps.py:107:         if o + 2 > len(b):
+src/wlengine/maps.py:108:             raise FormatError("map: LOOT record runs past the body")
+src/wlengine/maps.py:109:         r["newClass"], r["newAction"] = b[o], b[o + 1]
+src/wlengine/maps.py:110:         o += 2
+src/wlengine/maps.py:111:         r["items"], r["cash"] = [], None
+src/wlengine/maps.py:112:         while True:
+src/wlengine/maps.py:113:             if o >= len(b):
+src/wlengine/maps.py:114:                 raise FormatError("map: LOOT record has no 0xFF terminator")
+src/wlengine/maps.py:115:             v = b[o]
+src/wlengine/maps.py:116:             if v == 0xFF:
+src/wlengine/maps.py:117:                 break
+src/wlengine/maps.py:118:             if v in (0xDE, 0x5E):
+src/wlengine/maps.py:119:                 if o + 3 > len(b):
+src/wlengine/maps.py:120:                     raise FormatError("map: LOOT cash entry runs past the body")
+---
+src/wlengine/maps.py:121:                 r["cash"] = [v == 0xDE, _r16(b, o + 1)]
+src/wlengine/maps.py:122:                 o += 3
+src/wlengine/maps.py:123:             else:
+src/wlengine/maps.py:124:                 if o + 2 > len(b):
+src/wlengine/maps.py:125:                     raise FormatError("map: LOOT item entry runs past the body")
+---
+src/wlengine/maps.py:132:         _read_tail(b, o + 2, r)
+src/wlengine/maps.py:133:     elif cls == 10:  # TRANSITION (8.9)
+src/wlengine/maps.py:134:         if o + 4 > len(b):
+src/wlengine/maps.py:135:             raise FormatError("map: TRANSITION record runs past the body")
+src/wlengine/maps.py:136:         f = b[o]
+src/wlengine/maps.py:137:         r.update({"relative": bool(f & 0x80), "confirm": bool(f & 0x40),
+src/wlengine/maps.py:138:                   "message": f & 0x3F, "x": _i8(b[o + 1]), "y": _i8(b[o + 2]),
+src/wlengine/maps.py:139:                   "location": b[o + 3]})
+src/wlengine/maps.py:140:         _read_tail(b, o + 4, r)
+src/wlengine/maps.py:141:     elif cls == 11:  # BLOCKED (8.10)
+src/wlengine/maps.py:142:         if o + 1 > len(b):
+src/wlengine/maps.py:143:             raise FormatError("map: BLOCKED record runs past the body")
+src/wlengine/maps.py:144:         r["message"] = b[o]
+src/wlengine/maps.py:145:         _read_tail(b, o + 1, r)
+src/wlengine/maps.py:146:     else:
+src/wlengine/maps.py:147:         raise FormatError("map: class %d has no record layout" % cls)
+src/wlengine/maps.py:148:     return r
+src/wlengine/maps.py:149: 
+src/wlengine/maps.py:150: 
+src/wlengine/maps.py:151: # ---------------------------------------------------------------------------
+src/wlengine/maps.py:152: # Block decoding (SPEC-03 sections 3 to 7)
+---
+src/wlengine/maps.py:153: # ---------------------------------------------------------------------------
+src/wlengine/maps.py:154: 
+src/wlengine/maps.py:155: def _decode_pointer_table(body: bytes, start: int, cls: int) -> list:
+src/wlengine/maps.py:156:     """Pointer list at ``start`` (SPEC-03 6.2), records decoded per class.
+src/wlengine/maps.py:157: 
+src/wlengine/maps.py:158:     Pointers are read until the read position reaches the smallest non-zero
+src/wlengine/maps.py:159:     pointer seen so far (the wastelib rule); lab data keeps pointers ascending
+src/wlengine/maps.py:160:     so the wllib rule agrees.
+---
+src/wlengine/maps.py:161:     """
+src/wlengine/maps.py:162:     ptrs = []
+src/wlengine/maps.py:163:     pos = start
+src/wlengine/maps.py:164:     end_ptr = None
+src/wlengine/maps.py:165:     while end_ptr is None or pos < end_ptr:
+---
+src/wlengine/maps.py:394: def apply_tail(record):
+src/wlengine/maps.py:395:     """``(newClass, newAction)`` for a record tail, or ``None`` (L-TL1)."""
+src/wlengine/maps.py:396:     nc = record.get("newClass", 255)
+src/wlengine/maps.py:397:     if nc >= 253:
+src/wlengine/maps.py:398:         return None
+src/wlengine/maps.py:399:     if nc >= 16:
+src/wlengine/maps.py:400:         return None
+src/wlengine/maps.py:401:     return [nc, record.get("newAction", 0)]
+src/wlengine/maps.py:402: 
+src/wlengine/maps.py:403: 
+src/wlengine/maps.py:404: def resolve_transition(tables: dict, record: dict, x: int, y: int, previous):
+src/wlengine/maps.py:405:     """Resolve a TRANSITION record to ``(location, x, y)`` (L-TR2, L-TR3, L-TR5)."""
+src/wlengine/maps.py:406:     t = record["location"]
+src/wlengine/maps.py:407:     if t == 255:
+src/wlengine/maps.py:408:         return (previous[0], previous[1], previous[2])
+src/wlengine/maps.py:409:     if 128 <= t <= 252:
+src/wlengine/maps.py:410:         shared = tables["sharedLocations"]
+src/wlengine/maps.py:411:         if t - 128 >= len(shared):
+src/wlengine/maps.py:412:             raise FormatError("map: shared location %d has no entry" % t)
+src/wlengine/maps.py:413:         t = shared[t - 128]
+src/wlengine/maps.py:414:     loc, _disk, _index = containers.resolve_location(tables, t)
+---
+src/wlengine/maps.py:415:     if record.get("relative"):
+---
+src/wlengine/maps.py:441:     "apply_tail",
+src/wlengine/maps.py:442:     "resolve_transition",
+src/wlengine/maps.py:443:     "image_at",
+src/wlengine/maps.py:444:     "decode_record",
+src/wlengine/maps.py:445: ]
+src/wlengine/maps.py:446: 
+---
+=== reference log CP4/CP5 ===
+tests/fixtures-generated/reflog.txt:281: {"seq": 280, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+tests/fixtures-generated/reflog.txt:282: {"seq": 281, "type": "xp", "member": 5, "delta": 14, "total": 214}
+tests/fixtures-generated/reflog.txt:283: {"seq": 282, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+tests/fixtures-generated/reflog.txt:284: {"seq": 283, "type": "money", "member": 1, "delta": 75, "total": 195}
+tests/fixtures-generated/reflog.txt:285: {"seq": 284, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+tests/fixtures-generated/reflog.txt:286: CP CP4
+tests/fixtures-generated/reflog.txt:287: IN RIGHT
+tests/fixtures-generated/reflog.txt:288: {"seq": 287, "type": "move", "location": 0, "x": 31, "y": 41, "steps": 80}
+tests/fixtures-generated/reflog.txt:289: {"seq": 288, "type": "paragraph", "n": 9}
+tests/fixtures-generated/reflog.txt:290: {"seq": 289, "type": "cell_change", "location": 0, "x": 31, "y": 41, "action_class": 0, "action": 0, "image": 22}
+tests/fixtures-generated/reflog.txt:291: IN RIGHT
+---
+tests/fixtures-generated/reflog.txt:456: {"seq": 455, "type": "prompt", "prompt": "item_slot"}
+tests/fixtures-generated/reflog.txt:457: IN d
+tests/fixtures-generated/reflog.txt:458: {"seq": 457, "type": "equip", "member": 1, "slot": 4, "item": 8, "ac": 5}
+tests/fixtures-generated/reflog.txt:459: IN X
+tests/fixtures-generated/reflog.txt:460: {"seq": 459, "type": "char_close"}
+tests/fixtures-generated/reflog.txt:461: CP CP5-pre-save
+tests/fixtures-generated/reflog.txt:462: IN S
+tests/fixtures-generated/reflog.txt:463: {"seq": 462, "type": "save", "serial": 1}
+tests/fixtures-generated/reflog.txt:464: IN O
+tests/fixtures-generated/reflog.txt:465: {"seq": 464, "type": "prompt", "prompt": "load"}
+tests/fixtures-generated/reflog.txt:466: IN Y
+---
+tests/fixtures-generated/reflog.txt:467: {"seq": 466, "type": "load", "serial": 1}
+tests/fixtures-generated/reflog.txt:468: CP CP5
+tests/fixtures-generated/reflog.txt:469: IN LEFT
+tests/fixtures-generated/reflog.txt:470: {"seq": 469, "type": "move", "location": 2, "x": 24, "y": 5, "steps": 146}
+tests/fixtures-generated/reflog.txt:471: IN LEFT
+tests/fixtures-generated/reflog.txt:472: {"seq": 471, "type": "move", "location": 2, "x": 23, "y": 5, "steps": 147}
+tests/fixtures-generated/reflog.txt:473: IN DOWN
+---
+=== test_m5_rules: save_labstate / orders ===
+tests/test_m5_rules.py:671: def test_raider_fight_rules(runner, walkthrough, cat):
+tests/test_m5_rules.py:672:     for seed in FIGHT_SEEDS:
+tests/test_m5_rules.py:673:         ev = _fight(runner, walkthrough, seed)
+tests/test_m5_rules.py:674:         issues = [m for c, m in CR.consistency(ev) if c in (cat, "all")]
+tests/test_m5_rules.py:675:         if issues:
+tests/test_m5_rules.py:676:             fail("seed %d, %s: %s" % (seed, cat, issues[0]))
+tests/test_m5_rules.py:677: 
+tests/test_m5_rules.py:678: 
+tests/test_m5_rules.py:679: def test_victory_loot(runner, walkthrough):
+tests/test_m5_rules.py:680:     for seed in [SEED] + FIGHT_SEEDS[:2]:
+tests/test_m5_rules.py:681:         ev = _fight(runner, walkthrough, seed)
+tests/test_m5_rules.py:682:         i = next((k for k, e in enumerate(ev) if e.get("type") == "combat_end"), None)
+tests/test_m5_rules.py:683:         if i is None:
+tests/test_m5_rules.py:684:             fail("seed %d: no combat_end in the raider fight" % seed)
+tests/test_m5_rules.py:685:         got = [strip(e) for e in ev[i:] if e.get("type") in ("cell_change", "money")][:3]
+tests/test_m5_rules.py:686:         check_eq("seed %d: tail (5, 1) then loot of 75 coins after the victory (LR-44, SPEC-03 9.6)" % seed, got,
+tests/test_m5_rules.py:687:                  [{"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13},
+tests/test_m5_rules.py:688:                   {"type": "money", "member": 1, "delta": 75, "total": 195},
+tests/test_m5_rules.py:689:                   {"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}])
+tests/test_m5_rules.py:690: 
+tests/test_m5_rules.py:691: 
+tests/test_m5_rules.py:692: # ---- locks, healer, key (walkthrough to CP6, CP7, CP9) -----------------------
+tests/test_m5_rules.py:693: 
+tests/test_m5_rules.py:694: @pytest.mark.parametrize("seed", [SEED, 1, 2])
+tests/test_m5_rules.py:695: def test_storehouse_lock(runner, walkthrough, seed):
+tests/test_m5_rules.py:696:     ev, _ = runner.run("cp6", {"seed": seed, "script": prefix(walkthrough, "CP6")}, seed)
+tests/test_m5_rules.py:697:     seg = between(ev, "CP5", "CP6")
+tests/test_m5_rules.py:698:     checks = [e for e in seg if e.get("type") == "check"]
+tests/test_m5_rules.py:699:     if not checks:
+tests/test_m5_rules.py:700:         fail("seed %d: no check event at the storehouse door" % seed)
+tests/test_m5_rules.py:701:     for c in checks:
+tests/test_m5_rules.py:702:         exp = {"type": "check", "member": 3, "skill": 14, "level": 2, "need": 50}
+tests/test_m5_rules.py:703:         check_eq("seed %d: storehouse check (LR-13, LR-14, worked example need 50)" % seed,
+tests/test_m5_rules.py:704:                  {k: c.get(k) for k in exp}, exp)
+tests/test_m5_rules.py:705:         if c.get("success") != (isinstance(c.get("roll"), int) and 1 <= c["roll"] <= 50):
+tests/test_m5_rules.py:706:             fail("seed %d: check roll %r with need 50 but success=%r" % (seed, c.get("roll"), c.get("success")))
+tests/test_m5_rules.py:707:     if any(c.get("success") for c in checks[:-1]) or not checks[-1].get("success"):
+tests/test_m5_rules.py:708:         fail("seed %d: the bumps must repeat until the first success (repeat_until cell:2,26,14)" % seed)
+tests/test_m5_rules.py:709:     i = seg.index(checks[-1])
+tests/test_m5_rules.py:710:     check_eq("seed %d: events after the successful check (LR-21 order)" % seed, seg[i + 1:i + 6],
+tests/test_m5_rules.py:711:              [{"type": "unlock", "x": 26, "y": 14},
+tests/test_m5_rules.py:712:               {"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30},
+tests/test_m5_rules.py:713:               {"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29},
+tests/test_m5_rules.py:714:               {"type": "xp", "member": 3, "delta": 10, "total": 114},
+tests/test_m5_rules.py:715:               {"type": "paragraph", "n": 12}])
+tests/test_m5_rules.py:716:     for c in checks[:-1]:
+---
+tests/test_m5_rules.py:769: def test_save_labstate(runner, walkthrough):
+tests/test_m5_rules.py:770:     ev, dd = _saved(runner, walkthrough)
+tests/test_m5_rules.py:771:     st = ckpt(ev, "CP5-pre-save")
+tests/test_m5_rules.py:772:     p = dd / "LABSTATE.BIN"
+tests/test_m5_rules.py:773:     if not p.is_file():
+tests/test_m5_rules.py:774:         fail("no LABSTATE.BIN next to GAME1 after S (LR-54)")
+tests/test_m5_rules.py:775:     try:
+tests/test_m5_rules.py:776:         ls = W.ref_labstate(p.read_bytes())
+tests/test_m5_rules.py:777:     except ValueError as e:
+tests/test_m5_rules.py:778:         fail("LABSTATE.BIN does not follow LR-57: %s" % e)
+tests/test_m5_rules.py:779:     want_cc = sorted(st.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+tests/test_m5_rules.py:780:     check_eq("LABSTATE.BIN after the save (LR-57)", ls,
+tests/test_m5_rules.py:781:              {"steps": st.get("steps"), "day": st.get("day"), "seconds": 0, "pad": 0, "rng_state": st.get("rng_state"),
+tests/test_m5_rules.py:782:               "cell_changes": want_cc})
+tests/test_m5_rules.py:783: 
+tests/test_m5_rules.py:784: 
+tests/test_m5_rules.py:785: def test_save_savegame_fields(runner, walkthrough):
+tests/test_m5_rules.py:786:     ev, dd = _saved(runner, walkthrough)
+tests/test_m5_rules.py:787:     p = _payload(dd)
+tests/test_m5_rules.py:788:     got = {"order": list(p[1:8]), "x": p[8], "y": p[9], "map": p[10], "prevX": p[11], "prevY": p[12], "prevMap": p[13],
+tests/test_m5_rules.py:789:            "groups1to3": list(p[14:56]), "viewport": [p[0x78], p[0x79]], "members": [p[0x7D], p[0x80]],
+tests/test_m5_rules.py:790:            "party": p[0x7E], "location": p[0x7F], "extra": p[0x81], "clock": [p[0x83], p[0x84]], "scroll": p[0x85],
+tests/test_m5_rules.py:791:            "serial": int.from_bytes(p[0xF5:0xF9], "little")}
+tests/test_m5_rules.py:792:     want = {"order": [1, 2, 3, 4, 5, 0, 0], "x": 25, "y": 5, "map": 2, "prevX": 43, "prevY": 28, "prevMap": 0,
+tests/test_m5_rules.py:793:             "groups1to3": [0] * 42, "viewport": [25, 5], "members": [5, 5], "party": 0, "location": 2, "extra": 0,
+tests/test_m5_rules.py:794:             "clock": [28, 17], "scroll": 0, "serial": 1}
+tests/test_m5_rules.py:795:     check_eq("savegame payload after the save at CP5 (LR-55, L-TR4)", got, want)
+tests/test_m5_rules.py:796:     names = [bytes(p[0x100 * (s + 1):0x100 * (s + 1) + 14]).split(b"\x00")[0].decode("latin-1") for s in range(7)]
+tests/test_m5_rules.py:797:     check_eq("character record names (LR-55)", names, ["Hessa Brand", "Tobin Ash", "Maro Quill", "Dell Ostrow",
+tests/test_m5_rules.py:798:                                                        "Orla Penn", "", ""])
+tests/test_m5_rules.py:799:     check_eq("slots 6 and 7 all zero (LR-55)", any(p[0x600:0x800]), False)
+tests/test_m5_rules.py:800: 
+tests/test_m5_rules.py:801: 
+tests/test_m5_rules.py:802: def test_load_restores_state(runner, walkthrough):
+tests/test_m5_rules.py:803:     ev, dd = _saved(runner, walkthrough)
+tests/test_m5_rules.py:804:     want = ckpt(ev, "CP5-pre-save")
+tests/test_m5_rules.py:805:     ev2, _ = runner.run("reload", {"seed": 5, "script": ["O", "Y", {"checkpoint": "loaded"}]}, None, data_dir=dd)
+tests/test_m5_rules.py:806:     check_eq("a fresh run that loads the save sees the saved state (LR-4, LR-56)", ckpt(ev2, "loaded"), want)
+tests/test_m5_rules.py:807: 
+tests/test_m5_rules.py:808: 
+tests/test_m5_rules.py:809: def test_save_load_save(runner, walkthrough):
+tests/test_m5_rules.py:810:     _, dd1 = _saved(runner, walkthrough)
+tests/test_m5_rules.py:811:     p1 = _payload(dd1)
+tests/test_m5_rules.py:812:     l1 = (dd1 / "LABSTATE.BIN").read_bytes()
+tests/test_m5_rules.py:813:     _, dd2 = runner.run("saveloadsave", {"seed": SEED, "script": prefix(walkthrough, "CP5") + ["S"]})
+tests/test_m5_rules.py:814:     p2 = _payload(dd2)
+---
+=== wl_combat_ref consistency ===
+tests/wl_combat_ref.py:27: PARTY_CP3 = {
+tests/wl_combat_ref.py:28:     # slot: name, STR, IQ, SPD, AGL, skills {id: level}, weapon, load, ammo boxes, AC, max HP
+tests/wl_combat_ref.py:29:     1: {"name": "Hessa Brand", "STR": 14, "IQ": 13, "SPD": 12, "AGL": 14,
+tests/wl_combat_ref.py:30:         "skills": {4: 2, 20: 1, 21: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+tests/wl_combat_ref.py:31:     2: {"name": "Tobin Ash", "STR": 16, "IQ": 10, "SPD": 11, "AGL": 12,
+tests/wl_combat_ref.py:32:         "skills": {5: 2, 1: 1, 17: 1, 3: 1}, "weapon": RIFLE, "load": 8, "boxes": 1, "ac": 3, "xp": 90},
+tests/wl_combat_ref.py:33:     3: {"name": "Maro Quill", "STR": 11, "IQ": 16, "SPD": 13, "AGL": 15,
+tests/wl_combat_ref.py:34:         "skills": {14: 2, 23: 1, 22: 1, 4: 1, 12: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+tests/wl_combat_ref.py:35:     4: {"name": "Dell Ostrow", "STR": 12, "IQ": 15, "SPD": 12, "AGL": 13,
+tests/wl_combat_ref.py:36:         "skills": {12: 2, 13: 1, 4: 1, 29: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 2, "xp": 90},
+tests/wl_combat_ref.py:37:     5: {"name": "Orla Penn", "STR": 13, "IQ": 11, "SPD": 14, "AGL": 15,
+tests/wl_combat_ref.py:38:         "skills": {5: 2, 18: 2, 19: 1}, "weapon": RIFLE, "load": 8, "boxes": 2, "ac": 3, "xp": 200, "level": 2},
+tests/wl_combat_ref.py:39: }
+tests/wl_combat_ref.py:40: 
+tests/wl_combat_ref.py:41: # Overworld monster 1, SPEC-05 section 5.1 (manifest-style keys).
+tests/wl_combat_ref.py:42: RAIDER = {"name": "raider", "sturdiness": 12, "combatRating": 6, "randomDamage": 1, "maxGroup": 4,
+tests/wl_combat_ref.py:43:           "armorClass": 1, "fixedDamage": 0, "weaponType": 3, "type": 3, "portrait": 1}
+tests/wl_combat_ref.py:44: RAIDER_RECORD = {"groups": [[1, False, 3], [0, False, 0], [0, False, 0]]}
+tests/wl_combat_ref.py:45: LOOKOUT = 18
+tests/wl_combat_ref.py:46: GUNSMITHING = 22
+tests/wl_combat_ref.py:47: 
+tests/wl_combat_ref.py:48: COMBAT_TYPES = {"attack", "jam", "click", "monster_dies", "unconscious", "death"}
+tests/wl_combat_ref.py:49: 
+tests/wl_combat_ref.py:50: 
+tests/wl_combat_ref.py:51: def _lookout_checker():
+tests/wl_combat_ref.py:52:     """LR-14: highest Lookout level, then higher linked attribute (IQ), then lower slot."""
+tests/wl_combat_ref.py:53:     best = None
+tests/wl_combat_ref.py:54:     for slot, m in PARTY_CP3.items():
+tests/wl_combat_ref.py:55:         lvl = m["skills"].get(LOOKOUT, 0)
+tests/wl_combat_ref.py:56:         key = (lvl, m["IQ"], -slot)
+tests/wl_combat_ref.py:57:         if best is None or key > best[0]:
+tests/wl_combat_ref.py:58:             best = (key, slot)
+tests/wl_combat_ref.py:59:     return best[1]
+tests/wl_combat_ref.py:60: 
+tests/wl_combat_ref.py:61: 
+tests/wl_combat_ref.py:62: def opening(seed: int) -> dict:
+tests/wl_combat_ref.py:63:     """Expected events of the raider fight up to the end of round 1, phase 1."""
+tests/wl_combat_ref.py:64:     rng = RefRng(seed)
+tests/wl_combat_ref.py:65:     groups = ref_build_groups(rng, [RAIDER], RAIDER_RECORD)
+tests/wl_combat_ref.py:66:     enc = {"type": "encounter_start",
+tests/wl_combat_ref.py:67:            "groups": [{"monster": "raider", "count": g["count"], "band": g["band"], "hp": g["hp"]}
+tests/wl_combat_ref.py:68:                       for g in groups]}
+tests/wl_combat_ref.py:69:     hp = list(groups[0]["hp"])
+tests/wl_combat_ref.py:70:     band = groups[0]["band"]
+tests/wl_combat_ref.py:71:     d_max = RAIDER["combatRating"]
+tests/wl_combat_ref.py:72:     cs = _lookout_checker()
+---
+tests/wl_combat_ref.py:73:     m = PARTY_CP3[cs]
+tests/wl_combat_ref.py:74:     c = ref_skill_check(rng, m["skills"].get(LOOKOUT, 0), m["IQ"], d_max)
+tests/wl_combat_ref.py:75:     check = {"type": "check", "member": cs, "skill": LOOKOUT, "level": m["skills"].get(LOOKOUT, 0), **c}
+tests/wl_combat_ref.py:76:     member_hp = {s: ref_max_hp(p["STR"], p.get("level", 1)) for s, p in PARTY_CP3.items()}
+tests/wl_combat_ref.py:77:     cond = {s: 0 for s in PARTY_CP3}
+tests/wl_combat_ref.py:78: 
+tests/wl_combat_ref.py:79:     def monster_phase1(events):
+tests/wl_combat_ref.py:80:         pending = {s: 0 for s in PARTY_CP3}
+tests/wl_combat_ref.py:81:         conscious = [s for s in sorted(PARTY_CP3) if cond[s] == 0]
+tests/wl_combat_ref.py:82:         for i in range(len(hp)):
+tests/wl_combat_ref.py:83:             if hp[i] <= 0:
+tests/wl_combat_ref.py:84:                 continue
+tests/wl_combat_ref.py:85:             t = conscious[rng.roll(len(conscious)) - 1]
+tests/wl_combat_ref.py:86:             need = ref_monster_need(RAIDER["combatRating"], PARTY_CP3[t]["ac"], band)
+tests/wl_combat_ref.py:87:             r = rng.d100()
+tests/wl_combat_ref.py:88:             ev = {"type": "attack", "side": "monsters", "group": 1, "attacker": i + 1, "member": t,
+tests/wl_combat_ref.py:89:                   "need": need, "roll": r, "hit": r <= need}
+tests/wl_combat_ref.py:90:             if r <= need:
+tests/wl_combat_ref.py:91:                 d = rng.dice(RAIDER["randomDamage"], 6) + RAIDER["fixedDamage"]
+tests/wl_combat_ref.py:92:                 ev["damage"] = d
+tests/wl_combat_ref.py:93:                 pending[t] += d
+tests/wl_combat_ref.py:94:             events.append(ev)
+tests/wl_combat_ref.py:95:         return pending
+tests/wl_combat_ref.py:96: 
+tests/wl_combat_ref.py:97:     def apply_members(pending, events):
+tests/wl_combat_ref.py:98:         for s in sorted(PARTY_CP3):
+tests/wl_combat_ref.py:99:             if pending[s] and cond[s] == 0:
+---
+tests/wl_combat_ref.py:100:                 res = ref_damage_member(member_hp[s], pending[s])
+tests/wl_combat_ref.py:101:                 member_hp[s] = res["hp"]
+tests/wl_combat_ref.py:102:                 if res["cond"]:
+tests/wl_combat_ref.py:103:                     cond[s] = res["cond"]
+tests/wl_combat_ref.py:104:                     events.append({"type": "death" if res["cond"] == 2 else "unconscious", "member": s})
+tests/wl_combat_ref.py:105: 
+tests/wl_combat_ref.py:106:     round0 = []
+tests/wl_combat_ref.py:107:     if not c["success"]:
+tests/wl_combat_ref.py:108:         p = monster_phase1(round0)
+tests/wl_combat_ref.py:109:         apply_members(p, round0)
+tests/wl_combat_ref.py:110: 
+tests/wl_combat_ref.py:111:     round1 = []
+tests/wl_combat_ref.py:112:     loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+tests/wl_combat_ref.py:113:     pend = [0] * len(hp)
+tests/wl_combat_ref.py:114:     for s in sorted(PARTY_CP3):
+tests/wl_combat_ref.py:115:         if cond[s]:
+tests/wl_combat_ref.py:116:             continue
+tests/wl_combat_ref.py:117:         mm = PARTY_CP3[s]
+tests/wl_combat_ref.py:118:         w = mm["weapon"]
+---
+tests/wl_combat_ref.py:119:         if loads[s] == 0:
+tests/wl_combat_ref.py:120:             round1.append({"type": "click", "member": s})
+tests/wl_combat_ref.py:121:             continue
+---
+tests/wl_combat_ref.py:122:         r = rng.d100()
+---
+tests/wl_combat_ref.py:123:         j = ref_jam_chance(mm["skills"].get(GUNSMITHING, 0))
+tests/wl_combat_ref.py:124:         if r <= j:
+tests/wl_combat_ref.py:125:             round1.append({"type": "jam", "member": s, "roll": r, "chance": j})
+---
+tests/wl_combat_ref.py:126:             continue
+---
+tests/wl_combat_ref.py:127:         loads[s] -= 1
+tests/wl_combat_ref.py:128:         tgt = next((i for i in range(len(hp)) if hp[i] - pend[i] > 0), None)
+tests/wl_combat_ref.py:129:         if tgt is None:
+tests/wl_combat_ref.py:130:             tgt = next(i for i in range(len(hp)) if hp[i] > 0)
+tests/wl_combat_ref.py:131:         need = ref_ranged_need(mm["skills"].get(w["skill"], 0), mm["AGL"], RAIDER["armorClass"], band)
+---
+tests/wl_combat_ref.py:132:         r = rng.d100()
+tests/wl_combat_ref.py:133:         ev = {"type": "attack", "side": "party", "member": s, "group": 1, "target": tgt + 1,
+tests/wl_combat_ref.py:134:               "need": need, "roll": r, "hit": r <= need}
+tests/wl_combat_ref.py:135:         if r <= need:
+tests/wl_combat_ref.py:136:             d = rng.dice(w["n"], w["s"])
+tests/wl_combat_ref.py:137:             ev["damage"] = d
+tests/wl_combat_ref.py:138:             pend[tgt] += d
+tests/wl_combat_ref.py:139:         round1.append(ev)
+tests/wl_combat_ref.py:140:     pm = monster_phase1(round1)
+tests/wl_combat_ref.py:141:     for i in range(len(hp)):
+tests/wl_combat_ref.py:142:         if hp[i] > 0 and pend[i]:
+tests/wl_combat_ref.py:143:             hp[i] -= pend[i]
+---
+tests/wl_combat_ref.py:144:             if hp[i] <= 0:
+tests/wl_combat_ref.py:145:                 round1.append({"type": "monster_dies", "group": 1, "index": i + 1})
+tests/wl_combat_ref.py:146:     apply_members(pm, round1)
+tests/wl_combat_ref.py:147:     return {"encounter": enc, "check": check, "surprised": not c["success"],
+tests/wl_combat_ref.py:148:             "round0": round0, "round1": round1}
+tests/wl_combat_ref.py:149: 
+tests/wl_combat_ref.py:150: 
+tests/wl_combat_ref.py:151: def combat_window(events: list[dict], round_no: int) -> list[dict] | None:
+tests/wl_combat_ref.py:152:     """Events after round_start(round_no) while they are combat resolution events."""
+tests/wl_combat_ref.py:153:     for i, e in enumerate(events):
+tests/wl_combat_ref.py:154:         if e.get("type") == "round_start" and e.get("round") == round_no:
+tests/wl_combat_ref.py:155:             out = []
+tests/wl_combat_ref.py:156:             for f in events[i + 1:]:
+tests/wl_combat_ref.py:157:                 if f.get("type") not in COMBAT_TYPES:
+---
+tests/wl_combat_ref.py:158:                     break
+tests/wl_combat_ref.py:159:                 out.append({k: v for k, v in f.items() if k != "seq"})
+---
+tests/wl_combat_ref.py:160:             return out
+tests/wl_combat_ref.py:161:     return None
+tests/wl_combat_ref.py:162: 
+---
+tests/wl_combat_ref.py:164: def consistency(events: list[dict]) -> list[tuple[str, str]]:
+tests/wl_combat_ref.py:165:     """Rule-consistency issues for the raider fight in an engine log.
+tests/wl_combat_ref.py:166: 
+tests/wl_combat_ref.py:167:     Categories: orders (LR-33), need (LR-34 party and monster need), jam
+tests/wl_combat_ref.py:168:     (LR-34 step 2, LR-39), target (LR-34 step 4), victory (LR-44, LR-45, LR-46).
+tests/wl_combat_ref.py:169:     """
+tests/wl_combat_ref.py:170:     issues: list[tuple[str, str]] = []
+tests/wl_combat_ref.py:171:     try:
+tests/wl_combat_ref.py:172:         start = next(i for i, e in enumerate(events) if e.get("type") == "encounter_start")
+tests/wl_combat_ref.py:173:     except StopIteration:
+tests/wl_combat_ref.py:174:         return [("all", "no encounter_start event in the log")]
+tests/wl_combat_ref.py:175:     end = next((i for i in range(start, len(events)) if events[i].get("type") == "combat_end"), None)
+tests/wl_combat_ref.py:176:     if end is None:
+tests/wl_combat_ref.py:177:         return [("all", "no combat_end event after encounter_start")]
+tests/wl_combat_ref.py:178:     groups = events[start].get("groups") or []
+tests/wl_combat_ref.py:179:     if len(groups) != 1 or groups[0].get("count") != 3:
+tests/wl_combat_ref.py:180:         return [("all", "encounter_start groups: expected one group of 3 raiders, got %r" % groups)]
+tests/wl_combat_ref.py:181:     hp = list(groups[0].get("hp", []))
+tests/wl_combat_ref.py:182:     band = groups[0].get("band", 3)
+tests/wl_combat_ref.py:183:     loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+tests/wl_combat_ref.py:184:     boxes = {s: PARTY_CP3[s]["boxes"] for s in PARTY_CP3}
+tests/wl_combat_ref.py:185:     jammed: set[int] = set()
+tests/wl_combat_ref.py:186:     pend = [0] * 3
+tests/wl_combat_ref.py:187:     in_phase1 = False
+tests/wl_combat_ref.py:188:     last_death_round = None
+tests/wl_combat_ref.py:189:     cur_round = None
+tests/wl_combat_ref.py:190:     rounds_started = []
+tests/wl_combat_ref.py:191: 
+tests/wl_combat_ref.py:192:     def finalize():
+tests/wl_combat_ref.py:193:         nonlocal in_phase1
+tests/wl_combat_ref.py:194:         if in_phase1:
+tests/wl_combat_ref.py:195:             for i in range(3):
+tests/wl_combat_ref.py:196:                 hp[i] -= pend[i]
+tests/wl_combat_ref.py:197:                 pend[i] = 0
+tests/wl_combat_ref.py:198:             in_phase1 = False
+tests/wl_combat_ref.py:199: 
+tests/wl_combat_ref.py:200:     for e in events[start + 1:end + 1]:
+tests/wl_combat_ref.py:201:         t = e.get("type")
+tests/wl_combat_ref.py:202:         if t == "round_orders":
+tests/wl_combat_ref.py:203:             exp = {}
+tests/wl_combat_ref.py:204:             for s in sorted(PARTY_CP3):
+tests/wl_combat_ref.py:205:                 alive = any(h > 0 for h in hp)
+tests/wl_combat_ref.py:206:                 if not alive:
+tests/wl_combat_ref.py:207:                     exp[str(s)] = ["wait"]
+tests/wl_combat_ref.py:208:                 elif s in jammed:
+tests/wl_combat_ref.py:209:                     exp[str(s)] = ["unjam"]
+---
+tests/wl_combat_ref.py:210:                 elif loads[s] > 0:
+tests/wl_combat_ref.py:211:                     exp[str(s)] = ["fire", 1]
+tests/wl_combat_ref.py:212:                 elif boxes[s] > 0:
+tests/wl_combat_ref.py:213:                     exp[str(s)] = ["reload"]
+tests/wl_combat_ref.py:214:                 else:
+=== labstate.py ===
+src/wlengine/labstate.py:1: """LABSTATE.BIN (SPEC-04 LR-57).
+src/wlengine/labstate.py:2: 
+src/wlengine/labstate.py:3: Little-endian file: magic ``WLLABSV1``, step counter, day, clock seconds, a
+src/wlengine/labstate.py:4: pad byte, the generator state, the cell-change count and the cell changes
+src/wlengine/labstate.py:5: sorted by (location, y, x), then a u16 sum of all earlier bytes.
+src/wlengine/labstate.py:6: """
+src/wlengine/labstate.py:7: 
+src/wlengine/labstate.py:8: from __future__ import annotations
+src/wlengine/labstate.py:9: 
+src/wlengine/labstate.py:10: from .errors import FormatError
+src/wlengine/labstate.py:11: 
+src/wlengine/labstate.py:12: MAGIC = b"WLLABSV1"
+src/wlengine/labstate.py:13: 
+src/wlengine/labstate.py:14: 
+src/wlengine/labstate.py:15: def encode_labstate(state: dict) -> bytes:
+src/wlengine/labstate.py:16:     """LR-57: cell changes written sorted by (location, y, x)."""
+src/wlengine/labstate.py:17:     cc = sorted(state.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+src/wlengine/labstate.py:18:     b = bytearray(MAGIC)
+src/wlengine/labstate.py:19:     b += int(state.get("steps", 0)).to_bytes(4, "little")
+src/wlengine/labstate.py:20:     b += int(state.get("day", 1)).to_bytes(2, "little")
+src/wlengine/labstate.py:21:     b += bytes((int(state.get("seconds", 0)) & 0xFF, 0))
+src/wlengine/labstate.py:22:     b += int(state.get("rng_state", 0)).to_bytes(4, "little")
+src/wlengine/labstate.py:23:     b += len(cc).to_bytes(2, "little")
+src/wlengine/labstate.py:24:     for c in cc:
+src/wlengine/labstate.py:25:         b += bytes(int(v) & 0xFF for v in c)
+src/wlengine/labstate.py:26:     b += (sum(b) & 0xFFFF).to_bytes(2, "little")
+src/wlengine/labstate.py:27:     return bytes(b)
+src/wlengine/labstate.py:28: 
+src/wlengine/labstate.py:29: 
+src/wlengine/labstate.py:30: def decode_labstate(data: bytes) -> dict:
+src/wlengine/labstate.py:31:     """LR-57; ``FormatError`` on a wrong magic or sum."""
+src/wlengine/labstate.py:32:     if len(data) < 0x16 + 2:
+src/wlengine/labstate.py:33:         raise FormatError("LABSTATE: %d bytes, too short" % len(data))
+src/wlengine/labstate.py:34:     if data[:8] != MAGIC:
+src/wlengine/labstate.py:35:         raise FormatError("LABSTATE: bad magic %r" % (bytes(data[:8]),))
+src/wlengine/labstate.py:36:     n = int.from_bytes(data[0x14:0x16], "little")
+src/wlengine/labstate.py:37:     end = 0x16 + 6 * n
+src/wlengine/labstate.py:38:     if len(data) != end + 2:
+src/wlengine/labstate.py:39:         raise FormatError("LABSTATE: %d bytes, expected %d" % (len(data), end + 2))
+src/wlengine/labstate.py:40:     if sum(data[:end]) & 0xFFFF != int.from_bytes(data[end:end + 2], "little"):
+src/wlengine/labstate.py:41:         raise FormatError("LABSTATE: bad checksum")
+src/wlengine/labstate.py:42:     cc = [list(data[0x16 + 6 * i:0x16 + 6 * i + 6]) for i in range(n)]
+src/wlengine/labstate.py:43:     return {"steps": int.from_bytes(data[8:12], "little"),
+src/wlengine/labstate.py:44:             "day": int.from_bytes(data[12:14], "little"),
+src/wlengine/labstate.py:45:             "seconds": data[14], "pad": data[15],
+src/wlengine/labstate.py:46:             "rng_state": int.from_bytes(data[16:20], "little"),
+src/wlengine/labstate.py:47:             "cell_changes": cc}
+src/wlengine/labstate.py:48: 
+src/wlengine/labstate.py:49: 
+src/wlengine/labstate.py:50: __all__ = ["encode_labstate", "decode_labstate", "MAGIC"]
+src/wlengine/labstate.py:51: 
+---

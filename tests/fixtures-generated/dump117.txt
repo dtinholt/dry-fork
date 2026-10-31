@@ -1,0 +1,252 @@
+======================================================================
+LINES 88-90
+   88     def checkpoint(self, name):
+   89         self.emit("checkpoint", name=name, state=self.snapshot())
+   90 
+======================================================================
+LINES 483-490
+  483     def attr_value(self, member, skill):
+  484         """LR-13: the member's value of the attribute linked to ``skill``."""
+  485         idx = self.skill_attribute(skill)
+  486         attrs = member.get("attrs") or {}
+  487         return attrs.get(self.ATTR_ORDER[idx], 0)
+  488 
+  489     # -- movement ----------------------------------------------------------
+  490 
+======================================================================
+LINES 503-519
+  503     def move(self, dx, dy):
+  504         nx, ny = self.x + dx, self.y + dy
+  505         m = self.sc.map(self.location)
+  506         size = m["size"]
+  507         if not (0 <= nx < size and 0 <= ny < size):
+  508             self.emit("blocked", x=nx, y=ny)
+  509             return
+  510         if not maps.is_passable(m, nx, ny):
+  511             self.bump(nx, ny)
+  512             return
+  513         ox, oy = self.x, self.y
+  514         self.x, self.y = nx, ny
+  515         self.steps += 1
+  516         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+  517         self.advance_time(self.step_minutes())
+  518         self.after_move(ox, oy)
+  519 
+======================================================================
+LINES 520-524
+  520     def step_minutes(self):
+  521         m = self.sc.map(self.location)
+  522         tp = m["info"].get("timePerStep", 256)
+  523         return tp >> 8
+  524 
+======================================================================
+LINES 594-600
+  594     def bump(self, nx, ny):
+  595         m = self.sc.map(self.location)
+  596         rec = maps.record_at(m, nx, ny)
+  597         cls, action = self.cell_class_action(nx, ny)
+  598         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+  599         self.bump_effect(rec, nx, ny, cls)
+  600 
+======================================================================
+LINES 601-616
+  601     def bump_effect(self, rec, nx, ny, cls=None):
+  602         if cls is None:
+  603             cls, _a = self.cell_class_action(nx, ny)
+  604         if cls == 11:
+  605             self.bump_blocked(rec, nx, ny)
+  606         elif cls == 4:
+  607             if rec is not None and rec.get("impassable"):
+  608                 self.show_message(rec.get("message", 0))
+  609                 self.apply_tail(rec, nx, ny)
+  610                 self.run_hook_at(nx, ny)
+  611             elif rec is not None:
+  612                 self.show_message(rec.get("message", 0))
+  613                 self.apply_tail(rec, nx, ny)
+  614         elif cls == 3:
+  615             self.start_encounter(rec)
+  616 
+======================================================================
+LINES 617-622
+  617     def bump_blocked(self, rec, nx, ny):
+  618         if rec is not None:
+  619             self.show_message(rec.get("message", 0))
+  620             self.apply_tail(rec, nx, ny)
+  621         self.run_hook_at(nx, ny)
+  622 
+======================================================================
+LINES 623-627
+  623     def run_hook_at(self, nx, ny):
+  624         hook = self.sc.hook(self.location, nx, ny)
+  625         if hook:
+  626             self.run_hook(hook, nx, ny)
+  627 
+======================================================================
+LINES 628-636
+  628     def apply_tail(self, rec, x, y):
+  629         tail = maps.apply_tail(rec)
+  630         if tail is None:
+  631             return
+  632         m = self.sc.map(self.location)
+  633         m["cells"]["actionClass"][y][x] = tail[0]
+  634         m["cells"]["action"][y][x] = tail[1]
+  635         self.cell_change(x, y, tail[0], tail[1], maps.image_at(m, x, y))
+  636 
+======================================================================
+LINES 680-693
+  680     def hook_win(self, hook, nx, ny):
+  681         item = hook.get("item")
+  682         if item is not None and not self.party_has(item):
+  683             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+  684             if para:
+  685                 self.emit("paragraph", n=para)
+  686             return
+  687         para = self.hook_get(hook, "win_paragraph", "win_para")
+  688         if para:
+  689             self.emit("paragraph", n=para)
+  690         self.mode = "won"
+  691         self.emit("win", steps=self.steps, day=self.day,
+  692                   minutes=self.hour * 60 + self.minute)
+  693 
+======================================================================
+LINES 694-699
+  694     def hook_get(self, hook, *names):
+  695         for name in names:
+  696             if name in hook and hook[name] is not None:
+  697                 return hook[name]
+  698         return None
+  699 
+======================================================================
+LINES 700-708
+  700     def hook_recruit(self, hook, nx, ny):
+  701         para = self.hook_get(hook, "paragraph")
+  702         if para:
+  703             self.emit("paragraph", n=para)
+  704         self.pending = "recruit"
+  705         self.pending_hook = hook
+  706         self.pending_cell = (nx, ny)
+  707         self.emit("prompt", prompt="recruit")
+  708 
+======================================================================
+LINES 709-716
+  709     def hook_healer(self, hook, nx, ny):
+  710         self.pending = "heal"
+  711         self.pending_hook = hook
+  712         self.pending_cell = (nx, ny)
+  713         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+  714 
+  715     # -- locks -------------------------------------------------------------
+  716 
+======================================================================
+LINES 717-746
+  717     def bump_lock(self, rec, nx, ny):
+  718         hook = self.sc.hook(self.location, nx, ny)
+  719         if hook is None:
+  720             return
+  721         msg = self.hook_get(hook, "success_message", "message")
+  722         if msg:
+  723             self.emit("message", location=self.location, string=msg)
+  724         key_item = hook.get("key_item")
+  725         if key_item is not None:
+  726             member = self.member_with_item(key_item)
+  727             if member is not None:
+  728                 self.emit("key_used", member=member, item=key_item)
+  729                 self.unlock(nx, ny, hook, member, xp=0)
+  730                 return
+  731         member = self.pick_member(hook.get("skill", 0))
+  732         skill = hook.get("skill", 0)
+  733         level = self.skill_level(self.party[member - 1], skill)
+  734         attr = self.skill_attribute(skill)
+  735         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+  736                                 hook.get("tool_item") is not None)
+  737         roll = self.rng.d100()
+  738         success = roll <= need
+  739         self.emit("check", member=member, skill=skill, level=level, need=need,
+  740                   roll=roll, success=success)
+  741         if success:
+  742             self.unlock(nx, ny, hook, member)
+  743         else:
+  744             self.emit("message", location=self.location,
+  745                       string=hook.get("fail_message", ""))
+  746 
+======================================================================
+LINES 791-802
+  791     def skill_attribute(self, skill):
+  792         """LR-6: LABSKILL byte 1 is a record offset; map it to an attribute."""
+  793         tbl = getattr(self.sc, "skill_table", None)
+  794         if tbl:
+  795             try:
+  796                 off = tbl[skill][2]
+  797             except Exception:  # noqa: BLE001
+  798                 off = None
+  799             if off in self.ATTR_OFFSETS:
+  800                 return self.ATTR_OFFSETS[off]
+  801         return 1
+  802 
+======================================================================
+LINES 958-965
+  958     def save_game(self):
+  959         self.emit("save", serial=self.serial)
+  960         self.saved[self.serial] = self.snapshot()
+  961         try:
+  962             self.write_save_files()
+  963         except Exception:  # noqa: BLE001
+  964             pass
+  965 
+======================================================================
+LINES 966-989
+  966     def write_save_files(self):
+  967         dd = Path(self.data_dir)
+  968         # LABSTATE.BIN next to GAME1 (LR-54, LR-57)
+  969         cc = sorted([list(c) for c in self.cell_changes], key=lambda c: (c[0], c[2], c[1]))
+  970         blob = labstate.encode_labstate({
+  971             "steps": self.steps, "day": self.day, "seconds": 0, "pad": 0,
+  972             "rng_state": self.rng.state if self.rng is not None else 0,
+  973             "cell_changes": cc,
+  974         })
+  975         try:
+  976             (dd / "LABSTATE.BIN").write_bytes(blob)
+  977         except OSError:
+  978             pass
+  979         # GAME1 savegame block (LR-55)
+  980         try:
+  981             block = self.build_savegame_payload()
+  982             path = dd / "GAME1"
+  983             data = bytearray(path.read_bytes())
+  984             off = self.sc.tables["savegameOffsets"][0]
+  985             data[off:off + len(block)] = block
+  986             path.write_bytes(bytes(data))
+  987         except Exception:  # noqa: BLE001
+  988             pass
+  989 
+======================================================================
+LINES 1027-1055
+ 1027     def load_game(self):
+ 1028         dd = Path(self.data_dir)
+ 1029         ls_path = dd / "LABSTATE.BIN"
+ 1030         if ls_path.is_file():
+ 1031             st = labstate.decode_labstate(ls_path.read_bytes())
+ 1032             self.steps = st.get("steps", self.steps)
+ 1033             self.day = st.get("day", self.day)
+ 1034             if self.rng is not None:
+ 1035                 self.rng.state = st.get("rng_state", self.rng.state)
+ 1036             self.cell_changes = [tuple(c) for c in st.get("cell_changes", [])]
+ 1037         try:
+ 1038             data = (dd / "GAME1").read_bytes()
+ 1039             off = self.sc.tables["savegameOffsets"][0]
+ 1040             sg = containers.decode_savegame(data, off)
+ 1041             g = sg["groups"][0]
+ 1042             self.x = g["x"]
+ 1043             self.y = g["y"]
+ 1044             self.location = g["map"]
+ 1045             self.prev_x = g["prevX"]
+ 1046             self.prev_y = g["prevY"]
+ 1047             self.prev_location = g["prevMap"]
+ 1048             self.minute = sg["minute"]
+ 1049             self.hour = sg["hour"]
+ 1050             self.serial = sg["serial"]
+ 1051             self.restore_party(sg)
+ 1052         except Exception:  # noqa: BLE001
+ 1053             pass
+ 1054         self.emit("load", serial=self.serial)
+ 1055 

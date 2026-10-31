@@ -1,0 +1,88 @@
+{
+  "scenario": "Dry Fork",
+  "version": "1.1",
+  "authored": "2026-10-21",
+  "content": "lab-original; no Interplay content",
+  "rules": "SPEC-04 lab rules v1 (non-parity); map encoding per SPEC-03 section 9; containers per SPEC-02 section 12",
+  "files": ["tiles.json", "portraits.json", "map0-overworld.json", "map1-saltwell.json", "map2-ninemile.json", "map3-pumphouse.json", "hooks.json", "strings.json", "paragraphs.json", "skills.json", "items.json", "shops.json", "encounters.json", "npcs.json", "party.json", "walkthrough.json", "rng-vectors.json", "walkthrough-reference-log.json"],
+  "locations": [
+    {
+      "location": 0,
+      "name": "Dry Fork overworld",
+      "size": 64,
+      "file": "map0-overworld.json",
+      "location_code": 128,
+      "game_file": "GAME1",
+      "map_index": 0
+    },
+    {
+      "location": 1,
+      "name": "Saltwell",
+      "size": 32,
+      "file": "map1-saltwell.json",
+      "location_code": 129,
+      "game_file": "GAME1",
+      "map_index": 1
+    },
+    {
+      "location": 2,
+      "name": "Ninemile",
+      "size": 32,
+      "file": "map2-ninemile.json",
+      "location_code": 130,
+      "game_file": "GAME1",
+      "map_index": 2
+    },
+    {
+      "location": 3,
+      "name": "Pumphouse Deep",
+      "size": 32,
+      "file": "map3-pumphouse.json",
+      "location_code": 131,
+      "game_file": "GAME1",
+      "map_index": 3
+    }
+  ],
+  "start": {
+    "location": 1,
+    "x": 15,
+    "y": 20,
+    "hour": 8,
+    "paragraph": 1,
+    "seed": 20261021
+  },
+  "labstr_tables": {
+    "0": {
+      "use": "intro and title (SPEC-02 L-ST4)",
+      "strings": ["", "Dry Fork", "A lab scenario for the clean room engine.", "Press any key."]
+    },
+    "1": {
+      "use": "general messages (SPEC-02 L-ST4); index = id in strings.json, gaps are empty strings"
+    },
+    "2": {
+      "use": "inventory: index 0 empty, 1 to 35 skill names by skill id, 35 + N item name of item id N"
+    },
+    "3": {
+      "use": "rank names, index = level - 1",
+      "strings": ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"]
+    },
+    "4": {
+      "use": "attribute names in record order",
+      "strings": ["Strength", "IQ", "Luck", "Speed", "Agility", "Dexterity", "Charisma"]
+    },
+    "5": {
+      "use": "nationality names, index = nationality byte",
+      "strings": ["Basin", "Upland", "Coast", "Delta", "Plateau"]
+    }
+  },
+  "compiled_files": {
+    "GAME1": "maps for locations 0 to 3 (map indexes 0 to 3), then the savegame built from party.json and start, then shop lists 0 to 2",
+    "LABTABLES.BIN": "SPEC-02 section 12.2; mapCounts [4, 0], shopListCounts [3, 0]",
+    "LABSTR.BIN": "SPEC-02 section 12.3, tables 0 to 5 above, dictionary D of SPEC-02 section 9.3",
+    "LABSKILL.BIN": "SPEC-04 section 3.2: 36 entries of 2 bytes in the WL.EXE skill-metadata format",
+    "LABHOOKS.JSON": "copy of hooks.json (SPEC-04 section 6)",
+    "PARAGRAPHS.JSON": "copy of paragraphs.json (SPEC-03 L-MS2: the paragraph book sits outside the binary formats)",
+    "ALLHTDS1": "tileset 0 with the 32 tiles of tiles.json, placeholder art per SPEC-05 section 3",
+    "ALLPICS1": "the 4 portraits of portraits.json, placeholder art per SPEC-05 section 4"
+  }
+}

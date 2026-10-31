@@ -1,0 +1,16 @@
+oracle map1 cells keys: ['action', 'actionClass', 'image']
+oracle cells[actionClass] row20[:8] = [11, 0, 0, 11, 0, 0, 0, 0]
+oracle cells[action] row20[:8] = [0, 0, 0, 0, 0, 0, 0, 0]
+oracle cells[image] row20[:8] = [35, 10, 10, 21, 10, 10, 10, 10]
+oracle map1 actions: {"1": [null, {"messages": [1], "newClass": 255, "newAction": 0}, {"messages": [2], "newClass": 255, "newAction": 0}, {"messages": [3], "newClass": 255, "newAction": 0}, {"messages": [4], "newClass": 255, "newAction": 0}], "6": [null, {"shop": 0, "message": 5, "newClass": 255, "newAction": 0}], "10": [null, {"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "newClass": 255, "newAction": 0}, {"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "newClass": 255, "newAction": 0}], "11": [null, {"message": 6, "newClass": 255, "newAction": 0}]}
+oracle map1 info: {"unknown00": 0, "unknown01": 0, "mapSize": 32, "unknown03": 0, "unknown04": 0, "encounterFrequency": 0, "tileset": 0, "randomMonsterTypes": 0, "maxRandomEncounters": 0, "borderImage": 35, "timePerStep": 256, "healRate": 0, "combatStringIds": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+
+engine cells row20[:8]:
+engine cells[actionClass] row20[:8] = [11, 0, 0, 11, 0, 0, 0, 0]
+engine cells[action] row20[:8] = [0, 0, 0, 0, 0, 0, 0, 0]
+engine cells[image] row20[:8] = [35, 10, 10, 21, 10, 10, 10, 10]
+engine actions: {"1": [null, {"messages": [1], "newClass": 255, "newAction": 0}, {"messages": [2], "newClass": 255, "newAction": 0}, {"messages": [3], "newClass": 255, "newAction": 0}, {"messages": [4], "newClass": 255, "newAction": 0}], "6": [null, {"shop": 0, "message": 5, "newClass": 255, "newAction": 0}], "10": [null, {"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "newClass": 255, "newAction": 0}, {"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "newClass": 255, "newAction": 0}], "11": [null, {"message": 6, "newClass": 255, "newAction": 0}]}
+engine info: {"unknown00": 0, "unknown01": 0, "mapSize": 32, "unknown03": 0, "unknown04": 0, "encounterFrequency": 0, "tileset": 0, "randomMonsterTypes": 0, "maxRandomEncounters": 0, "borderImage": 35, "timePerStep": 256, "healRate": 0, "combatStringIds": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+cells[actionClass] diffs: 0
+cells[action] diffs: 0
+cells[image] diffs: 0

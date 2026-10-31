@@ -1,0 +1,771 @@
+============================== tests/conftest.py True
+   1 """Acceptance-test configuration for PREREG-W1 (SPEC-07).
+   2 
+   3 - Registers the `milestone(name)` marker; every test carries exactly one.
+   4 - Adds `--group M1` ... `--group M6` to select one milestone group.
+   5 - Puts the project's src/ first on sys.path so `import wlengine` finds the
+   6   builder's package.
+   7 - Provides the session fixtures: the SPEC-02/SPEC-03 fixture set, the engine's
+   8   compiled Dry Fork data, the oracle decoding of that data, and cached headless
+   9   runs.
+  10 
+  11 Frozen with the tests (SPEC-07 section 6).
+  12 """
+  13 
+  14 from __future__ import annotations
+  15 
+  16 import json
+  17 import os
+  18 import shutil
+  19 import subprocess
+  20 import sys
+  21 from pathlib import Path
+  22 
+  23 import pytest
+  24 
+  25 sys.dont_write_bytecode = True
+  26 _TESTS = Path(__file__).resolve().parent
+  27 _SRC = _TESTS.parent / "src"
+  28 for p in (str(_TESTS), str(_SRC)):
+  29     if p in sys.path:
+  30         sys.path.remove(p)
+  31 sys.path.insert(0, str(_TESTS))
+  32 sys.path.insert(0, str(_SRC))
+  33 
+  34 import wl_support as W  # noqa: E402
+  35 
+  36 MILESTONES = ("M1", "M2", "M3", "M4", "M5", "M6")
+  37 sys.addaudithook(W.audit_hook)
+  38 
+  39 
+  40 def pytest_addoption(parser):
+  41     parser.addoption("--group", action="store", default=None, metavar="M",
+  42                      help="run only the tests of one milestone group (M1 to M6), SPEC-07")
+  43 
+  44 
+  45 def pytest_configure(config):
+  46     config.addinivalue_line("markers", "milestone(name): PREREG-W1 milestone group, M1 to M6 (SPEC-07)")
+  47 
+  48 
+  49 def pytest_collection_modifyitems(config, items):
+  50     group = config.getoption("--group")
+  51     if group is not None and group not in MILESTONES:
+  52         raise pytest.UsageError("--group must be one of %s, got %r" % (", ".join(MILESTONES), group))
+  53     keep, drop = [], []
+  54     for it in items:
+  55         marks = [m.args[0] if m.args else None for m in it.iter_markers("milestone")]
+  56         if len(marks) != 1 or marks[0] not in MILESTONES:
+  57             raise pytest.UsageError("%s must carry exactly one milestone marker (got %r)" % (it.nodeid, marks))
+  58         (keep if group is None or marks[0] == group else drop).append(it)
+  59     if drop:
+  60         config.hook.pytest_deselected(items=drop)
+  61         items[:] = keep
+  62 
+  63 
+  64 # ---------------------------------------------------------------------------
+  65 # Session fixtures
+  66 # ---------------------------------------------------------------------------
+  67 
+  68 def _oracle(args: list[str], timeout: int = 300) -> subprocess.CompletedProcess:
+  69     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+  70     env.pop("PYTHONPATH", None)
+  71     return subprocess.run([sys.executable, str(_TESTS / "oracle_tool.py")] + args, capture_output=True,
+  72                           text=True, timeout=timeout, env=env, stdin=subprocess.DEVNULL)
+  73 
+  74 
+  75 class FixtureSet:
+  76     def __init__(self, d: Path, manifest: dict) -> None:
+  77         self.dir = d
+  78         self.manifest = manifest
+  79 
+  80     def path(self, name: str) -> str:
+  81         return str(self.dir / name)
+  82 
+  83     def read(self, name: str) -> bytes:
+  84         return (self.dir / name).read_bytes()
+  85 
+  86 
+  87 def _make_fixture_set(tmp_path_factory, seed: int) -> FixtureSet:
+  88     d = tmp_path_factory.mktemp("fixtures")
+  89     mand = tmp_path_factory.mktemp("manifest")
+  90     r = _oracle(["fixtures", str(d), str(mand), str(seed)])
+  91     if r.returncode != 0:
+  92         raise RuntimeError("fixture generator failed (test infrastructure): %s %s" % (r.stdout[-500:], r.stderr[-500:]))
+  93     W.FORBIDDEN_PREFIXES.append(str(mand) + os.sep)
+  94     return FixtureSet(d, json.loads((mand / "manifest.json").read_text()))
+  95 
+  96 
+  97 @pytest.fixture(scope="session")
+  98 def fixture_set(tmp_path_factory) -> FixtureSet:
+  99     """SPEC-02 section 12.8 / SPEC-03 section 12 fixtures (seed 19880101), manifest kept apart."""
+ 100     return _make_fixture_set(tmp_path_factory, 19880101)
+ 101 
+ 102 
+ 103 @pytest.fixture(scope="session")
+ 104 def fixture_set_alt(tmp_path_factory) -> FixtureSet:
+ 105     """The same generator with seed 20261022: same structure, different content (SPEC-07 section 5)."""
+ 106     return _make_fixture_set(tmp_path_factory, 20261022)
+ 107 
+ 108 
+ 109 class Compiled:
+ 110     def __init__(self, d: Path | None, error: str | None) -> None:
+ 111         self.dir = d
+ 112         self.error = error
+ 113 
+ 114     def need(self) -> Path:
+ 115         if self.error:
+ 116             W.fail("scenario compile failed, so this check cannot run: " + self.error)
+ 117         return self.dir
+ 118 
+ 119     def copy(self, tmp_path_factory) -> Path:
+ 120         src = self.need()
+ 121         dst = tmp_path_factory.mktemp("data")
+ 122         shutil.copytree(src, dst, dirs_exist_ok=True)
+ 123         return dst
+ 124 
+ 125 
+ 126 @pytest.fixture(scope="session")
+ 127 def compiled(tmp_path_factory) -> Compiled:
+ 128     """The engine's own compilation of SPEC/scenario (SPEC-05 section 13)."""
+ 129     d = tmp_path_factory.mktemp("compiled")
+ 130     try:
+ 131         W.engine_ready()
+ 132         fn = W.api("scenario.compile")
+ 133     except pytest.fail.Exception as e:
+ 134         return Compiled(None, str(e))
+ 135     try:
+ 136         W._armed(fn, str(W.SCENARIO), str(d), allow_reference_log=True)
+ 137     except NotImplementedError as e:
+ 138         return Compiled(None, "wlengine.scenario.compile: not implemented (%s)" % (e or "NotImplementedError"))
+ 139     except Exception as e:  # noqa: BLE001
+ 140         return Compiled(None, "wlengine.scenario.compile raised %s: %s" % (type(e).__name__, W.short(str(e), 200)))
+ 141     if W._STATE["violations"]:
+ 142         v = W._STATE["violations"][0]
+ 143         W._STATE["violations"].clear()
+ 144         if not v.startswith(str(W.SCENARIO)):
+ 145             return Compiled(None, "wlengine.scenario.compile opened a file the engine must not read: %s" % v)
+ 146     return Compiled(d, None)
+ 147 
+ 148 
+ 149 class OracleView:
+ 150     def __init__(self, data: dict | None, error: str | None) -> None:
+ 151         self.data = data or {}
+ 152         self.error = error
+ 153 
+ 154     def oracle(self, section: str):
+ 155         if self.error:
+ 156             W.fail(self.error)
+ 157         errs = self.data.get("errors", {})
+ 158         if section in errs:
+ 159             W.fail("reference reader rejected the compiled data (%s): %s" % (section, errs[section]))
+ 160         if section not in self.data.get("oracle", {}):
+ 161             W.fail("reference reader found no %s in the compiled data" % section)
+ 162         return self.data["oracle"][section]
+ 163 
+ 164     def expected(self, section: str):
+ 165         if self.error and not self.data.get("expected"):
+ 166             W.fail(self.error)
+ 167         return self.data["expected"][section]
+ 168 
+ 169 
+ 170 @pytest.fixture(scope="session")
+ 171 def oracle_view(compiled) -> OracleView:
+ 172     if compiled.error:
+ 173         return OracleView(None, "scenario compile failed, so this check cannot run: " + compiled.error)
+ 174     r = _oracle(["compiled", str(compiled.dir), str(W.SCENARIO)])
+ 175     try:
+ 176         data = json.loads(r.stdout)
+ 177     except ValueError:
+ 178         raise RuntimeError("oracle tool failed (test infrastructure): %s" % r.stderr[-800:])
+ 179     if "fatal" in data:
+ 180         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+ 181     return OracleView(data, None)
+ 182 
+ 183 
+ 184 @pytest.fixture(scope="session")
+ 185 def expected_view(tmp_path_factory) -> dict:
+ 186     """Expected structures from the scenario JSON alone (no engine involved)."""
+ 187     d = tmp_path_factory.mktemp("empty")
+ 188     r = _oracle(["compiled", str(d), str(W.SCENARIO)])
+ 189     data = json.loads(r.stdout)
+ 190     if "fatal" in data:
+ 191         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+ 192     return data["expected"]
+ 193 
+ 194 
+ 195 class Runner:
+ 196     """Cached headless runs on fresh copies of the compiled data."""
+ 197 
+ 198     def __init__(self, compiled: Compiled, tmp_path_factory) -> None:
+ 199         self.compiled = compiled
+ 200         self.tpf = tmp_path_factory
+ 201         self.cache: dict = {}
+ 202 
+ 203     def run(self, key: str, script: dict, seed: int | None = None, data_dir: Path | None = None):
+ 204         """Return (events, data_dir). Fails the test cleanly on any engine problem."""
+ 205         ck = (key, seed, str(data_dir) if data_dir else None)
+ 206         if ck in self.cache:
+ 207             ev, dd, err = self.cache[ck]
+ 208             if err:
+ 209                 W.fail(err)
+ 210             return ev, dd
+ 211         dd = data_dir or self.compiled.copy(self.tpf)
+ 212         err = None
+ 213         ev = None
+ 214         try:
+ 215             ev = W.call("headless.run", str(dd), json.loads(json.dumps(script)), seed)
+ 216             if not isinstance(ev, list) or not all(isinstance(e, dict) for e in ev):
+ 217                 err = "wlengine.headless.run must return a list of event dicts, got %s" % type(ev).__name__
+ 218         except pytest.fail.Exception as e:
+ 219             err = str(e)
+ 220         self.cache[ck] = (ev, dd, err)
+ 221         if err:
+ 222             W.fail(err)
+ 223         return ev, dd
+ 224 
+ 225 
+ 226 @pytest.fixture(scope="session")
+ 227 def runner(compiled, tmp_path_factory) -> Runner:
+ 228     return Runner(compiled, tmp_path_factory)
+ 229 
+ 230 
+ 231 @pytest.fixture(scope="session")
+ 232 def walkthrough() -> dict:
+ 233     return W.load_json(W.SCENARIO / "walkthrough.json")
+ 234 
+ 235 
+ 236 @pytest.fixture(scope="session")
+ 237 def reference_log() -> list[dict]:
+ 238     return W.load_json(W.REFERENCE_LOG)["events"]
+============================== tests/wl_support.py True
+   1 """Shared helpers for the PREREG-W1 acceptance tests (SPEC-07).
+   2 
+   3 This module is test infrastructure, not an oracle for any single answer:
+   4 
+   5 - `api()` / `call()` reach into the builder's `wlengine` package and turn every
+   6   engine-side problem (missing module, missing function, NotImplementedError,
+   7   any other exception) into a clean test failure with a one-line message.
+   8 - `check_eq()` and friends report the first difference only, so a failure never
+   9   prints more of the expected data than the single case being checked.
+  10 - The `ref_*` functions and `RefRng` are independent restatements of SPEC-04
+  11   formulas, used to compute expected values. They are not the engine.
+  12 
+  13 Frozen with the tests. The engine must not import this module.
+  14 """
+  15 
+  16 from __future__ import annotations
+  17 
+  18 import importlib
+  19 import importlib.util
+  20 import json
+  21 import os
+  22 import sys
+  23 from pathlib import Path
+  24 
+  25 import pytest
+  26 
+  27 TESTS = Path(__file__).resolve().parent
+  28 PROJECT = TESTS.parent
+  29 SRC = PROJECT / "src"
+  30 SPEC = PROJECT / "SPEC"
+  31 SCENARIO = SPEC / "scenario"
+  32 REFERENCE = SPEC / "reference"
+  33 REFERENCE_LOG = SCENARIO / "walkthrough-reference-log.json"
+  34 
+  35 # Paths the engine must never open while it is under test (set up by conftest).
+  36 FORBIDDEN_PREFIXES: list[str] = [str(REFERENCE) + os.sep, str(REFERENCE_LOG)]
+  37 
+  38 _STATE = {"armed": 0, "violations": [], "allow_reference_log": False}
+  39 
+  40 
+  41 # ---------------------------------------------------------------------------
+  42 # Failure helpers
+  43 # ---------------------------------------------------------------------------
+  44 
+  45 def fail(msg: str) -> None:
+  46     """Fail the current test with exactly `msg` and no traceback."""
+  47     pytest.fail(msg, pytrace=False)
+  48 
+  49 
+  50 def short(v, limit: int = 160) -> str:
+  51     if isinstance(v, (bytes, bytearray)):
+  52         h = bytes(v).hex(" ").upper()
+  53         s = "bytes[%d] %s" % (len(v), h)
+  54     else:
+  55         s = repr(v)
+  56     return s if len(s) <= limit else s[:limit] + "..."
+  57 
+  58 
+  59 def norm(v):
+  60     """Normalise an engine value for comparison: tuples become lists, integer
+  61     dict keys become strings, bytearray becomes bytes. Values are untouched."""
+  62     if isinstance(v, dict):
+  63         return {(str(k) if isinstance(k, int) else k): norm(x) for k, x in v.items()}
+  64     if isinstance(v, (list, tuple)):
+  65         return [norm(x) for x in v]
+  66     if isinstance(v, bytearray):
+  67         return bytes(v)
+  68     return v
+  69 
+  70 
+  71 def first_diff(got, want, path: str = ""):
+  72     """Return (path, got_part, want_part) of the first difference, or None."""
+  73     if isinstance(want, dict):
+  74         if not isinstance(got, dict):
+  75             return (path or "<root>", got, "a dict")
+  76         for k in want:
+  77             if k not in got:
+  78                 return ("%s.%s" % (path, k) if path else k, "<missing key>", want[k])
+  79             d = first_diff(got[k], want[k], "%s.%s" % (path, k) if path else str(k))
+  80             if d:
+  81                 return d
+  82         extra = [k for k in got if k not in want]
+  83         if extra:
+  84             return ("%s.%s" % (path, extra[0]) if path else str(extra[0]), got[extra[0]], "<no such key>")
+  85         return None
+  86     if isinstance(want, list):
+  87         if not isinstance(got, list):
+  88             return (path or "<root>", got, "a list of %d items" % len(want))
+  89         for i, (g, w) in enumerate(zip(got, want)):
+  90             d = first_diff(g, w, "%s[%d]" % (path, i))
+  91             if d:
+  92                 return d
+  93         if len(got) != len(want):
+  94             return ("%s (length)" % (path or "<root>"), len(got), len(want))
+  95         return None
+  96     return None if got == want else (path or "<root>", got, want)
+  97 
+  98 
+  99 def check_eq(what: str, got, want) -> None:
+ 100     """Compare after normalising; report only the first differing element."""
+ 101     g = norm(got)
+ 102     if g == want:
+ 103         return
+ 104     d = first_diff(g, want)
+ 105     if d is None:  # equal under first_diff's rules but not ==, report whole case
+ 106         fail("%s: expected %s, got %s" % (what, short(want), short(g)))
+ 107     p, gv, wv = d
+ 108     if p in ("<root>", ""):
+ 109         fail("%s: expected %s, got %s" % (what, short(wv), short(gv)))
+ 110     fail("%s: first difference at %s: expected %s, got %s" % (what, p, short(wv), short(gv)))
+ 111 
+ 112 
+ 113 def check_bytes(what: str, got, want: bytes) -> None:
+ 114     if not isinstance(got, (bytes, bytearray)):
+ 115         fail("%s: expected bytes, got %s" % (what, type(got).__name__))
+ 116     got = bytes(got)
+ 117     if got == want:
+ 118         return
+ 119     n = min(len(got), len(want))
+ 120     i = next((k for k in range(n) if got[k] != want[k]), n)
+ 121     if i == n:
+ 122         fail("%s: expected %d bytes, got %d (common prefix identical)" % (what, len(want), len(got)))
+ 123     fail("%s: first differing byte at offset %d: expected %02X, got %02X (lengths: expected %d, got %d)"
+ 124          % (what, i, want[i], got[i], len(want), len(got)))
+ 125 
+ 126 
+ 127 # ---------------------------------------------------------------------------
+ 128 # Engine access
+ 129 # ---------------------------------------------------------------------------
+ 130 
+ 131 _ENGINE = {"checked": False, "error": None}
+ 132 
+ 133 ORACLE_NAMES = ("codecs_ref", "fixtures_gen", "_wl_oracle", "oracle_tool", "wl_support",
+ 134                 "wl_combat_ref", "walkthrough-reference-log", "reference-log", "reference_log")
+ 135 
+ 136 
+ 137 def _scan_sources() -> str | None:
+ 138     """SPEC-07 section 6: src/ must not name the oracle modules or files."""
+ 139     if not SRC.is_dir():
+ 140         return None
+ 141     for p in sorted(SRC.rglob("*.py")):
+ 142         try:
+ 143             text = p.read_text(encoding="utf-8", errors="replace")
+ 144         except OSError:
+ 145             continue
+ 146         for lineno, line in enumerate(text.splitlines(), 1):
+ 147             for name in ORACLE_NAMES:
+ 148                 if name in line:
+ 149                     return "%s line %d names %r" % (p.relative_to(PROJECT), lineno, name)
+ 150     return None
+ 151 
+ 152 
+ 153 def engine_ready() -> None:
+ 154     """Fail the test unless `wlengine` imports cleanly and src/ is clean."""
+ 155     if not _ENGINE["checked"]:
+ 156         _ENGINE["checked"] = True
+ 157         bad = _scan_sources()
+ 158         if bad:
+ 159             _ENGINE["error"] = ("SPEC-07 rule 6.1: src/ must not reference the oracle modules or the "
+ 160                                 "reference log (%s)" % bad)
+ 161         else:
+ 162             try:
+ 163                 _armed(lambda: importlib.import_module("wlengine"))
+ 164             except Exception as e:  # noqa: BLE001
+ 165                 _ENGINE["error"] = "cannot import wlengine from src/: %s: %s" % (type(e).__name__, e)
+ 166     if _ENGINE["error"]:
+ 167         fail(_ENGINE["error"])
+ 168 
+ 169 
+ 170 def _armed(fn, *a, allow_reference_log=False, **k):
+ 171     _STATE["armed"] += 1
+ 172     prev = _STATE["allow_reference_log"]
+ 173     _STATE["allow_reference_log"] = allow_reference_log
+ 174     try:
+ 175         return fn(*a, **k)
+ 176     finally:
+ 177         _STATE["armed"] -= 1
+ 178         _STATE["allow_reference_log"] = prev
+ 179 
+ 180 
+ 181 def audit_hook(event, args):
+ 182     if not _STATE["armed"] or event != "open" or not args:
+ 183         return
+ 184     p = args[0]
+ 185     if isinstance(p, int):
+ 186         return
+ 187     try:
+ 188         p = os.fspath(p)
+ 189         if isinstance(p, bytes):
+ 190             p = p.decode("utf-8", "replace")
+ 191         p = os.path.abspath(p)
+ 192     except Exception:  # noqa: BLE001
+ 193         return
+ 194     for pref in FORBIDDEN_PREFIXES:
+ 195         if _STATE["allow_reference_log"] and pref == str(REFERENCE_LOG):
+ 196             continue
+ 197         if p == pref.rstrip(os.sep) or p.startswith(pref):
+ 198             _STATE["violations"].append(p)
+ 199 
+ 200 
+ 201 def _module_violation() -> str | None:
+ 202     spec_dir = str(SPEC) + os.sep
+ 203     for name, mod in list(sys.modules.items()):
+ 204         f = getattr(mod, "__file__", None)
+ 205         if f and str(f).startswith(spec_dir) and not name.startswith("_wl_oracle_"):
+ 206             return "module %r loaded from %s" % (name, f)
+ 207     return None
+ 208 
+ 209 
+ 210 def api(dotted: str):
+ 211     """Resolve 'module.function' inside wlengine, failing cleanly if absent."""
+ 212     engine_ready()
+ 213     mod_name, _, attr = dotted.rpartition(".")
+ 214     full = "wlengine." + mod_name if mod_name else "wlengine"
+ 215     try:
+ 216         mod = _armed(importlib.import_module, full)
+ 217     except Exception as e:  # noqa: BLE001
+ 218         fail("cannot import %s (SPEC-07 API): %s: %s" % (full, type(e).__name__, e))
+ 219     if not hasattr(mod, attr):
+ 220         fail("%s has no attribute %r (SPEC-07 API)" % (full, attr))
+ 221     return getattr(mod, attr)
+ 222 
+ 223 
+ 224 def error_class(name: str):
+ 225     cls = api("errors." + name)
+ 226     if not (isinstance(cls, type) and issubclass(cls, Exception)):
+ 227         fail("wlengine.errors.%s must be an exception class" % name)
+ 228     if name in ("FormatError", "ChecksumError") and not issubclass(cls, ValueError):
+ 229         fail("wlengine.errors.%s must subclass ValueError (SPEC-07 section 3)" % name)
+ 230     if name == "ChecksumError" and not issubclass(cls, api("errors.FormatError")):
+ 231         fail("wlengine.errors.ChecksumError must subclass FormatError (SPEC-07 section 3)")
+ 232     if cls in (Exception, ValueError, BaseException) or issubclass(NotImplementedError, cls):
+ 233         fail("wlengine.errors.%s must be a dedicated class (SPEC-07 section 3)" % name)
+ 234     return cls
+ 235 
+ 236 
+ 237 def _after_call(label: str) -> None:
+ 238     if _STATE["violations"]:
+ 239         p = _STATE["violations"][0]
+ 240         _STATE["violations"].clear()
+ 241         fail("%s opened a file the engine must not read (SPEC-07 rule 6.1): %s" % (label, p))
+ 242     bad = _module_violation()
+ 243     if bad:
+ 244         fail("%s: the engine loaded an oracle module (SPEC-07 rule 6.1): %s" % (label, bad))
+ 245 
+ 246 
+ 247 def call(dotted: str, *args, allow_reference_log=False, **kw):
+ 248     """Call wlengine.<dotted>(*args, **kw); any exception becomes a clean failure."""
+ 249     fn = api(dotted)
+ 250     label = "wlengine." + dotted
+ 251     try:
+ 252         out = _armed(fn, *args, allow_reference_log=allow_reference_log, **kw)
+ 253     except NotImplementedError as e:
+ 254         _after_call(label)
+ 255         fail("%s: not implemented (%s)" % (label, e or "NotImplementedError"))
+ 256     except Exception as e:  # noqa: BLE001
+ 257         _after_call(label)
+ 258         fail("%s raised %s: %s" % (label, type(e).__name__, short(str(e), 200)))
+ 259     _after_call(label)
+ 260     return out
+ 261 
+ 262 
+ 263 def call_capture(dotted: str, *args, allow_reference_log=False, **kw):
+ 264     """Like call() but returns (value, exception) instead of failing on an
+ 265     exception other than NotImplementedError or a missing API."""
+ 266     fn = api(dotted)
+ 267     label = "wlengine." + dotted
+ 268     try:
+ 269         out = _armed(fn, *args, allow_reference_log=allow_reference_log, **kw)
+ 270     except NotImplementedError as e:
+ 271         _after_call(label)
+ 272         fail("%s: not implemented (%s)" % (label, e or "NotImplementedError"))
+ 273     except Exception as e:  # noqa: BLE001
+ 274         _after_call(label)
+ 275         return None, e
+ 276     _after_call(label)
+ 277     return out, None
+ 278 
+ 279 
+ 280 def expect_error(err_name: str, dotted: str, *args, what: str = "", **kw) -> None:
+ 281     """Pass only if wlengine.<dotted> raises wlengine.errors.<err_name>."""
+ 282     cls = error_class(err_name)
+ 283     out, exc = call_capture(dotted, *args, **kw)
+ 284     label = "wlengine." + dotted + (" (%s)" % what if what else "")
+ 285     if exc is None:
+ 286         fail("%s: expected %s, but it returned %s" % (label, err_name, short(out)))
+ 287     if not isinstance(exc, cls):
+ 288         fail("%s: expected %s, got %s: %s" % (label, err_name, type(exc).__name__, short(str(exc), 160)))
+ 289 
+ 290 
+ 291 # ---------------------------------------------------------------------------
+ 292 # Oracle helpers (in-process codecs_ref only; fixtures_gen runs in a subprocess)
+ 293 # ---------------------------------------------------------------------------
+ 294 
+ 295 _ORACLE = {}
+ 296 
+ 297 
+ 298 def codecs_oracle():
+ 299     """SPEC/reference/codecs_ref.py loaded under a private module name."""
+ 300     if "c" not in _ORACLE:
+ 301         sys.dont_write_bytecode = True
+ 302         spec = importlib.util.spec_from_file_location("_wl_oracle_codecs_ref", REFERENCE / "codecs_ref.py")
+ 303         mod = importlib.util.module_from_spec(spec)
+ 304         sys.modules["_wl_oracle_codecs_ref"] = mod
+ 305         spec.loader.exec_module(mod)
+ 306         _ORACLE["c"] = mod
+ 307     return _ORACLE["c"]
+ 308 
+ 309 
+ 310 def load_json(path: Path):
+ 311     with open(path, encoding="utf-8") as fh:
+ 312         return json.load(fh)
+ 313 
+ 314 
+ 315 # ---------------------------------------------------------------------------
+ 316 # Independent restatements of SPEC-04 formulas (expected values only)
+ 317 # ---------------------------------------------------------------------------
+ 318 
+ 319 class RefRng:
+ 320     """SPEC-04 LR-1 and LR-2, restated for computing expected values."""
+ 321 
+ 322     def __init__(self, seed: int) -> None:
+ 323         self.state = seed & 0xFFFFFFFF or 0x6D2B79F5
+ 324 
+ 325     def next(self) -> int:
+ 326         x = self.state
+ 327         x ^= (x << 13) & 0xFFFFFFFF
+ 328         x ^= x >> 17
+ 329         x ^= (x << 5) & 0xFFFFFFFF
+ 330         self.state = x
+ 331         return x
+ 332 
+ 333     def roll(self, n: int) -> int:
+ 334         return 1 + self.next() % n
+ 335 
+ 336     def rnd(self, n: int) -> int:
+ 337         if n == 0:
+ 338             return 0
+ 339         if n == 1:
+ 340             return 1
+ 341         return self.roll(n)
+ 342 
+ 343     def dice(self, n: int, s: int) -> int:
+ 344         return sum(self.roll(s) for _ in range(n))
+ 345 
+ 346     def d100(self) -> int:
+ 347         return self.roll(100)
+ 348 
+ 349 
+ 350 def clamp(v: int, lo: int, hi: int) -> int:
+ 351     return max(lo, min(hi, v))
+ 352 
+ 353 
+ 354 def ref_check_need(level: int, attr: int, difficulty: int, tool: bool = False) -> int:
+ 355     return 20 + 15 * level + 2 * attr - difficulty + (20 if tool else 0)
+ 356 
+ 357 
+ 358 def ref_skill_check(rng: RefRng, level, attr, difficulty, tool=False) -> dict:
+ 359     need = ref_check_need(level, attr, difficulty, tool)
+ 360     if need >= 100:
+ 361         return {"need": need, "roll": None, "success": True}
+ 362     if need <= 0:
+ 363         return {"need": need, "roll": None, "success": False}
+ 364     r = rng.d100()
+ 365     return {"need": need, "roll": r, "success": r <= need}
+ 366 
+ 367 
+ 368 def ref_max_hp(strength: int, level: int) -> int:
+ 369     return 10 + strength + (level - 1) * (2 + strength // 5)
+ 370 
+ 371 
+ 372 def ref_ac(agility: int, armour_bonus: int, evasion: int) -> int:
+ 373     return agility // 5 + armour_bonus + evasion
+ 374 
+ 375 
+ 376 def ref_ranged_need(level, agility, target_ac, band) -> int:
+ 377     return clamp(35 + 12 * level + agility - 6 * target_ac - 5 * (band - 1), 5, 95)
+ 378 
+ 379 
+ 380 def ref_melee_need(level, agility, target_ac) -> int:
+ 381     return clamp(35 + 12 * level + agility - 6 * target_ac, 5, 95)
+ 382 
+ 383 
+ 384 def ref_monster_need(combat_rating, member_ac, band) -> int:
+ 385     return clamp(20 + 5 * combat_rating - 6 * member_ac - 5 * (band - 1), 5, 95)
+ 386 
+ 387 
+ 388 def ref_flee_need(best_spd, best_monster_speed, command) -> int:
+ 389     return clamp(40 + 5 * (best_spd - best_monster_speed) + 5 * command, 5, 95)
+ 390 
+ 391 
+ 392 def ref_jam_chance(gunsmithing: int) -> int:
+ 393     return max(1, 4 - gunsmithing)
+ 394 
+ 395 
+ 396 def ref_xp_threshold(level: int) -> int:
+ 397     return 50 * level * (level + 1)
+ 398 
+ 399 
+ 400 def ref_level_after(level: int, xp: int) -> int:
+ 401     while xp >= ref_xp_threshold(level):
+ 402         level += 1
+ 403     return level
+ 404 
+ 405 
+ 406 def ref_buy_price(price: int, haggling: int) -> int:
+ 407     h = min(5, haggling)
+ 408     return price * (100 - 5 * h) // 100
+ 409 
+ 410 
+ 411 def ref_sell_price(price: int, haggling: int) -> int:
+ 412     h = min(5, haggling)
+ 413     return price * (50 + 5 * h) // 100
+ 414 
+ 415 
+ 416 def ref_monster_hp(rng: RefRng, sturdiness: int) -> int:
+ 417     hi = rng.rnd(sturdiness >> 8)
+ 418     lo = rng.rnd(sturdiness & 0xFF)
+ 419     return sturdiness // 4 + ((hi << 8) | lo)
+ 420 
+ 421 
+ 422 def ref_damage_member(hp: int, d: int) -> dict:
+ 423     prev = hp
+ 424     hp -= d
+ 425     if hp > 0:
+ 426         return {"hp": hp, "cond": 0, "last_hp": None}
+ 427     over = d - prev
+ 428     return {"hp": 0, "cond": 2 if over >= 5 else 1, "last_hp": prev}
+ 429 
+ 430 
+ 431 def ref_pay(moneys: list[int], first_slot: int, price: int):
+ 432     if sum(moneys) < price:
+ 433         return None
+ 434     out = list(moneys)
+ 435     order = [first_slot - 1] + [i for i in range(len(moneys)) if i != first_slot - 1]
+ 436     left = price
+ 437     for i in order:
+ 438         take = min(out[i], left)
+ 439         out[i] -= take
+ 440         left -= take
+ 441         if left == 0:
+ 442             break
+ 443     return out
+ 444 
+ 445 
+ 446 def ref_advance_clock(clock: dict, minutes: int, seconds: int):
+ 447     day, minute, second = clock["day"], clock["minute"], clock["second"]
+ 448     total_s = second + seconds
+ 449     second = total_s % 60
+ 450     add_min = minutes + total_s // 60
+ 451     hours = []
+ 452     for _ in range(add_min):
+ 453         minute += 1
+ 454         if minute == 1440:
+ 455             minute = 0
+ 456         if minute % 60 == 0:
+ 457             h = minute // 60
+ 458             hours.append(h)
+ 459             if h == 0:
+ 460                 day += 1
+ 461     return {"day": day, "minute": minute, "second": second}, hours
+ 462 
+ 463 
+ 464 def ref_build_groups(rng: RefRng, mobs: list[dict], record: dict) -> list[dict]:
+ 465     counts = []
+ 466     for mob_index, rnd_flag, size in record["groups"]:
+ 467         if mob_index == 0:
+ 468             continue
+ 469         mob = mobs[mob_index - 1]
+ 470         s = size if size else mob["maxGroup"]
+ 471         counts.append((mob_index, rng.rnd(s) if rnd_flag else s))
+ 472     out = []
+ 473     for mob_index, count in counts:
+ 474         if count <= 0:
+ 475             continue
+ 476         mob = mobs[mob_index - 1]
+ 477         hp = [ref_monster_hp(rng, mob["sturdiness"]) for _ in range(count)]
+ 478         band = 3 if mob["weaponType"] >= 3 else 2
+ 479         out.append({"monster": mob_index, "count": count, "band": band, "hp": hp})
+ 480     return out
+ 481 
+ 482 
+ 483 def ref_speed_order(actors: list[dict]) -> list[dict]:
+ 484     def key(a):
+ 485         party = a["side"] == "party"
+ 486         return (-a["speed"], 0 if party else 1,
+ 487                 a.get("slot", 0) if party else 0,
+ 488                 0 if party else a["group"], 0 if party else a["index"])
+ 489     return sorted(actors, key=key)
+ 490 
+ 491 
+ 492 def ref_labstate(blob: bytes) -> dict:
+ 493     """Independent LABSTATE.BIN reader (SPEC-04 LR-57)."""
+ 494     if blob[:8] != b"WLLABSV1":
+ 495         raise ValueError("bad magic")
+ 496     n = int.from_bytes(blob[0x14:0x16], "little")
+ 497     end = 0x16 + 6 * n
+ 498     if len(blob) != end + 2:
+ 499         raise ValueError("bad length")
+ 500     if sum(blob[:end]) & 0xFFFF != int.from_bytes(blob[end:end + 2], "little"):
+ 501         raise ValueError("bad sum")
+ 502     cc = [list(blob[0x16 + 6 * i:0x16 + 6 * i + 6]) for i in range(n)]
+ 503     return {"steps": int.from_bytes(blob[8:12], "little"), "day": int.from_bytes(blob[12:14], "little"),
+ 504             "seconds": blob[14], "pad": blob[15], "rng_state": int.from_bytes(blob[16:20], "little"),
+ 505             "cell_changes": cc}
+ 506 
+ 507 
+ 508 def ref_encode_labstate(state: dict) -> bytes:
+ 509     cc = sorted(state["cell_changes"], key=lambda c: (c[0], c[2], c[1]))
+ 510     b = bytearray(b"WLLABSV1")
+ 511     b += state["steps"].to_bytes(4, "little") + state["day"].to_bytes(2, "little")
+ 512     b += bytes((state["seconds"], 0)) + state["rng_state"].to_bytes(4, "little")
+ 513     b += len(cc).to_bytes(2, "little")
+ 514     for c in cc:
+ 515         b += bytes(c)
+ 516     b += (sum(b) & 0xFFFF).to_bytes(2, "little")
+ 517     return bytes(b)
+ 518 
+ 519 
+ 520 def pack4(rows: list[list[int]]) -> bytes:
+ 521     out = bytearray()
+ 522     for row in rows:
+ 523         for x in range(0, len(row), 2):
+ 524             out.append((row[x] << 4) | row[x + 1])
+ 525     return bytes(out)
+ 526 
+ 527 
+ 528 def unpack4(data: bytes, width: int) -> list[list[int]]:
+ 529     stride = width // 2
+ 530     return [[v for b in data[y * stride:(y + 1) * stride] for v in (b >> 4, b & 15)]
+ 531             for y in range(len(data) // stride)]

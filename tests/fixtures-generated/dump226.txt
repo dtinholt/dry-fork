@@ -1,0 +1,262 @@
+======================================================================
+seed 1
+{"seq": 217, "type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [13, 5, 13]}]}
+{"seq": 218, "type": "paragraph", "n": 8}
+{"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 96, "success": false}
+{"seq": 220, "type": "surprised"}
+{"seq": 221, "type": "round_start", "round": 0}
+{"seq": 222, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 4, "need": 28, "roll": 5, "hit": true, "damage": 5}
+{"seq": 223, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 1, "need": 22, "roll": 30, "hit": false}
+{"seq": 224, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 3, "need": 22, "roll": 100, "hit": false}
+{"seq": 225, "type": "input", "key": "A"}
+{"seq": 226, "type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 227, "type": "round_start", "round": 1}
+{"seq": 228, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 43, "hit": true, "damage": 7}
+{"seq": 229, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 94, "hit": false}
+{"seq": 230, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 46, "roll": 25, "hit": true, "damage": 2}
+{"seq": 231, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 1, "need": 44, "roll": 20, "hit": true, "damage": 2}
+{"seq": 232, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 1, "need": 58, "roll": 100, "hit": false}
+{"seq": 233, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 4, "need": 28, "roll": 86, "hit": false}
+{"seq": 234, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 1, "need": 22, "roll": 17, "hit": true, "damage": 2}
+{"seq": 235, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 3, "need": 22, "roll": 4, "hit": true, "damage": 5}
+{"seq": 236, "type": "input", "key": "A"}
+{"seq": 237, "type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 238, "type": "round_start", "round": 2}
+{"seq": 239, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 81, "hit": false}
+{"seq": 240, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 1, "hit": true, "damage": 6}
+{"seq": 241, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 64, "hit": false}
+{"seq": 242, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 43, "hit": true, "damage": 4}
+{"seq": 243, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 4, "hit": true, "damage": 6}
+{"seq": 244, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 1, "need": 22, "roll": 6, "hit": true, "damage": 2}
+{"seq": 245, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 1, "need": 22, "roll": 72, "hit": false}
+{"seq": 246, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 78, "hit": false}
+{"seq": 247, "type": "monster_dies", "group": 1, "index": 1}
+{"seq": 248, "type": "monster_dies", "group": 1, "index": 2}
+{"seq": 249, "type": "input", "key": "A"}
+{"seq": 250, "type": "round_orders", "round": 3, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 251, "type": "round_start", "round": 3}
+{"seq": 252, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 3, "need": 57, "roll": 57, "hit": true, "damage": 5}
+{"seq": 253, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 28, "hit": true, "damage": 10}
+{"seq": 254, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 9, "hit": true, "damage": 8}
+{"seq": 255, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 37, "hit": true, "damage": 5}
+{"seq": 256, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 30, "hit": true, "damage": 4}
+{"seq": 257, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 2, "need": 22, "roll": 21, "hit": true, "damage": 5}
+{"seq": 258, "type": "monster_dies", "group": 1, "index": 3}
+{"seq": 259, "type": "combat_end", "result": "victory", "rounds": 3}
+{"seq": 260, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 261, "type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+{"seq": 262, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 263, "type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+{"seq": 264, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 265, "type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+{"seq": 266, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 267, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+{"seq": 268, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 269, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 270, "type": "money", "member": 1, "delta": 75, "total": 195}
+{"seq": 271, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+======================================================================
+seed 2
+{"seq": 217, "type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [10, 10, 6]}]}
+{"seq": 218, "type": "paragraph", "n": 8}
+{"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 23, "success": true}
+{"seq": 220, "type": "input", "key": "A"}
+{"seq": 221, "type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 222, "type": "round_start", "round": 1}
+{"seq": 223, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 32, "hit": true, "damage": 2}
+{"seq": 224, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 75, "hit": false}
+{"seq": 225, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 46, "roll": 19, "hit": true, "damage": 6}
+{"seq": 226, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 1, "need": 44, "roll": 29, "hit": true, "damage": 7}
+{"seq": 227, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 88, "hit": false}
+{"seq": 228, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 2, "need": 22, "roll": 54, "hit": false}
+{"seq": 229, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 5, "need": 22, "roll": 61, "hit": false}
+{"seq": 230, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 2, "need": 22, "roll": 43, "hit": false}
+{"seq": 231, "type": "monster_dies", "group": 1, "index": 1}
+{"seq": 232, "type": "input", "key": "A"}
+{"seq": 233, "type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 234, "type": "round_start", "round": 2}
+{"seq": 235, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 2, "need": 57, "roll": 48, "hit": true, "damage": 5}
+{"seq": 236, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 70, "hit": false}
+{"seq": 237, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 50, "hit": false}
+{"seq": 238, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 44, "hit": true, "damage": 2}
+{"seq": 239, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 62, "hit": false}
+{"seq": 240, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 47, "hit": false}
+{"seq": 241, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 98, "hit": false}
+{"seq": 242, "type": "input", "key": "A"}
+{"seq": 243, "type": "round_orders", "round": 3, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 244, "type": "round_start", "round": 3}
+{"seq": 245, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 2, "need": 57, "roll": 57, "hit": true, "damage": 6}
+{"seq": 246, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 55, "hit": true, "damage": 11}
+{"seq": 247, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 85, "hit": false}
+{"seq": 248, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 24, "hit": true, "damage": 3}
+{"seq": 249, "type": "jam", "member": 5, "roll": 1, "chance": 4}
+{"seq": 250, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 4, "need": 28, "roll": 7, "hit": true, "damage": 2}
+{"seq": 251, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 69, "hit": false}
+{"seq": 252, "type": "monster_dies", "group": 1, "index": 2}
+{"seq": 253, "type": "monster_dies", "group": 1, "index": 3}
+{"seq": 254, "type": "combat_end", "result": "victory", "rounds": 3}
+{"seq": 255, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 256, "type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+{"seq": 257, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 258, "type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+{"seq": 259, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 260, "type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+{"seq": 261, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 262, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+{"seq": 263, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 264, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 265, "type": "money", "member": 1, "delta": 75, "total": 195}
+{"seq": 266, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+======================================================================
+seed 3
+ISSUE orders: round 2: slot 1 order expected ['reload'], got ['unjam']
+ISSUE orders: round 3: slot 1 order expected ['reload'], got ['unjam']
+{"seq": 217, "type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [7, 15, 7]}]}
+{"seq": 218, "type": "paragraph", "n": 8}
+{"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 54, "success": true}
+{"seq": 220, "type": "input", "key": "A"}
+{"seq": 221, "type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 222, "type": "round_start", "round": 1}
+{"seq": 223, "type": "jam", "member": 1, "roll": 4, "chance": 4}
+{"seq": 224, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 64, "hit": false}
+{"seq": 225, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 46, "roll": 56, "hit": false}
+{"seq": 226, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 1, "need": 44, "roll": 54, "hit": false}
+{"seq": 227, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 1, "need": 58, "roll": 60, "hit": false}
+{"seq": 228, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 4, "need": 28, "roll": 56, "hit": false}
+{"seq": 229, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 4, "need": 28, "roll": 48, "hit": false}
+{"seq": 230, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 3, "need": 22, "roll": 89, "hit": false}
+{"seq": 231, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 27, "success": true}
+{"seq": 232, "type": "unjammed", "member": 1}
+{"seq": 233, "type": "input", "key": "A"}
+{"seq": 234, "type": "round_orders", "round": 2, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 235, "type": "round_start", "round": 2}
+{"seq": 236, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 46, "hit": true, "damage": 2}
+{"seq": 237, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 50, "hit": true, "damage": 10}
+{"seq": 238, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 92, "hit": false}
+{"seq": 239, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 33, "hit": true, "damage": 4}
+{"seq": 240, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 64, "hit": false}
+{"seq": 241, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 5, "need": 22, "roll": 59, "hit": false}
+{"seq": 242, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 38, "hit": false}
+{"seq": 243, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 3, "hit": true, "damage": 4}
+{"seq": 244, "type": "monster_dies", "group": 1, "index": 1}
+{"seq": 245, "type": "input", "key": "A"}
+{"seq": 246, "type": "round_orders", "round": 3, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 247, "type": "round_start", "round": 3}
+{"seq": 248, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 2, "need": 57, "roll": 3, "hit": true, "damage": 2}
+{"seq": 249, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 55, "hit": true, "damage": 7}
+{"seq": 250, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 39, "hit": true, "damage": 2}
+{"seq": 251, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 9, "hit": true, "damage": 8}
+{"seq": 252, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 20, "hit": true, "damage": 7}
+{"seq": 253, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 29, "hit": false}
+{"seq": 254, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 62, "hit": false}
+{"seq": 255, "type": "monster_dies", "group": 1, "index": 2}
+{"seq": 256, "type": "monster_dies", "group": 1, "index": 3}
+{"seq": 257, "type": "combat_end", "result": "victory", "rounds": 3}
+{"seq": 258, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 259, "type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+{"seq": 260, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 261, "type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+{"seq": 262, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 263, "type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+{"seq": 264, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 265, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+{"seq": 266, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 267, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 268, "type": "money", "member": 1, "delta": 75, "total": 195}
+{"seq": 269, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+======================================================================
+seed 4
+{"seq": 217, "type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [4, 4, 8]}]}
+{"seq": 218, "type": "paragraph", "n": 8}
+{"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 45, "success": true}
+{"seq": 220, "type": "input", "key": "A"}
+{"seq": 221, "type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 222, "type": "round_start", "round": 1}
+{"seq": 223, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 4, "hit": true, "damage": 2}
+{"seq": 224, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 13, "hit": true, "damage": 7}
+{"seq": 225, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 44, "hit": true, "damage": 5}
+{"seq": 226, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 7, "hit": true, "damage": 3}
+{"seq": 227, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 93, "hit": false}
+{"seq": 228, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 3, "need": 22, "roll": 64, "hit": false}
+{"seq": 229, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 39, "hit": false}
+{"seq": 230, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 4, "need": 28, "roll": 82, "hit": false}
+{"seq": 231, "type": "monster_dies", "group": 1, "index": 1}
+{"seq": 232, "type": "monster_dies", "group": 1, "index": 2}
+{"seq": 233, "type": "input", "key": "A"}
+{"seq": 234, "type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 235, "type": "round_start", "round": 2}
+{"seq": 236, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 3, "need": 57, "roll": 30, "hit": true, "damage": 7}
+{"seq": 237, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 91, "hit": false}
+{"seq": 238, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 81, "hit": false}
+{"seq": 239, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 51, "hit": false}
+{"seq": 240, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 53, "hit": true, "damage": 4}
+{"seq": 241, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 90, "hit": false}
+{"seq": 242, "type": "monster_dies", "group": 1, "index": 3}
+{"seq": 243, "type": "combat_end", "result": "victory", "rounds": 2}
+{"seq": 244, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 245, "type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+{"seq": 246, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 247, "type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+{"seq": 248, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 249, "type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+{"seq": 250, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 251, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+{"seq": 252, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 253, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 254, "type": "money", "member": 1, "delta": 75, "total": 195}
+{"seq": 255, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+======================================================================
+seed 5
+ISSUE orders: round 2: slot 2 order expected ['reload'], got ['unjam']
+ISSUE orders: round 3: slot 2 order expected ['reload'], got ['unjam']
+{"seq": 217, "type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [13, 5, 9]}]}
+{"seq": 218, "type": "paragraph", "n": 8}
+{"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 36, "success": true}
+{"seq": 220, "type": "input", "key": "A"}
+{"seq": 221, "type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 222, "type": "round_start", "round": 1}
+{"seq": 223, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 60, "hit": false}
+{"seq": 224, "type": "jam", "member": 2, "roll": 4, "chance": 4}
+{"seq": 225, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 46, "roll": 82, "hit": false}
+{"seq": 226, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 1, "need": 44, "roll": 24, "hit": true, "damage": 2}
+{"seq": 227, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 1, "need": 58, "roll": 39, "hit": true, "damage": 12}
+{"seq": 228, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 4, "need": 28, "roll": 26, "hit": true, "damage": 4}
+{"seq": 229, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 3, "need": 22, "roll": 13, "hit": true, "damage": 3}
+{"seq": 230, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 22, "hit": true, "damage": 2}
+{"seq": 231, "type": "monster_dies", "group": 1, "index": 1}
+{"seq": 232, "type": "check", "member": 2, "skill": 22, "level": 0, "need": 40, "roll": 26, "success": true}
+{"seq": 233, "type": "unjammed", "member": 2}
+{"seq": 234, "type": "input", "key": "A"}
+{"seq": 235, "type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["unjam"], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 236, "type": "round_start", "round": 2}
+{"seq": 237, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 2, "need": 57, "roll": 3, "hit": true, "damage": 3}
+{"seq": 238, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 55, "hit": true, "damage": 7}
+{"seq": 239, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 91, "hit": false}
+{"seq": 240, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 96, "hit": false}
+{"seq": 241, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 61, "hit": false}
+{"seq": 242, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 3, "need": 22, "roll": 95, "hit": false}
+{"seq": 243, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 3, "need": 22, "roll": 78, "hit": false}
+{"seq": 244, "type": "monster_dies", "group": 1, "index": 2}
+{"seq": 245, "type": "input", "key": "A"}
+{"seq": 246, "type": "round_orders", "round": 3, "orders": {"1": ["fire", 1], "2": ["unjam"], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"seq": 247, "type": "round_start", "round": 3}
+{"seq": 248, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 3, "need": 57, "roll": 26, "hit": true, "damage": 7}
+{"seq": 249, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 55, "hit": true, "damage": 11}
+{"seq": 250, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 52, "hit": false}
+{"seq": 251, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 98, "hit": false}
+{"seq": 252, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 43, "hit": true, "damage": 8}
+{"seq": 253, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 16, "hit": true, "damage": 5}
+{"seq": 254, "type": "monster_dies", "group": 1, "index": 3}
+{"seq": 255, "type": "combat_end", "result": "victory", "rounds": 3}
+{"seq": 256, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 257, "type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+{"seq": 258, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 259, "type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+{"seq": 260, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 261, "type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+{"seq": 262, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 263, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+{"seq": 264, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 265, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"seq": 266, "type": "money", "member": 1, "delta": 75, "total": 195}
+{"seq": 267, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}

@@ -1,0 +1,13 @@
+map1 keys ['size', 'bodySize', 'encryptedPrefixLength', 'wllibPrefixLength', 'blockEnd', 'centralDirectory', 'info', 'cells', 'actions', 'npcs', 'mobs', 'strings']
+size = 32
+bodySize = 2144
+encryptedPrefixLength = 1957
+wllibPrefixLength = 1957
+blockEnd = 2406
+centralDirectory = {"stringsOffset": 1957, "mobNamesOffset": 1935, "mobDataOffset": 1949, "actionClassOffsets": [0, 1628, 0, 0, 0, 0, 1646, 0, 0, 0, 1913, 1929, 0, 0, 0, 0], "specialsOffset": 0, "npcOffset": 1653}
+info = {"unknown00": 0, "unknown01": 0, "mapSize": 32, "unknown03": 0, "unknown04": 0, "encounterFrequency": 0, "tileset": 0, "randomMonsterTypes": 0, "maxRandomEncounters": 0, "borderImage": 35, "timePerStep": 256, "healRate": 0, "combatStringIds": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+cells = {"actionClass": [[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11], [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11], [11, 0, 11, 11, 11, 11, 11, 11, 11, 11, 11, 0, 0, 0, 0, 0, 0, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 0, 11], [11, 0, 11, 0, 0, 0, 0, 0, 0, 0
+actions = {"1": [null, {"messages": [1], "newClass": 255, "newAction": 0}, {"messages": [2], "newClass": 255, "newAction": 0}, {"messages": [3], "newClass": 255, "newAction": 0}, {"messages": [4], "newClass": 255, "newAction": 0}], "6": [null, {"shop": 0, "message": 5, "newClass": 255, "newAction": 0}], "10": [null, {"relative": false, "confirm": false, "message": 0, "x": 10, "y": 41, "location": 0, "newCla
+npcs = [{"name": "Orla Penn", "strength": 13, "intelligence": 11, "luck": 14, "speed": 14, "agility": 15, "dexterity": 0, "charisma": 11, "money": 25, "gender": 1, "nationality": 1, "armorClass": 3, "maxCon": 27, "curCon": 27, "weaponSlot": 1, "skillPoints": 0, "experience": 200, "level": 2, "armorSlot": 0, "lastCon": 0, "afflictions": 0, "npc": 1, "itemRefuse": 0, "skillRefuse": 0, "attribRefuse": 0, "t
+mobs = [{"name": "stray dog\n\ns\n", "sturdiness": 4, "combatRating": 2, "randomDamage": 1, "maxGroup": 2, "armorClass": 0, "fixedDamage": 0, "weaponType": 1, "type": 1, "portrait": 1}]
+strings = ["", "Read paragraph 2.", "Read paragraph 3.", "Read paragraph 5.", "The trough is green at the edges and nearly empty.", "Saltwell Dry Goods.", "Read paragraph 6.", "Orla shrugs. Some other time, then."]

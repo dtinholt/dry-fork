@@ -1,0 +1,978 @@
+======================================================================
+m5 head  tests/test_m5_rules.py:1-120
+======================================================================
+    1| """M5: game rules (SPEC-04, lab rules v1). Table-driven cases whose expected
+    2| values come from the SPEC-04 formulas (restated independently in wl_support),
+    3| the worked examples of SPEC-04, and SPEC/scenario/rng-vectors.json; plus short
+    4| headless runs on the engine's compiled Dry Fork data, checked against values
+    5| derived from SPEC-04 and SPEC-05. API: SPEC-07 sections 2.7 to 2.9."""
+    6| 
+    7| from __future__ import annotations
+    8| 
+    9| import copy
+   10| 
+   11| import pytest
+   12| 
+   13| import wl_combat_ref as CR
+   14| import wl_support as W
+   15| from wl_support import (RefRng, call, check_bytes, check_eq, expect_error, fail, ref_ac, ref_advance_clock,
+   16|                         ref_buy_price, ref_check_need, ref_damage_member, ref_flee_need, ref_jam_chance,
+   17|                         ref_level_after, ref_max_hp, ref_melee_need, ref_monster_hp, ref_monster_need, ref_pay,
+   18|                         ref_ranged_need, ref_sell_price, ref_skill_check, ref_speed_order, ref_xp_threshold)
+   19| 
+   20| pytestmark = pytest.mark.milestone("M5")
+   21| 
+   22| VECTORS = W.load_json(W.SCENARIO / "rng-vectors.json")["vectors"]
+   23| VSEEDS = [v["seed"] for v in VECTORS]
+   24| C = W.codecs_oracle()
+   25| 
+   26| 
+   27| def table(argnames, cases, ids=None):
+   28|     """Run one test function over a table of cases inside a single test.
+   29| 
+   30|     Each SPEC-04 rule is one test; its table rows are checked in order and the
+   31|     failure message names the first failing row only."""
+   32|     names = [n.strip() for n in argnames.split(",")]
+   33| 
+   34|     def deco(fn):
+   35|         def wrapper():
+   36|             for case in cases:
+   37|                 fn(**dict(zip(names, case if len(names) > 1 else (case,))))
+   38|         wrapper.__name__ = fn.__name__
+   39|         wrapper.__qualname__ = fn.__qualname__
+   40|         wrapper.__doc__ = fn.__doc__
+   41|         wrapper.__module__ = fn.__module__
+   42|         return wrapper
+   43|     return deco
+   44| 
+   45| 
+   46| def _rng(seed):
+   47|     r = call("rules.Rng", seed)
+   48|     return r
+   49| 
+   50| 
+   51| def _state(r):
+   52|     try:
+   53|         return r.state
+   54|     except NotImplementedError:
+   55|         fail("wlengine.rules.Rng.state: not implemented")
+   56|     except Exception as e:  # noqa: BLE001
+   57|         fail("wlengine.rules.Rng.state raised %s: %s" % (type(e).__name__, e))
+   58| 
+   59| 
+   60| def _m(obj, name, *args):
+   61|     fn = getattr(obj, name, None)
+   62|     if fn is None:
+   63|         fail("wlengine.rules.Rng has no method %r (SPEC-07 API)" % name)
+   64|     try:
+   65|         return fn(*args)
+   66|     except NotImplementedError:
+   67|         fail("wlengine.rules.Rng.%s: not implemented" % name)
+   68|     except Exception as e:  # noqa: BLE001
+   69|         fail("wlengine.rules.Rng.%s%r raised %s: %s" % (name, args, type(e).__name__, e))
+   70| 
+   71| 
+   72| # ---- LR-1, LR-2: generator --------------------------------------------------
+   73| 
+   74| @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+   75| def test_rng_seeding(v):
+   76|     check_eq("Rng(%d).state after seeding" % v["seed"], _state(_rng(v["seed"])), v["state_after_seeding"])
+   77| 
+   78| 
+   79| @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+   80| def test_rng_next(v):
+   81|     r = _rng(v["seed"])
+   82|     for i, want in enumerate(v["next_u32"]):
+   83|         check_eq("Rng(%d) next() call %d" % (v["seed"], i + 1), _m(r, "next"), want)
+   84| 
+   85| 
+   86| @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+   87| def test_rng_roll(v):
+   88|     r = _rng(v["seed"])
+   89|     for i, want in enumerate(v["roll_100"]):
+   90|         check_eq("Rng(%d) roll(100) call %d" % (v["seed"], i + 1), _m(r, "roll", 100), want)
+   91| 
+   92| 
+   93| @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+   94| def test_rng_d100(v):
+   95|     r = _rng(v["seed"])
+   96|     for i, want in enumerate(v["roll_100"][:5]):
+   97|         check_eq("Rng(%d) d100() call %d" % (v["seed"], i + 1), _m(r, "d100"), want)
+   98| 
+   99| 
+  100| @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+  101| def test_rng_dice(v):
+  102|     r = _rng(v["seed"])
+  103|     for i, want in enumerate(v["dice_2d6"]):
+  104|         check_eq("Rng(%d) dice(2, 6) call %d" % (v["seed"], i + 1), _m(r, "dice", 2, 6), want)
+  105| 
+  106| 
+  107| @table("v", VECTORS, ids=["seed-%d" % s for s in VSEEDS])
+  108| def test_rng_rnd(v):
+  109|     r = _rng(v["seed"])
+  110|     for n, want in zip((0, 1, 2, 12, 14, 255), v["rnd_of_0_1_2_12_14_255"]):
+  111|         check_eq("Rng(%d) rnd(%d) in the sequence rnd(0), rnd(1), rnd(2), rnd(12), rnd(14), rnd(255)"
+  112|                  % (v["seed"], n), _m(r, "rnd", n), want)
+  113| 
+  114| 
+  115| def test_rng_no_draw_cases():
+  116|     r = _rng(4242)
+  117|     before = _state(r)
+  118|     got = [_m(r, "rnd", 0), _m(r, "rnd", 1), _m(r, "dice", 0, 6)]
+  119|     check_eq("rnd(0), rnd(1), dice(0, 6)", got, [0, 1, 0])
+  120|     check_eq("generator state after draws that make no call (LR-2)", _state(r), before)
+======================================================================
+m5 helpers/runner  tests/test_m5_rules.py:380-495
+======================================================================
+  380| 
+  381| 
+  382| @table("hp,d", DMG, ids=["hp%d-d%d" % c for c in DMG])
+  383| def test_damage_member(hp, d):
+  384|     got = call("rules.damage_member", hp, d)
+  385|     want = ref_damage_member(hp, d)
+  386|     check_eq("damage_member(hp=%d, damage=%d) (LR-40)" % (hp, d),
+  387|              {k: (got or {}).get(k, "<missing>") for k in want} if isinstance(got, dict) else got, want)
+  388| 
+  389| 
+  390| def _actors():
+  391|     return [{"side": "monsters", "speed": 7, "group": 1, "index": 3}, {"side": "party", "speed": 9, "slot": 6},
+  392|             {"side": "monsters", "speed": 7, "group": 1, "index": 2}, {"side": "party", "speed": 12, "slot": 1},
+  393|             {"side": "party", "speed": 7, "slot": 4}, {"side": "monsters", "speed": 7, "group": 2, "index": 1},
+  394|             {"side": "party", "speed": 7, "slot": 2}, {"side": "monsters", "speed": 13, "group": 2, "index": 2}]
+  395| 
+  396| 
+  397| def test_speed_order():
+  398|     got = call("rules.speed_order", _actors())
+  399|     check_eq("speed_order (LR-35: speed, members before monsters, slot, group, monster)", got,
+  400|              ref_speed_order(_actors()))
+  401| 
+  402| 
+  403| # ---- LABSTATE.BIN (LR-57) ---------------------------------------------------
+  404| 
+  405| LABSTATE = {"steps": 145, "day": 1, "seconds": 0, "rng_state": 2973743393,
+  406|             "cell_changes": [[1, 8, 17, 0, 0, 28], [0, 31, 41, 0, 0, 22], [0, 30, 41, 0, 0, 13], [2, 3, 1, 4, 1, 29]]}
+  407| 
+  408| 
+  409| def test_labstate_encode():
+  410|     check_bytes("encode_labstate (LR-57, cell changes sorted by location, y, x)",
+  411|                 call("labstate.encode_labstate", copy.deepcopy(LABSTATE)), W.ref_encode_labstate(LABSTATE))
+  412| 
+  413| 
+  414| def test_labstate_decode():
+  415|     blob = W.ref_encode_labstate(LABSTATE)
+  416|     want = dict(LABSTATE, cell_changes=sorted(LABSTATE["cell_changes"], key=lambda c: (c[0], c[2], c[1])))
+  417|     got = call("labstate.decode_labstate", blob)
+  418|     check_eq("decode_labstate (LR-57)", {k: (got or {}).get(k, "<missing>") for k in want}
+  419|              if isinstance(got, dict) else got, want)
+  420| 
+  421| 
+  422| def test_labstate_bad_sum():
+  423|     blob = bytearray(W.ref_encode_labstate(LABSTATE))
+  424|     blob[-1] ^= 0x01
+  425|     expect_error("FormatError", "labstate.decode_labstate", bytes(blob), what="checksum off by one bit")
+  426| 
+  427| 
+  428| def test_labstate_bad_magic():
+  429|     blob = bytearray(W.ref_encode_labstate(LABSTATE))
+  430|     blob[7] = ord("2")
+  431|     expect_error("FormatError", "labstate.decode_labstate", bytes(blob), what="magic WLLABSV2")
+  432| 
+  433| 
+  434| # ===========================================================================
+  435| # Engine behaviour through headless runs on the compiled Dry Fork data
+  436| # ===========================================================================
+  437| 
+  438| SEED = 20261021
+  439| 
+  440| 
+  441| def prefix(walkthrough, upto: str) -> list:
+  442|     out = []
+  443|     for item in walkthrough["script"]:
+  444|         out.append(item)
+  445|         if isinstance(item, dict) and item.get("checkpoint") == upto:
+  446|             return out
+  447|     raise AssertionError("no checkpoint %s in walkthrough.json" % upto)
+  448| 
+  449| 
+  450| def opening_script(walkthrough) -> list:
+  451|     out = []
+  452|     for item in walkthrough["script"]:
+  453|         if isinstance(item, dict) and "repeat_until" in item:
+  454|             return out + ["A"]
+  455|         out.append(item)
+  456|     raise AssertionError("walkthrough.json has no repeat_until macro")
+  457| 
+  458| 
+  459| def ckpt(events, name):
+  460|     for e in events:
+  461|         if e.get("type") == "checkpoint" and e.get("name") == name:
+  462|             st = e.get("state")
+  463|             if not isinstance(st, dict):
+  464|                 fail("checkpoint %s has no state object" % name)
+  465|             return st
+  466|     fail("the engine log has no checkpoint %r" % name)
+  467| 
+  468| 
+  469| def strip(e):
+  470|     return {k: v for k, v in e.items() if k != "seq"}
+  471| 
+  472| 
+  473| def between(events, a, b):
+  474|     ia = next((i for i, e in enumerate(events) if e.get("type") == "checkpoint" and e.get("name") == a), None)
+  475|     ib = next((i for i, e in enumerate(events) if e.get("type") == "checkpoint" and e.get("name") == b), None)
+  476|     if ia is None or ib is None:
+  477|         fail("the engine log lacks checkpoint %s or %s" % (a, b))
+  478|     return [strip(e) for e in events[ia + 1:ib]]
+  479| 
+  480| 
+  481| def subset(what, state, want):
+  482|     check_eq(what, {k: state.get(k, "<missing>") for k in want}, want)
+  483| 
+  484| 
+  485| def test_new_game(runner):
+  486|     ev, _ = runner.run("newgame", {"seed": SEED, "script": [{"checkpoint": "a"}]})
+  487|     check_eq("first two events of a new game (SPEC-06 6.1, LR-25)", [strip(e) for e in ev[:2]],
+  488|              [{"type": "new_game", "seed": SEED}, {"type": "paragraph", "n": 1}])
+  489|     subset("new-game snapshot (SPEC-05 section 2, LR-4)", ckpt(ev, "a"),
+  490|            {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map",
+  491|             "cell_changes": [], "rng_state": SEED})
+  492| 
+  493| 
+  494| def test_seed_override(runner):
+  495|     ev, _ = runner.run("override", {"seed": SEED, "script": [{"checkpoint": "a"}]}, 77)
+======================================================================
+conftest  tests/conftest.py:1-260
+======================================================================
+    1| """Acceptance-test configuration for PREREG-W1 (SPEC-07).
+    2| 
+    3| - Registers the `milestone(name)` marker; every test carries exactly one.
+    4| - Adds `--group M1` ... `--group M6` to select one milestone group.
+    5| - Puts the project's src/ first on sys.path so `import wlengine` finds the
+    6|   builder's package.
+    7| - Provides the session fixtures: the SPEC-02/SPEC-03 fixture set, the engine's
+    8|   compiled Dry Fork data, the oracle decoding of that data, and cached headless
+    9|   runs.
+   10| 
+   11| Frozen with the tests (SPEC-07 section 6).
+   12| """
+   13| 
+   14| from __future__ import annotations
+   15| 
+   16| import json
+   17| import os
+   18| import shutil
+   19| import subprocess
+   20| import sys
+   21| from pathlib import Path
+   22| 
+   23| import pytest
+   24| 
+   25| sys.dont_write_bytecode = True
+   26| _TESTS = Path(__file__).resolve().parent
+   27| _SRC = _TESTS.parent / "src"
+   28| for p in (str(_TESTS), str(_SRC)):
+   29|     if p in sys.path:
+   30|         sys.path.remove(p)
+   31| sys.path.insert(0, str(_TESTS))
+   32| sys.path.insert(0, str(_SRC))
+   33| 
+   34| import wl_support as W  # noqa: E402
+   35| 
+   36| MILESTONES = ("M1", "M2", "M3", "M4", "M5", "M6")
+   37| sys.addaudithook(W.audit_hook)
+   38| 
+   39| 
+   40| def pytest_addoption(parser):
+   41|     parser.addoption("--group", action="store", default=None, metavar="M",
+   42|                      help="run only the tests of one milestone group (M1 to M6), SPEC-07")
+   43| 
+   44| 
+   45| def pytest_configure(config):
+   46|     config.addinivalue_line("markers", "milestone(name): PREREG-W1 milestone group, M1 to M6 (SPEC-07)")
+   47| 
+   48| 
+   49| def pytest_collection_modifyitems(config, items):
+   50|     group = config.getoption("--group")
+   51|     if group is not None and group not in MILESTONES:
+   52|         raise pytest.UsageError("--group must be one of %s, got %r" % (", ".join(MILESTONES), group))
+   53|     keep, drop = [], []
+   54|     for it in items:
+   55|         marks = [m.args[0] if m.args else None for m in it.iter_markers("milestone")]
+   56|         if len(marks) != 1 or marks[0] not in MILESTONES:
+   57|             raise pytest.UsageError("%s must carry exactly one milestone marker (got %r)" % (it.nodeid, marks))
+   58|         (keep if group is None or marks[0] == group else drop).append(it)
+   59|     if drop:
+   60|         config.hook.pytest_deselected(items=drop)
+   61|         items[:] = keep
+   62| 
+   63| 
+   64| # ---------------------------------------------------------------------------
+   65| # Session fixtures
+   66| # ---------------------------------------------------------------------------
+   67| 
+   68| def _oracle(args: list[str], timeout: int = 300) -> subprocess.CompletedProcess:
+   69|     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+   70|     env.pop("PYTHONPATH", None)
+   71|     return subprocess.run([sys.executable, str(_TESTS / "oracle_tool.py")] + args, capture_output=True,
+   72|                           text=True, timeout=timeout, env=env, stdin=subprocess.DEVNULL)
+   73| 
+   74| 
+   75| class FixtureSet:
+   76|     def __init__(self, d: Path, manifest: dict) -> None:
+   77|         self.dir = d
+   78|         self.manifest = manifest
+   79| 
+   80|     def path(self, name: str) -> str:
+   81|         return str(self.dir / name)
+   82| 
+   83|     def read(self, name: str) -> bytes:
+   84|         return (self.dir / name).read_bytes()
+   85| 
+   86| 
+   87| def _make_fixture_set(tmp_path_factory, seed: int) -> FixtureSet:
+   88|     d = tmp_path_factory.mktemp("fixtures")
+   89|     mand = tmp_path_factory.mktemp("manifest")
+   90|     r = _oracle(["fixtures", str(d), str(mand), str(seed)])
+   91|     if r.returncode != 0:
+   92|         raise RuntimeError("fixture generator failed (test infrastructure): %s %s" % (r.stdout[-500:], r.stderr[-500:]))
+   93|     W.FORBIDDEN_PREFIXES.append(str(mand) + os.sep)
+   94|     return FixtureSet(d, json.loads((mand / "manifest.json").read_text()))
+   95| 
+   96| 
+   97| @pytest.fixture(scope="session")
+   98| def fixture_set(tmp_path_factory) -> FixtureSet:
+   99|     """SPEC-02 section 12.8 / SPEC-03 section 12 fixtures (seed 19880101), manifest kept apart."""
+  100|     return _make_fixture_set(tmp_path_factory, 19880101)
+  101| 
+  102| 
+  103| @pytest.fixture(scope="session")
+  104| def fixture_set_alt(tmp_path_factory) -> FixtureSet:
+  105|     """The same generator with seed 20261022: same structure, different content (SPEC-07 section 5)."""
+  106|     return _make_fixture_set(tmp_path_factory, 20261022)
+  107| 
+  108| 
+  109| class Compiled:
+  110|     def __init__(self, d: Path | None, error: str | None) -> None:
+  111|         self.dir = d
+  112|         self.error = error
+  113| 
+  114|     def need(self) -> Path:
+  115|         if self.error:
+  116|             W.fail("scenario compile failed, so this check cannot run: " + self.error)
+  117|         return self.dir
+  118| 
+  119|     def copy(self, tmp_path_factory) -> Path:
+  120|         src = self.need()
+  121|         dst = tmp_path_factory.mktemp("data")
+  122|         shutil.copytree(src, dst, dirs_exist_ok=True)
+  123|         return dst
+  124| 
+  125| 
+  126| @pytest.fixture(scope="session")
+  127| def compiled(tmp_path_factory) -> Compiled:
+  128|     """The engine's own compilation of SPEC/scenario (SPEC-05 section 13)."""
+  129|     d = tmp_path_factory.mktemp("compiled")
+  130|     try:
+  131|         W.engine_ready()
+  132|         fn = W.api("scenario.compile")
+  133|     except pytest.fail.Exception as e:
+  134|         return Compiled(None, str(e))
+  135|     try:
+  136|         W._armed(fn, str(W.SCENARIO), str(d), allow_reference_log=True)
+  137|     except NotImplementedError as e:
+  138|         return Compiled(None, "wlengine.scenario.compile: not implemented (%s)" % (e or "NotImplementedError"))
+  139|     except Exception as e:  # noqa: BLE001
+  140|         return Compiled(None, "wlengine.scenario.compile raised %s: %s" % (type(e).__name__, W.short(str(e), 200)))
+  141|     if W._STATE["violations"]:
+  142|         v = W._STATE["violations"][0]
+  143|         W._STATE["violations"].clear()
+  144|         if not v.startswith(str(W.SCENARIO)):
+  145|             return Compiled(None, "wlengine.scenario.compile opened a file the engine must not read: %s" % v)
+  146|     return Compiled(d, None)
+  147| 
+  148| 
+  149| class OracleView:
+  150|     def __init__(self, data: dict | None, error: str | None) -> None:
+  151|         self.data = data or {}
+  152|         self.error = error
+  153| 
+  154|     def oracle(self, section: str):
+  155|         if self.error:
+  156|             W.fail(self.error)
+  157|         errs = self.data.get("errors", {})
+  158|         if section in errs:
+  159|             W.fail("reference reader rejected the compiled data (%s): %s" % (section, errs[section]))
+  160|         if section not in self.data.get("oracle", {}):
+  161|             W.fail("reference reader found no %s in the compiled data" % section)
+  162|         return self.data["oracle"][section]
+  163| 
+  164|     def expected(self, section: str):
+  165|         if self.error and not self.data.get("expected"):
+  166|             W.fail(self.error)
+  167|         return self.data["expected"][section]
+  168| 
+  169| 
+  170| @pytest.fixture(scope="session")
+  171| def oracle_view(compiled) -> OracleView:
+  172|     if compiled.error:
+  173|         return OracleView(None, "scenario compile failed, so this check cannot run: " + compiled.error)
+  174|     r = _oracle(["compiled", str(compiled.dir), str(W.SCENARIO)])
+  175|     try:
+  176|         data = json.loads(r.stdout)
+  177|     except ValueError:
+  178|         raise RuntimeError("oracle tool failed (test infrastructure): %s" % r.stderr[-800:])
+  179|     if "fatal" in data:
+  180|         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+  181|     return OracleView(data, None)
+  182| 
+  183| 
+  184| @pytest.fixture(scope="session")
+  185| def expected_view(tmp_path_factory) -> dict:
+  186|     """Expected structures from the scenario JSON alone (no engine involved)."""
+  187|     d = tmp_path_factory.mktemp("empty")
+  188|     r = _oracle(["compiled", str(d), str(W.SCENARIO)])
+  189|     data = json.loads(r.stdout)
+  190|     if "fatal" in data:
+  191|         raise RuntimeError("oracle tool failed (test infrastructure): %s" % data["fatal"][-800:])
+  192|     return data["expected"]
+  193| 
+  194| 
+  195| class Runner:
+  196|     """Cached headless runs on fresh copies of the compiled data."""
+  197| 
+  198|     def __init__(self, compiled: Compiled, tmp_path_factory) -> None:
+  199|         self.compiled = compiled
+  200|         self.tpf = tmp_path_factory
+  201|         self.cache: dict = {}
+  202| 
+  203|     def run(self, key: str, script: dict, seed: int | None = None, data_dir: Path | None = None):
+  204|         """Return (events, data_dir). Fails the test cleanly on any engine problem."""
+  205|         ck = (key, seed, str(data_dir) if data_dir else None)
+  206|         if ck in self.cache:
+  207|             ev, dd, err = self.cache[ck]
+  208|             if err:
+  209|                 W.fail(err)
+  210|             return ev, dd
+  211|         dd = data_dir or self.compiled.copy(self.tpf)
+  212|         err = None
+  213|         ev = None
+  214|         try:
+  215|             ev = W.call("headless.run", str(dd), json.loads(json.dumps(script)), seed)
+  216|             if not isinstance(ev, list) or not all(isinstance(e, dict) for e in ev):
+  217|                 err = "wlengine.headless.run must return a list of event dicts, got %s" % type(ev).__name__
+  218|         except pytest.fail.Exception as e:
+  219|             err = str(e)
+  220|         self.cache[ck] = (ev, dd, err)
+  221|         if err:
+  222|             W.fail(err)
+  223|         return ev, dd
+  224| 
+  225| 
+  226| @pytest.fixture(scope="session")
+  227| def runner(compiled, tmp_path_factory) -> Runner:
+  228|     return Runner(compiled, tmp_path_factory)
+  229| 
+  230| 
+  231| @pytest.fixture(scope="session")
+  232| def walkthrough() -> dict:
+  233|     return W.load_json(W.SCENARIO / "walkthrough.json")
+  234| 
+  235| 
+  236| @pytest.fixture(scope="session")
+  237| def reference_log() -> list[dict]:
+  238|     return W.load_json(W.REFERENCE_LOG)["events"]
+======================================================================
+support head  tests/wl_support.py:1-95
+======================================================================
+    1| """Shared helpers for the PREREG-W1 acceptance tests (SPEC-07).
+    2| 
+    3| This module is test infrastructure, not an oracle for any single answer:
+    4| 
+    5| - `api()` / `call()` reach into the builder's `wlengine` package and turn every
+    6|   engine-side problem (missing module, missing function, NotImplementedError,
+    7|   any other exception) into a clean test failure with a one-line message.
+    8| - `check_eq()` and friends report the first difference only, so a failure never
+    9|   prints more of the expected data than the single case being checked.
+   10| - The `ref_*` functions and `RefRng` are independent restatements of SPEC-04
+   11|   formulas, used to compute expected values. They are not the engine.
+   12| 
+   13| Frozen with the tests. The engine must not import this module.
+   14| """
+   15| 
+   16| from __future__ import annotations
+   17| 
+   18| import importlib
+   19| import importlib.util
+   20| import json
+   21| import os
+   22| import sys
+   23| from pathlib import Path
+   24| 
+   25| import pytest
+   26| 
+   27| TESTS = Path(__file__).resolve().parent
+   28| PROJECT = TESTS.parent
+   29| SRC = PROJECT / "src"
+   30| SPEC = PROJECT / "SPEC"
+   31| SCENARIO = SPEC / "scenario"
+   32| REFERENCE = SPEC / "reference"
+   33| REFERENCE_LOG = SCENARIO / "walkthrough-reference-log.json"
+   34| 
+   35| # Paths the engine must never open while it is under test (set up by conftest).
+   36| FORBIDDEN_PREFIXES: list[str] = [str(REFERENCE) + os.sep, str(REFERENCE_LOG)]
+   37| 
+   38| _STATE = {"armed": 0, "violations": [], "allow_reference_log": False}
+   39| 
+   40| 
+   41| # ---------------------------------------------------------------------------
+   42| # Failure helpers
+   43| # ---------------------------------------------------------------------------
+   44| 
+   45| def fail(msg: str) -> None:
+   46|     """Fail the current test with exactly `msg` and no traceback."""
+   47|     pytest.fail(msg, pytrace=False)
+   48| 
+   49| 
+   50| def short(v, limit: int = 160) -> str:
+   51|     if isinstance(v, (bytes, bytearray)):
+   52|         h = bytes(v).hex(" ").upper()
+   53|         s = "bytes[%d] %s" % (len(v), h)
+   54|     else:
+   55|         s = repr(v)
+   56|     return s if len(s) <= limit else s[:limit] + "..."
+   57| 
+   58| 
+   59| def norm(v):
+   60|     """Normalise an engine value for comparison: tuples become lists, integer
+   61|     dict keys become strings, bytearray becomes bytes. Values are untouched."""
+   62|     if isinstance(v, dict):
+   63|         return {(str(k) if isinstance(k, int) else k): norm(x) for k, x in v.items()}
+   64|     if isinstance(v, (list, tuple)):
+   65|         return [norm(x) for x in v]
+   66|     if isinstance(v, bytearray):
+   67|         return bytes(v)
+   68|     return v
+   69| 
+   70| 
+   71| def first_diff(got, want, path: str = ""):
+   72|     """Return (path, got_part, want_part) of the first difference, or None."""
+   73|     if isinstance(want, dict):
+   74|         if not isinstance(got, dict):
+   75|             return (path or "<root>", got, "a dict")
+   76|         for k in want:
+   77|             if k not in got:
+   78|                 return ("%s.%s" % (path, k) if path else k, "<missing key>", want[k])
+   79|             d = first_diff(got[k], want[k], "%s.%s" % (path, k) if path else str(k))
+   80|             if d:
+   81|                 return d
+   82|         extra = [k for k in got if k not in want]
+   83|         if extra:
+   84|             return ("%s.%s" % (path, extra[0]) if path else str(extra[0]), got[extra[0]], "<no such key>")
+   85|         return None
+   86|     if isinstance(want, list):
+   87|         if not isinstance(got, list):
+   88|             return (path or "<root>", got, "a list of %d items" % len(want))
+   89|         for i, (g, w) in enumerate(zip(got, want)):
+   90|             d = first_diff(g, w, "%s[%d]" % (path, i))
+   91|             if d:
+   92|                 return d
+   93|         if len(got) != len(want):
+   94|             return ("%s (length)" % (path or "<root>"), len(got), len(want))
+   95|         return None
+======================================================================
+support mid  tests/wl_support.py:200-440
+======================================================================
+  200| 
+  201| def _module_violation() -> str | None:
+  202|     spec_dir = str(SPEC) + os.sep
+  203|     for name, mod in list(sys.modules.items()):
+  204|         f = getattr(mod, "__file__", None)
+  205|         if f and str(f).startswith(spec_dir) and not name.startswith("_wl_oracle_"):
+  206|             return "module %r loaded from %s" % (name, f)
+  207|     return None
+  208| 
+  209| 
+  210| def api(dotted: str):
+  211|     """Resolve 'module.function' inside wlengine, failing cleanly if absent."""
+  212|     engine_ready()
+  213|     mod_name, _, attr = dotted.rpartition(".")
+  214|     full = "wlengine." + mod_name if mod_name else "wlengine"
+  215|     try:
+  216|         mod = _armed(importlib.import_module, full)
+  217|     except Exception as e:  # noqa: BLE001
+  218|         fail("cannot import %s (SPEC-07 API): %s: %s" % (full, type(e).__name__, e))
+  219|     if not hasattr(mod, attr):
+  220|         fail("%s has no attribute %r (SPEC-07 API)" % (full, attr))
+  221|     return getattr(mod, attr)
+  222| 
+  223| 
+  224| def error_class(name: str):
+  225|     cls = api("errors." + name)
+  226|     if not (isinstance(cls, type) and issubclass(cls, Exception)):
+  227|         fail("wlengine.errors.%s must be an exception class" % name)
+  228|     if name in ("FormatError", "ChecksumError") and not issubclass(cls, ValueError):
+  229|         fail("wlengine.errors.%s must subclass ValueError (SPEC-07 section 3)" % name)
+  230|     if name == "ChecksumError" and not issubclass(cls, api("errors.FormatError")):
+  231|         fail("wlengine.errors.ChecksumError must subclass FormatError (SPEC-07 section 3)")
+  232|     if cls in (Exception, ValueError, BaseException) or issubclass(NotImplementedError, cls):
+  233|         fail("wlengine.errors.%s must be a dedicated class (SPEC-07 section 3)" % name)
+  234|     return cls
+  235| 
+  236| 
+  237| def _after_call(label: str) -> None:
+  238|     if _STATE["violations"]:
+  239|         p = _STATE["violations"][0]
+  240|         _STATE["violations"].clear()
+  241|         fail("%s opened a file the engine must not read (SPEC-07 rule 6.1): %s" % (label, p))
+  242|     bad = _module_violation()
+  243|     if bad:
+  244|         fail("%s: the engine loaded an oracle module (SPEC-07 rule 6.1): %s" % (label, bad))
+  245| 
+  246| 
+  247| def call(dotted: str, *args, allow_reference_log=False, **kw):
+  248|     """Call wlengine.<dotted>(*args, **kw); any exception becomes a clean failure."""
+  249|     fn = api(dotted)
+  250|     label = "wlengine." + dotted
+  251|     try:
+  252|         out = _armed(fn, *args, allow_reference_log=allow_reference_log, **kw)
+  253|     except NotImplementedError as e:
+  254|         _after_call(label)
+  255|         fail("%s: not implemented (%s)" % (label, e or "NotImplementedError"))
+  256|     except Exception as e:  # noqa: BLE001
+  257|         _after_call(label)
+  258|         fail("%s raised %s: %s" % (label, type(e).__name__, short(str(e), 200)))
+  259|     _after_call(label)
+  260|     return out
+  261| 
+  262| 
+  263| def call_capture(dotted: str, *args, allow_reference_log=False, **kw):
+  264|     """Like call() but returns (value, exception) instead of failing on an
+  265|     exception other than NotImplementedError or a missing API."""
+  266|     fn = api(dotted)
+  267|     label = "wlengine." + dotted
+  268|     try:
+  269|         out = _armed(fn, *args, allow_reference_log=allow_reference_log, **kw)
+  270|     except NotImplementedError as e:
+  271|         _after_call(label)
+  272|         fail("%s: not implemented (%s)" % (label, e or "NotImplementedError"))
+  273|     except Exception as e:  # noqa: BLE001
+  274|         _after_call(label)
+  275|         return None, e
+  276|     _after_call(label)
+  277|     return out, None
+  278| 
+  279| 
+  280| def expect_error(err_name: str, dotted: str, *args, what: str = "", **kw) -> None:
+  281|     """Pass only if wlengine.<dotted> raises wlengine.errors.<err_name>."""
+  282|     cls = error_class(err_name)
+  283|     out, exc = call_capture(dotted, *args, **kw)
+  284|     label = "wlengine." + dotted + (" (%s)" % what if what else "")
+  285|     if exc is None:
+  286|         fail("%s: expected %s, but it returned %s" % (label, err_name, short(out)))
+  287|     if not isinstance(exc, cls):
+  288|         fail("%s: expected %s, got %s: %s" % (label, err_name, type(exc).__name__, short(str(exc), 160)))
+  289| 
+  290| 
+  291| # ---------------------------------------------------------------------------
+  292| # Oracle helpers (in-process codecs_ref only; fixtures_gen runs in a subprocess)
+  293| # ---------------------------------------------------------------------------
+  294| 
+  295| _ORACLE = {}
+  296| 
+  297| 
+  298| def codecs_oracle():
+  299|     """SPEC/reference/codecs_ref.py loaded under a private module name."""
+  300|     if "c" not in _ORACLE:
+  301|         sys.dont_write_bytecode = True
+  302|         spec = importlib.util.spec_from_file_location("_wl_oracle_codecs_ref", REFERENCE / "codecs_ref.py")
+  303|         mod = importlib.util.module_from_spec(spec)
+  304|         sys.modules["_wl_oracle_codecs_ref"] = mod
+  305|         spec.loader.exec_module(mod)
+  306|         _ORACLE["c"] = mod
+  307|     return _ORACLE["c"]
+  308| 
+  309| 
+  310| def load_json(path: Path):
+  311|     with open(path, encoding="utf-8") as fh:
+  312|         return json.load(fh)
+  313| 
+  314| 
+  315| # ---------------------------------------------------------------------------
+  316| # Independent restatements of SPEC-04 formulas (expected values only)
+  317| # ---------------------------------------------------------------------------
+  318| 
+  319| class RefRng:
+  320|     """SPEC-04 LR-1 and LR-2, restated for computing expected values."""
+  321| 
+  322|     def __init__(self, seed: int) -> None:
+  323|         self.state = seed & 0xFFFFFFFF or 0x6D2B79F5
+  324| 
+  325|     def next(self) -> int:
+  326|         x = self.state
+  327|         x ^= (x << 13) & 0xFFFFFFFF
+  328|         x ^= x >> 17
+  329|         x ^= (x << 5) & 0xFFFFFFFF
+  330|         self.state = x
+  331|         return x
+  332| 
+  333|     def roll(self, n: int) -> int:
+  334|         return 1 + self.next() % n
+  335| 
+  336|     def rnd(self, n: int) -> int:
+  337|         if n == 0:
+  338|             return 0
+  339|         if n == 1:
+  340|             return 1
+  341|         return self.roll(n)
+  342| 
+  343|     def dice(self, n: int, s: int) -> int:
+  344|         return sum(self.roll(s) for _ in range(n))
+  345| 
+  346|     def d100(self) -> int:
+  347|         return self.roll(100)
+  348| 
+  349| 
+  350| def clamp(v: int, lo: int, hi: int) -> int:
+  351|     return max(lo, min(hi, v))
+  352| 
+  353| 
+  354| def ref_check_need(level: int, attr: int, difficulty: int, tool: bool = False) -> int:
+  355|     return 20 + 15 * level + 2 * attr - difficulty + (20 if tool else 0)
+  356| 
+  357| 
+  358| def ref_skill_check(rng: RefRng, level, attr, difficulty, tool=False) -> dict:
+  359|     need = ref_check_need(level, attr, difficulty, tool)
+  360|     if need >= 100:
+  361|         return {"need": need, "roll": None, "success": True}
+  362|     if need <= 0:
+  363|         return {"need": need, "roll": None, "success": False}
+  364|     r = rng.d100()
+  365|     return {"need": need, "roll": r, "success": r <= need}
+  366| 
+  367| 
+  368| def ref_max_hp(strength: int, level: int) -> int:
+  369|     return 10 + strength + (level - 1) * (2 + strength // 5)
+  370| 
+  371| 
+  372| def ref_ac(agility: int, armour_bonus: int, evasion: int) -> int:
+  373|     return agility // 5 + armour_bonus + evasion
+  374| 
+  375| 
+  376| def ref_ranged_need(level, agility, target_ac, band) -> int:
+  377|     return clamp(35 + 12 * level + agility - 6 * target_ac - 5 * (band - 1), 5, 95)
+  378| 
+  379| 
+  380| def ref_melee_need(level, agility, target_ac) -> int:
+  381|     return clamp(35 + 12 * level + agility - 6 * target_ac, 5, 95)
+  382| 
+  383| 
+  384| def ref_monster_need(combat_rating, member_ac, band) -> int:
+  385|     return clamp(20 + 5 * combat_rating - 6 * member_ac - 5 * (band - 1), 5, 95)
+  386| 
+  387| 
+  388| def ref_flee_need(best_spd, best_monster_speed, command) -> int:
+  389|     return clamp(40 + 5 * (best_spd - best_monster_speed) + 5 * command, 5, 95)
+  390| 
+  391| 
+  392| def ref_jam_chance(gunsmithing: int) -> int:
+  393|     return max(1, 4 - gunsmithing)
+  394| 
+  395| 
+  396| def ref_xp_threshold(level: int) -> int:
+  397|     return 50 * level * (level + 1)
+  398| 
+  399| 
+  400| def ref_level_after(level: int, xp: int) -> int:
+  401|     while xp >= ref_xp_threshold(level):
+  402|         level += 1
+  403|     return level
+  404| 
+  405| 
+  406| def ref_buy_price(price: int, haggling: int) -> int:
+  407|     h = min(5, haggling)
+  408|     return price * (100 - 5 * h) // 100
+  409| 
+  410| 
+  411| def ref_sell_price(price: int, haggling: int) -> int:
+  412|     h = min(5, haggling)
+  413|     return price * (50 + 5 * h) // 100
+  414| 
+  415| 
+  416| def ref_monster_hp(rng: RefRng, sturdiness: int) -> int:
+  417|     hi = rng.rnd(sturdiness >> 8)
+  418|     lo = rng.rnd(sturdiness & 0xFF)
+  419|     return sturdiness // 4 + ((hi << 8) | lo)
+  420| 
+  421| 
+  422| def ref_damage_member(hp: int, d: int) -> dict:
+  423|     prev = hp
+  424|     hp -= d
+  425|     if hp > 0:
+  426|         return {"hp": hp, "cond": 0, "last_hp": None}
+  427|     over = d - prev
+  428|     return {"hp": 0, "cond": 2 if over >= 5 else 1, "last_hp": prev}
+  429| 
+  430| 
+  431| def ref_pay(moneys: list[int], first_slot: int, price: int):
+  432|     if sum(moneys) < price:
+  433|         return None
+  434|     out = list(moneys)
+  435|     order = [first_slot - 1] + [i for i in range(len(moneys)) if i != first_slot - 1]
+  436|     left = price
+  437|     for i in order:
+  438|         take = min(out[i], left)
+  439|         out[i] -= take
+  440|         left -= take
+======================================================================
+combat_ref head  tests/wl_combat_ref.py:1-150
+======================================================================
+    1| """Independent restatement of SPEC-04 combat rules for the first Dry Fork fight.
+    2| 
+    3| Used by test_m5_rules.py to compute expected events for the road-raider
+    4| encounter at overworld (30,41) (SPEC-05 section 6, type 1) from the spec text
+    5| alone. The party state is the walkthrough state at CP3 (SPEC-05 sections 7,
+    6| 10.1, 10.2 and 14.1): no random draw happens before this encounter, so the
+    7| first draw of the fight is the first draw of the stream.
+    8| 
+    9| This is not the engine and is not a general combat implementation: it covers
+   10| the encounter start, the surprise check, the surprise round and the phase 1 of
+   11| round 1 (SPEC-04 LR-26 to LR-30, LR-34, LR-40), plus a rule-consistency checker
+   12| for a whole fight against this group (LR-33 to LR-44).
+   13| """
+   14| 
+   15| from __future__ import annotations
+   16| 
+   17| from wl_support import (RefRng, ref_build_groups, ref_damage_member, ref_jam_chance,
+   18|                         ref_level_after, ref_max_hp, ref_monster_need, ref_ranged_need,
+   19|                         ref_skill_check)
+   20| 
+   21| # Party at CP3, from SPEC-05 tables (slot: stats). Weapon data from SPEC-05
+   22| # section 7: Ranch pistol capacity 6, skill byte 4, damage 1d8, ammo item 4;
+   23| # Lever rifle capacity 8, skill byte 5, damage 2d6, ammo item 6.
+   24| PISTOL = {"item": 3, "cap": 6, "skill": 4, "n": 1, "s": 8, "ammo": 4}
+   25| RIFLE = {"item": 5, "cap": 8, "skill": 5, "n": 2, "s": 6, "ammo": 6}
+   26| 
+   27| PARTY_CP3 = {
+   28|     # slot: name, STR, IQ, SPD, AGL, skills {id: level}, weapon, load, ammo boxes, AC, max HP
+   29|     1: {"name": "Hessa Brand", "STR": 14, "IQ": 13, "SPD": 12, "AGL": 14,
+   30|         "skills": {4: 2, 20: 1, 21: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+   31|     2: {"name": "Tobin Ash", "STR": 16, "IQ": 10, "SPD": 11, "AGL": 12,
+   32|         "skills": {5: 2, 1: 1, 17: 1, 3: 1}, "weapon": RIFLE, "load": 8, "boxes": 1, "ac": 3, "xp": 90},
+   33|     3: {"name": "Maro Quill", "STR": 11, "IQ": 16, "SPD": 13, "AGL": 15,
+   34|         "skills": {14: 2, 23: 1, 22: 1, 4: 1, 12: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 3, "xp": 90},
+   35|     4: {"name": "Dell Ostrow", "STR": 12, "IQ": 15, "SPD": 12, "AGL": 13,
+   36|         "skills": {12: 2, 13: 1, 4: 1, 29: 1, 18: 1}, "weapon": PISTOL, "load": 6, "boxes": 2, "ac": 2, "xp": 90},
+   37|     5: {"name": "Orla Penn", "STR": 13, "IQ": 11, "SPD": 14, "AGL": 15,
+   38|         "skills": {5: 2, 18: 2, 19: 1}, "weapon": RIFLE, "load": 8, "boxes": 2, "ac": 3, "xp": 200, "level": 2},
+   39| }
+   40| 
+   41| # Overworld monster 1, SPEC-05 section 5.1 (manifest-style keys).
+   42| RAIDER = {"name": "raider", "sturdiness": 12, "combatRating": 6, "randomDamage": 1, "maxGroup": 4,
+   43|           "armorClass": 1, "fixedDamage": 0, "weaponType": 3, "type": 3, "portrait": 1}
+   44| RAIDER_RECORD = {"groups": [[1, False, 3], [0, False, 0], [0, False, 0]]}
+   45| LOOKOUT = 18
+   46| GUNSMITHING = 22
+   47| 
+   48| COMBAT_TYPES = {"attack", "jam", "click", "monster_dies", "unconscious", "death"}
+   49| 
+   50| 
+   51| def _lookout_checker():
+   52|     """LR-14: highest Lookout level, then higher linked attribute (IQ), then lower slot."""
+   53|     best = None
+   54|     for slot, m in PARTY_CP3.items():
+   55|         lvl = m["skills"].get(LOOKOUT, 0)
+   56|         key = (lvl, m["IQ"], -slot)
+   57|         if best is None or key > best[0]:
+   58|             best = (key, slot)
+   59|     return best[1]
+   60| 
+   61| 
+   62| def opening(seed: int) -> dict:
+   63|     """Expected events of the raider fight up to the end of round 1, phase 1."""
+   64|     rng = RefRng(seed)
+   65|     groups = ref_build_groups(rng, [RAIDER], RAIDER_RECORD)
+   66|     enc = {"type": "encounter_start",
+   67|            "groups": [{"monster": "raider", "count": g["count"], "band": g["band"], "hp": g["hp"]}
+   68|                       for g in groups]}
+   69|     hp = list(groups[0]["hp"])
+   70|     band = groups[0]["band"]
+   71|     d_max = RAIDER["combatRating"]
+   72|     cs = _lookout_checker()
+   73|     m = PARTY_CP3[cs]
+   74|     c = ref_skill_check(rng, m["skills"].get(LOOKOUT, 0), m["IQ"], d_max)
+   75|     check = {"type": "check", "member": cs, "skill": LOOKOUT, "level": m["skills"].get(LOOKOUT, 0), **c}
+   76|     member_hp = {s: ref_max_hp(p["STR"], p.get("level", 1)) for s, p in PARTY_CP3.items()}
+   77|     cond = {s: 0 for s in PARTY_CP3}
+   78| 
+   79|     def monster_phase1(events):
+   80|         pending = {s: 0 for s in PARTY_CP3}
+   81|         conscious = [s for s in sorted(PARTY_CP3) if cond[s] == 0]
+   82|         for i in range(len(hp)):
+   83|             if hp[i] <= 0:
+   84|                 continue
+   85|             t = conscious[rng.roll(len(conscious)) - 1]
+   86|             need = ref_monster_need(RAIDER["combatRating"], PARTY_CP3[t]["ac"], band)
+   87|             r = rng.d100()
+   88|             ev = {"type": "attack", "side": "monsters", "group": 1, "attacker": i + 1, "member": t,
+   89|                   "need": need, "roll": r, "hit": r <= need}
+   90|             if r <= need:
+   91|                 d = rng.dice(RAIDER["randomDamage"], 6) + RAIDER["fixedDamage"]
+   92|                 ev["damage"] = d
+   93|                 pending[t] += d
+   94|             events.append(ev)
+   95|         return pending
+   96| 
+   97|     def apply_members(pending, events):
+   98|         for s in sorted(PARTY_CP3):
+   99|             if pending[s] and cond[s] == 0:
+  100|                 res = ref_damage_member(member_hp[s], pending[s])
+  101|                 member_hp[s] = res["hp"]
+  102|                 if res["cond"]:
+  103|                     cond[s] = res["cond"]
+  104|                     events.append({"type": "death" if res["cond"] == 2 else "unconscious", "member": s})
+  105| 
+  106|     round0 = []
+  107|     if not c["success"]:
+  108|         p = monster_phase1(round0)
+  109|         apply_members(p, round0)
+  110| 
+  111|     round1 = []
+  112|     loads = {s: PARTY_CP3[s]["load"] for s in PARTY_CP3}
+  113|     pend = [0] * len(hp)
+  114|     for s in sorted(PARTY_CP3):
+  115|         if cond[s]:
+  116|             continue
+  117|         mm = PARTY_CP3[s]
+  118|         w = mm["weapon"]
+  119|         if loads[s] == 0:
+  120|             round1.append({"type": "click", "member": s})
+  121|             continue
+  122|         r = rng.d100()
+  123|         j = ref_jam_chance(mm["skills"].get(GUNSMITHING, 0))
+  124|         if r <= j:
+  125|             round1.append({"type": "jam", "member": s, "roll": r, "chance": j})
+  126|             continue
+  127|         loads[s] -= 1
+  128|         tgt = next((i for i in range(len(hp)) if hp[i] - pend[i] > 0), None)
+  129|         if tgt is None:
+  130|             tgt = next(i for i in range(len(hp)) if hp[i] > 0)
+  131|         need = ref_ranged_need(mm["skills"].get(w["skill"], 0), mm["AGL"], RAIDER["armorClass"], band)
+  132|         r = rng.d100()
+  133|         ev = {"type": "attack", "side": "party", "member": s, "group": 1, "target": tgt + 1,
+  134|               "need": need, "roll": r, "hit": r <= need}
+  135|         if r <= need:
+  136|             d = rng.dice(w["n"], w["s"])
+  137|             ev["damage"] = d
+  138|             pend[tgt] += d
+  139|         round1.append(ev)
+  140|     pm = monster_phase1(round1)
+  141|     for i in range(len(hp)):
+  142|         if hp[i] > 0 and pend[i]:
+  143|             hp[i] -= pend[i]
+  144|             if hp[i] <= 0:
+  145|                 round1.append({"type": "monster_dies", "group": 1, "index": i + 1})
+  146|     apply_members(pm, round1)
+  147|     return {"encounter": enc, "check": check, "surprised": not c["success"],
+  148|             "round0": round0, "round1": round1}
+  149| 
+  150| 

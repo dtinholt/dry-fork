@@ -1,0 +1,138 @@
+======================================================================
+REFERENCE LOG: bumps
+ 127 {"action": 1, "action_class": 11, "seq": 127, "type": "bump", "x": 8, "y": 17}
+ 503 {"action": 2, "action_class": 4, "seq": 503, "type": "bump", "x": 26, "y": 14}
+ 508 {"action": 2, "action_class": 4, "seq": 508, "type": "bump", "x": 26, "y": 14}
+ 513 {"action": 2, "action_class": 4, "seq": 513, "type": "bump", "x": 26, "y": 14}
+ 518 {"action": 2, "action_class": 4, "seq": 518, "type": "bump", "x": 26, "y": 14}
+ 562 {"action": 1, "action_class": 11, "seq": 562, "type": "bump", "x": 18, "y": 17}
+ 603 {"action": 0, "action_class": 11, "seq": 603, "type": "bump", "x": 25, "y": 21}
+ 807 {"action": 5, "action_class": 4, "seq": 807, "type": "bump", "x": 16, "y": 6}
+1018 {"action": 0, "action_class": 11, "seq": 1018, "type": "bump", "x": 15, "y": 11}
+======================================================================
+REFERENCE LOG: fight window
+ 217 {"groups": [{"band": 3, "count": 3, "hp": [14, 12, 14], "monster": "raider"}], "seq": 217, "type": "encounter_start"}
+ 218 {"n": 8, "seq": 218, "type": "paragraph"}
+ 219 {"level": 2, "member": 5, "need": 66, "roll": 54, "seq": 219, "skill": 18, "success": true, "type": "check"}
+ 220 {"key": "A", "seq": 220, "type": "input"}
+ 221 {"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 1, "seq": 221, "type": "round_orders"}
+ 222 {"round": 1, "seq": 222, "type": "round_start"}
+ 223 {"damage": 6, "group": 1, "hit": true, "member": 1, "need": 57, "roll": 53, "seq": 223, "side": "party", "target": 1, "type": "attack"}
+ 224 {"damage": 4, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 38, "seq": 224, "side": "party", "target": 1, "type": "attack"}
+ 225 {"damage": 6, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 32, "seq": 225, "side": "party", "target": 1, "type": "attack"}
+ 226 {"group": 1, "hit": false, "member": 4, "need": 44, "roll": 92, "seq": 226, "side": "party", "target": 2, "type": "attack"}
+ 227 {"damage": 3, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 56, "seq": 227, "side": "party", "target": 2, "type": "attack"}
+ 228 {"attacker": 1, "group": 1, "hit": false, "member": 1, "need": 22, "roll": 61, "seq": 228, "side": "monsters", "type": "attack"}
+ 229 {"attacker": 2, "damage": 1, "group": 1, "hit": true, "member": 2, "need": 22, "roll": 16, "seq": 229, "side": "monsters", "type": "attack"}
+ 230 {"attacker": 3, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 60, "seq": 230, "side": "monsters", "type": "attack"}
+ 231 {"group": 1, "index": 1, "seq": 231, "type": "monster_dies"}
+ 232 {"key": "A", "seq": 232, "type": "input"}
+ 233 {"orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 2, "seq": 233, "type": "round_orders"}
+ 234 {"round": 2, "seq": 234, "type": "round_start"}
+ 235 {"chance": 4, "member": 1, "roll": 4, "seq": 235, "type": "jam"}
+ 236 {"group": 1, "hit": false, "member": 2, "need": 55, "roll": 75, "seq": 236, "side": "party", "target": 2, "type": "attack"}
+ 237 {"group": 1, "hit": false, "member": 3, "need": 46, "roll": 48, "seq": 237, "side": "party", "target": 2, "type": "attack"}
+ 238 {"damage": 8, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 15, "seq": 238, "side": "party", "target": 2, "type": "attack"}
+ 239 {"group": 1, "hit": false, "member": 5, "need": 58, "roll": 78, "seq": 239, "side": "party", "target": 2, "type": "attack"}
+ 240 {"attacker": 2, "damage": 4, "group": 1, "hit": true, "member": 4, "need": 28, "roll": 2, "seq": 240, "side": "monsters", "type": "attack"}
+ 241 {"attacker": 3, "group": 1, "hit": false, "member": 5, "need": 22, "roll": 75, "seq": 241, "side": "monsters", "type": "attack"}
+ 242 {"key": "A", "seq": 242, "type": "input"}
+ 243 {"orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 3, "seq": 243, "type": "round_orders"}
+ 244 {"round": 3, "seq": 244, "type": "round_start"}
+ 245 {"group": 1, "hit": false, "member": 2, "need": 55, "roll": 98, "seq": 245, "side": "party", "target": 2, "type": "attack"}
+ 246 {"damage": 3, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 33, "seq": 246, "side": "party", "target": 2, "type": "attack"}
+ 247 {"group": 1, "hit": false, "member": 4, "need": 44, "roll": 68, "seq": 247, "side": "party", "target": 3, "type": "attack"}
+ 248 {"group": 1, "hit": false, "member": 5, "need": 58, "roll": 85, "seq": 248, "side": "party", "target": 3, "type": "attack"}
+ 249 {"attacker": 2, "group": 1, "hit": false, "member": 2, "need": 22, "roll": 42, "seq": 249, "side": "monsters", "type": "attack"}
+ 250 {"attacker": 3, "group": 1, "hit": false, "member": 3, "need": 22, "roll": 66, "seq": 250, "side": "monsters", "type": "attack"}
+ 251 {"group": 1, "index": 2, "seq": 251, "type": "monster_dies"}
+ 252 {"level": 0, "member": 1, "need": 46, "roll": 79, "seq": 252, "skill": 22, "success": false, "type": "check"}
+ 253 {"key": "A", "seq": 253, "type": "input"}
+ 254 {"orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 4, "seq": 254, "type": "round_orders"}
+ 255 {"round": 4, "seq": 255, "type": "round_start"}
+ 256 {"group": 1, "hit": false, "member": 2, "need": 55, "roll": 85, "seq": 256, "side": "party", "target": 3, "type": "attack"}
+ 257 {"damage": 3, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 38, "seq": 257, "side": "party", "target": 3, "type": "attack"}
+ 258 {"damage": 4, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 19, "seq": 258, "side": "party", "target": 3, "type": "attack"}
+ 259 {"group": 1, "hit": false, "member": 5, "need": 58, "roll": 69, "seq": 259, "side": "party", "target": 3, "type": "attack"}
+ 260 {"attacker": 3, "damage": 3, "group": 1, "hit": true, "member": 1, "need": 22, "roll": 19, "seq": 260, "side": "monsters", "type": "attack"}
+ 261 {"level": 0, "member": 1, "need": 46, "roll": 22, "seq": 261, "skill": 22, "success": true, "type": "check"}
+ 262 {"member": 1, "seq": 262, "type": "unjammed"}
+ 263 {"key": "A", "seq": 263, "type": "input"}
+ 264 {"orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}, "round": 5, "seq": 264, "type": "round_orders"}
+ 265 {"round": 5, "seq": 265, "type": "round_start"}
+ 266 {"damage": 8, "group": 1, "hit": true, "member": 2, "need": 55, "roll": 34, "seq": 266, "side": "party", "target": 3, "type": "attack"}
+ 267 {"damage": 7, "group": 1, "hit": true, "member": 3, "need": 46, "roll": 39, "seq": 267, "side": "party", "target": 3, "type": "attack"}
+ 268 {"damage": 7, "group": 1, "hit": true, "member": 4, "need": 44, "roll": 33, "seq": 268, "side": "party", "target": 3, "type": "attack"}
+ 269 {"damage": 7, "group": 1, "hit": true, "member": 5, "need": 58, "roll": 12, "seq": 269, "side": "party", "target": 3, "type": "attack"}
+ 270 {"attacker": 3, "group": 1, "hit": false, "member": 1, "need": 22, "roll": 94, "seq": 270, "side": "monsters", "type": "attack"}
+ 271 {"group": 1, "index": 3, "seq": 271, "type": "monster_dies"}
+ 272 {"result": "victory", "rounds": 5, "seq": 272, "type": "combat_end"}
+ 273 {"delta": 14, "member": 1, "seq": 273, "total": 104, "type": "xp"}
+ 274 {"level": 2, "max_hp": 28, "member": 1, "rank": "Hand", "seq": 274, "type": "promote"}
+ 275 {"delta": 14, "member": 2, "seq": 275, "total": 104, "type": "xp"}
+ 276 {"level": 2, "max_hp": 31, "member": 2, "rank": "Hand", "seq": 276, "type": "promote"}
+ 277 {"delta": 14, "member": 3, "seq": 277, "total": 104, "type": "xp"}
+ 278 {"level": 2, "max_hp": 25, "member": 3, "rank": "Hand", "seq": 278, "type": "promote"}
+ 279 {"delta": 14, "member": 4, "seq": 279, "total": 104, "type": "xp"}
+ 280 {"level": 2, "max_hp": 26, "member": 4, "rank": "Hand", "seq": 280, "type": "promote"}
+ 281 {"delta": 14, "member": 5, "seq": 281, "total": 214, "type": "xp"}
+ 282 {"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 282, "type": "cell_change", "x": 30, "y": 41}
+ 283 {"delta": 75, "member": 1, "seq": 283, "total": 195, "type": "money"}
+ 284 {"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 284, "type": "cell_change", "x": 30, "y": 41}
+ 285 checkpoint CP4
+======================================================================
+REFERENCE LOG: cell_change events
+ 131 {"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+ 282 {"action": 1, "action_class": 5, "image": 13, "location": 0, "seq": 282, "type": "cell_change", "x": 30, "y": 41}
+ 284 {"action": 0, "action_class": 0, "image": 13, "location": 0, "seq": 284, "type": "cell_change", "x": 30, "y": 41}
+ 289 {"action": 0, "action_class": 0, "image": 22, "location": 0, "seq": 289, "type": "cell_change", "x": 31, "y": 41}
+ 522 {"action": 1, "action_class": 4, "image": 30, "location": 2, "seq": 522, "type": "cell_change", "x": 26, "y": 14}
+ 523 {"action": 1, "action_class": 4, "image": 29, "location": 2, "seq": 523, "type": "cell_change", "x": 26, "y": 14}
+ 528 {"action": 1, "action_class": 4, "image": 29, "location": 2, "seq": 528, "type": "cell_change", "x": 26, "y": 14}
+ 534 {"action": 0, "action_class": 0, "image": 27, "location": 2, "seq": 534, "type": "cell_change", "x": 26, "y": 12}
+ 540 {"action": 1, "action_class": 4, "image": 29, "location": 2, "seq": 540, "type": "cell_change", "x": 26, "y": 14}
+ 566 {"action": 0, "action_class": 0, "image": 28, "location": 2, "seq": 566, "type": "cell_change", "x": 18, "y": 17}
+ 790 {"action": 1, "action_class": 5, "image": 37, "location": 3, "seq": 790, "type": "cell_change", "x": 9, "y": 6}
+ 792 {"action": 0, "action_class": 0, "image": 37, "location": 3, "seq": 792, "type": "cell_change", "x": 9, "y": 6}
+ 811 {"action": 4, "action_class": 4, "image": 39, "location": 3, "seq": 811, "type": "cell_change", "x": 16, "y": 6}
+ 812 {"action": 4, "action_class": 4, "image": 37, "location": 3, "seq": 812, "type": "cell_change", "x": 16, "y": 6}
+ 816 {"action": 4, "action_class": 4, "image": 37, "location": 3, "seq": 816, "type": "cell_change", "x": 16, "y": 6}
+ 834 {"action": 0, "action_class": 0, "image": 37, "location": 3, "seq": 834, "type": "cell_change", "x": 21, "y": 4}
+ 851 {"action": 4, "action_class": 4, "image": 37, "location": 3, "seq": 851, "type": "cell_change", "x": 16, "y": 6}
+======================================================================
+REFERENCE LOG: save/load events
+ 462 {"seq": 462, "serial": 1, "type": "save"}
+ 466 {"seq": 466, "serial": 1, "type": "load"}
+======================================================================
+map0 keys: ['location', 'name', 'width', 'height', 'tileset', 'info', 'conventions', 'strings', 'mobs', 'npcs', 'records', 'action_cells', 'tiles', 'action_class', 'action_value']
+map0 action_cells: [{"action": 1, "class": 10, "note": "Saltwell marker to Saltwell (15,30)", "tile": 13, "x": 10, "y": 40}, {"action": 2, "class": 10, "note": "Ninemile marker to Ninemile (1,16)", "tile": 13, "x": 44, "y": 28}, {"action": 3, "class": 10, "note": "Cave mouth to Pumphouse Deep (3,2)", "tile": 14, "x": 44, "y": 47}, {"action": 1, "class": 1, "note": "Signpost, paragraph 7", "tile": 3, "x": 26, "y": 41}, {"action": 2, "class": 1, "note": "Plank bridge, paragraph 9, shown once (tail to class 0)", "tile": 12, "x": 31, "y": 41}, {"action": 3, "class": 1, "note": "Dry fork riverbed, paragraph 16", "tile": 0, "x": 24, "y": 25}, {"action": 4, "class": 1, "note": "Bones message", "tile": 5, "x": 20, "y": 34}, {"action": 5, "class": 1, "note": "Wheel ruts message", "tile": 0, "x": 45, "y": 45}, {"action": 1, "class": 3, "note": "Encounter 1: road raiders, 3 raiders; then loot 75 coins", "tile": 3, "x": 30, "y": 41}, {"action": 2, "class": 3, "note": "Encounter 2: dust hounds, rnd(4)", "tile": 2, "x": 18, "y": 12}, {"action": 3, "class": 3, "note": "Encounter 3: glass beetles, 2", "tile": 2, "x": 52, "y": 35}, {"action": 4, "class": 3, "note": "Encounter 4: riverbed scavengers, 2 scavengers and 1 raider; then loot rnd(40) coins", "tile": 4, "x": 22, "y": 22}, {"action": 2, "class": 4, "note": "Lock: ford, Fording 25", "tile": 7, "x": 31, "y": 55}]
+map0 records: {"1": [{"messages": [1], "new_action": 0, "new_class": 255}, {"messages": [2], "new_action": 0, "new_class": 0}, {"messages": [3], "new_action": 0, "new_class": 255}, {"messages": [4], "new_action": 0, "new_class": 255}, {"messages": [5], "new_action": 0, "new_class": 255}], "10": [{"confirm": false, "location": 1, "message": 0, "new_action": 0, "new_class": 255, "relative": false, "x": 15, "y": 30}, {"confirm": false, "location": 2, "message": 0, "new_action": 0, "new_class": 255, "relative": false, "x": 1, "y": 16}, {"confirm": false, "location": 3, "message": 0, "new_action": 0, "new_class": 255, "relative": false, "x": 3, "y": 2}], "3": [{"friendly": 0, "groups": [[1, false, 3], [0, false, 0], [0, false, 0]], "hit_distance": 1, "immobile": 0, "message": 6, "new_action": 1, "new_class": 5, "proper_name": 0, "visible_distance": 3}, {"friendly": 0, "groups": [[2, true, 4], [0, false, 0], [0, false, 0]], "hit_distance": 1, "immobile": 0, "message": 7, "new_action": 0, "new_class": 0, "proper_name": 0, "visible_distance": 3}, {"friendly": 0, "groups": [[3, false, 2], [0, false, 0], [0, false, 0]], "hit_distance": 1, "immobile": 0, "message": 8, "new_action": 0, "new_class": 0, "proper_name": 0, "visible_distance": 3}, {"friendly": 0, "groups": [[4, false, 2], [1, false, 1], [0, false, 0]], "hit_distance": 1, "immobile": 0, "message": 9, "new_action": 2, "new_class": 5, "proper_name": 0, "visible_distance": 3}], "4": [{"impassable": false, "message": 0, "new_action": 0, "new_class": 255, "tile": 16}, {"impassable": true, "message": 10, "new_action": 1, "new_class": 4, "tile": 17}], "5": [{"cash": [true, 75], "items": [], "new_action": 0, "new_class": 0}, {"cash": [false, 40], "items": [], "new_action": 0, "new_class": 0}]}
+map0 tiles[40] = [8, 0, 0, 0, 0, 0, 0, 0, 10, 0, 13, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 1, 4, 4, 7, 4, 4, 0, 0, 0, 0, 0, 0, 3, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 8]
+map0 action_class[40] = [11, 0, 0, 0, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+map0 action_value[40] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+map0 tiles[41] = [8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 12, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 2, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 8]
+map0 action_class[41] = [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+map0 action_value[41] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+map0 tiles[42] = [8, 0, 0, 2, 0, 10, 0, 9, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 1, 2, 1, 1, 4, 4, 7, 4, 4, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 8]
+map0 action_class[42] = [11, 0, 0, 0, 0, 11, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+map0 action_value[42] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+======================================================================
+map1 known action cells check
+cell (15,31): json tile 18 class 10 | tiles[31][15]=18 action_class[31][15]=10
+cell (16,31): json tile 18 class 10 | tiles[31][16]=18 action_class[31][16]=10
+cell (15,29): json tile 18 class 1 | tiles[29][15]=18 action_class[29][15]=1
+cell (6,7): json tile 19 class 1 | tiles[7][6]=19 action_class[7][6]=1
+cell (23,7): json tile 19 class 1 | tiles[7][23]=19 action_class[7][23]=1
+cell (13,12): json tile 18 class 1 | tiles[12][13]=18 action_class[12][13]=1
+cell (6,5): json tile 17 class 6 | tiles[5][6]=17 action_class[5][6]=6
+cell (8,17): json tile 24 class 11 | tiles[17][8]=24 action_class[17][8]=11
+cell (22,4): json tile 22 class 11 | tiles[4][22]=22 action_class[4][22]=11
+cell (15,11): json tile 23 class 11 | tiles[11][15]=23 action_class[11][15]=11
+map1 tiles[11] = [25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 23, 18, 18, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 25]
+map1 action_class[11] = [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 11]
+map1 tiles[17] = [25, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25]
+map1 action_class[17] = [11, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+map1 tiles[31] = [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 18, 18, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25]
+map1 action_class[31] = [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
+map1 tiles[5] = [25, 0, 16, 17, 17, 17, 17, 17, 17, 17, 16, 0, 0, 0, 0, 0, 0, 16, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 16, 0, 25]
+map1 action_class[5] = [11, 0, 11, 0, 0, 0, 6, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 11]

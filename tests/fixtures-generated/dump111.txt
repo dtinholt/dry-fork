@@ -1,0 +1,2440 @@
+=== headless.py (1064 lines) ===
+   1| """Headless driver (SPEC-06 section 5, SPEC-07 API).
+   2| 
+   3| The headless driver runs the engine over a compiled data directory with a
+   4| scripted list of input tokens and returns the event log plus the final state.
+   5| """
+   6| 
+   7| from __future__ import annotations
+   8| 
+   9| import json
+  10| import os
+  11| 
+  12| from . import containers, labstate, maps, rules, strings
+  13| from .combat import CombatMixin
+  14| from .errors import FormatError, ScriptError
+  15| 
+  16| # ---------------------------------------------------------------------------
+  17| # scenario loading
+  18| # ---------------------------------------------------------------------------
+  19| 
+  20| 
+  21| def _load_scenario(data_dir):
+  22|     from . import scenario as scenario_mod
+  23|     loader = getattr(scenario_mod, "load", None)
+  24|     if loader is not None:
+  25|         return loader(data_dir)
+  26|     cls = getattr(scenario_mod, "Scenario", None)
+  27|     if cls is not None:
+  28|         for name in ("from_dir", "read", "load"):
+  29|             fn = getattr(cls, name, None)
+  30|             if fn is not None:
+  31|                 return fn(data_dir)
+  32|         return cls(data_dir)
+  33|     raise FormatError("wlengine.scenario has no loader")
+  34| 
+  35| 
+  36| # ---------------------------------------------------------------------------
+  37| # engine
+  38| # ---------------------------------------------------------------------------
+  39| 
+  40| 
+  41| class Engine(CombatMixin):
+  42|     """One engine instance driven by a script of input tokens."""
+  43| 
+  44|     def __init__(self, data_dir, seed=None, options=None):
+  45|         self.data_dir = data_dir
+  46|         self.options = dict(options or {})
+  47|         self.sc = _load_scenario(data_dir)
+  48|         self.events = []
+  49|         self._seq = 0
+  50|         self.mode = "map"
+  51|         self.location = 0
+  52|         self.x = 0
+  53|         self.y = 0
+  54|         self.steps = 0
+  55|         self.day = 1
+  56|         self.hour = 0
+  57|         self.minute = 0
+  58|         self.cell_changes = []
+  59|         self.rng = None
+  60|         self.seed = seed
+  61|         self.party = []
+  62|         self.serial = 0
+  63|         self.paragraph = 0
+  64|         self.shop = None
+  65|         self.pending = None
+  66|         self.pending_member = None
+  67|         self.pending_item = None
+  68|         self.pending_hook = None
+  69|         self.pending_cell = (0, 0)
+  70|         self.combat = None
+  71|         self.saved = {}
+  72|         self.script_seed = None
+  73|         self._items = None
+  74| 
+  75|     # -- event log ---------------------------------------------------------
+  76| 
+  77|     def emit(self, type_, **kw):
+  78|         ev = {"seq": self._seq, "type": type_}
+  79|         ev.update(kw)
+  80|         self._seq += 1
+  81|         self.events.append(ev)
+  82|         return ev
+  83| 
+  84|     def checkpoint(self, name):
+  85|         self.emit("checkpoint", name=name, state=self.snapshot())
+  86| 
+  87|     def snapshot(self):
+  88|         return {
+  89|             "location": self.location,
+  90|             "x": self.x,
+  91|             "y": self.y,
+  92|             "steps": self.steps,
+  93|             "day": self.day,
+  94|             "hour": self.hour,
+  95|             "minute": self.minute,
+  96|             "mode": self.mode,
+  97|             "cell_changes": [list(c) for c in self.cell_changes],
+  98|             "rng_state": self.rng.state if self.rng is not None else None,
+  99|             "party": [self.member_snapshot(i + 1)
+ 100|                       for i in range(len(self.party))],
+ 101|         }
+ 102| 
+ 103|     def member_snapshot(self, member):
+ 104|         m = self.party[member - 1]
+ 105|         return {
+ 106|             "slot": member,
+ 107|             "name": m.get("name", ""),
+ 108|             "npc": m.get("npc", 0),
+ 109|             "level": m.get("level", 1),
+ 110|             "xp": m.get("xp", 0),
+ 111|             "max_hp": m.get("max_hp", 0),
+ 112|             "hp": m.get("hp", 0),
+ 113|             "cond": m.get("cond", 0),
+ 114|             "money": m.get("money", 0),
+ 115|             "ac": m.get("ac", 0),
+ 116|             "rank": m.get("rank", 0),
+ 117|             "skill_points": m.get("skill_points", 0),
+ 118|             "items": [list(it) for it in m.get("items", [])],
+ 119|             "weapon_slot": m.get("weapon_slot", -1),
+ 120|             "armour_slot": m.get("armour_slot", -1),
+ 121|         }
+ 122| 
+ 123|     # -- item table --------------------------------------------------------
+ 124| 
+ 125|     def item_table(self):
+ 126|         if self._items is not None:
+ 127|             return self._items
+ 128|         tbl = getattr(self.sc, "items", None)
+ 129|         if tbl is None:
+ 130|             fn = getattr(self.sc, "item_table", None)
+ 131|             if fn is not None:
+ 132|                 tbl = fn()
+ 133|         if tbl is None:
+ 134|             tbl = {}
+ 135|         if isinstance(tbl, list):
+ 136|             tbl = {i + 1: v for i, v in enumerate(tbl)}
+ 137|         self._items = tbl
+ 138|         return tbl
+ 139| 
+ 140|     def item(self, iid):
+ 141|         return self.item_table().get(iid, {})
+ 142| 
+ 143|     def item_price(self, iid):
+ 144|         it = self.item(iid)
+ 145|         if isinstance(it, dict):
+ 146|             return it.get("price", 0)
+ 147|         return 0
+ 148| 
+ 149|     def item_name(self, iid):
+ 150|         it = self.item(iid)
+ 151|         if isinstance(it, dict):
+ 152|             return it.get("name", "")
+ 153|         return ""
+ 154| 
+ 155|     # -- new game ----------------------------------------------------------
+ 156| 
+ 157|     def new_game(self, seed):
+ 158|         self.seed = seed
+ 159|         self.rng = rules.Rng(seed)
+ 160|         start = self.sc.start
+ 161|         self.location = start["location"]
+ 162|         self.x = start["x"]
+ 163|         self.y = start["y"]
+ 164|         self.hour = start.get("hour", 8)
+ 165|         self.minute = start.get("minute", 0)
+ 166|         self.day = start.get("day", 1)
+ 167|         self.steps = 0
+ 168|         self.cell_changes = []
+ 169|         self.mode = "map"
+ 170|         self.party = self.sc.premade_party()
+ 171|         self.emit("new_game", seed=seed)
+ 172|         self.paragraph = start.get("paragraph", 1)
+ 173|         self.emit("paragraph", n=self.paragraph)
+ 174| 
+ 175|     # -- script ------------------------------------------------------------
+ 176| 
+ 177|     def run_script(self, script):
+ 178|         for item in script:
+ 179|             if isinstance(item, dict):
+ 180|                 if "checkpoint" in item:
+ 181|                     self.checkpoint(item["checkpoint"])
+ 182|                 elif "repeat_until" in item:
+ 183|                     self.run_repeat(item)
+ 184|                 else:
+ 185|                     raise ScriptError("unknown script item %r" % (item,))
+ 186|             else:
+ 187|                 self.input(item)
+ 188|         return self.events
+ 189| 
+ 190|     def run_repeat(self, item):
+ 191|         raise ScriptError("repeat_until not supported yet")
+ 192| 
+ 193|     def input(self, key):
+ 194|         self.emit("input", key=key)
+ 195|         if not self.dispatch(str(key)):
+ 196|             self.emit("ignored", key=key)
+ 197| 
+ 198|     def dispatch(self, key):
+ 199|         low = key.lower()
+ 200|         if self.pending == "char_member" and key.isdigit():
+ 201|             member = int(key)
+ 202|             if 1 <= member <= len(self.party):
+ 203|                 self.pending = None
+ 204|                 self.pending_member = member
+ 205|                 self.mode = "char"
+ 206|                 self.emit("char_open", member=member)
+ 207|                 return True
+ 208|             return False
+ 209|         if self.mode == "shop":
+ 210|             return self.shop_key(key, low)
+ 211|         if self.mode == "char":
+ 212|             return self.char_key(key, low)
+ 213|         if self.mode == "combat":
+ 214|             return self.combat_key(key, low)
+ 215|         handler = getattr(self, "key_" + low, None)
+ 216|         if handler is None:
+ 217|             return False
+ 218|         return handler() is not False
+ 219| 
+ 220|     # -- inventory ---------------------------------------------------------
+ 221| 
+ 222|     def member_items(self, member):
+ 223|         return self.party[member - 1].setdefault("items", [])
+ 224| 
+ 225|     def add_item(self, member, iid, count=1):
+ 226|         items = self.member_items(member)
+ 227|         for entry in items:
+ 228|             if entry[0] == iid:
+ 229|                 entry[1] += count
+ 230|                 return entry
+ 231|         items.append([iid, count])
+ 232|         return items[-1]
+ 233| 
+ 234|     def remove_item(self, member, iid, count=1):
+ 235|         items = self.member_items(member)
+ 236|         for i, entry in enumerate(items):
+ 237|             if entry[0] == iid:
+ 238|                 entry[1] -= count
+ 239|                 if entry[1] <= 0:
+ 240|                     items.pop(i)
+ 241|                 return True
+ 242|         return False
+ 243| 
+ 244|     def item_slot(self, member, iid):
+ 245|         for i, entry in enumerate(self.member_items(member)):
+ 246|             if entry[0] == iid:
+ 247|                 return i
+ 248|         return -1
+ 249| 
+ 250|     # -- shop --------------------------------------------------------------
+ 251| 
+ 252|     def shop_items(self):
+ 253|         if self.shop is None:
+ 254|             return []
+ 255|         return list(self.shop.get("items", []))
+ 256| 
+ 257|     def shop_recs(self):
+ 258|         if self.shop is None:
+ 259|             return []
+ 260|         return self.shop.get("recs", [])
+ 261| 
+ 262|     def item_record(self, iid):
+ 263|         recs = self.shop_recs()
+ 264|         if not recs:
+ 265|             recs = self.sc.shops[0]["items"] if self.sc.shops else []
+ 266|         if 1 <= iid <= len(recs):
+ 267|             return recs[iid - 1]
+ 268|         return None
+ 269| 
+ 270|     def best_skill(self, skill):
+ 271|         best = 0
+ 272|         for m in self.party:
+ 273|             if m.get("hp", 0) <= 0:
+ 274|                 continue
+ 275|             best = max(best, self.skill_level(m, skill))
+ 276|         return best
+ 277| 
+ 278|     def haggling(self):
+ 279|         return min(5, self.best_skill(20))
+ 280| 
+ 281|     def buy_price(self, price):
+ 282|         h = self.haggling()
+ 283|         return price * (100 - 5 * h) // 100
+ 284| 
+ 285|     def sell_price(self, price):
+ 286|         h = self.haggling()
+ 287|         return price * (50 + 5 * h) // 100
+ 288| 
+ 289|     def shop_key(self, key, low):
+ 290|         if self.pending == "buy_item" and low.isalpha():
+ 291|             idx = ord(low) - ord("a")
+ 292|             items = self.shop_items()
+ 293|             if 0 <= idx < len(items):
+ 294|                 self.pending_item = items[idx]
+ 295|                 self.pending = "buy_member"
+ 296|                 self.emit("prompt", prompt="member")
+ 297|                 return True
+ 298|             return False
+ 299|         if self.pending == "buy_member" and low.isdigit():
+ 300|             member = int(low)
+ 301|             if 1 <= member <= len(self.party):
+ 302|                 self.pending = None
+ 303|                 self.shop_buy(member, self.pending_item)
+ 304|                 return True
+ 305|             return False
+ 306|         if self.pending == "sell_member" and low.isdigit():
+ 307|             member = int(low)
+ 308|             if 1 <= member <= len(self.party):
+ 309|                 self.pending_member = member
+ 310|                 self.pending = "sell_item"
+ 311|                 self.emit("prompt", prompt="item_slot")
+ 312|                 return True
+ 313|             return False
+ 314|         if self.pending == "sell_item" and low.isalpha():
+ 315|             idx = ord(low) - ord("a")
+ 316|             items = self.member_items(self.pending_member)
+ 317|             if 0 <= idx < len(items):
+ 318|                 self.pending = None
+ 319|                 self.shop_sell(self.pending_member, items[idx][0])
+ 320|                 return True
+ 321|             return False
+ 322|         if self.pending == "char_member" and low.isdigit():
+ 323|             member = int(low)
+ 324|             if 1 <= member <= len(self.party):
+ 325|                 self.pending = None
+ 326|                 self.pending_member = member
+ 327|                 self.mode = "char"
+ 328|                 self.emit("char_open", member=member)
+ 329|                 return True
+ 330|             return False
+ 331|         if low == "b":
+ 332|             self.pending = "buy_item"
+ 333|             self.emit("prompt", prompt="buy_item", items=self.shop_items())
+ 334|             return True
+ 335|         if low == "s":
+ 336|             self.pending = "sell_member"
+ 337|             self.emit("prompt", prompt="member")
+ 338|             return True
+ 339|         if low == "c":
+ 340|             self.pending = "char_member"
+ 341|             self.emit("prompt", prompt="member")
+ 342|             return True
+ 343|         if low == "x":
+ 344|             self.mode = "map"
+ 345|             self.shop = None
+ 346|             self.pending = None
+ 347|             self.emit("shop_close")
+ 348|             return True
+ 349|         return False
+ 350| 
+ 351|     def shop_buy(self, member, iid):
+ 352|         rec = self.item_record(iid) or {}
+ 353|         price = self.buy_price(rec.get("price", 0))
+ 354|         m = self.party[member - 1]
+ 355|         m["money"] = m.get("money", 0) - price
+ 356|         self.emit("money", member=member, delta=-price, total=m["money"])
+ 357|         items = self.member_items(member)
+ 358|         itype = rec.get("type", 0)
+ 359|         if itype == 3:  # ammunition stacks
+ 360|             for i, entry in enumerate(items):
+ 361|                 if entry[0] == iid and entry[1] < 127:
+ 362|                     entry[1] += 1
+ 363|                     self.emit("buy", member=member, item=iid, price=price,
+ 364|                               slot=i + 1, status=entry[1])
+ 365|                     return
+ 366|         status = 1 if itype == 3 else (rec.get("capacity", 0) if itype == 5 else 0)
+ 367|         slot = None
+ 368|         for i, entry in enumerate(items):
+ 369|             if entry[0] == 0:
+ 370|                 slot = i
+ 371|                 break
+ 372|         if slot is None:
+ 373|             if len(items) >= 30:
+ 374|                 self.emit("message", location=self.location, string=3)
+ 375|                 return
+ 376|             items.append([iid, status])
+ 377|             slot = len(items) - 1
+ 378|         else:
+ 379|             items[slot] = [iid, status]
+ 380|         self.emit("buy", member=member, item=iid, price=price, slot=slot + 1,
+ 381|                   status=status)
+ 382| 
+ 383|     def shop_sell(self, member, iid):
+ 384|         rec = self.item_record(iid) or {}
+ 385|         if rec.get("type", 0) == 7:
+ 386|             self.emit("message", location=self.location, string=31)
+ 387|             return
+ 388|         price = self.sell_price(rec.get("price", 0))
+ 389|         slot = self.item_slot(member, iid)
+ 390|         self.emit("sell", member=member, item=iid, price=price, slot=slot + 1)
+ 391|         items = self.member_items(member)
+ 392|         if 0 <= slot < len(items):
+ 393|             items[slot] = [0, 0]
+ 394|         m = self.party[member - 1]
+ 395|         if m.get("armour_slot", 0) == slot + 1:
+ 396|             m["armour_slot"] = 0
+ 397|             self.recompute_ac(member)
+ 398|         if m.get("weapon_slot", 0) == slot + 1:
+ 399|             m["weapon_slot"] = 0
+ 400|         m["money"] = m.get("money", 0) + price
+ 401|         self.emit("money", member=member, delta=price, total=m["money"])
+ 402| 
+ 403|     def recompute_ac(self, member):
+ 404|         m = self.party[member - 1]
+ 405|         attrs = m.get("attrs") or {}
+ 406|         agl = attrs.get("AGL", m.get("agility", 0))
+ 407|         bonus = 0
+ 408|         aslot = m.get("armour_slot", 0)
+ 409|         items = m.get("items", [])
+ 410|         if aslot and 0 <= aslot - 1 < len(items):
+ 411|             rec = self.item_record(items[aslot - 1][0])
+ 412|             if rec:
+ 413|                 bonus = rec.get("damage", 0)
+ 414|         evasion = self.skill_level(m, 11)
+ 415|         m["ac"] = agl // 5 + bonus + evasion
+ 416| 
+ 417|     # -- character screen --------------------------------------------------
+ 418| 
+ 419|     def char_key(self, key, low):
+ 420|         if low == "e":
+ 421|             self.pending = "equip_item"
+ 422|             self.emit("prompt", prompt="item_slot")
+ 423|             return True
+ 424|         if low == "x":
+ 425|             self.mode = "map"
+ 426|             self.pending = None
+ 427|             self.emit("char_close")
+ 428|             return True
+ 429|         if self.pending == "equip_item" and low.isalpha():
+ 430|             idx = ord(low) - ord("a")
+ 431|             items = self.member_items(self.pending_member)
+ 432|             if 0 <= idx < len(items):
+ 433|                 self.pending = None
+ 434|                 self.equip(self.pending_member, idx, items[idx][0])
+ 435|                 return True
+ 436|             return False
+ 437|         return False
+ 438| 
+ 439|     def equip(self, member, slot, iid):
+ 440|         self.party[member - 1]["armour_slot"] = slot + 1
+ 441|         self.recompute_ac(member)
+ 442|         ac = self.party[member - 1]["ac"]
+ 443|         self.emit("equip", member=member, slot=slot + 1, item=iid, ac=ac)
+ 444| 
+ 445|     # -- combat ------------------------------------------------------------
+ 446| 
+ 447|     def combat_key(self, key, low):
+ 448|         if low == "a":
+ 449|             self.combat_round()
+ 450|             return True
+ 451|         if low == "f":
+ 452|             self.flee()
+ 453|             return True
+ 454|         return False
+ 455| 
+ 456|     def build_groups(self, rec):
+ 457|         """LR-26, LR-28: groups from the map's monster table and the record."""
+ 458|         m = self.sc.map(self.location)
+ 459|         mobs = list((m or {}).get("mobs", []))
+ 460|         groups = rules.build_groups(self.rng, mobs, rec or {})
+ 461|         for g in groups:
+ 462|             mob = mobs[g["monster"] - 1]
+ 463|             name = mob.get("name", b"")
+ 464|             if isinstance(name, bytes):
+ 465|                 name = name.split(b"\x0a")[0].decode("latin-1")
+ 466|             else:
+ 467|                 name = str(name).split("\n")[0]
+ 468|             g["mob"] = mob
+ 469|             g["monster"] = name
+ 470|         return groups
+ 471| 
+ 472|     def group_event(self, g):
+ 473|         out = {k: (list(v) if isinstance(v, list) else v) for k, v in g.items() if k != "mob"}
+ 474|         return out
+ 475| 
+ 476|     ATTR_ORDER = ("STR", "IQ", "LCK", "SPD", "AGL", "CHA")
+ 477|     ATTR_OFFSETS = {14: 0, 15: 1, 16: 2, 17: 3, 18: 4, 20: 5}
+ 478| 
+ 479|     def attr_value(self, member, skill):
+ 480|         """LR-13: the member's value of the attribute linked to ``skill``."""
+ 481|         idx = self.skill_attribute(skill)
+ 482|         attrs = member.get("attrs") or {}
+ 483|         return attrs.get(self.ATTR_ORDER[idx], 0)
+ 484| 
+ 485|     # -- movement ----------------------------------------------------------
+ 486| 
+ 487|     def key_down(self):
+ 488|         self.move(0, 1)
+ 489| 
+ 490|     def key_up(self):
+ 491|         self.move(0, -1)
+ 492| 
+ 493|     def key_left(self):
+ 494|         self.move(-1, 0)
+ 495| 
+ 496|     def key_right(self):
+ 497|         self.move(1, 0)
+ 498| 
+ 499|     def move(self, dx, dy):
+ 500|         nx, ny = self.x + dx, self.y + dy
+ 501|         m = self.sc.map(self.location)
+ 502|         size = m["size"]
+ 503|         if not (0 <= nx < size and 0 <= ny < size):
+ 504|             self.emit("blocked", x=nx, y=ny)
+ 505|             return
+ 506|         if not maps.is_passable(m, nx, ny):
+ 507|             self.bump(nx, ny)
+ 508|             return
+ 509|         self.x, self.y = nx, ny
+ 510|         self.steps += 1
+ 511|         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+ 512|         self.advance_time(self.step_minutes())
+ 513|         self.after_move()
+ 514| 
+ 515|     def step_minutes(self):
+ 516|         m = self.sc.map(self.location)
+ 517|         tp = m["info"].get("timePerStep", 256)
+ 518|         return tp >> 8
+ 519| 
+ 520|     def cell_class_action(self, x, y):
+ 521|         m = self.sc.map(self.location)
+ 522|         size = m["size"]
+ 523|         if not (0 <= x < size and 0 <= y < size):
+ 524|             return 0, 0
+ 525|         return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+ 526| 
+ 527|     def show_message(self, index):
+ 528|         if not index:
+ 529|             return
+ 530|         text = self.sc.map_string(self.location, index)
+ 531|         if text.startswith("Read paragraph ") and text.endswith("."):
+ 532|             body = text[len("Read paragraph "):-1]
+ 533|             if body.isdigit():
+ 534|                 self.emit("paragraph", n=int(body))
+ 535|                 return
+ 536|         self.emit("message", location=self.location, string=index)
+ 537| 
+ 538|     def advance_time(self, minutes):
+ 539|         before_hour = self.hour
+ 540|         self.minute += minutes
+ 541|         while self.minute >= 60:
+ 542|             self.minute -= 60
+ 543|             self.hour += 1
+ 544|         while self.hour >= 24:
+ 545|             self.hour -= 24
+ 546|             self.day += 1
+ 547|             self.emit("day", day=self.day)
+ 548|         if self.hour != before_hour:
+ 549|             self.natural_heal()
+ 550| 
+ 551|     def natural_heal(self):
+ 552|         healed = []
+ 553|         for i, m in enumerate(self.party):
+ 554|             if m.get("hp", 0) < m.get("max_hp", 0):
+ 555|                 m["hp"] = m.get("max_hp", 0)
+ 556|                 healed.append(i + 1)
+ 557|         if healed:
+ 558|             self.emit("natural_heal", members=healed)
+ 559| 
+ 560|     def after_move(self):
+ 561|         m = self.sc.map(self.location)
+ 562|         cls, action = self.cell_class_action(self.x, self.y)
+ 563|         rec = maps.record_at(m, self.x, self.y)
+ 564|         if cls == 10:
+ 565|             self.transition(rec)
+ 566|         elif cls == 6:
+ 567|             self.open_shop(rec)
+ 568|         elif cls == 3:
+ 569|             self.start_encounter(rec)
+ 570|         elif cls == 1 and rec is not None:
+ 571|             for msg in rec.get("messages", []):
+ 572|                 self.show_message(msg)
+ 573|         elif cls == 5 and rec is not None:
+ 574|             self.apply_loot(rec, self.x, self.y)
+ 575|         elif cls == 4 and rec is not None and not rec.get("impassable"):
+ 576|             self.show_message(rec.get("message", 0))
+ 577|             self.apply_tail(rec, self.x, self.y)
+ 578| 
+ 579|     def transition(self, rec):
+ 580|         loc, x, y = maps.resolve_transition(self.sc.tables, rec, self.x, self.y,
+ 581|                                             (self.location, self.x, self.y))
+ 582|         self.location, self.x, self.y = loc, x, y
+ 583|         self.emit("map_change", location=loc, x=x, y=y)
+ 584| 
+ 585|     def bump(self, nx, ny):
+ 586|         m = self.sc.map(self.location)
+ 587|         rec = maps.record_at(m, nx, ny)
+ 588|         cls, action = self.cell_class_action(nx, ny)
+ 589|         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+ 590|         self.bump_effect(rec, nx, ny, cls)
+ 591| 
+ 592|     def bump_effect(self, rec, nx, ny, cls=None):
+ 593|         if cls is None:
+ 594|             cls, _a = self.cell_class_action(nx, ny)
+ 595|         if cls == 11:
+ 596|             self.bump_blocked(rec, nx, ny)
+ 597|         elif cls == 4:
+ 598|             if rec is not None and rec.get("impassable"):
+ 599|                 self.show_message(rec.get("message", 0))
+ 600|                 self.apply_tail(rec, nx, ny)
+ 601|                 self.run_hook_at(nx, ny)
+ 602|             elif rec is not None:
+ 603|                 self.show_message(rec.get("message", 0))
+ 604|                 self.apply_tail(rec, nx, ny)
+ 605|         elif cls == 3:
+ 606|             self.start_encounter(rec)
+ 607| 
+ 608|     def bump_blocked(self, rec, nx, ny):
+ 609|         if rec is not None:
+ 610|             self.show_message(rec.get("message", 0))
+ 611|             self.apply_tail(rec, nx, ny)
+ 612|         self.run_hook_at(nx, ny)
+ 613| 
+ 614|     def run_hook_at(self, nx, ny):
+ 615|         hook = self.sc.hook(self.location, nx, ny)
+ 616|         if hook:
+ 617|             self.run_hook(hook, nx, ny)
+ 618| 
+ 619|     def apply_tail(self, rec, x, y):
+ 620|         tail = maps.apply_tail(rec)
+ 621|         if tail is None:
+ 622|             return
+ 623|         m = self.sc.map(self.location)
+ 624|         m["cells"]["actionClass"][y][x] = tail[0]
+ 625|         m["cells"]["action"][y][x] = tail[1]
+ 626|         self.cell_change(x, y, tail[0], tail[1], maps.image_at(m, x, y))
+ 627| 
+ 628|     def apply_loot(self, rec, x, y):
+ 629|         for item in rec.get("items", []):
+ 630|             iid = item[0] if isinstance(item, (list, tuple)) else item
+ 631|             amount = item[1] if isinstance(item, (list, tuple)) and len(item) > 1 else 0
+ 632|             placed = False
+ 633|             for i, m in enumerate(self.party):
+ 634|                 if len(m.get("items", [])) < 30:
+ 635|                     self.add_item(i + 1, iid, 1)
+ 636|                     slot = self.item_slot(i + 1, iid)
+ 637|                     self.emit("item_gain", member=i + 1, item=iid, slot=slot,
+ 638|                               status=amount)
+ 639|                     placed = True
+ 640|                     break
+ 641|             if not placed:
+ 642|                 self.emit("item_lost", item=iid)
+ 643|         cash = rec.get("cash")
+ 644|         if cash:
+ 645|             m = self.party[0]
+ 646|             m["money"] = m.get("money", 0) + cash
+ 647|             self.emit("money", member=1, delta=cash, total=m["money"])
+ 648|         self.apply_tail(rec, x, y)
+ 649| 
+ 650|     # -- cell changes ------------------------------------------------------
+ 651| 
+ 652|     def cell_change(self, x, y, action_class, action, image):
+ 653|         self.cell_changes.append([self.location, x, y, action_class, action,
+ 654|                                   image])
+ 655|         self.emit("cell_change", location=self.location, x=x, y=y,
+ 656|                   action_class=action_class, action=action, image=image)
+ 657| 
+ 658|     # -- hooks -------------------------------------------------------------
+ 659| 
+ 660|     def run_hook(self, hook, nx, ny):
+ 661|         kind = hook.get("kind")
+ 662|         if kind == "win":
+ 663|             self.hook_win(hook, nx, ny)
+ 664|         elif kind == "recruit":
+ 665|             self.hook_recruit(hook, nx, ny)
+ 666|         elif kind == "healer":
+ 667|             self.hook_healer(hook, nx, ny)
+ 668|         elif kind == "lock":
+ 669|             self.bump_lock(None, nx, ny)
+ 670| 
+ 671|     def hook_win(self, hook, nx, ny):
+ 672|         item = hook.get("item")
+ 673|         if item is not None and not self.party_has(item):
+ 674|             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+ 675|             if para:
+ 676|                 self.emit("paragraph", n=para)
+ 677|             return
+ 678|         para = self.hook_get(hook, "win_paragraph", "win_para")
+ 679|         if para:
+ 680|             self.emit("paragraph", n=para)
+ 681|         self.mode = "won"
+ 682|         self.emit("win", steps=self.steps, day=self.day,
+ 683|                   minutes=self.hour * 60 + self.minute)
+ 684| 
+ 685|     def hook_get(self, hook, *names):
+ 686|         for name in names:
+ 687|             if name in hook and hook[name] is not None:
+ 688|                 return hook[name]
+ 689|         return None
+ 690| 
+ 691|     def hook_recruit(self, hook, nx, ny):
+ 692|         para = self.hook_get(hook, "paragraph")
+ 693|         if para:
+ 694|             self.emit("paragraph", n=para)
+ 695|         self.pending = "recruit"
+ 696|         self.pending_hook = hook
+ 697|         self.pending_cell = (nx, ny)
+ 698|         self.emit("prompt", prompt="recruit")
+ 699| 
+ 700|     def hook_healer(self, hook, nx, ny):
+ 701|         self.pending = "heal"
+ 702|         self.pending_hook = hook
+ 703|         self.pending_cell = (nx, ny)
+ 704|         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+ 705| 
+ 706|     # -- locks -------------------------------------------------------------
+ 707| 
+ 708|     def bump_lock(self, rec, nx, ny):
+ 709|         hook = self.sc.hook(self.location, nx, ny)
+ 710|         if hook is None:
+ 711|             return
+ 712|         msg = self.hook_get(hook, "success_message", "message")
+ 713|         if msg:
+ 714|             self.emit("message", location=self.location, string=msg)
+ 715|         key_item = hook.get("key_item")
+ 716|         if key_item is not None:
+ 717|             member = self.member_with_item(key_item)
+ 718|             if member is not None:
+ 719|                 self.emit("key_used", member=member, item=key_item)
+ 720|                 self.unlock(nx, ny, hook, member, xp=0)
+ 721|                 return
+ 722|         member = self.pick_member(hook.get("skill", 0))
+ 723|         skill = hook.get("skill", 0)
+ 724|         level = self.skill_level(self.party[member - 1], skill)
+ 725|         attr = self.skill_attribute(skill)
+ 726|         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+ 727|                                 hook.get("tool_item") is not None)
+ 728|         roll = self.rng.d100()
+ 729|         success = roll <= need
+ 730|         self.emit("check", member=member, skill=skill, level=level, need=need,
+ 731|                   roll=roll, success=success)
+ 732|         if success:
+ 733|             self.unlock(nx, ny, hook, member)
+ 734|         else:
+ 735|             self.emit("message", location=self.location,
+ 736|                       string=hook.get("fail_message", ""))
+ 737| 
+ 738|     def unlock(self, nx, ny, hook, member, xp=10):
+ 739|         self.emit("unlock", x=nx, y=ny)
+ 740|         m = self.sc.map(self.location)
+ 741|         rec = maps.record_at(m, nx, ny)
+ 742|         img = maps.image_at(m, nx, ny)
+ 743|         tail = maps.apply_tail(rec) if rec is not None else None
+ 744|         if tail is None:
+ 745|             tail = (0, 0)
+ 746|         m["cells"]["actionClass"][ny][nx] = tail[0]
+ 747|         m["cells"]["action"][ny][nx] = tail[1]
+ 748|         self.cell_change(nx, ny, tail[0], tail[1], img)
+ 749|         newimg = maps.image_at(m, nx, ny)
+ 750|         self.cell_change(nx, ny, tail[0], tail[1], newimg)
+ 751|         if xp:
+ 752|             mm = self.party[member - 1]
+ 753|             mm["xp"] = mm.get("xp", 0) + xp
+ 754|             self.emit("xp", member=member, delta=xp, total=mm["xp"])
+ 755|         para = self.hook_get(hook, "paragraph", "success_paragraph")
+ 756|         if para:
+ 757|             self.emit("paragraph", n=para)
+ 758| 
+ 759|     def member_with_item(self, item):
+ 760|         for i, m in enumerate(self.party):
+ 761|             for it in m.get("items", []):
+ 762|                 if it[0] == item and it[1] > 0:
+ 763|                     return i + 1
+ 764|         return None
+ 765| 
+ 766|     def pick_member(self, skill):
+ 767|         idx = self.skill_attribute(skill)
+ 768|         best = 1
+ 769|         best_key = None
+ 770|         for i, m in enumerate(self.party):
+ 771|             if m.get("cond", 0) != 0:
+ 772|                 continue
+ 773|             lvl = self.skill_level(m, skill)
+ 774|             attrs = m.get("attrs") or {}
+ 775|             a = attrs.get(self.ATTR_ORDER[idx], 0)
+ 776|             key = (lvl, a, -i)
+ 777|             if best_key is None or key > best_key:
+ 778|                 best_key = key
+ 779|                 best = i + 1
+ 780|         return best
+ 781| 
+ 782|     def skill_attribute(self, skill):
+ 783|         """LR-6: LABSKILL byte 1 is a record offset; map it to an attribute."""
+ 784|         tbl = getattr(self.sc, "skill_table", None)
+ 785|         if tbl:
+ 786|             try:
+ 787|                 off = tbl[skill][2]
+ 788|             except Exception:  # noqa: BLE001
+ 789|                 off = None
+ 790|             if off in self.ATTR_OFFSETS:
+ 791|                 return self.ATTR_OFFSETS[off]
+ 792|         return 1
+ 793| 
+ 794|     def end_of_round(self):
+ 795|         """LR-36: living melee groups above band 1 close in, then round += 1."""
+ 796|         c = self.combat
+ 797|         if c is None:
+ 798|             return
+ 799|         for i, g in enumerate(c["groups"]):
+ 800|             mob = g.get("mob") or {}
+ 801|             melee = mob.get("weaponType", 0) < 3
+ 802|             if melee and g["band"] > 1 and any(h > 0 for h in g["hp"]):
+ 803|                 g["band"] -= 1
+ 804|                 self.emit("group_closes", group=i + 1, band=g["band"])
+ 805|         c["round"] += 1
+ 806| 
+ 807|     def party_has(self, item):
+ 808|         for m in self.party:
+ 809|             for it in m.get("items", []):
+ 810|                 if it[0] == item and it[1] > 0:
+ 811|                     return True
+ 812|         return False
+ 813| 
+ 814|     def skill_level(self, member, skill):
+ 815|         for sid, lvl in member.get("skills", []):
+ 816|             if sid == skill:
+ 817|                 return lvl
+ 818|         return 0
+ 819| 
+ 820|     # -- shops -------------------------------------------------------------
+ 821| 
+ 822|     def open_shop(self, rec):
+ 823|         n = rec.get("shop", 0)
+ 824|         self.show_message(rec.get("message", 0))
+ 825|         self.mode = "shop"
+ 826|         recs = self.sc.shops[n]["items"] if n in self.sc.shops else []
+ 827|         items = [i + 1 for i, it in enumerate(recs) if 1 <= it.get("stock", 0) <= 255]
+ 828|         self.shop = {"number": n, "recs": recs, "items": items}
+ 829|         self.emit("shop_open", shop=n)
+ 830| 
+ 831|     def key_b(self):
+ 832|         if self.mode != "shop":
+ 833|             return False
+ 834|         self.pending = "buy_item"
+ 835|         self.emit("prompt", prompt="buy_item", items=list(self.shop["items"]))
+ 836| 
+ 837|     def key_s(self):
+ 838|         if self.mode == "shop":
+ 839|             self.pending = "sell_member"
+ 840|             self.emit("prompt", prompt="member")
+ 841|             return
+ 842|         self.serial += 1
+ 843|         self.save_game()
+ 844| 
+ 845|     def key_c(self):
+ 846|         self.pending = "char_member"
+ 847|         self.emit("prompt", prompt="member")
+ 848| 
+ 849|     def key_e(self):
+ 850|         if self.mode != "char":
+ 851|             return False
+ 852|         self.pending = "equip_item"
+ 853|         self.emit("prompt", prompt="item_slot")
+ 854| 
+ 855|     def key_x(self):
+ 856|         if self.mode == "shop":
+ 857|             self.mode = "map"
+ 858|             self.shop = None
+ 859|             self.pending = None
+ 860|             self.emit("shop_close")
+ 861|             return
+ 862|         if self.mode == "char":
+ 863|             self.mode = "map"
+ 864|             self.pending = None
+ 865|             self.emit("char_close")
+ 866|             return
+ 867|         return False
+ 868| 
+ 869|     def key_o(self):
+ 870|         self.emit("prompt", prompt="load")
+ 871|         self.pending = "load"
+ 872| 
+ 873|     def key_y(self):
+ 874|         if self.pending == "load":
+ 875|             self.pending = None
+ 876|             self.load_game()
+ 877|             return
+ 878|         if self.pending == "recruit":
+ 879|             self.pending = None
+ 880|             self.do_recruit()
+ 881|             return
+ 882|         if self.pending == "heal":
+ 883|             self.pending = None
+ 884|             self.do_heal()
+ 885|             return
+ 886|         return False
+ 887| 
+ 888|     def key_n(self):
+ 889|         if self.pending in ("recruit", "heal", "load"):
+ 890|             self.pending = None
+ 891|             return
+ 892|         return False
+ 893| 
+ 894|     def do_recruit(self):
+ 895|         hook = self.pending_hook
+ 896|         nx, ny = self.pending_cell
+ 897|         m = self.sc.map(self.location)
+ 898|         img = self.hook_get(hook, "cleared_image", "image")
+ 899|         m["cells"]["actionClass"][ny][nx] = 0
+ 900|         m["cells"]["action"][ny][nx] = 0
+ 901|         m["cells"]["image"][ny][nx] = img
+ 902|         self.cell_change(nx, ny, 0, 0, img)
+ 903|         slot = len(self.party) + 1
+ 904|         idx = hook.get("npc", 0) or 0
+ 905|         npcs = m.get("npcs", [])
+ 906|         ch = npcs[idx] if 0 <= idx < len(npcs) else {}
+ 907|         self.party.append(self.member_from_character(ch, slot))
+ 908|         self.emit("recruit", location=self.location, npc=idx, slot=slot)
+ 909| 
+ 910|     def member_from_character(self, ch, slot):
+ 911|         aff = ch.get("afflictions", 0)
+ 912|         cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+ 913|         return {
+ 914|             "slot": slot, "name": ch.get("name", ""), "npc": ch.get("npc", 0),
+ 915|             "level": ch.get("level", 1), "xp": ch.get("experience", 0),
+ 916|             "max_hp": ch.get("maxCon", 0), "hp": ch.get("curCon", 0),
+ 917|             "cond": cond, "money": ch.get("money", 0),
+ 918|             "ac": ch.get("armorClass", 0), "rank": ch.get("rank", ""),
+ 919|             "skill_points": ch.get("skillPoints", 0),
+ 920|             "items": [list(x) for x in ch.get("items", [])],
+ 921|             "skills": [list(x) for x in ch.get("skills", [])],
+ 922|             "weapon_slot": ch.get("weaponSlot", 0),
+ 923|             "armour_slot": ch.get("armorSlot", 0),
+ 924|             "attrs": {"STR": ch.get("strength", 0), "IQ": ch.get("intelligence", 0),
+ 925|                       "LCK": ch.get("luck", 0), "SPD": ch.get("speed", 0),
+ 926|                       "AGL": ch.get("agility", 0), "CHA": ch.get("charisma", 0)},
+ 927|             "gender": ch.get("gender", 0), "nationality": ch.get("nationality", 0),
+ 928|             "game_won": ch.get("gameWon", 0),
+ 929|         }
+ 930| 
+ 931|     def do_heal(self):
+ 932|         hook = self.pending_hook
+ 933|         price = hook.get("price", 0)
+ 934|         m = self.party[0]
+ 935|         m["money"] = m.get("money", 0) - price
+ 936|         self.emit("money", member=1, delta=-price, total=m["money"])
+ 937|         for mm in self.party:
+ 938|             mm["hp"] = mm.get("max_hp", 0)
+ 939|         self.emit("heal_all", price=price)
+ 940| 
+ 941|     # -- rest --------------------------------------------------------------
+ 942| 
+ 943|     def key_r(self):
+ 944|         self.advance_time(60)
+ 945|         self.emit("rest")
+ 946| 
+ 947|     # -- save / load -------------------------------------------------------
+ 948| 
+ 949|     def save_game(self):
+ 950|         self.emit("save", serial=self.serial)
+ 951|         self.saved[self.serial] = self.snapshot()
+ 952|         try:
+ 953|             self.write_save_files()
+ 954|         except Exception:  # noqa: BLE001
+ 955|             pass
+ 956| 
+ 957|     def write_save_files(self):
+ 958|         pass
+ 959| 
+ 960|     def load_game(self):
+ 961|         self.emit("load", serial=self.serial)
+ 962| 
+ 963|     # -- combat ------------------------------------------------------------
+ 964| 
+ 965|     def start_encounter(self, rec):
+ 966|         self.mode = "combat"
+ 967|         groups = self.build_groups(rec)
+ 968|         self.combat = {"groups": groups, "round": 0, "rec": rec, "surprised": False,
+ 969|                        "band": 3, "kills": 0, "fired": set(),
+ 970|                        "pending_monsters": [[0] * len(g["hp"]) for g in groups],
+ 971|                        "pending_members": {}, "over": False, "last_death_round": None}
+ 972|         self.emit("encounter_start", groups=[self.group_event(g) for g in groups])
+ 973|         msg = (rec or {}).get("message", 0)
+ 974|         if msg:
+ 975|             self.show_message(msg)
+ 976|         if (rec or {}).get("friendly"):
+ 977|             self.emit("combat_end", result="friendly")
+ 978|             self.mode = "map"
+ 979|             self.apply_tail(rec, self.x, self.y)
+ 980|             return
+ 981|         if not groups:
+ 982|             self.emit("combat_end", result="victory", rounds=0)
+ 983|             self.mode = "map"
+ 984|             self.apply_tail(rec, self.x, self.y)
+ 985|             return
+ 986|         d_max = max(g["mob"].get("combatRating", 0) for g in groups)
+ 987|         skill = 18
+ 988|         member = self.pick_member(skill)
+ 989|         level = self.skill_level(self.party[member - 1], skill)
+ 990|         attr = self.attr_value(self.party[member - 1], skill)
+ 991|         res = rules.skill_check(self.rng, level, attr, d_max)
+ 992|         self.emit("check", member=member, skill=skill, level=level, **res)
+ 993|         if not res["success"]:
+ 994|             self.combat["surprised"] = True
+ 995|             self.emit("surprised")
+ 996|             self.surprise_round()
+ 997| 
+ 998|     def key_a(self):
+ 999|         if self.mode != "combat":
+1000|             return False
+1001|         self.combat_round()
+1002|         return True
+1003| 
+1004|     # -- repeat ------------------------------------------------------------
+1005| 
+1006|     def run_repeat(self, item):
+1007|         spec = item["repeat_until"]
+1008|         if isinstance(spec, dict):
+1009|             script = spec.get("script")
+1010|             if script is None:
+1011|                 script = spec.get("keys", [])
+1012|             until = spec.get("until")
+1013|             if until is None:
+1014|                 until = spec.get("condition")
+1015|             limit = spec.get("limit", spec.get("max", 200))
+1016|         else:
+1017|             script = item.get("keys", [])
+1018|             until = spec
+1019|             limit = item.get("max", item.get("limit", 200))
+1020|         for _ in range(limit):
+1021|             self.run_script(script)
+1022|             if until is None or self._until_met(until):
+1023|                 break
+1024| 
+1025|     def _until_met(self, until):
+1026|         if isinstance(until, str):
+1027|             if until.startswith("mode:"):
+1028|                 return self.mode == until[len("mode:"):]
+1029|             if until.startswith("cell:"):
+1030|                 parts = until[len("cell:"):].split(",")
+1031|                 if len(parts) == 3:
+1032|                     loc, x, y = (int(p) for p in parts)
+1033|                     return any(c[0] == loc and c[1] == x and c[2] == y
+1034|                                for c in self.cell_changes)
+1035|                 return False
+1036|             return any(e.get("type") == until for e in self.events)
+1037|         if isinstance(until, dict):
+1038|             for e in self.events:
+1039|                 if all(e.get(k) == v for k, v in until.items()):
+1040|                     return True
+1041|         return False
+1042| 
+1043| 
+1044| # ---------------------------------------------------------------------------
+1045| # entry point
+1046| # ---------------------------------------------------------------------------
+1047| 
+1048| 
+1049| def run(data_dir, options=None, seed=None, *args, **kwargs):
+1050|     if isinstance(options, str):
+1051|         try:
+1052|             options = json.loads(options)
+1053|         except ValueError:
+1054|             options = {"script": [options]}
+1055|     if isinstance(options, (list, tuple)):
+1056|         options = {"script": list(options)}
+1057|     options = dict(options or {})
+1058|     if seed is None:
+1059|         seed = kwargs.get("seed", options.get("seed"))
+1060|     eng = Engine(data_dir, seed=seed, options=options)
+1061|     eng.new_game(seed)
+1062|     eng.run_script(options.get("script", []))
+1063|     return eng.events
+1064| 
+=== combat.py (485 lines) ===
+   1| """SPEC-04 LR-26 to LR-46: combat resolution for the headless driver.
+   2| 
+   3| The engine keeps ``self.combat`` as a dict while a fight is running:
+   4| 
+   5|     {"round": int,            # 0 while the surprise round is pending
+   6|      "groups": [...],         # LR-26 groups, each with "hp" per monster
+   7|      "band": int,             # LR-28 range band (1 = melee)
+   8|      "surprised": bool,
+   9|      "kills": int,
+  10|      "fired": set(),          # slots that fired in phase 1
+  11|      "pending_monsters": [[int]],   # phase 1 damage per group/index
+  12|      "pending_members": {slot: int},
+  13|      "over": bool,
+  14|      "last_death_round": int}
+  15| 
+  16| This module is a mixin: ``wlengine.headless.Engine`` inherits from
+  17| ``CombatMixin`` so the combat methods can use the engine's helpers
+  18| (``emit``, ``item_record``, ``skill_level``, ``rng`` ...).
+  19| """
+  20| 
+  21| from __future__ import annotations
+  22| 
+  23| from . import rules
+  24| 
+  25| RANGED_SKILLS = (4, 5, 12)
+  26| GUNSMITHING = 22
+  27| LOOKOUT = 18
+  28| RANKS = ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"]
+  29| 
+  30| 
+  31| def _alive(member):
+  32|     return member.get("hp", 0) > 0 and not member.get("cond")
+  33| 
+  34| 
+  35| def weapon_dice(rec):
+  36|     """(n, s) of a weapon's damage: high nibble dice, low nibble sides."""
+  37|     if rec is None:
+  38|         return 1, 6
+  39|     if "damage_n" in rec:
+  40|         return rec.get("damage_n", 1), rec.get("damage_s", 6)
+  41|     byte = rec.get("damage", 0) or 0
+  42|     n = (byte >> 4) & 0x0F
+  43|     s = byte & 0x0F
+  44|     if n <= 0:
+  45|         n = 1
+  46|     if s <= 0:
+  47|         s = 6
+  48|     return n, s
+  49| 
+  50| 
+  51| class CombatMixin:
+  52|     # -- inventory helpers -------------------------------------------------
+  53| 
+  54|     def member_weapon(self, member):
+  55|         """The equipped weapon: item slot 1 (LR-33)."""
+  56|         items = member.get("items") or []
+  57|         if not items:
+  58|             return None, 0
+  59|         iid = items[0][0]
+  60|         return self.item_record(iid), iid
+  61| 
+  62|     def weapon_ammo(self, member):
+  63|         rec, _iid = self.member_weapon(member)
+  64|         if rec is None:
+  65|             return 0
+  66|         return member.get("loaded", rec.get("capacity", 0))
+  67| 
+  68|     def ammo_boxes(self, member):
+  69|         """Total rounds in the member's ammunition items."""
+  70|         total = 0
+  71|         for iid, count in (member.get("items") or [])[1:]:
+  72|             rec = self.item_record(iid)
+  73|             if rec and rec.get("ammo"):
+  74|                 total += rec["ammo"] * count
+  75|         return total
+  76| 
+  77|     def spend_ammo(self, member):
+  78|         member["loaded"] = max(0, self.weapon_ammo(member) - 1)
+  79| 
+  80|     def reload(self, member):
+  81|         """LR-33: one ammunition item refills the weapon to capacity."""
+  82|         rec, _iid = self.member_weapon(member)
+  83|         cap = rec.get("capacity", 0) if rec else 0
+  84|         items = member.get("items") or []
+  85|         for idx in range(1, len(items)):
+  86|             iid, count = items[idx]
+  87|             irec = self.item_record(iid)
+  88|             if not irec or not irec.get("ammo") or count <= 0:
+  89|                 continue
+  90|             items[idx] = [iid, count - 1]
+  91|             member["loaded"] = cap
+  92|             return cap
+  93|         return 0
+  94| 
+  95|     # -- orders (LR-33) ----------------------------------------------------
+  96| 
+  97|     def auto_orders(self):
+  98|         c = self.combat
+  99|         orders = {}
+ 100|         any_alive = any(hp > 0 for g in c["groups"] for hp in g["hp"])
+ 101|         band = c["band"]
+ 102|         for i, m in enumerate(self.party):
+ 103|             slot = str(i + 1)
+ 104|             if not _alive(m):
+ 105|                 orders[slot] = ["dead"]
+ 106|                 continue
+ 107|             if not any_alive:
+ 108|                 orders[slot] = ["wait"]
+ 109|                 continue
+ 110|             if m.get("jammed"):
+ 111|                 orders[slot] = ["unjam"]
+ 112|                 continue
+ 113|             rec, _iid = self.member_weapon(m)
+ 114|             if rec is not None and rec.get("skill") in RANGED_SKILLS:
+ 115|                 if self.weapon_ammo(m) > 0:
+ 116|                     orders[slot] = ["fire", 1]
+ 117|                     continue
+ 118|                 if self.ammo_boxes(m) > 0:
+ 119|                     orders[slot] = ["reload"]
+ 120|                     continue
+ 121|             orders[slot] = ["unarmed", 1] if band == 1 else ["advance", 1]
+ 122|         return orders
+ 123| 
+ 124|     # -- targeting ---------------------------------------------------------
+ 125| 
+ 126|     def pick_monster_target(self, pending=None):
+ 127|         """LR-34 step 4: first monster that is still standing after pending damage."""
+ 128|         c = self.combat
+ 129|         if pending is None:
+ 130|             pending = c.get("pending_monsters")
+ 131|         for gi, g in enumerate(c["groups"]):
+ 132|             pend = pending[gi] if pending else [0] * len(g["hp"])
+ 133|             for mi, hp in enumerate(g["hp"]):
+ 134|                 if hp > 0 and hp - pend[mi] > 0:
+ 135|                     return {"group": gi, "index": mi, "ac": g["mob"].get("armorClass", 0),
+ 136|                             "band": c["band"]}
+ 137|         for gi, g in enumerate(c["groups"]):
+ 138|             for mi, hp in enumerate(g["hp"]):
+ 139|                 if hp > 0:
+ 140|                     return {"group": gi, "index": mi, "ac": g["mob"].get("armorClass", 0),
+ 141|                             "band": c["band"]}
+ 142|         return None
+ 143| 
+ 144|     def pick_random_member(self):
+ 145|         """LR-34: a conscious member chosen uniformly."""
+ 146|         conscious = [i + 1 for i, m in enumerate(self.party) if _alive(m)]
+ 147|         if not conscious:
+ 148|             return None
+ 149|         slot = conscious[self.rng.roll(len(conscious)) - 1]
+ 150|         return {"slot": slot, "ac": self.party[slot - 1].get("ac", 0)}
+ 151| 
+ 152|     # -- phase 1 (LR-34) ---------------------------------------------------
+ 153| 
+ 154|     def party_phase1(self):
+ 155|         c = self.combat
+ 156|         if c is None:
+ 157|             return
+ 158|         fired = c.setdefault("fired", set())
+ 159|         pend = c["pending_monsters"]
+ 160|         for i, m in enumerate(self.party):
+ 161|             if not _alive(m):
+ 162|                 continue
+ 163|             rec, _iid = self.member_weapon(m)
+ 164|             if rec is None or rec.get("skill") not in RANGED_SKILLS:
+ 165|                 continue
+ 166|             if self.weapon_ammo(m) <= 0:
+ 167|                 self.emit("click", member=i + 1)
+ 168|                 continue
+ 169|             roll = self.rng.d100()
+ 170|             jam = rules.jam_chance(self.skill_level(m, GUNSMITHING))
+ 171|             if roll <= jam:
+ 172|                 m["jammed"] = True
+ 173|                 m["loaded"] = 0
+ 174|                 self.emit("jam", member=i + 1, roll=roll, chance=jam)
+ 175|                 continue
+ 176|             self.spend_ammo(m)
+ 177|             fired.add(i + 1)
+ 178|             target = self.pick_monster_target(pend)
+ 179|             if target is None:
+ 180|                 continue
+ 181|             need = rules.ranged_need(self.skill_level(m, rec.get("skill", 0)),
+ 182|                                      (m.get("attrs") or {}).get("AGL", 0),
+ 183|                                      target["ac"], c["band"])
+ 184|             roll = self.rng.d100()
+ 185|             hit = roll <= need
+ 186|             ev = {"side": "party", "member": i + 1, "group": target["group"] + 1,
+ 187|                   "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+ 188|             if hit:
+ 189|                 n, s = weapon_dice(rec)
+ 190|                 dmg = self.rng.dice(n, s)
+ 191|                 ev["damage"] = dmg
+ 192|                 pend[target["group"]][target["index"]] += dmg
+ 193|             self.emit("attack", **ev)
+ 194| 
+ 195|     def monster_phase1(self):
+ 196|         c = self.combat
+ 197|         if c is None:
+ 198|             return
+ 199|         pend = c["pending_members"]
+ 200|         conscious = [i + 1 for i, m in enumerate(self.party) if _alive(m)]
+ 201|         for gi, g in enumerate(c["groups"]):
+ 202|             mob = g["mob"]
+ 203|             if mob.get("weaponType", 0) < 3:
+ 204|                 continue
+ 205|             for mi, hp in enumerate(g["hp"]):
+ 206|                 if hp <= 0:
+ 207|                     continue
+ 208|                 if not conscious:
+ 209|                     break
+ 210|                 t = conscious[self.rng.roll(len(conscious)) - 1]
+ 211|                 m = self.party[t - 1]
+ 212|                 need = rules.monster_need(mob.get("combatRating", 0), m.get("ac", 0), c["band"])
+ 213|                 roll = self.rng.d100()
+ 214|                 hit = roll <= need
+ 215|                 ev = {"side": "monsters", "group": gi + 1, "attacker": mi + 1, "member": t,
+ 216|                       "need": need, "roll": roll, "hit": hit}
+ 217|                 if hit:
+ 218|                     dmg = self.rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+ 219|                     ev["damage"] = dmg
+ 220|                     pend[t] = pend.get(t, 0) + dmg
+ 221|                 self.emit("attack", **ev)
+ 222| 
+ 223|     def apply_phase1(self):
+ 224|         c = self.combat
+ 225|         for gi, g in enumerate(c["groups"]):
+ 226|             pend = c["pending_monsters"][gi]
+ 227|             for mi in range(len(g["hp"])):
+ 228|                 if g["hp"][mi] > 0 and pend[mi]:
+ 229|                     g["hp"][mi] -= pend[mi]
+ 230|                     if g["hp"][mi] <= 0:
+ 231|                         c["kills"] += 1
+ 232|                         c["last_death_round"] = c["round"]
+ 233|                         self.emit("monster_dies", group=gi + 1, index=mi + 1)
+ 234|         for slot in sorted(c["pending_members"]):
+ 235|             dmg = c["pending_members"][slot]
+ 236|             if dmg and _alive(self.party[slot - 1]):
+ 237|                 self.apply_member_damage(slot, dmg)
+ 238| 
+ 239|     def apply_member_damage(self, slot, dmg):
+ 240|         m = self.party[slot - 1]
+ 241|         res = rules.damage_member(m.get("hp", 0), dmg)
+ 242|         m["hp"] = res["hp"]
+ 243|         if res.get("cond"):
+ 244|             m["cond"] = res["cond"]
+ 245|             self.emit("death" if res["cond"] == 2 else "unconscious", member=slot)
+ 246| 
+ 247|     # -- phase 2 (LR-35) ---------------------------------------------------
+ 248| 
+ 249|     def phase2(self):
+ 250|         c = self.combat
+ 251|         actors = []
+ 252|         fired = c.get("fired") or set()
+ 253|         for i, m in enumerate(self.party):
+ 254|             if not _alive(m):
+ 255|                 continue
+ 256|             if (i + 1) in fired:
+ 257|                 continue
+ 258|             actors.append({"side": "party", "slot": i + 1, "speed": self.member_speed(m)})
+ 259|         for gi, g in enumerate(c["groups"]):
+ 260|             if g["mob"].get("weaponType", 0) >= 3:
+ 261|                 continue
+ 262|             for mi, hp in enumerate(g["hp"]):
+ 263|                 if hp <= 0:
+ 264|                     continue
+ 265|                 actors.append({"side": "monster", "group": gi, "index": mi,
+ 266|                                "speed": g["mob"].get("combatRating", 0)})
+ 267|         for a in rules.speed_order(actors):
+ 268|             if c.get("over"):
+ 269|                 return
+ 270|             if a["side"] == "party":
+ 271|                 self.member_phase2(a["slot"])
+ 272|             else:
+ 273|                 self.monster_phase2(a["group"], a["index"])
+ 274|             if self.check_end():
+ 275|                 return
+ 276| 
+ 277|     def member_speed(self, member):
+ 278|         return (member.get("attrs") or {}).get("SPD", 0)
+ 279| 
+ 280|     def member_phase2(self, slot):
+ 281|         m = self.party[slot - 1]
+ 282|         if not _alive(m):
+ 283|             return
+ 284|         if m.get("jammed"):
+ 285|             self.unjam(slot)
+ 286|             return
+ 287|         rec, _iid = self.member_weapon(m)
+ 288|         if rec is not None and rec.get("skill") in RANGED_SKILLS and self.weapon_ammo(m) > 0:
+ 289|             self.fire(slot, rec)
+ 290|             return
+ 291|         if self.combat["band"] <= 1:
+ 292|             self.melee_attack(slot)
+ 293|         else:
+ 294|             self.advance()
+ 295| 
+ 296|     def fire(self, slot, rec):
+ 297|         m = self.party[slot - 1]
+ 298|         target = self.pick_monster_target()
+ 299|         if target is None:
+ 300|             return
+ 301|         self.spend_ammo(m)
+ 302|         need = rules.ranged_need(self.skill_level(m, rec.get("skill", 0)),
+ 303|                                  (m.get("attrs") or {}).get("AGL", 0),
+ 304|                                  target["ac"], self.combat["band"])
+ 305|         roll = self.rng.d100()
+ 306|         hit = roll <= need
+ 307|         ev = {"side": "party", "member": slot, "group": target["group"] + 1,
+ 308|               "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+ 309|         if hit:
+ 310|             n, s = weapon_dice(rec)
+ 311|             dmg = self.rng.dice(n, s)
+ 312|             ev["damage"] = dmg
+ 313|             self.damage_monster(target["group"], target["index"], dmg)
+ 314|         self.emit("attack", **ev)
+ 315| 
+ 316|     def melee_attack(self, slot):
+ 317|         m = self.party[slot - 1]
+ 318|         target = self.pick_monster_target()
+ 319|         if target is None:
+ 320|             return
+ 321|         rec, _iid = self.member_weapon(m)
+ 322|         level = self.skill_level(m, rec.get("skill", 0)) if rec else 0
+ 323|         need = rules.melee_need(level, (m.get("attrs") or {}).get("STR", 0), target["ac"])
+ 324|         roll = self.rng.d100()
+ 325|         hit = roll <= need
+ 326|         ev = {"side": "party", "member": slot, "group": target["group"] + 1,
+ 327|               "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+ 328|         if hit:
+ 329|             if rec is not None:
+ 330|                 n, s = weapon_dice(rec)
+ 331|             else:
+ 332|                 n, s = 1, 2
+ 333|             dmg = self.rng.dice(n, s) + rules.melee_damage_bonus(
+ 334|                 (m.get("attrs") or {}).get("STR", 0))
+ 335|             ev["damage"] = dmg
+ 336|             self.damage_monster(target["group"], target["index"], dmg)
+ 337|         self.emit("attack", **ev)
+ 338| 
+ 339|     def monster_phase2(self, gi, mi):
+ 340|         c = self.combat
+ 341|         g = c["groups"][gi]
+ 342|         mob = g["mob"]
+ 343|         target = self.pick_random_member()
+ 344|         if target is None:
+ 345|             return
+ 346|         m = self.party[target["slot"] - 1]
+ 347|         need = rules.monster_need(mob.get("combatRating", 0), m.get("ac", 0), c["band"])
+ 348|         roll = self.rng.d100()
+ 349|         hit = roll <= need
+ 350|         ev = {"side": "monsters", "group": gi + 1, "attacker": mi + 1, "member": target["slot"],
+ 351|               "need": need, "roll": roll, "hit": hit}
+ 352|         if hit:
+ 353|             dmg = self.rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+ 354|             ev["damage"] = dmg
+ 355|             self.apply_member_damage(target["slot"], dmg)
+ 356|         self.emit("attack", **ev)
+ 357| 
+ 358|     def unjam(self, slot):
+ 359|         m = self.party[slot - 1]
+ 360|         level = self.skill_level(m, GUNSMITHING)
+ 361|         res = rules.skill_check(self.rng, level, (m.get("attrs") or {}).get("IQ", 0), 0)
+ 362|         self.emit("check", member=slot, skill=GUNSMITHING, level=level, **res)
+ 363|         if res.get("success"):
+ 364|             m["jammed"] = False
+ 365|             self.emit("unjammed", member=slot)
+ 366| 
+ 367|     def advance(self):
+ 368|         c = self.combat
+ 369|         c["band"] = max(1, c["band"] - 1)
+ 370|         self.emit("advance", band=c["band"])
+ 371| 
+ 372|     def damage_monster(self, gi, mi, dmg):
+ 373|         c = self.combat
+ 374|         g = c["groups"][gi]
+ 375|         if g["hp"][mi] <= 0:
+ 376|             return
+ 377|         g["hp"][mi] -= dmg
+ 378|         if g["hp"][mi] <= 0:
+ 379|             c["kills"] += 1
+ 380|             c["last_death_round"] = c["round"]
+ 381|             self.emit("monster_dies", group=gi + 1, index=mi + 1)
+ 382| 
+ 383|     # -- rounds ------------------------------------------------------------
+ 384| 
+ 385|     def reset_phase(self):
+ 386|         c = self.combat
+ 387|         c["fired"] = set()
+ 388|         c["pending_monsters"] = [[0] * len(g["hp"]) for g in c["groups"]]
+ 389|         c["pending_members"] = {}
+ 390| 
+ 391|     def check_end(self):
+ 392|         c = self.combat
+ 393|         if c is None or c.get("over"):
+ 394|             return True
+ 395|         if not any(hp > 0 for g in c["groups"] for hp in g["hp"]):
+ 396|             self.victory()
+ 397|             return True
+ 398|         if not any(_alive(m) for m in self.party):
+ 399|             self.defeat()
+ 400|             return True
+ 401|         return False
+ 402| 
+ 403|     def combat_round(self):
+ 404|         c = self.combat
+ 405|         if c is None:
+ 406|             return
+ 407|         rnd = c["round"] if c["round"] else 1
+ 408|         c["round"] = rnd
+ 409|         orders = self.auto_orders()
+ 410|         self.emit("round_orders", round=rnd, orders=orders)
+ 411|         self.emit("round_start", round=rnd)
+ 412|         self.reset_phase()
+ 413|         self.party_phase1()
+ 414|         self.monster_phase1()
+ 415|         self.apply_phase1()
+ 416|         if self.check_end():
+ 417|             return
+ 418|         self.phase2()
+ 419|         if self.check_end():
+ 420|             return
+ 421|         self.end_of_round()
+ 422| 
+ 423|     def surprise_round(self):
+ 424|         c = self.combat
+ 425|         if c is None:
+ 426|             return
+ 427|         c["round"] = 0
+ 428|         self.emit("round_start", round=0)
+ 429|         self.reset_phase()
+ 430|         self.monster_phase1()
+ 431|         self.apply_phase1()
+ 432|         if self.check_end():
+ 433|             return
+ 434|         self.end_of_round()
+ 435| 
+ 436|     # -- victory and defeat (LR-44 to LR-46) -------------------------------
+ 437| 
+ 438|     def victory(self):
+ 439|         c = self.combat
+ 440|         if c is None or c.get("over"):
+ 441|             return
+ 442|         c["over"] = True
+ 443|         rounds = c.get("last_death_round") or c["round"]
+ 444|         self.emit("combat_end", result="victory", rounds=rounds)
+ 445|         total = 0
+ 446|         for gi, g in enumerate(c["groups"]):
+ 447|             mob = g["mob"]
+ 448|             killed = sum(1 for hp in g["hp"] if hp <= 0)
+ 449|             total += killed * mob.get("sturdiness", 0) * (mob.get("armorClass", 0) + 1)
+ 450|         alive = [i + 1 for i, m in enumerate(self.party) if not m.get("cond") == 2]
+ 451|         share = total // len(alive) if alive else 0
+ 452|         for slot in range(1, len(self.party) + 1):
+ 453|             m = self.party[slot - 1]
+ 454|             m["xp"] = m.get("xp", 0) + share
+ 455|             self.emit("xp", member=slot, delta=share, total=m["xp"])
+ 456|             lvl0 = m.get("level", 1)
+ 457|             lvl = rules.level_after(lvl0, m["xp"])
+ 458|             if lvl > lvl0:
+ 459|                 m["level"] = lvl
+ 460|                 m["max_hp"] = rules.max_hp((m.get("attrs") or {}).get("STR", 0), lvl)
+ 461|                 self.emit("promote", member=slot, level=lvl, max_hp=m["max_hp"],
+ 462|                           rank=RANKS[min(lvl, 7) - 1])
+ 463|         money = 5 * self.best_salvage() * c["kills"]
+ 464|         if money:
+ 465|             self.party[0]["money"] = self.party[0].get("money", 0) + money
+ 466|             self.emit("money", member=1, delta=money, total=self.party[0]["money"])
+ 467|         self.combat = None
+ 468|         self.mode = "map"
+ 469| 
+ 470|     def best_salvage(self):
+ 471|         best = 0
+ 472|         for m in self.party:
+ 473|             best = max(best, self.skill_level(m, 20))
+ 474|         return best
+ 475| 
+ 476|     def defeat(self):
+ 477|         c = self.combat
+ 478|         if c is None or c.get("over"):
+ 479|             return
+ 480|         c["over"] = True
+ 481|         self.emit("combat_end", result="defeat")
+ 482|         self.emit("game_over")
+ 483|         self.combat = None
+ 484|         self.mode = "gameover"
+ 485| 
+=== scenario.py (888 lines) ===
+   1| """The scenario compiler (SPEC-05 section 13).
+   2| 
+   3| ``compile(scenario_dir, out_dir)`` reads ``scenario.json`` and the files it
+   4| lists and writes the lab data set of SPEC-02 section 12.1: GAME1 (four maps,
+   5| the new-game savegame, three shop lists), LABTABLES.BIN, LABSTR.BIN,
+   6| LABSKILL.BIN, LABHOOKS.JSON, PARAGRAPHS.JSON, ALLHTDS1, ALLPICS1, IC0_9.WLF,
+   7| MASKS.WLF, COLORF.FNT, CURS, TITLE.PIC and END.CPA.
+   8| 
+   9| Everything is written with the engine's own encoders, so reading the output
+  10| back through the engine's loaders returns the JSON content again.
+  11| """
+  12| 
+  13| from __future__ import annotations
+  14| 
+  15| import json
+  16| import os
+  17| 
+  18| from . import codecs, containers, graphics, huffman, maps, rules, strings
+  19| from .errors import FormatError
+  20| 
+  21| # The 60-byte dictionary D of SPEC-02 section 9.3.
+  22| DICT = (b" e\x00tanoisrhdlucmfwygpb.,'v!k?\r"
+  23|         b"0123456789xjqz:\x0a\x0b\x0c\x0e\x0f\x10\x11\x06/()\"%+;")
+  24| 
+  25| # Section order inside the map-data body (SPEC-03 section 6.1).
+  26| TABLE_ORDER_A = [0, 1, 2, 3, 4, 5, 6, 7, 15]
+  27| TABLE_ORDER_B = [8, 9, 10, 11, 12, 13, 14]
+  28| 
+  29| NO_CHANGE = 255
+  30| 
+  31| MAPINFO_FIELDS = ("encounterFrequency", "tileset", "randomMonsterTypes",
+  32|                   "maxRandomEncounters", "borderImage")
+  33| 
+  34| PORTRAIT_BASE_SIZE = graphics.PORTRAIT_BASE_SIZE
+  35| PORTRAIT_STRIDE = graphics.PORTRAIT_STRIDE
+  36| TITLE_STRIDE = graphics.TITLE_STRIDE
+  37| ENDING_SIGNATURE = graphics.ENDING_SIGNATURE
+  38| 
+  39| 
+  40| # ---------------------------------------------------------------------------
+  41| # Small helpers
+  42| # ---------------------------------------------------------------------------
+  43| 
+  44| def _u16(v: int) -> bytes:
+  45|     return (v & 0xFFFF).to_bytes(2, "little")
+  46| 
+  47| 
+  48| def _u32(v: int) -> bytes:
+  49|     return (v & 0xFFFFFFFF).to_bytes(4, "little")
+  50| 
+  51| 
+  52| def _fixed(text, n: int) -> bytes:
+  53|     raw = text.encode("latin-1") if isinstance(text, str) else bytes(text)
+  54|     return raw[:n] + bytes(max(0, n - len(raw)))
+  55| 
+  56| 
+  57| def _load_json(path: str):
+  58|     with open(path, "r", encoding="utf-8") as fh:
+  59|         return json.load(fh)
+  60| 
+  61| 
+  62| def _write(out_dir: str, name: str, data: bytes) -> None:
+  63|     with open(os.path.join(out_dir, name), "wb") as fh:
+  64|         fh.write(data)
+  65| 
+  66| 
+  67| def _pad4(lst: list) -> list:
+  68|     return list(lst) + [""] * ((-len(lst)) % 4)
+  69| 
+  70| 
+  71| # ---------------------------------------------------------------------------
+  72| # Action records (SPEC-03 section 9.2, lab layouts)
+  73| # ---------------------------------------------------------------------------
+  74| 
+  75| def _tail(nc: int, na: int) -> bytes:
+  76|     return bytes((nc,)) if nc >= 253 else bytes((nc, na))
+  77| 
+  78| 
+  79| def encode_record(cls: int, r: dict) -> bytes:
+  80|     nc, na = r.get("newClass", NO_CHANGE), r.get("newAction", 0)
+  81|     if cls == 1:  # PRINT
+  82|         msgs = r["messages"]
+  83|         b = bytes(m | (0x80 if i == len(msgs) - 1 else 0) for i, m in enumerate(msgs))
+  84|         return b + _tail(nc, na)
+  85|     if cls == 3:  # FIXED_ENCOUNTER
+  86|         b = bytes((r["visibleDistance"], r["hitDistance"], r["message"]))
+  87|         for mob, rnd, grp in r["groups"]:
+  88|             b += bytes((mob, (0x80 if rnd else 0) | grp))
+  89|         flags = r["properName"] | (r["friendly"] << 1) | (r["immobile"] << 2) | (r["npc"] << 4)
+  90|         return b + bytes((flags,)) + _tail(nc, na)
+  91|     if cls == 4:  # MASK (lab door)
+  92|         return bytes((r["message"], (0x80 if r["impassable"] else 0) | r["tile"])) + _tail(nc, na)
+  93|     if cls == 5:  # LOOT (wllib layout)
+  94|         b = bytes((nc if nc != NO_CHANGE else 0, na))
+  95|         for iid, fixed_, amt in r["items"]:
+  96|             b += bytes(((0x80 if fixed_ else 0) | iid, amt))
+  97|         if r.get("cash") is not None:
+  98|             fixed_, amt = r["cash"]
+  99|             b += bytes((0xDE if fixed_ else 0x5E,)) + _u16(amt)
+ 100|         return b + b"\xFF"
+ 101|     if cls == 6:  # SHOP (lab)
+ 102|         return bytes((r["shop"], r["message"])) + _tail(nc, na)
+ 103|     if cls == 10:  # TRANSITION
+ 104|         flags = (0x80 if r["relative"] else 0) | (0x40 if r["confirm"] else 0) | r["message"]
+ 105|         return bytes((flags, r["x"] & 0xFF, r["y"] & 0xFF, r["location"])) + _tail(nc, na)
+ 106|     if cls == 11:  # BLOCKED
+ 107|         return bytes((r["message"],)) + _tail(nc, na)
+ 108|     raise FormatError("scenario: lab rules define no record for class %d" % cls)
+ 109| 
+ 110| 
+ 111| def encode_mapinfo(size: int, mi: dict) -> bytes:
+ 112|     b = bytearray(50)
+ 113|     b[2] = size
+ 114|     for i, k in enumerate(MAPINFO_FIELDS):
+ 115|         b[5 + i] = mi[k]
+ 116|     b[0x0A:0x0C] = _u16(mi["timePerStep"])
+ 117|     b[0x0C] = mi["healRate"]
+ 118|     return bytes(b)
+ 119| 
+ 120| 
+ 121| def encode_mob(m: dict) -> bytes:
+ 122|     return (_u16(m["sturdiness"])
+ 123|             + bytes((m["combatRating"], m["randomDamage"],
+ 124|                      (m["maxGroup"] << 4) | m["armorClass"],
+ 125|                      (m["fixedDamage"] << 4) | m["weaponType"],
+ 126|                      m["type"], m["portrait"])))
+ 127| 
+ 128| 
+ 129| # ---------------------------------------------------------------------------
+ 130| # Map block (SPEC-03 sections 3 to 9)
+ 131| # ---------------------------------------------------------------------------
+ 132| 
+ 133| def build_map(m: dict, disk: int = 0):
+ 134|     """Return ``(block, tile_map_offset, facts)`` for one map dict."""
+ 135|     S = m["size"]
+ 136|     cls, act, img = m["class"], m["action"], m["image"]
+ 137|     body = bytearray()
+ 138|     for y in range(S):
+ 139|         for x in range(0, S, 2):
+ 140|             body.append((cls[y][x] << 4) | cls[y][x + 1])  # high nibble = even x
+ 141|     for y in range(S):
+ 142|         body += bytes(act[y])
+ 143|     cd_at = len(body)
+ 144|     body += bytes(42)
+ 145|     body += encode_mapinfo(S, m["info"])
+ 146| 
+ 147|     offsets = [0] * 16
+ 148| 
+ 149|     def emit_table(c: int) -> None:
+ 150|         recs = m["actions"].get(c)
+ 151|         if not recs:
+ 152|             return
+ 153|         start = len(body)
+ 154|         offsets[c] = start
+ 155|         encs = [None] + [encode_record(c, r) for r in recs]  # slot 0 is null
+ 156|         pos = start + 2 * len(encs)
+ 157|         ptrs = []
+ 158|         for e in encs:
+ 159|             if e is None:
+ 160|                 ptrs.append(0)
+ 161|             else:
+ 162|                 ptrs.append(pos)
+ 163|                 pos += len(e)
+ 164|         for p in ptrs:
+ 165|             body.extend(_u16(p))
+ 166|         for e in encs:
+ 167|             if e is not None:
+ 168|                 body.extend(e)
+ 169| 
+ 170|     for c in TABLE_ORDER_A:
+ 171|         emit_table(c)
+ 172|     npc_off = None
+ 173|     if m["npcs"]:
+ 174|         npc_off = len(body)
+ 175|         n = len(m["npcs"])
+ 176|         body.extend(_u16(0))
+ 177|         first = npc_off + 2 + 2 * n
+ 178|         for i in range(n):
+ 179|             body.extend(_u16(first + i * 0x100))
+ 180|         for ch in m["npcs"]:
+ 181|             body.extend(containers.encode_character(ch))
+ 182|     for c in TABLE_ORDER_B:
+ 183|         emit_table(c)
+ 184|     specials_off = 0  # lab rule: no special-action table
+ 185|     names_off = len(body)
+ 186|     for mob in m["mobs"]:
+ 187|         body.extend(mob["name"] + b"\x00")
+ 188|     data_off = len(body)
+ 189|     for mob in m["mobs"]:
+ 190|         body.extend(encode_mob(mob))
+ 191|     strings_off = len(body)
+ 192|     if npc_off is None:
+ 193|         npc_off = strings_off  # lab rule: no NPCs -> npcOffset = stringsOffset
+ 194|     body.extend(strings.encode_table(m["dictionary"], m["strings"]))
+ 195| 
+ 196|     cd = _u16(strings_off) + _u16(names_off) + _u16(data_off)
+ 197|     for o in offsets:
+ 198|         cd += _u16(o)
+ 199|     cd += _u16(specials_off) + _u16(npc_off)
+ 200|     body[cd_at:cd_at + 42] = cd
+ 201| 
+ 202|     prefix = bytes(body[:strings_off])
+ 203|     if not codecs.rotating_xor_prefix_is_unambiguous(prefix):
+ 204|         raise FormatError("scenario: map %r has an ambiguous encrypted prefix"
+ 205|                           % m.get("name", "?"))
+ 206|     enc = codecs.rotating_xor_encode(prefix)
+ 207|     data_section = enc + bytes(body[strings_off:]) + b"\x00"  # final byte: unknown, lab 0
+ 208|     tile_map = bytes(v for row in img for v in row)
+ 209|     tsec = _u32(S * S) + _u32(0) + huffman.encode(tile_map)
+ 210|     header = b"msq" + bytes(((0x30 + disk) & 0xFF,))
+ 211|     block = header + data_section + tsec
+ 212|     tmo = len(header) + len(data_section)
+ 213|     facts = {"bodySize": len(body), "encryptedPrefixLength": strings_off,
+ 214|              "centralDirectory": {"stringsOffset": strings_off, "mobNamesOffset": names_off,
+ 215|                                   "mobDataOffset": data_off, "actionClassOffsets": offsets,
+ 216|                                   "specialsOffset": specials_off, "npcOffset": npc_off}}
+ 217|     return block, tmo, facts
+ 218| 
+ 219| 
+ 220| # ---------------------------------------------------------------------------
+ 221| # JSON to engine-record conversion
+ 222| # ---------------------------------------------------------------------------
+ 223| 
+ 224| def _record_from_json(c: int, r: dict) -> dict:
+ 225|     if c == 1:
+ 226|         d = {"messages": r["messages"]}
+ 227|     elif c == 3:
+ 228|         d = {"visibleDistance": r["visible_distance"], "hitDistance": r["hit_distance"],
+ 229|              "message": r["message"], "groups": r["groups"], "properName": r["proper_name"],
+ 230|              "friendly": r["friendly"], "immobile": r["immobile"], "npc": 0}
+ 231|     elif c == 4:
+ 232|         d = {"message": r["message"], "impassable": r["impassable"], "tile": r["tile"]}
+ 233|     elif c == 5:
+ 234|         d = {"items": r["items"], "cash": r["cash"]}
+ 235|     elif c == 6:
+ 236|         d = {"shop": r["shop"], "message": r["message"]}
+ 237|     elif c == 10:
+ 238|         d = {k: r[k] for k in ("relative", "confirm", "message", "x", "y", "location")}
+ 239|     elif c == 11:
+ 240|         d = {"message": r["message"]}
+ 241|     else:
+ 242|         raise FormatError("scenario: lab rules define no record for class %d" % c)
+ 243|     d["newClass"], d["newAction"] = r["new_class"], r["new_action"]
+ 244|     return d
+ 245| 
+ 246| 
+ 247| def _character_from_json(p: dict, npc: int, catalog: dict, ranks: list) -> dict:
+ 248|     a = p["attrs"]
+ 249|     level = p["level"]
+ 250|     hp = 10 + a["STR"] + (level - 1) * (2 + a["STR"] // 5)
+ 251|     bonus = 0
+ 252|     if p["armour_slot"]:
+ 253|         bonus = catalog[p["items"][p["armour_slot"] - 1][0]]["damage"]
+ 254|     evasion = dict((s, l) for s, l in p["skills"]).get(11, 0)
+ 255|     return {
+ 256|         "name": p["name"].encode("latin-1"), "strength": a["STR"], "intelligence": a["IQ"],
+ 257|         "luck": a["LCK"], "speed": a["SPD"], "agility": a["AGL"], "dexterity": 0,
+ 258|         "charisma": a["CHA"], "money": p["money"], "gender": p["gender"],
+ 259|         "nationality": p["nationality"], "armorClass": a["AGL"] // 5 + bonus + evasion,
+ 260|         "maxCon": hp, "curCon": hp, "weaponSlot": p["weapon_slot"], "skillPoints": 0,
+ 261|         "experience": p["xp"], "level": level, "armorSlot": p["armour_slot"], "lastCon": 0,
+ 262|         "afflictions": 0, "npc": npc, "itemRefuse": 0, "skillRefuse": 0, "attribRefuse": 0,
+ 263|         "tradeRefuse": 0, "joinString": 0, "willingness": 0,
+ 264|         "rank": ranks[min(level, 7) - 1].encode("latin-1"), "gameWon": 0,
+ 265|         "specialPromotion": 0, "skills": [list(x) for x in p["skills"]],
+ 266|         "items": [list(x) for x in p["items"]],
+ 267|     }
+ 268| 
+ 269| 
+ 270| def _map_from_json(m: dict, size: int, catalog: dict, ranks: list) -> dict:
+ 271|     info = m["info"]
+ 272|     mi = {"encounterFrequency": info["encounter_frequency"], "tileset": info["tileset"],
+ 273|           "randomMonsterTypes": info["random_monster_types"],
+ 274|           "maxRandomEncounters": info["max_random_encounters"],
+ 275|           "borderImage": info["border_image"], "timePerStep": info["time_per_step"],
+ 276|           "healRate": info["heal_rate"]}
+ 277|     mobs = []
+ 278|     for mob in m["mobs"]:
+ 279|         name = mob["name"].encode("latin-1")
+ 280|         if mob.get("plural_suffix"):
+ 281|             name += b"\x0a\x0a" + mob["plural_suffix"].encode("latin-1") + b"\x0a"
+ 282|         mobs.append({"name": name, "sturdiness": mob["sturdiness"],
+ 283|                      "combatRating": mob["combat_rating"], "randomDamage": mob["random_damage"],
+ 284|                      "maxGroup": mob["max_group"], "armorClass": mob["armor_class"],
+ 285|                      "fixedDamage": mob["fixed_damage"], "weaponType": mob["weapon_type"],
+ 286|                      "type": mob["type"], "portrait": mob["portrait"]})
+ 287|     actions = {}
+ 288|     for c, recs in m["records"].items():
+ 289|         if recs:
+ 290|             actions[int(c)] = [_record_from_json(int(c), r) for r in recs]
+ 291|     return {"size": size, "class": m["action_class"], "action": m["action_value"],
+ 292|             "image": [[t + 10 for t in row] for row in m["tiles"]],
+ 293|             "info": mi, "actions": actions,
+ 294|             "npcs": [_character_from_json(n, 1, catalog, ranks) for n in m["npcs"]],
+ 295|             "mobs": mobs, "dictionary": DICT,
+ 296|             "strings": [s.encode("latin-1") for s in m["strings"]]}
+ 297| 
+ 298| 
+ 299| # ---------------------------------------------------------------------------
+ 300| # Savegame and shop lists
+ 301| # ---------------------------------------------------------------------------
+ 302| 
+ 303| def _build_savegame(scenario_dir: str, scen: dict, catalog: dict, ranks: list) -> bytes:
+ 304|     party = _load_json(os.path.join(scenario_dir, "party.json"))["party"]
+ 305|     st = scen["start"]
+ 306|     n = len(party)
+ 307|     chars = [_character_from_json(p, 0, catalog, ranks) for p in party]
+ 308|     empty = containers.decode_character(bytes(0x100))
+ 309|     groups = [{"order": list(range(1, n + 1)) + [0] * (7 - n), "x": st["x"], "y": st["y"],
+ 310|                "map": st["location"], "prevX": 0, "prevY": 0, "prevMap": 0}]
+ 311|     groups += [{"order": [0] * 7, "x": 0, "y": 0, "map": 0,
+ 312|                 "prevX": 0, "prevY": 0, "prevMap": 0}] * 3
+ 313|     sg = {"groups": groups, "viewportX": st["x"], "viewportY": st["y"],
+ 314|           "currentMembers": n, "currentParty": 0, "currentMap": st["location"],
+ 315|           "totalMembers": n, "extraGroups": 0, "minute": 0, "hour": st["hour"],
+ 316|           "combatScrollSpeed": 0, "serial": 0, "characters": chars + [empty] * (7 - n)}
+ 317|     return containers.encode_savegame(sg, 0)
+ 318| 
+ 319| 
+ 320| def _shop_items(sh: dict, catalog: dict) -> list:
+ 321|     recs = []
+ 322|     for i in range(94):
+ 323|         it = catalog.get(i + 1)
+ 324|         if it is None:
+ 325|             recs.append({"price": 0, "stock": 0, "type": 0, "lowFlags": 0,
+ 326|                          "capacity": 0, "skill": 0, "damage": 0, "ammo": 0})
+ 327|         else:
+ 328|             recs.append({"price": it["price"], "stock": sh["stock"].get(str(it["id"]), 0),
+ 329|                          "type": it["type_byte"] >> 3, "lowFlags": it["type_byte"] & 7,
+ 330|                          "capacity": it["capacity"], "skill": it["skill"],
+ 331|                          "damage": it["damage"], "ammo": it["ammo"]})
+ 332|     return recs
+ 333| 
+ 334| 
+ 335| # ---------------------------------------------------------------------------
+ 336| # LABTABLES.BIN (SPEC-02 section 12.2)
+ 337| # ---------------------------------------------------------------------------
+ 338| 
+ 339| def _encode_labtables(t: dict) -> bytes:
+ 340|     out = bytearray(containers.LABTABLES_SIZE)
+ 341|     out[0:8] = containers.LABTABLES_MAGIC
+ 342|     for k, (off, fmt, n) in containers.LT.items():
+ 343|         vals = t[k] if isinstance(t[k], list) else [t[k]]
+ 344|         if len(vals) != n:
+ 345|             raise FormatError("LABTABLES: %s has %d values, expected %d" % (k, len(vals), n))
+ 346|         w = containers._WIDTH[fmt]
+ 347|         for i, v in enumerate(vals):
+ 348|             out[off + i * w:off + (i + 1) * w] = (v & ((1 << (8 * w)) - 1)).to_bytes(w, "little")
+ 349|     return bytes(out)
+ 350| 
+ 351| 
+ 352| def _build_labtables(map_facts: list, sg_off: int, tileset_size: int,
+ 353|                      portrait_offsets: list) -> bytes:
+ 354|     n = len(map_facts)
+ 355|     t = {
+ 356|         "mapOffsets": [mf[0] for mf in map_facts] + [0] * (42 - n),
+ 357|         "tileMapOffsets": [mf[1] for mf in map_facts] + [0] * (50 - n),
+ 358|         "locationMapping": [(2 << 6) | i for i in range(n)] + [0] * (50 - n),
+ 359|         "mapSizes": [mf[3]["size"] for mf in map_facts] + [0] * (50 - n),
+ 360|         "sharedLocations": [2] * 125,
+ 361|         "mobSpriteMap": [0, 6, 3, 4, 2, 1],
+ 362|         "savegameOffsets": [sg_off, 0xFFFFFFFF],
+ 363|         "savegameSize": containers.SAVEGAME_RESERVED,
+ 364|         "shopListRelOffsets": [i * containers.SHOP_BLOCK for i in range(4)],
+ 365|         "mapCounts": [n, 0],
+ 366|         "shopListCounts": [3, 0],
+ 367|         "tilesetOffsets": [0] * 9,
+ 368|         "tilesetSizes": [tileset_size] + [0] * 8,
+ 369|         "portraitOffsets1": list(portrait_offsets) + [0] * (34 - len(portrait_offsets)),
+ 370|         "portraitOffsets2": [0] * 49,
+ 371|         "portraitIndices1": [0x80, 0, 1, 2, 3] + [0x80] * 75,
+ 372|         "portraitIndices2": [0x80] * 80,
+ 373|     }
+ 374|     return _encode_labtables(t)
+ 375| 
+ 376| 
+ 377| # ---------------------------------------------------------------------------
+ 378| # LABSTR.BIN (SPEC-02 section 12.3) and LABSKILL.BIN (SPEC-04 section 3.2)
+ 379| # ---------------------------------------------------------------------------
+ 380| 
+ 381| def _labstr_file(tables: list) -> bytes:
+ 382|     n = len(tables)
+ 383|     head = strings.LABSTR_MAGIC + _u16(n) + _u16(0)
+ 384|     pos = len(head) + 8 * n
+ 385|     offs, sizes = b"", b""
+ 386|     for t in tables:
+ 387|         offs += _u32(pos)
+ 388|         sizes += _u32(len(t))
+ 389|         pos += len(t)
+ 390|     return head + offs + sizes + b"".join(tables)
+ 391| 
+ 392| 
+ 393| def _build_labstr(scenario_dir: str, scen: dict) -> bytes:
+ 394|     strs = _load_json(os.path.join(scenario_dir, "strings.json"))["strings"]
+ 395|     skills = _load_json(os.path.join(scenario_dir, "skills.json"))["skills"]
+ 396|     items = _load_json(os.path.join(scenario_dir, "items.json"))["items"]
+ 397|     lt = scen["labstr_tables"]
+ 398|     t1 = [""] * (max(s["id"] for s in strs) + 1)
+ 399|     for s in strs:
+ 400|         t1[s["id"]] = s["text"].replace("{name}", "\x0b").replace("{num}", "\x0f")
+ 401|     t2 = [""] + [s["name"] for s in sorted(skills, key=lambda k: k["id"])]
+ 402|     t2 += [it["name"] for it in sorted(items, key=lambda k: k["id"])]
+ 403|     tables = [lt["0"]["strings"], t1, t2, lt["3"]["strings"], lt["4"]["strings"],
+ 404|               lt["5"]["strings"]]
+ 405|     enc = [strings.encode_table(DICT, [s.encode("latin-1") for s in _pad4(t)]) for t in tables]
+ 406|     return _labstr_file(enc)
+ 407| 
+ 408| 
+ 409| def _build_labskill(scenario_dir: str) -> bytes:
+ 410|     d = _load_json(os.path.join(scenario_dir, "skills.json"))
+ 411|     e0 = d["entry0"]
+ 412|     out = bytearray()
+ 413|     out += bytes(((e0["iq_req"] << 3) | e0["cost"], e0["attr_offset"]))
+ 414|     for s in sorted(d["skills"], key=lambda k: k["id"]):
+ 415|         out += bytes(s["labskill_bytes"])
+ 416|     return bytes(out)
+ 417| 
+ 418| 
+ 419| # ---------------------------------------------------------------------------
+ 420| # Graphics (SPEC-02 sections 6 to 8, 12.6, 12.7)
+ 421| # ---------------------------------------------------------------------------
+ 422| 
+ 423| def _planes_encode(pix: list, bytes_per_row: int) -> bytes:
+ 424|     """Four 1-bit planes (blue, green, red, intensity), MSB = leftmost pixel."""
+ 425|     out = bytearray()
+ 426|     for bit in range(4):
+ 427|         for row in pix:
+ 428|             for bx in range(bytes_per_row):
+ 429|                 v = 0
+ 430|                 for i in range(8):
+ 431|                     v |= ((row[bx * 8 + i] >> bit) & 1) << (7 - i)
+ 432|                 out.append(v)
+ 433|     return bytes(out)
+ 434| 
+ 435| 
+ 436| def _mask_encode(mask: list) -> bytes:
+ 437|     out = bytearray()
+ 438|     for row in mask:
+ 439|         for bx in range(2):
+ 440|             v = 0
+ 441|             for i in range(8):
+ 442|                 v |= (row[bx * 8 + i] & 1) << (7 - i)
+ 443|             out.append(v)
+ 444|     return bytes(out)
+ 445| 
+ 446| 
+ 447| def _cursor_encode(pix: list, vis: list) -> bytes:
+ 448|     out = bytearray()
+ 449|     for bit in range(4):
+ 450|         for y in range(16):
+ 451|             def byte(src, x0, fn):
+ 452|                 v = 0
+ 453|                 for i in range(8):
+ 454|                     v |= (fn(src[y][x0 + i]) & 1) << (7 - i)
+ 455|                 return v
+ 456|             out += bytes((byte(vis, 8, int), byte(vis, 0, int),
+ 457|                           byte(pix, 8, lambda p: p >> bit), byte(pix, 0, lambda p: p >> bit)))
+ 458|     return bytes(out)
+ 459| 
+ 460| 
+ 461| def _portrait_anim_encode(scripts: list, updates: list) -> bytes:
+ 462|     sb = bytearray()
+ 463|     for sc in scripts:
+ 464|         for d, u in sc:
+ 465|             sb += bytes((d, u))
+ 466|         sb.append(0xFF)
+ 467|     ub = bytearray()
+ 468|     for upd in updates:
+ 469|         for off, data in upd:
+ 470|             ub += _u16(((len(data) - 1) << 12) | off) + data
+ 471|         ub += _u16(0xFFFF)
+ 472|     return _u16(len(sb)) + bytes(sb) + _u16(len(ub)) + bytes(ub)
+ 473| 
+ 474| 
+ 475| def _ending_anim_encode(updates: list) -> bytes:
+ 476|     st = bytearray()
+ 477|     for delay, patches in updates:
+ 478|         st += _u16(delay)
+ 479|         for off, data in patches:
+ 480|             st += _u16(off) + data
+ 481|         st += _u16(0xFFFF)
+ 482|     st += _u16(0xFFFF)
+ 483|     return _u16(len(st)) + bytes(st) + _u16(0)
+ 484| 
+ 485| 
+ 486| def _placeholder_tile(t: int) -> list:
+ 487|     """Tile ``t``: fill ``t mod 16``, one-pixel border ``(t + 8) mod 16``."""
+ 488|     pix = [[t % 16 for _ in range(16)] for _ in range(16)]
+ 489|     border = (t + 8) % 16
+ 490|     for x in range(16):
+ 491|         pix[0][x] = border
+ 492|         pix[15][x] = border
+ 493|     for y in range(16):
+ 494|         pix[y][0] = border
+ 495|         pix[y][15] = border
+ 496|     return pix
+ 497| 
+ 498| 
+ 499| def _placeholder_portrait(p: int) -> list:
+ 500|     """Portrait ``p``: fill ``4 + p``, centred 48 x 42 rectangle of colour 15."""
+ 501|     pix = [[4 + p for _ in range(96)] for _ in range(84)]
+ 502|     for y in range(21, 63):
+ 503|         for x in range(24, 72):
+ 504|             pix[y][x] = 15
+ 505|     return pix
+ 506| 
+ 507| 
+ 508| def _build_allhtds(scenario_dir: str) -> bytes:
+ 509|     tiles = _load_json(os.path.join(scenario_dir, "tiles.json"))["tiles"]
+ 510|     raw = b"".join(codecs.vertical_xor_encode(graphics.pack4(_placeholder_tile(t["id"])), 8)
+ 511|                    for t in sorted(tiles, key=lambda k: k["id"]))
+ 512|     return huffman.encode_msq(raw, 0)
+ 513| 
+ 514| 
+ 515| def _build_allpics(scenario_dir: str):
+ 516|     portraits = _load_json(os.path.join(scenario_dir, "portraits.json"))["portraits"]
+ 517|     out = bytearray()
+ 518|     offsets = []
+ 519|     for p in sorted(portraits, key=lambda k: k["raw_id"]):
+ 520|         base = graphics.pack4(_placeholder_portrait(p["raw_id"] - 1))
+ 521|         upd = [(2000, b"\xff" * 8)]
+ 522|         anim = _portrait_anim_encode([[(20, 0), (20, 0)]], [upd])
+ 523|         offsets.append(len(out))
+ 524|         out += huffman.encode_msq(codecs.vertical_xor_encode(base, PORTRAIT_STRIDE), 0)
+ 525|         out += huffman.encode_msq(anim, 0)
+ 526|     return bytes(out), offsets
+ 527| 
+ 528| 
+ 529| def _build_sprites():
+ 530|     sprites, masks = bytearray(), bytearray()
+ 531|     for n in range(10):
+ 532|         pix = [[(n + x // 4 + y // 4) % 16 for x in range(16)] for y in range(16)]
+ 533|         msk = [[1 if (x - 7.5) ** 2 + (y - 7.5) ** 2 > 56 else 0
+ 534|                 for x in range(16)] for y in range(16)]
+ 535|         sprites += _planes_encode(pix, 2)
+ 536|         masks += _mask_encode(msk)
+ 537|     return bytes(sprites), bytes(masks)
+ 538| 
+ 539| 
+ 540| def _build_font() -> bytes:
+ 541|     out = bytearray()
+ 542|     for g in range(32):
+ 543|         pix = [[((g >> (x % 5)) & 1) * ((g + y) % 15 + 1) for x in range(8)]
+ 544|                for y in range(8)]
+ 545|         out += _planes_encode(pix, 1)
+ 546|     return bytes(out)
+ 547| 
+ 548| 
+ 549| def _build_cursors() -> bytes:
+ 550|     out = bytearray()
+ 551|     for k in range(2):
+ 552|         pix = [[(x + y + k) % 16 for x in range(16)] for y in range(16)]
+ 553|         vis = [[1 if x <= y + k * 3 else 0 for x in range(16)] for y in range(16)]
+ 554|         out += _cursor_encode(pix, vis)
+ 555|     return bytes(out)
+ 556| 
+ 557| 
+ 558| def _build_title() -> bytes:
+ 559|     pix = [[((x // 18) ^ (y // 16)) % 16 for x in range(288)] for y in range(128)]
+ 560|     return codecs.vertical_xor_encode(graphics.pack4(pix), TITLE_STRIDE)
+ 561| 
+ 562| 
+ 563| def _build_ending() -> bytes:
+ 564|     base = graphics.pack4([[((x + y) // 24) % 16 for x in range(288)] for y in range(128)])
+ 565|     updates = [(5, [(41, bytes.fromhex("11223344")), (40 * 100 + 35, bytes.fromhex("FFEEDDCC"))]),
+ 566|                (9, [(0, bytes.fromhex("0F0F0F0F"))])]
+ 567|     anim = _ending_anim_encode(updates)
+ 568|     return (huffman.encode_msq(codecs.vertical_xor_encode(base, TITLE_STRIDE), 0)
+ 569|             + huffman.encode_msq(anim, 0, ENDING_SIGNATURE))
+ 570| 
+ 571| 
+ 572| # ---------------------------------------------------------------------------
+ 573| # The compiler
+ 574| # ---------------------------------------------------------------------------
+ 575| 
+ 576| def compile(scenario_dir: str, out_dir: str) -> None:
+ 577|     """Compile a scenario directory into a lab data set (SPEC-05 section 13)."""
+ 578|     _compile(scenario_dir, out_dir)
+ 579| 
+ 580| 
+ 581| # ---------------------------------------------------------------------------
+ 582| # Loading a compiled lab data set (SPEC-02 section 12, SPEC-05)
+ 583| # ---------------------------------------------------------------------------
+ 584| 
+ 585| 
+ 586| def _call(mod, names, *args, **kwargs):
+ 587|     for n in names:
+ 588|         fn = getattr(mod, n, None)
+ 589|         if callable(fn):
+ 590|             return fn(*args, **kwargs)
+ 591|     raise FormatError("scenario: %s has none of %r" % (mod.__name__, names))
+ 592| 
+ 593| 
+ 594| class Scenario:
+ 595|     """A compiled lab data set, read back through the engine's own loaders."""
+ 596| 
+ 597|     def __init__(self, data_dir):
+ 598|         self.dir = data_dir
+ 599|         self.maps = {}
+ 600|         self.hooks = []
+ 601|         self.paragraphs = {}
+ 602|         self.skills = {}
+ 603|         self.shops = {}
+ 604|         self.savegame = None
+ 605|         self.start = {"location": 0, "x": 0, "y": 0, "hour": 8, "minute": 0,
+ 606|                       "day": 1, "paragraph": 1}
+ 607|         self._load()
+ 608| 
+ 609|     # -- raw file access ---------------------------------------------------
+ 610| 
+ 611|     def _read(self, name):
+ 612|         path = os.path.join(self.dir, name)
+ 613|         if not os.path.exists(path):
+ 614|             return None
+ 615|         with open(path, "rb") as fh:
+ 616|             return fh.read()
+ 617| 
+ 618|     def _json(self, name):
+ 619|         path = os.path.join(self.dir, name)
+ 620|         if not os.path.exists(path):
+ 621|             return None
+ 622|         return _load_json(path)
+ 623| 
+ 624|     # -- loading -----------------------------------------------------------
+ 625| 
+ 626|     def _load(self):
+ 627|         self.tables = containers.read_tables(os.path.join(self.dir, "LABTABLES.BIN"))
+ 628|         self.game1 = self._read("GAME1")
+ 629|         self._load_maps()
+ 630|         self._load_savegame()
+ 631|         self._load_shops()
+ 632|         labstr = os.path.join(self.dir, "LABSTR.BIN")
+ 633|         if os.path.exists(labstr):
+ 634|             self.labstr = strings.read_labstr(labstr)
+ 635|         skills = os.path.join(self.dir, "LABSKILL.BIN")
+ 636|         if os.path.exists(skills):
+ 637|             self.skill_table = rules.read_skill_table(skills)
+ 638|         hooks = self._json("LABHOOKS.JSON")
+ 639|         if hooks is not None:
+ 640|             self.hooks = hooks if isinstance(hooks, list) else hooks.get("hooks", [])
+ 641|         paras = self._json("PARAGRAPHS.JSON")
+ 642|         if paras is not None:
+ 643|             self.paragraphs = paras.get("paragraphs", paras) if isinstance(paras, dict) else paras
+ 644| 
+ 645|     def _load_maps(self):
+ 646|         counts = self.tables["mapCounts"]
+ 647|         for loc in range(len(self.tables["locationMapping"])):
+ 648|             code = self.tables["locationMapping"][loc]
+ 649|             if code == 0:
+ 650|                 continue
+ 651|             disk = code >> 6
+ 652|             if disk == 2 and counts[0] == 0:
+ 653|                 continue
+ 654|             if disk == 1 and counts[1] == 0:
+ 655|                 continue
+ 656|             try:
+ 657|                 self.maps[loc] = maps.load_map(self.dir, loc)
+ 658|             except FormatError:
+ 659|                 continue
+ 660| 
+ 661|     def _load_savegame(self):
+ 662|         offs = self.tables["savegameOffsets"]
+ 663|         if not offs or offs[0] == 0xFFFFFFFF:
+ 664|             return
+ 665|         self.savegame = containers.decode_savegame(self.game1, offs[0])
+ 666|         sg = self.savegame
+ 667|         g0 = sg["groups"][0]
+ 668|         self.start = {"location": g0["map"], "x": g0["x"], "y": g0["y"],
+ 669|                       "hour": sg["hour"], "minute": sg["minute"], "day": 1,
+ 670|                       "paragraph": 1}
+ 671| 
+ 672|     def _load_shops(self):
+ 673|         offs = self.tables["savegameOffsets"]
+ 674|         if not offs or offs[0] == 0xFFFFFFFF:
+ 675|             return
+ 676|         base = offs[0] + self.tables["savegameSize"]
+ 677|         rel = self.tables["shopListRelOffsets"]
+ 678|         for i in range(self.tables["shopListCounts"][0]):
+ 679|             self.shops[i] = containers.decode_shop_list(self.game1, base + rel[i])
+ 680| 
+ 681|     def party_from_savegame(self):
+ 682|         sg = self.savegame
+ 683|         if sg is None:
+ 684|             return []
+ 685|         out = []
+ 686|         n = sg["currentMembers"]
+ 687|         for i in range(n):
+ 688|             c = sg["characters"][i]
+ 689|             aff = c["afflictions"]
+ 690|             cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+ 691|             out.append({
+ 692|                 "slot": i + 1, "name": c["name"], "npc": c["npc"],
+ 693|                 "level": c["level"], "xp": c["experience"],
+ 694|                 "max_hp": c["maxCon"], "hp": c["curCon"], "cond": cond,
+ 695|                 "money": c["money"], "ac": c["armorClass"], "rank": c["rank"],
+ 696|                 "skill_points": c["skillPoints"],
+ 697|                 "items": [list(x) for x in c["items"]],
+ 698|                 "skills": [list(x) for x in c["skills"]],
+ 699|                 "weapon_slot": c["weaponSlot"], "armour_slot": c["armorSlot"],
+ 700|                 "attrs": {"STR": c["strength"], "IQ": c["intelligence"],
+ 701|                           "LCK": c["luck"], "SPD": c["speed"],
+ 702|                           "AGL": c["agility"], "CHA": c["charisma"]},
+ 703|                 "gender": c["gender"], "nationality": c["nationality"],
+ 704|                 "game_won": c["gameWon"],
+ 705|             })
+ 706|         return out
+ 707| 
+ 708|     def _load_game1(self, raw):
+ 709|         res = _call(containers, ("decode_game1", "decode_game", "read_game1",
+ 710|                                  "parse_game1", "load_game1", "decode_game_file"),
+ 711|                     raw)
+ 712|         if isinstance(res, dict):
+ 713|             for key, val in res.items():
+ 714|                 if key in ("maps", "map"):
+ 715|                     if isinstance(val, dict):
+ 716|                         self.maps.update(val)
+ 717|                     else:
+ 718|                         for i, m in enumerate(val):
+ 719|                             self.maps[i] = m
+ 720|                 elif key in ("savegame", "save"):
+ 721|                     self.savegame = val
+ 722|                 elif key in ("shops", "shop_lists"):
+ 723|                     if isinstance(val, dict):
+ 724|                         self.shops.update(val)
+ 725|                     else:
+ 726|                         for i, s in enumerate(val):
+ 727|                             self.shops[i] = s
+ 728|         elif isinstance(res, (list, tuple)):
+ 729|             for i, m in enumerate(res):
+ 730|                 self.maps[i] = m
+ 731| 
+ 732|     def _load_labtables(self, raw):
+ 733|         res = _call(containers, ("decode_labtables", "read_labtables",
+ 734|                                  "parse_labtables", "labtables_decode"), raw)
+ 735|         if isinstance(res, dict):
+ 736|             for key, val in res.items():
+ 737|                 if key in ("maps", "map_offsets"):
+ 738|                     if isinstance(val, dict):
+ 739|                         self.maps.update(val)
+ 740|                 elif key in ("savegame", "save"):
+ 741|                     self.savegame = val
+ 742|                 elif key in ("shops", "shop_lists"):
+ 743|                     if isinstance(val, dict):
+ 744|                         self.shops.update(val)
+ 745|                     else:
+ 746|                         for i, s in enumerate(val):
+ 747|                             self.shops[i] = s
+ 748| 
+ 749|     def _load_labstr(self, raw):
+ 750|         res = _call(strings, ("decode_labstr", "read_labstr", "parse_labstr",
+ 751|                               "decode_tables", "decode_table"), raw)
+ 752|         if isinstance(res, dict):
+ 753|             for key, val in res.items():
+ 754|                 if isinstance(val, dict):
+ 755|                     self.paragraphs.setdefault(key, val)
+ 756| 
+ 757|     def _load_labskill(self, raw):
+ 758|         res = _call(rules, ("decode_labskill", "read_labskill", "parse_labskill",
+ 759|                             "decode_skills"), raw)
+ 760|         if isinstance(res, dict):
+ 761|             self.skills = res
+ 762|         elif isinstance(res, list):
+ 763|             self.skills = {i: s for i, s in enumerate(res)}
+ 764| 
+ 765|     # -- accessors ---------------------------------------------------------
+ 766| 
+ 767|     def map(self, location):
+ 768|         return self.maps.get(location)
+ 769| 
+ 770|     def hook(self, location, x, y):
+ 771|         for h in self.hooks:
+ 772|             if h.get("location") == location and h.get("x") == x and h.get("y") == y:
+ 773|                 return h
+ 774|         return None
+ 775| 
+ 776|     def paragraph(self, n):
+ 777|         return self.paragraphs.get(n) or self.paragraphs.get(str(n))
+ 778| 
+ 779|     def premade_party(self):
+ 780|         return self.party_from_savegame()
+ 781| 
+ 782|     def shop_items(self, n):
+ 783|         """The 94 decoded records of shop list ``n`` (SPEC-02 section 5)."""
+ 784|         return self.shops[n]["items"]
+ 785| 
+ 786|     def item(self, item_id):
+ 787|         """Item id N is record N - 1 of shop list 0 (LR-47)."""
+ 788|         if item_id < 1:
+ 789|             return None
+ 790|         recs = self.shop_items(0)
+ 791|         if item_id - 1 >= len(recs):
+ 792|             return None
+ 793|         return recs[item_id - 1]
+ 794| 
+ 795|     def skill(self, skill_id):
+ 796|         """``(min_iq, cost, attr_offset)`` for skill id 1 to 35 (LR-6)."""
+ 797|         if skill_id < 1 or skill_id >= len(self.skill_table):
+ 798|             return (0, 0, 0)
+ 799|         b0, b1 = self.skill_table[skill_id]
+ 800|         return (b0 >> 3, b0 & 7, b1)
+ 801| 
+ 802|     def skill_name(self, skill_id):
+ 803|         t2 = self.labstr[2] if len(self.labstr) > 2 else []
+ 804|         if 0 <= skill_id < len(t2):
+ 805|             return t2[skill_id]
+ 806|         return ""
+ 807| 
+ 808|     def rank(self, level):
+ 809|         t3 = self.labstr[3] if len(self.labstr) > 3 else []
+ 810|         i = min(level, 7) - 1
+ 811|         if 0 <= i < len(t3):
+ 812|             return t3[i]
+ 813|         return ""
+ 814| 
+ 815|     def ui(self, n):
+ 816|         t1 = self.labstr[1] if len(self.labstr) > 1 else []
+ 817|         if 0 <= n < len(t1):
+ 818|             return t1[n]
+ 819|         return ""
+ 820| 
+ 821|     def map_string(self, location, n):
+ 822|         m = self.maps.get(location)
+ 823|         if m is None or n >= len(m["strings"]):
+ 824|             return ""
+ 825|         return m["strings"][n]
+ 826| 
+ 827| 
+ 828| def load(data_dir):
+ 829|     """Load a compiled lab data set from ``data_dir``."""
+ 830|     return Scenario(data_dir)
+ 831| 
+ 832| 
+ 833| def _compile(scenario_dir: str, out_dir: str) -> None:
+ 834|     """Compile the scenario in ``scenario_dir`` into ``out_dir`` (SPEC-05 13)."""
+ 835|     scen = _load_json(os.path.join(scenario_dir, "scenario.json"))
+ 836|     items = _load_json(os.path.join(scenario_dir, "items.json"))["items"]
+ 837|     catalog = {it["id"]: it for it in items}
+ 838|     ranks = scen["labstr_tables"]["3"]["strings"]
+ 839|     os.makedirs(out_dir, exist_ok=True)
+ 840| 
+ 841|     game = bytearray()
+ 842|     map_facts = []
+ 843|     for loc in scen["locations"]:
+ 844|         m = _load_json(os.path.join(scenario_dir, loc["file"]))
+ 845|         mm = _map_from_json(m, loc["size"], catalog, ranks)
+ 846|         mm["name"] = loc["name"]
+ 847|         block, tmo, facts = build_map(mm, 0)
+ 848|         map_facts.append((len(game), tmo, facts, loc))
+ 849|         game += block
+ 850| 
+ 851|     sg_off = len(game)
+ 852|     game += _build_savegame(scenario_dir, scen, catalog, ranks)
+ 853| 
+ 854|     shops = _load_json(os.path.join(scenario_dir, "shops.json"))["shops"]
+ 855|     for sh in shops:
+ 856|         game += containers.encode_shop_list(_shop_items(sh, catalog), 0)
+ 857|     _write(out_dir, "GAME1", bytes(game))
+ 858| 
+ 859|     allhtds = _build_allhtds(scenario_dir)
+ 860|     allpics, portrait_offsets = _build_allpics(scenario_dir)
+ 861|     _write(out_dir, "ALLHTDS1", allhtds)
+ 862|     _write(out_dir, "ALLPICS1", allpics)
+ 863| 
+ 864|     sprites, masks = _build_sprites()
+ 865|     _write(out_dir, "IC0_9.WLF", sprites)
+ 866|     _write(out_dir, "MASKS.WLF", masks)
+ 867|     _write(out_dir, "COLORF.FNT", _build_font())
+ 868|     _write(out_dir, "CURS", _build_cursors())
+ 869|     _write(out_dir, "TITLE.PIC", _build_title())
+ 870|     _write(out_dir, "END.CPA", _build_ending())
+ 871| 
+ 872|     _write(out_dir, "LABTABLES.BIN",
+ 873|            _build_labtables(map_facts, sg_off, len(allhtds), portrait_offsets))
+ 874|     _write(out_dir, "LABSTR.BIN", _build_labstr(scenario_dir, scen))
+ 875|     _write(out_dir, "LABSKILL.BIN", _build_labskill(scenario_dir))
+ 876| 
+ 877|     for src, dst in (("hooks.json", "LABHOOKS.JSON"), ("paragraphs.json", "PARAGRAPHS.JSON")):
+ 878|         with open(os.path.join(scenario_dir, src), "rb") as fh:
+ 879|             _write(out_dir, dst, fh.read())
+ 880| 
+ 881| 
+ 882| # Late binding of the maps module: some helpers below reference ``maps`` at
+ 883| # call time, so the import only has to exist by the time the module is loaded.
+ 884| from . import maps  # noqa: E402,F401
+ 885| 
+ 886| 
+ 887| __all__ = ["compile", "build_map", "encode_record", "encode_mapinfo", "encode_mob"]
+ 888| 

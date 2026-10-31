@@ -1,0 +1,81 @@
+loc 0: tile diffs 4096 [(0, 0, 18, 8), (1, 0, 18, 8), (2, 0, 18, 8), (3, 0, 18, 8), (4, 0, 18, 8), (5, 0, 18, 8), (6, 0, 18, 8), (7, 0, 18, 8), (8, 0, 18, 8), (9, 0, 18, 8), (10, 0, 18, 8), (11, 0, 18, 8)]
+loc 0: class diffs 0 []
+loc 0: action diffs 0 []
+loc 0: class11 only-compiled [] only-json []
+loc 1: tile diffs 1024 [(0, 0, 35, 25), (1, 0, 35, 25), (2, 0, 35, 25), (3, 0, 35, 25), (4, 0, 35, 25), (5, 0, 35, 25), (6, 0, 35, 25), (7, 0, 35, 25), (8, 0, 35, 25), (9, 0, 35, 25), (10, 0, 35, 25), (11, 0, 35, 25)]
+loc 1: class diffs 0 []
+loc 1: action diffs 0 []
+loc 1: class11 only-compiled [] only-json []
+loc 2: tile diffs 1024 [(0, 0, 26, 16), (1, 0, 26, 16), (2, 0, 26, 16), (3, 0, 26, 16), (4, 0, 26, 16), (5, 0, 26, 16), (6, 0, 26, 16), (7, 0, 26, 16), (8, 0, 26, 16), (9, 0, 26, 16), (10, 0, 26, 16), (11, 0, 26, 16)]
+loc 2: class diffs 0 []
+loc 2: action diffs 0 []
+loc 2: class11 only-compiled [] only-json []
+loc 3: tile diffs 1024 [(0, 0, 38, 28), (1, 0, 38, 28), (2, 0, 38, 28), (3, 0, 38, 28), (4, 0, 38, 28), (5, 0, 38, 28), (6, 0, 38, 28), (7, 0, 38, 28), (8, 0, 38, 28), (9, 0, 38, 28), (10, 0, 38, 28), (11, 0, 38, 28)]
+loc 3: class diffs 0 []
+loc 3: action diffs 0 []
+loc 3: class11 only-compiled [] only-json []
+=== reference log 596..612 ===
+ 596 {"key": "RIGHT", "seq": 596, "type": "input"}
+ 597 {"location": 2, "seq": 597, "steps": 192, "type": "move", "x": 25, "y": 24}
+ 598 {"key": "UP", "seq": 598, "type": "input"}
+ 599 {"location": 2, "seq": 599, "steps": 193, "type": "move", "x": 25, "y": 23}
+ 600 {"key": "UP", "seq": 600, "type": "input"}
+ 601 {"location": 2, "seq": 601, "steps": 194, "type": "move", "x": 25, "y": 22}
+ 602 {"key": "UP", "seq": 602, "type": "input"}
+ 603 {"action": 0, "action_class": 11, "seq": 603, "type": "bump", "x": 25, "y": 21}
+ 604 {"price": 40, "prompt": "heal", "seq": 604, "type": "prompt"}
+ 605 {"key": "Y", "seq": 605, "type": "input"}
+ 606 {"delta": -40, "member": 1, "seq": 606, "total": 51, "type": "money"}
+ 607 {"price": 40, "seq": 607, "type": "heal_all"}
+ 608 {"name": "CP7", "seq": 608, "state": {"cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29]], "day": 1, "hour": 18, "location": 2, "minute": 17, "mode": "map", "
+ 609 {"key": "DOWN", "seq": 609, "type": "input"}
+ 610 {"location": 2, "seq": 610, "steps": 195, "type": "move", "x": 25, "y": 23}
+ 611 {"key": "DOWN", "seq": 611, "type": "input"}
+ 612 {"location": 2, "seq": 612, "steps": 196, "type": "move", "x": 25, "y": 24}
+=== reference log 1010..1022 ===
+1010 {"location": 1, "seq": 1010, "steps": 355, "type": "move", "x": 15, "y": 15}
+1011 {"key": "UP", "seq": 1011, "type": "input"}
+1012 {"location": 1, "seq": 1012, "steps": 356, "type": "move", "x": 15, "y": 14}
+1013 {"key": "UP", "seq": 1013, "type": "input"}
+1014 {"location": 1, "seq": 1014, "steps": 357, "type": "move", "x": 15, "y": 13}
+1015 {"key": "UP", "seq": 1015, "type": "input"}
+1016 {"location": 1, "seq": 1016, "steps": 358, "type": "move", "x": 15, "y": 12}
+1017 {"key": "UP", "seq": 1017, "type": "input"}
+1018 {"action": 0, "action_class": 11, "seq": 1018, "type": "bump", "x": 15, "y": 11}
+1019 {"n": 24, "seq": 1019, "type": "paragraph"}
+1020 {"day": 2, "minutes": 428, "seq": 1020, "steps": 358, "type": "win"}
+1021 {"name": "CP10", "seq": 1021, "state": {"cell_changes": [[0, 30, 41, 0, 0, 13], [0, 31, 41, 0, 0, 22], [1, 8, 17, 0, 0, 28], [2, 18, 17, 0, 0, 28], [2, 26, 12, 0, 0, 27], [2, 26, 14, 4, 1, 29], [3, 9, 6, 0, 0, 37], [3, 16, 6, 4, 4, 37], [3, 21, 4, 0, 0, 37]], 
+=== reference log 120..135 ===
+ 120 {"key": "DOWN", "seq": 120, "type": "input"}
+ 121 {"location": 1, "seq": 121, "steps": 37, "type": "move", "x": 7, "y": 17}
+ 122 {"key": "DOWN", "seq": 122, "type": "input"}
+ 123 {"location": 1, "seq": 123, "steps": 38, "type": "move", "x": 7, "y": 18}
+ 124 {"key": "RIGHT", "seq": 124, "type": "input"}
+ 125 {"location": 1, "seq": 125, "steps": 39, "type": "move", "x": 8, "y": 18}
+ 126 {"key": "UP", "seq": 126, "type": "input"}
+ 127 {"action": 1, "action_class": 11, "seq": 127, "type": "bump", "x": 8, "y": 17}
+ 128 {"n": 6, "seq": 128, "type": "paragraph"}
+ 129 {"prompt": "recruit", "seq": 129, "type": "prompt"}
+ 130 {"key": "Y", "seq": 130, "type": "input"}
+ 131 {"action": 0, "action_class": 0, "image": 28, "location": 1, "seq": 131, "type": "cell_change", "x": 8, "y": 17}
+ 132 {"location": 1, "npc": 0, "seq": 132, "slot": 5, "type": "recruit"}
+ 133 {"name": "CP3", "seq": 133, "state": {"cell_changes": [[1, 8, 17, 0, 0, 28]], "day": 1, "hour": 8, "location": 1, "minute": 39, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 2
+ 134 {"key": "RIGHT", "seq": 134, "type": "input"}
+ 135 {"location": 1, "seq": 135, "steps": 40, "type": "move", "x": 9, "y": 18}
+=== reference log 555..570 ===
+ 555 {"key": "LEFT", "seq": 555, "type": "input"}
+ 556 {"location": 2, "seq": 556, "steps": 175, "type": "move", "x": 20, "y": 16}
+ 557 {"key": "LEFT", "seq": 557, "type": "input"}
+ 558 {"location": 2, "seq": 558, "steps": 176, "type": "move", "x": 19, "y": 16}
+ 559 {"key": "LEFT", "seq": 559, "type": "input"}
+ 560 {"location": 2, "seq": 560, "steps": 177, "type": "move", "x": 18, "y": 16}
+ 561 {"key": "DOWN", "seq": 561, "type": "input"}
+ 562 {"action": 1, "action_class": 11, "seq": 562, "type": "bump", "x": 18, "y": 17}
+ 563 {"n": 13, "seq": 563, "type": "paragraph"}
+ 564 {"prompt": "recruit", "seq": 564, "type": "prompt"}
+ 565 {"key": "Y", "seq": 565, "type": "input"}
+ 566 {"action": 0, "action_class": 0, "image": 28, "location": 2, "seq": 566, "type": "cell_change", "x": 18, "y": 17}
+ 567 {"location": 2, "npc": 0, "seq": 567, "slot": 6, "type": "recruit"}
+ 568 {"key": "RIGHT", "seq": 568, "type": "input"}
+ 569 {"location": 2, "seq": 569, "steps": 178, "type": "move", "x": 19, "y": 16}
+ 570 {"key": "RIGHT", "seq": 570, "type": "input"}

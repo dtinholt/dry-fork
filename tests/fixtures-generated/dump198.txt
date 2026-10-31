@@ -1,0 +1,217 @@
+ART '11  |............;;P;;......Y......|'
+   len=31
+   Y at [23]
+   P at [14]
+   ; at [12, 13, 15, 16]
+ART '12  |............;;;;;.............|'
+   len=31
+   Y at []
+   P at []
+   ; at [12, 13, 14, 15, 16]
+ART '20  |..Y...........;...............|'
+   len=31
+   Y at [2]
+   P at []
+   ; at [14]
+ART '31  |||||||||||||||;;|||||||||||||||'
+   len=31
+   Y at []
+   P at []
+   ; at [14, 15]
+map1 y=11 tiles=[25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 23, 18, 18, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 25]
+map1 y=11 class=[11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 11]
+map1 y=12 tiles=[25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25]
+map1 y=12 class=[11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+map1 y=20 tiles=[25, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25]
+map1 y=20 class=[11, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+map1 y=21 tiles=[25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 25]
+map1 y=21 class=[11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 11]
+map0 action_cells near 41:
+   {'x': 10, 'y': 40, 'tile': 13, 'class': 10, 'action': 1, 'note': 'Saltwell marker to Saltwell (15,30)'}
+   {'x': 26, 'y': 41, 'tile': 3, 'class': 1, 'action': 1, 'note': 'Signpost, paragraph 7'}
+   {'x': 31, 'y': 41, 'tile': 12, 'class': 1, 'action': 2, 'note': 'Plank bridge, paragraph 9, shown once (tail to class 0)'}
+   {'x': 30, 'y': 41, 'tile': 3, 'class': 3, 'action': 1, 'note': 'Encounter 1: road raiders, 3 raiders; then loot 75 coins'}
+map0 records keys: ['10', '1', '5', '3', '4']
+   records[10] = [{'relative': False, 'confirm': False, 'message': 0, 'x': 15, 'y': 30, 'location': 1, 'new_class': 255, 'new_action': 0}, {'relative': False, 'confirm': False, 'message': 0, 'x': 1, 'y': 16, 'location': 2, 'new_class': 255, 'new_action': 0}, {'relative': False, 'confirm': False, 'message': 0, 'x': 3, 'y': 2, 'location': 3, 'new_class': 255, 'new_action': 0}]
+   records[1] = [{'messages': [1], 'new_class': 255, 'new_action': 0}, {'messages': [2], 'new_class': 0, 'new_action': 0}, {'messages': [3], 'new_class': 255, 'new_action': 0}, {'messages': [4], 'new_class': 255, 'new_action': 0}, {'messages': [5], 'new_class': 255, 'new_action': 0}]
+   records[5] = [{'new_class': 0, 'new_action': 0, 'items': [], 'cash': [True, 75]}, {'new_class': 0, 'new_action': 0, 'items': [], 'cash': [False, 40]}]
+   records[3] = [{'visible_distance': 3, 'hit_distance': 1, 'message': 6, 'groups': [[1, False, 3], [0, False, 0], [0, False, 0]], 'proper_name': 0, 'friendly': 0, 'immobile': 0, 'new_class': 5, 'new_action': 1}, {'visible_distance': 3, 'hit_distance': 1, 'message': 7, 'groups': [[2, True, 4], [0, False, 0], [0, False, 0]], 'proper_name': 0, 'friendly': 0, 'immobile': 0, 'new_class': 0, 'new_action': 0}, {'visible_distance': 3, 'hit_distance': 1, 'message': 8, 'groups': [[3, False, 2], [0, False, 0], [0, False, 0]], 'proper_name': 0, 'friendly': 0, 'immobile': 0, 'new_class': 0, 'new_action': 0}, {'visible_distance': 3, 'hit_distance': 1, 'message': 9, 'groups': [[4, False, 2], [1, False, 1], [0, False, 0]], 'proper_name': 0, 'friendly': 0, 'immobile': 0, 'new_class': 5, 'new_action': 2}]
+   records[4] = [{'message': 0, 'impassable': False, 'tile': 16, 'new_class': 255, 'new_action': 0}, {'message': 10, 'impassable': True, 'tile': 17, 'new_class': 4, 'new_action': 1}]
+map0 tiles y=41: [8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 12, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 2, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 8]
+map0 class y=41: [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11]
+ref bump events: [{'seq': 127, 'type': 'bump', 'x': 8, 'y': 17, 'action_class': 11, 'action': 1}, {'seq': 503, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}, {'seq': 508, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}, {'seq': 513, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}, {'seq': 518, 'type': 'bump', 'x': 26, 'y': 14, 'action_class': 4, 'action': 2}, {'seq': 562, 'type': 'bump', 'x': 18, 'y': 17, 'action_class': 11, 'action': 1}, {'seq': 603, 'type': 'bump', 'x': 25, 'y': 21, 'action_class': 11, 'action': 0}, {'seq': 807, 'type': 'bump', 'x': 16, 'y': 6, 'action_class': 4, 'action': 5}, {'seq': 1018, 'type': 'bump', 'x': 15, 'y': 11, 'action_class': 11, 'action': 0}]
+ref cell_change events: [{'seq': 131, 'type': 'cell_change', 'location': 1, 'x': 8, 'y': 17, 'action_class': 0, 'action': 0, 'image': 28}, {'seq': 282, 'type': 'cell_change', 'location': 0, 'x': 30, 'y': 41, 'action_class': 5, 'action': 1, 'image': 13}, {'seq': 284, 'type': 'cell_change', 'location': 0, 'x': 30, 'y': 41, 'action_class': 0, 'action': 0, 'image': 13}, {'seq': 289, 'type': 'cell_change', 'location': 0, 'x': 31, 'y': 41, 'action_class': 0, 'action': 0, 'image': 22}, {'seq': 522, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 14, 'action_class': 4, 'action': 1, 'image': 30}, {'seq': 523, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 14, 'action_class': 4, 'action': 1, 'image': 29}, {'seq': 528, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 14, 'action_class': 4, 'action': 1, 'image': 29}, {'seq': 534, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 12, 'action_class': 0, 'action': 0, 'image': 27}, {'seq': 540, 'type': 'cell_change', 'location': 2, 'x': 26, 'y': 14, 'action_class': 4, 'action': 1, 'image': 29}, {'seq': 566, 'type': 'cell_change', 'location': 2, 'x': 18, 'y': 17, 'action_class': 0, 'action': 0, 'image': 28}, {'seq': 790, 'type': 'cell_change', 'location': 3, 'x': 9, 'y': 6, 'action_class': 5, 'action': 1, 'image': 37}, {'seq': 792, 'type': 'cell_change', 'location': 3, 'x': 9, 'y': 6, 'action_class': 0, 'action': 0, 'image': 37}, {'seq': 811, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 39}, {'seq': 812, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 37}, {'seq': 816, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 37}, {'seq': 834, 'type': 'cell_change', 'location': 3, 'x': 21, 'y': 4, 'action_class': 0, 'action': 0, 'image': 37}, {'seq': 851, 'type': 'cell_change', 'location': 3, 'x': 16, 'y': 6, 'action_class': 4, 'action': 4, 'image': 37}]
+ref paragraph events: [(1, 1), (47, 3), (99, 3), (128, 6), (170, 2), (208, 7), (218, 8), (288, 9), (349, 10), (380, 11), (396, 11), (525, 12), (563, 13), (675, 10), (724, 18), (744, 19), (813, 21), (819, 22), (848, 22), (884, 18), (982, 2), (1019, 24)]
+our events between CP4 and CP5-pre-save:
+   {"name": "CP4", "seq": 279, "type": "checkpoint"}
+   {"key": "RIGHT", "seq": 280, "type": "input"}
+   {"location": 0, "seq": 281, "steps": 80, "type": "move", "x": 31, "y": 41}
+   {"n": 9, "seq": 282, "type": "paragraph"}
+   {"key": "RIGHT", "seq": 283, "type": "input"}
+   {"location": 0, "seq": 284, "steps": 81, "type": "move", "x": 32, "y": 41}
+   {"key": "UP", "seq": 285, "type": "input"}
+   {"location": 0, "seq": 286, "steps": 82, "type": "move", "x": 32, "y": 40}
+   {"key": "UP", "seq": 287, "type": "input"}
+   {"location": 0, "seq": 288, "steps": 83, "type": "move", "x": 32, "y": 39}
+   {"key": "UP", "seq": 289, "type": "input"}
+   {"location": 0, "seq": 290, "steps": 84, "type": "move", "x": 32, "y": 38}
+   {"members": [1, 2, 3, 4], "seq": 291, "type": "natural_heal"}
+   {"key": "UP", "seq": 292, "type": "input"}
+   {"location": 0, "seq": 293, "steps": 85, "type": "move", "x": 32, "y": 37}
+   {"key": "UP", "seq": 294, "type": "input"}
+   {"location": 0, "seq": 295, "steps": 86, "type": "move", "x": 32, "y": 36}
+   {"key": "UP", "seq": 296, "type": "input"}
+   {"location": 0, "seq": 297, "steps": 87, "type": "move", "x": 32, "y": 35}
+   {"key": "UP", "seq": 298, "type": "input"}
+   {"location": 0, "seq": 299, "steps": 88, "type": "move", "x": 32, "y": 34}
+   {"key": "UP", "seq": 300, "type": "input"}
+   {"location": 0, "seq": 301, "steps": 89, "type": "move", "x": 32, "y": 33}
+   {"key": "UP", "seq": 302, "type": "input"}
+   {"location": 0, "seq": 303, "steps": 90, "type": "move", "x": 32, "y": 32}
+   {"key": "UP", "seq": 304, "type": "input"}
+   {"location": 0, "seq": 305, "steps": 91, "type": "move", "x": 32, "y": 31}
+   {"key": "UP", "seq": 306, "type": "input"}
+   {"location": 0, "seq": 307, "steps": 92, "type": "move", "x": 32, "y": 30}
+   {"key": "UP", "seq": 308, "type": "input"}
+   {"location": 0, "seq": 309, "steps": 93, "type": "move", "x": 32, "y": 29}
+   {"key": "UP", "seq": 310, "type": "input"}
+   {"location": 0, "seq": 311, "steps": 94, "type": "move", "x": 32, "y": 28}
+   {"key": "RIGHT", "seq": 312, "type": "input"}
+   {"location": 0, "seq": 313, "steps": 95, "type": "move", "x": 33, "y": 28}
+   {"key": "RIGHT", "seq": 314, "type": "input"}
+   {"location": 0, "seq": 315, "steps": 96, "type": "move", "x": 34, "y": 28}
+   {"key": "RIGHT", "seq": 316, "type": "input"}
+   {"location": 0, "seq": 317, "steps": 97, "type": "move", "x": 35, "y": 28}
+   {"key": "RIGHT", "seq": 318, "type": "input"}
+   {"location": 0, "seq": 319, "steps": 98, "type": "move", "x": 36, "y": 28}
+   {"key": "RIGHT", "seq": 320, "type": "input"}
+   {"location": 0, "seq": 321, "steps": 99, "type": "move", "x": 37, "y": 28}
+   {"key": "RIGHT", "seq": 322, "type": "input"}
+   {"location": 0, "seq": 323, "steps": 100, "type": "move", "x": 38, "y": 28}
+   {"key": "RIGHT", "seq": 324, "type": "input"}
+   {"location": 0, "seq": 325, "steps": 101, "type": "move", "x": 39, "y": 28}
+   {"key": "RIGHT", "seq": 326, "type": "input"}
+   {"location": 0, "seq": 327, "steps": 102, "type": "move", "x": 40, "y": 28}
+   {"key": "RIGHT", "seq": 328, "type": "input"}
+   {"location": 0, "seq": 329, "steps": 103, "type": "move", "x": 41, "y": 28}
+   {"key": "RIGHT", "seq": 330, "type": "input"}
+   {"location": 0, "seq": 331, "steps": 104, "type": "move", "x": 42, "y": 28}
+   {"key": "RIGHT", "seq": 332, "type": "input"}
+   {"location": 0, "seq": 333, "steps": 105, "type": "move", "x": 43, "y": 28}
+   {"key": "RIGHT", "seq": 334, "type": "input"}
+   {"location": 0, "seq": 335, "steps": 106, "type": "move", "x": 44, "y": 28}
+   {"location": 2, "seq": 336, "type": "map_change", "x": 1, "y": 16}
+   {"key": "RIGHT", "seq": 337, "type": "input"}
+   {"location": 2, "seq": 338, "steps": 107, "type": "move", "x": 2, "y": 16}
+   {"n": 10, "seq": 339, "type": "paragraph"}
+   {"key": "UP", "seq": 340, "type": "input"}
+   {"location": 2, "seq": 341, "steps": 108, "type": "move", "x": 2, "y": 15}
+   {"key": "UP", "seq": 342, "type": "input"}
+   {"location": 2, "seq": 343, "steps": 109, "type": "move", "x": 2, "y": 14}
+   {"key": "UP", "seq": 344, "type": "input"}
+   {"location": 2, "seq": 345, "steps": 110, "type": "move", "x": 2, "y": 13}
+   {"key": "UP", "seq": 346, "type": "input"}
+   {"location": 2, "seq": 347, "steps": 111, "type": "move", "x": 2, "y": 12}
+   {"key": "UP", "seq": 348, "type": "input"}
+   {"location": 2, "seq": 349, "steps": 112, "type": "move", "x": 2, "y": 11}
+   {"key": "UP", "seq": 350, "type": "input"}
+   {"location": 2, "seq": 351, "steps": 113, "type": "move", "x": 2, "y": 10}
+   {"key": "UP", "seq": 352, "type": "input"}
+   {"location": 2, "seq": 353, "steps": 114, "type": "move", "x": 2, "y": 9}
+   {"key": "UP", "seq": 354, "type": "input"}
+   {"location": 2, "seq": 355, "steps": 115, "type": "move", "x": 2, "y": 8}
+   {"key": "UP", "seq": 356, "type": "input"}
+   {"location": 2, "seq": 357, "steps": 116, "type": "move", "x": 2, "y": 7}
+   {"key": "RIGHT", "seq": 358, "type": "input"}
+   {"location": 2, "seq": 359, "steps": 117, "type": "move", "x": 3, "y": 7}
+   {"key": "RIGHT", "seq": 360, "type": "input"}
+   {"location": 2, "seq": 361, "steps": 118, "type": "move", "x": 4, "y": 7}
+   {"key": "RIGHT", "seq": 362, "type": "input"}
+   {"location": 2, "seq": 363, "steps": 119, "type": "move", "x": 5, "y": 7}
+   {"key": "RIGHT", "seq": 364, "type": "input"}
+   {"location": 2, "seq": 365, "steps": 120, "type": "move", "x": 6, "y": 7}
+   {"key": "RIGHT", "seq": 366, "type": "input"}
+   {"location": 2, "seq": 367, "steps": 121, "type": "move", "x": 7, "y": 7}
+   {"key": "UP", "seq": 368, "type": "input"}
+   {"location": 2, "seq": 369, "steps": 122, "type": "move", "x": 7, "y": 6}
+   {"n": 11, "seq": 370, "type": "paragraph"}
+   {"key": "UP", "seq": 371, "type": "input"}
+   {"location": 2, "seq": 372, "steps": 123, "type": "move", "x": 7, "y": 5}
+   {"location": 2, "seq": 373, "string": 5, "type": "message"}
+   {"seq": 374, "shop": 1, "type": "shop_open"}
+   {"key": "B", "seq": 375, "type": "input"}
+   {"items": [3, 4, 5, 6], "prompt": "buy_item", "seq": 376, "type": "prompt"}
+   {"key": "d", "seq": 377, "type": "input"}
+   {"prompt": "member", "seq": 378, "type": "prompt"}
+   {"key": "2", "seq": 379, "type": "input"}
+   {"delta": -13, "member": 2, "seq": 380, "total": 27, "type": "money"}
+   {"item": 6, "member": 2, "price": 13, "seq": 381, "slot": 2, "status": 2, "type": "buy"}
+   {"key": "X", "seq": 382, "type": "input"}
+   {"seq": 383, "type": "shop_close"}
+   {"key": "DOWN", "seq": 384, "type": "input"}
+   {"location": 2, "seq": 385, "steps": 124, "type": "move", "x": 7, "y": 6}
+   {"n": 11, "seq": 386, "type": "paragraph"}
+   {"key": "DOWN", "seq": 387, "type": "input"}
+   {"location": 2, "seq": 388, "steps": 125, "type": "move", "x": 7, "y": 7}
+   {"key": "RIGHT", "seq": 389, "type": "input"}
+   {"location": 2, "seq": 390, "steps": 126, "type": "move", "x": 8, "y": 7}
+   {"key": "RIGHT", "seq": 391, "type": "input"}
+   {"location": 2, "seq": 392, "steps": 127, "type": "move", "x": 9, "y": 7}
+   {"key": "RIGHT", "seq": 393, "type": "input"}
+   {"location": 2, "seq": 394, "steps": 128, "type": "move", "x": 10, "y": 7}
+   {"key": "RIGHT", "seq": 395, "type": "input"}
+   {"location": 2, "seq": 396, "steps": 129, "type": "move", "x": 11, "y": 7}
+   {"key": "RIGHT", "seq": 397, "type": "input"}
+   {"location": 2, "seq": 398, "steps": 130, "type": "move", "x": 12, "y": 7}
+   {"key": "RIGHT", "seq": 399, "type": "input"}
+   {"location": 2, "seq": 400, "steps": 131, "type": "move", "x": 13, "y": 7}
+   {"key": "RIGHT", "seq": 401, "type": "input"}
+   {"location": 2, "seq": 402, "steps": 132, "type": "move", "x": 14, "y": 7}
+   {"key": "RIGHT", "seq": 403, "type": "input"}
+   {"location": 2, "seq": 404, "steps": 133, "type": "move", "x": 15, "y": 7}
+   {"key": "RIGHT", "seq": 405, "type": "input"}
+   {"location": 2, "seq": 406, "steps": 134, "type": "move", "x": 16, "y": 7}
+   {"key": "RIGHT", "seq": 407, "type": "input"}
+   {"location": 2, "seq": 408, "steps": 135, "type": "move", "x": 17, "y": 7}
+   {"key": "RIGHT", "seq": 409, "type": "input"}
+   {"location": 2, "seq": 410, "steps": 136, "type": "move", "x": 18, "y": 7}
+   {"key": "RIGHT", "seq": 411, "type": "input"}
+   {"location": 2, "seq": 412, "steps": 137, "type": "move", "x": 19, "y": 7}
+   {"key": "RIGHT", "seq": 413, "type": "input"}
+   {"location": 2, "seq": 414, "steps": 138, "type": "move", "x": 20, "y": 7}
+   {"key": "RIGHT", "seq": 415, "type": "input"}
+   {"location": 2, "seq": 416, "steps": 139, "type": "move", "x": 21, "y": 7}
+   {"key": "RIGHT", "seq": 417, "type": "input"}
+   {"location": 2, "seq": 418, "steps": 140, "type": "move", "x": 22, "y": 7}
+   {"key": "RIGHT", "seq": 419, "type": "input"}
+   {"location": 2, "seq": 420, "steps": 141, "type": "move", "x": 23, "y": 7}
+   {"key": "UP", "seq": 421, "type": "input"}
+   {"location": 2, "seq": 422, "steps": 142, "type": "move", "x": 23, "y": 6}
+   {"key": "UP", "seq": 423, "type": "input"}
+   {"location": 2, "seq": 424, "steps": 143, "type": "move", "x": 23, "y": 5}
+   {"key": "RIGHT", "seq": 425, "type": "input"}
+   {"location": 2, "seq": 426, "steps": 144, "type": "move", "x": 24, "y": 5}
+   {"key": "RIGHT", "seq": 427, "type": "input"}
+   {"location": 2, "seq": 428, "steps": 145, "type": "move", "x": 25, "y": 5}
+   {"location": 2, "seq": 429, "string": 6, "type": "message"}
+   {"seq": 430, "shop": 2, "type": "shop_open"}
+   {"key": "B", "seq": 431, "type": "input"}
+   {"items": [2, 7, 8, 9, 10], "prompt": "buy_item", "seq": 432, "type": "prompt"}
+   {"key": "c", "seq": 433, "type": "input"}
+   {"prompt": "member", "seq": 434, "type": "prompt"}
+   {"key": "1", "seq": 435, "type": "input"}
+   {"delta": -104, "member": 1, "seq": 436, "total": 91, "type": "money"}
+   {"item": 8, "member": 1, "price": 104, "seq": 437, "slot": 4, "status": 0, "type": "buy"}
+   {"key": "X", "seq": 438, "type": "input"}
+   {"seq": 439, "type": "shop_close"}
+   {"key": "C", "seq": 440, "type": "input"}
+   {"prompt": "member", "seq": 441, "type": "prompt"}
+   {"key": "1", "seq": 442, "type": "input"}
+   {"member": 1, "seq": 443, "type": "char_open"}
+   {"key": "E", "seq": 444, "type": "input"}
+   {"prompt": "item_slot", "seq": 445, "type": "prompt"}
+   {"key": "d", "seq": 446, "type": "input"}
+   {"ac": 5, "item": 8, "member": 1, "seq": 447, "slot": 4, "type": "equip"}
+   {"key": "X", "seq": 448, "type": "input"}
+   {"seq": 449, "type": "char_close"}
+   {"name": "CP5-pre-save", "seq": 450, "type": "checkpoint"}

@@ -1,0 +1,29 @@
+   0 {"seed": 20261021, "seq": 0, "type": "new_game"}
+   1 {"n": 1, "seq": 1, "type": "paragraph"}
+   2 {"key": "LEFT", "seq": 2, "type": "input"}
+   3 {"location": 1, "seq": 3, "steps": 1, "type": "move", "x": 14, "y": 20}
+   4 {"key": "LEFT", "seq": 4, "type": "input"}
+   5 {"location": 1, "seq": 5, "steps": 2, "type": "move", "x": 13, "y": 20}
+   6 {"key": "LEFT", "seq": 6, "type": "input"}
+   7 {"location": 1, "seq": 7, "steps": 3, "type": "move", "x": 12, "y": 20}
+   8 {"key": "LEFT", "seq": 8, "type": "input"}
+   9 {"location": 1, "seq": 9, "steps": 4, "type": "move", "x": 11, "y": 20}
+  10 {"key": "LEFT", "seq": 10, "type": "input"}
+  11 {"location": 1, "seq": 11, "steps": 5, "type": "move", "x": 10, "y": 20}
+  12 {"key": "LEFT", "seq": 12, "type": "input"}
+  13 {"location": 1, "seq": 13, "steps": 6, "type": "move", "x": 9, "y": 20}
+  14 {"key": "LEFT", "seq": 14, "type": "input"}
+  15 {"location": 1, "seq": 15, "steps": 7, "type": "move", "x": 8, "y": 20}
+  16 {"key": "LEFT", "seq": 16, "type": "input"}
+  17 {"location": 1, "seq": 17, "steps": 8, "type": "move", "x": 7, "y": 20}
+  18 {"key": "LEFT", "seq": 18, "type": "input"}
+  19 {"location": 1, "seq": 19, "steps": 9, "type": "move", "x": 6, "y": 20}
+  20 {"key": "LEFT", "seq": 20, "type": "input"}
+  21 {"location": 1, "seq": 21, "steps": 10, "type": "move", "x": 5, "y": 20}
+  22 {"key": "LEFT", "seq": 22, "type": "input"}
+  23 {"location": 1, "seq": 23, "steps": 11, "type": "move", "x": 4, "y": 20}
+  24 {"key": "LEFT", "seq": 24, "type": "input"}
+  25 {"action": 0, "action_class": 11, "seq": 25, "type": "bump", "x": 3, "y": 20}
+  26 {"key": "LEFT", "seq": 26, "type": "input"}
+  27 {"action": 0, "action_class": 11, "seq": 27, "type": "bump", "x": 3, "y": 20}
+  28 {"name": "a", "seq": 28, "state": {"cell_changes": [], "day": 1, "hour": 8, "location": 1, "minute": 11, "mode": "map", "party": [{"ac": 3, "armour_slot": 3, "cond": 0, "hp": 24, "items": [[3, 6], [4, 2], [7, 0]], "level": 1, "max_hp": 24, "money": 120, "name": "Hessa Brand", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 1, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 26, "items": [[5, 8], [6, 1], [1, 0]], "level": 1, "max_hp": 26, "money": 60, "name": "Tobin Ash", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 2, "weapon_slot": 1, "xp": 90}, {"ac": 3, "armour_slot": 0, "cond": 0, "hp": 21, "items": [[3, 6], [4, 1]], "level": 1, "max_hp": 21, "money": 80, "name": "Maro Quill", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 3, "weapon_slot": 1, "xp": 90}, {"ac": 2, "armour_slot": 0, "cond": 0, "hp": 22, "items": [[3, 6], [4, 1], [9, 3]], "level": 1, "max_hp": 22, "money": 70, "name": "Dell Ostrow", "npc": 0, "rank": "Drifter", "skill_points": 0, "slot": 4, "weapon_slot": 1, "xp": 90}], "rng_state": 20261021, "steps": 11, "x": 4, "y": 20}, "type": "checkpoint"}

@@ -1,0 +1,76 @@
+# PREREG-W1 run configuration, frozen 21 Oct 2026. Values recorded in PREREG-W1 Addendum 1.
+[endpoint]
+base_url = "http://192.168.4.201:8888/v1"
+model = "deepseek-v41-flash-exl3"
+api_key = ""
+temperature = 0.3
+request_timeout_s = 1800
+per_request_max_tokens = 24576
+retry_window_s = 1800
+backoff_initial_s = 5
+backoff_max_s = 120
+poll_interval_s = 60
+
+[endpoint.extra_params]
+
+[project]
+dir = "project"
+python = "python3"
+test_command = "{python} -m pytest -q -p no:cacheprovider --junitxml={junit} {select}"
+test_timeout_s = 900
+runs_dir = "runs"
+stop_file = "STOP"
+worklog = "WORKLOG.md"
+
+[project.test_env]
+PYTHONPATH = "{project}"
+
+[limits]
+max_iterations = 2000
+max_wall_hours = 168
+wall_clock_excludes_waits = true
+iteration_token_cap = 96000
+max_turns_per_iteration = 60
+iteration_time_limit_s = 3600
+context_budget_tokens = 100000
+tool_result_max_chars = 8000
+command_timeout_s = 300
+max_failures_shown = 10
+reads_before_write = 6
+worklog_tail_chars = 6000
+spec_index_max_chars = 6000
+spec_index_heading_depth = 3
+
+[paths]
+writable = ["src/", "tests/fixtures-generated/"]
+
+[commands]
+allowlist = ["python3", "pytest", "ls", "cat", "grep", "wc", "head", "diff"]
+
+[sandbox]
+mode = "auto"
+
+[review]
+every_k = 25
+on_milestone = true
+required = false
+poll_interval_s = 30
+
+[[milestones]]
+name = "M1"
+select = "tests --group M1"
+[[milestones]]
+name = "M2"
+select = "tests --group M2"
+[[milestones]]
+name = "M3"
+select = "tests --group M3"
+[[milestones]]
+name = "M4"
+select = "tests --group M4"
+[[milestones]]
+name = "M5"
+select = "tests --group M5"
+[[milestones]]
+name = "M6"
+select = "tests --group M6"

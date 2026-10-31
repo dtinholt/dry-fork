@@ -1,0 +1,1195 @@
+==================== bump_effect/blocked src/wlengine/headless.py 590 660
+ 590             self.prev_y = self.y if oy is None else oy
+ 591         self.location, self.x, self.y = loc, x, y
+ 592         self.emit("map_change", location=loc, x=x, y=y)
+ 593 
+ 594     def bump(self, nx, ny):
+ 595         m = self.sc.map(self.location)
+ 596         rec = maps.record_at(m, nx, ny)
+ 597         cls, action = self.cell_class_action(nx, ny)
+ 598         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+ 599         self.bump_effect(rec, nx, ny, cls)
+ 600 
+ 601     def bump_effect(self, rec, nx, ny, cls=None):
+ 602         if cls is None:
+ 603             cls, _a = self.cell_class_action(nx, ny)
+ 604         if cls == 11:
+ 605             self.bump_blocked(rec, nx, ny)
+ 606         elif cls == 4:
+ 607             if rec is not None and rec.get("impassable"):
+ 608                 self.show_message(rec.get("message", 0))
+ 609                 if self.sc.hook(self.location, nx, ny):
+ 610                     self.run_hook_at(nx, ny)
+ 611                 else:
+ 612                     self.apply_tail(rec, nx, ny)
+ 613             elif rec is not None:
+ 614                 self.show_message(rec.get("message", 0))
+ 615                 self.apply_tail(rec, nx, ny)
+ 616         elif cls == 3:
+ 617             self.start_encounter(rec)
+ 618 
+ 619     def bump_blocked(self, rec, nx, ny):
+ 620         if rec is not None:
+ 621             self.show_message(rec.get("message", 0))
+ 622             self.apply_tail(rec, nx, ny)
+ 623         self.run_hook_at(nx, ny)
+ 624 
+ 625     def run_hook_at(self, nx, ny):
+ 626         hook = self.sc.hook(self.location, nx, ny)
+ 627         if hook:
+ 628             self.run_hook(hook, nx, ny)
+ 629 
+ 630     def apply_tail(self, rec, x, y):
+ 631         tail = maps.apply_tail(rec)
+ 632         if tail is None:
+ 633             return
+ 634         m = self.sc.map(self.location)
+ 635         m["cells"]["actionClass"][y][x] = tail[0]
+ 636         m["cells"]["action"][y][x] = tail[1]
+ 637         img = maps.image_at(m, x, y)
+ 638         newrec = maps.record_at(m, x, y)
+ 639         if newrec is not None and "tile" in newrec:
+ 640             img = newrec["tile"]
+ 641             m["cells"]["image"][y][x] = img
+ 642         self.cell_change(x, y, tail[0], tail[1], img)
+ 643 
+ 644     def apply_loot(self, rec, x, y):
+ 645         for item in rec.get("items", []):
+ 646             if isinstance(item, (list, tuple)):
+ 647                 iid = item[0]
+ 648                 fixed = bool(item[1]) if len(item) > 1 else True
+ 649                 amount = item[2] if len(item) > 2 else 0
+ 650             else:
+ 651                 iid, fixed, amount = item, True, 0
+ 652             status = amount if fixed else self.rng.rnd(amount)
+ 653             placed = False
+ 654             for i, m in enumerate(self.party):
+ 655                 if len(m.get("items", [])) < 30:
+ 656                     self.add_item(i + 1, iid, 1)
+ 657                     slot = self.item_slot(i + 1, iid) + 1
+ 658                     self.emit("item_gain", member=i + 1, item=iid, slot=slot,
+ 659                               status=status)
+ 660                     placed = True
+==================== hooks/locks src/wlengine/headless.py 690 800
+ 690             self.hook_win(hook, nx, ny)
+ 691         elif kind == "recruit":
+ 692             self.hook_recruit(hook, nx, ny)
+ 693         elif kind == "healer":
+ 694             self.hook_healer(hook, nx, ny)
+ 695         elif kind == "lock":
+ 696             self.bump_lock(None, nx, ny)
+ 697 
+ 698     def hook_win(self, hook, nx, ny):
+ 699         item = hook.get("item")
+ 700         if item is not None and not self.party_has(item):
+ 701             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+ 702             if para:
+ 703                 self.emit("paragraph", n=para)
+ 704             return
+ 705         para = self.hook_get(hook, "win_paragraph", "win_para")
+ 706         if para:
+ 707             self.emit("paragraph", n=para)
+ 708         self.mode = "won"
+ 709         self.emit("win", steps=self.steps, day=self.day,
+ 710                   minutes=self.hour * 60 + self.minute)
+ 711 
+ 712     def hook_get(self, hook, *names):
+ 713         for name in names:
+ 714             if name in hook and hook[name] is not None:
+ 715                 return hook[name]
+ 716         return None
+ 717 
+ 718     def hook_recruit(self, hook, nx, ny):
+ 719         para = self.hook_get(hook, "paragraph")
+ 720         if para:
+ 721             self.emit("paragraph", n=para)
+ 722         self.pending = "recruit"
+ 723         self.pending_hook = hook
+ 724         self.pending_cell = (nx, ny)
+ 725         self.emit("prompt", prompt="recruit")
+ 726 
+ 727     def hook_healer(self, hook, nx, ny):
+ 728         self.pending = "heal"
+ 729         self.pending_hook = hook
+ 730         self.pending_cell = (nx, ny)
+ 731         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+ 732 
+ 733     # -- locks -------------------------------------------------------------
+ 734 
+ 735     def bump_lock(self, rec, nx, ny):
+ 736         hook = self.sc.hook(self.location, nx, ny)
+ 737         if hook is None:
+ 738             return
+ 739         key_item = hook.get("key_item")
+ 740         if key_item is not None:
+ 741             member = self.member_with_item(key_item)
+ 742             if member is not None:
+ 743                 self.emit("key_used", member=member, item=key_item)
+ 744                 self.unlock(nx, ny, hook, member, xp=0)
+ 745                 return
+ 746         member = self.pick_member(hook.get("skill", 0))
+ 747         skill = hook.get("skill", 0)
+ 748         level = self.skill_level(self.party[member - 1], skill)
+ 749         attr = self.attr_value(self.party[member - 1], skill)
+ 750         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+ 751                                 bool(hook.get("tool_item")))
+ 752         roll = self.rng.d100()
+ 753         success = roll <= need
+ 754         self.emit("check", member=member, skill=skill, level=level, need=need,
+ 755                   roll=roll, success=success)
+ 756         if success:
+ 757             self.unlock(nx, ny, hook, member)
+ 758         else:
+ 759             self.emit("message", location=self.location,
+ 760                       string=hook.get("fail_message", ""))
+ 761 
+ 762     def unlock(self, nx, ny, hook, member, xp=10):
+ 763         self.emit("unlock", x=nx, y=ny)
+ 764         m = self.sc.map(self.location)
+ 765         rec = maps.record_at(m, nx, ny)
+ 766         img = maps.image_at(m, nx, ny)
+ 767         tail = maps.apply_tail(rec) if rec is not None else None
+ 768         if tail is None:
+ 769             tail = (0, 0)
+ 770         m["cells"]["actionClass"][ny][nx] = tail[0]
+ 771         m["cells"]["action"][ny][nx] = tail[1]
+ 772         self.cell_change(nx, ny, tail[0], tail[1], img)
+ 773         newimg = img
+ 774         newrec = maps.record_at(m, nx, ny)
+ 775         if newrec is not None and "tile" in newrec:
+ 776             newimg = newrec["tile"]
+ 777             m["cells"]["image"][ny][nx] = newimg
+ 778         self.cell_change(nx, ny, tail[0], tail[1], newimg)
+ 779         if xp:
+ 780             mm = self.party[member - 1]
+ 781             mm["xp"] = mm.get("xp", 0) + xp
+ 782             self.emit("xp", member=member, delta=xp, total=mm["xp"])
+ 783         para = self.hook_get(hook, "paragraph", "success_paragraph")
+ 784         if para:
+ 785             self.emit("paragraph", n=para)
+ 786 
+ 787     def member_with_item(self, item):
+ 788         for i, m in enumerate(self.party):
+ 789             for it in m.get("items", []):
+ 790                 if it[0] == item and it[1] > 0:
+ 791                     return i + 1
+ 792         return None
+ 793 
+ 794     def pick_member(self, skill):
+ 795         idx = self.skill_attribute(skill)
+ 796         best = 1
+ 797         best_key = None
+ 798         for i, m in enumerate(self.party):
+ 799             if m.get("cond", 0) != 0:
+ 800                 continue
+==================== unlock/skill_level src/wlengine/headless.py 800 880
+ 800                 continue
+ 801             lvl = self.skill_level(m, skill)
+ 802             attrs = m.get("attrs") or {}
+ 803             a = attrs.get(self.ATTR_ORDER[idx], 0)
+ 804             key = (lvl, a, -i)
+ 805             if best_key is None or key > best_key:
+ 806                 best_key = key
+ 807                 best = i + 1
+ 808         return best
+ 809 
+ 810     def skill_attribute(self, skill):
+ 811         """LR-6: LABSKILL byte 1 is a record offset; map it to an attribute."""
+ 812         tbl = getattr(self.sc, "skill_table", None)
+ 813         if tbl:
+ 814             try:
+ 815                 off = tbl[skill][2]
+ 816             except Exception:  # noqa: BLE001
+ 817                 off = None
+ 818             if off in self.ATTR_OFFSETS:
+ 819                 return self.ATTR_OFFSETS[off]
+ 820         return 1
+ 821 
+ 822     def attr_value(self, member, skill):
+ 823         """The member's value for the attribute that governs ``skill``."""
+ 824         idx = self.skill_attribute(skill)
+ 825         attrs = member.get("attrs") or {}
+ 826         return attrs.get(self.ATTR_ORDER[idx], 0)
+ 827 
+ 828     def end_of_round(self):
+ 829         """LR-36: living melee groups above band 1 close in, then round += 1."""
+ 830         c = self.combat
+ 831         if c is None:
+ 832             return
+ 833         for i, g in enumerate(c["groups"]):
+ 834             mob = g.get("mob") or {}
+ 835             melee = mob.get("weaponType", 0) < 3
+ 836             if melee and g["band"] > 1 and any(h > 0 for h in g["hp"]):
+ 837                 g["band"] -= 1
+ 838                 self.emit("group_closes", group=i + 1, band=g["band"])
+ 839         c["round"] += 1
+ 840 
+ 841     def party_has(self, item):
+ 842         for m in self.party:
+ 843             for it in m.get("items", []):
+ 844                 if it[0] == item and it[1] > 0:
+ 845                     return True
+ 846         return False
+ 847 
+ 848     def skill_level(self, member, skill):
+ 849         for sid, lvl in member.get("skills", []):
+ 850             if sid == skill:
+ 851                 return lvl
+ 852         return 0
+ 853 
+ 854     # -- shops -------------------------------------------------------------
+ 855 
+ 856     def open_shop(self, rec):
+ 857         n = rec.get("shop", 0)
+ 858         self.show_message(rec.get("message", 0))
+ 859         self.mode = "shop"
+ 860         recs = self.sc.shops[n]["items"] if n in self.sc.shops else []
+ 861         items = [i + 1 for i, it in enumerate(recs) if 1 <= it.get("stock", 0) <= 255]
+ 862         self.shop = {"number": n, "recs": recs, "items": items}
+ 863         self.emit("shop_open", shop=n)
+ 864 
+ 865     def key_b(self):
+ 866         if self.mode != "shop":
+ 867             return False
+ 868         self.pending = "buy_item"
+ 869         self.emit("prompt", prompt="buy_item", items=list(self.shop["items"]))
+ 870 
+ 871     def key_s(self):
+ 872         if self.mode == "shop":
+ 873             self.pending = "sell_member"
+ 874             self.emit("prompt", prompt="member")
+ 875             return
+ 876         self.serial += 1
+ 877         self.save_game()
+ 878 
+ 879     def key_c(self):
+ 880         self.pending = "char_member"
+==================== victory src/wlengine/combat.py 430 498
+ 430         self.reset_phase()
+ 431         self.monster_phase1()
+ 432         self.apply_phase1()
+ 433         if self.check_end():
+ 434             return
+ 435         self.end_of_round()
+ 436 
+ 437     # -- victory and defeat (LR-44 to LR-46) -------------------------------
+ 438 
+ 439     def victory(self):
+ 440         c = self.combat
+ 441         if c is None or c.get("over"):
+ 442             return
+ 443         c["over"] = True
+ 444         rounds = c.get("last_death_round") or c["round"]
+ 445         self.emit("combat_end", result="victory", rounds=rounds)
+ 446         total = 0
+ 447         for gi, g in enumerate(c["groups"]):
+ 448             mob = g["mob"]
+ 449             killed = sum(1 for hp in g["hp"] if hp <= 0)
+ 450             total += killed * mob.get("sturdiness", 0) * (mob.get("armorClass", 0) + 1)
+ 451         alive = [i + 1 for i, m in enumerate(self.party) if not m.get("cond") == 2]
+ 452         share = total // len(alive) if alive else 0
+ 453         for slot in range(1, len(self.party) + 1):
+ 454             m = self.party[slot - 1]
+ 455             m["xp"] = m.get("xp", 0) + share
+ 456             self.emit("xp", member=slot, delta=share, total=m["xp"])
+ 457             lvl0 = m.get("level", 1)
+ 458             lvl = rules.level_after(lvl0, m["xp"])
+ 459             if lvl > lvl0:
+ 460                 m["level"] = lvl
+ 461                 m["max_hp"] = rules.max_hp((m.get("attrs") or {}).get("STR", 0), lvl)
+ 462                 self.emit("promote", member=slot, level=lvl, max_hp=m["max_hp"],
+ 463                           rank=RANKS[min(lvl, 7) - 1])
+ 464         money = 5 * self.best_salvage() * c["kills"]
+ 465         if money:
+ 466             self.party[0]["money"] = self.party[0].get("money", 0) + money
+ 467             self.emit("money", member=1, delta=money, total=self.party[0]["money"])
+ 468         rec = c.get("rec")
+ 469         self.combat = None
+ 470         self.mode = "map"
+ 471         # LR-44: after the victory the encounter cell's tail is applied; if that
+ 472         # turns the cell into a LOOT cell, the loot fires at once (and its own
+ 473         # tail is applied afterwards).
+ 474         if rec is not None:
+ 475             self.apply_tail(rec, self.x, self.y)
+ 476             cls, _a = self.cell_class_action(self.x, self.y)
+ 477             if cls == 5:
+ 478                 lrec = maps.record_at(self.sc.map(self.location), self.x, self.y)
+ 479                 if lrec is not None:
+ 480                     self.apply_loot(lrec, self.x, self.y)
+ 481 
+ 482     def best_salvage(self):
+ 483         best = 0
+ 484         for m in self.party:
+ 485             if m.get("cond") == 2 or m.get("hp", 0) <= 0:
+ 486                 continue
+ 487             best = max(best, self.skill_level(m, SALVAGE))
+ 488         return best
+ 489 
+ 490     def defeat(self):
+ 491         c = self.combat
+ 492         if c is None or c.get("over"):
+ 493             return
+ 494         c["over"] = True
+ 495         self.emit("combat_end", result="defeat")
+ 496         self.emit("game_over")
+ 497         self.combat = None
+ 498         self.mode = "gameover"
+==================== check_need src/wlengine/rules.py 90 130
+  90 
+  91 def starting_money(luck: int) -> int:
+  92     """LR-9."""
+  93     return 50 + 5 * luck
+  94 
+  95 
+  96 # ---------------------------------------------------------------------------
+  97 # LR-13, LR-14: checks
+  98 # ---------------------------------------------------------------------------
+  99 
+ 100 def check_need(level: int, attribute: int, difficulty: int, tool: bool = False) -> int:
+ 101     """LR-13, unclamped."""
+ 102     return 20 + 15 * level + 2 * attribute - difficulty + (20 if tool else 0)
+ 103 
+ 104 
+ 105 def skill_check(rng: Rng, level: int, attribute: int, difficulty: int, tool: bool = False) -> dict:
+ 106     """LR-13: one d100 unless the need is 100 or more, or 0 or less."""
+ 107     need = check_need(level, attribute, difficulty, tool)
+ 108     if need >= 100:
+ 109         return {"need": need, "roll": None, "success": True}
+ 110     if need <= 0:
+ 111         return {"need": need, "roll": None, "success": False}
+ 112     r = rng.d100()
+ 113     return {"need": need, "roll": r, "success": r <= need}
+ 114 
+ 115 
+ 116 def pick_checker(candidates: list):
+ 117     """LR-14: highest level, then higher attribute, then lower slot."""
+ 118     best = None
+ 119     best_key = None
+ 120     for c in candidates:
+ 121         if c.get("cond", 0) != 0:
+ 122             continue
+ 123         key = (c.get("level", 0), c.get("attribute", 0), -c.get("slot", 0))
+ 124         if best_key is None or key > best_key:
+ 125             best_key = key
+ 126             best = c.get("slot")
+ 127     return best
+ 128 
+ 129 
+ 130 # ---------------------------------------------------------------------------
+==================== LABHOOKS.JSON
+{
+  "note": "Lab cell hooks (SPEC-04 section 6). Each hook sits on a class 11 cell or on a class 4 cell whose record is impassable, and runs after the SPEC-03 bump effect of that cell.",
+  "hooks": [
+    {
+      "kind": "lock",
+      "location": 2,
+      "x": 26,
+      "y": 14,
+      "skill": 14,
+      "difficulty": 30,
+      "key_item": 0,
+      "tool_item": 0,
+      "success_message": 8,
+      "fail_message": 9,
+      "remote": null,
+      "note": "Lock: storehouse door, Tumblers 30"
+    },
+    {
+      "kind": "lock",
+      "location": 0,
+      "x": 31,
+      "y": 55,
+      "skill": 17,
+      "difficulty": 25,
+      "key_item": 0,
+      "tool_item": 0,
+      "success_message": 11,
+      "fail_message": 12,
+      "remote": null,
+      "note": "Lock: ford, Fording 25"
+    },
+    {
+      "kind": "lock",
+      "location": 3,
+      "x": 26,
+      "y": 11,
+      "skill": 29,
+      "difficulty": 30,
+      "key_item": 0,
+      "tool_item": 0,
+      "success_message": 8,
+      "fail_message": 9,
+      "remote": {
+        "x": 14,
+        "y": 12,
+        "new_class": 4,
+        "new_action": 1
+      },
+      "note": "Lock: console, Terminals 30; opens the cage gate (14,12)"
+    },
+    {
+      "kind": "lock",
+      "location": 3,
+      "x": 16,
+      "y": 6,
+      "skill": 23,
+      "difficulty": 60,
+      "key_item": 11,
+      "tool_item": 0,
+      "success_message": 11,
+      "fail_message": 12,
+      "remote": null,
+      "note": "Lock: vault gate, key Gate card or Circuitry 60"
+    },
+    {
+      "kind": "lock",
+      "location": 3,
+      "x": 4,
+      "y": 20,
+      "skill": 16,
+      "difficulty": 35,
+      "key_item": 0,
+      "tool_item": 10,
+      "success_message": 14,
+      "fail_message": 15,
+      "remote": null,
+      "note": "Lock: rubble, Scaling 35, tool Rope coil"
+    },
+    {
+      "kind": "recruit",
+      "location": 1,
+      "x": 8,
+      "y": 17,
+      "npc": 0,
+      "min_leader_cha": 0,
+      "refuse_message": 7,
+      "cleared_image": 28,
+      "note": "NPC 0 of Saltwell: Orla Penn"
+    },
+    {
+      "kind": "recruit",
+      "location": 2,
+      "x": 18,
+      "y": 17,
+      "npc": 0,
+      "min_leader_cha": 10,
+      "refuse_message": 11,
+      "cleared_image": 28,
+      "note": "NPC 0 of Ninemile: Teodor Lusk"
+    },
+    {
+      "kind": "recruit",
+      "location": 2,
+      "x": 20,
+      "y": 4,
+      "npc": 1,
+      "min_leader_cha": 17,
+      "refuse_message": 13,
+      "cleared_image": 27,
+      "note": "NPC 1 of Ninemile: Wren Abara (leader CHA 17)"
+    },
+    {
+      "kind": "recruit",
+      "location": 3,
+      "x": 14,
+      "y": 14,
+      "npc": 0,
+      "min_leader_cha": 0,
+      "refuse_message": 17,
+      "cleared_image": 37,
+      "note": "NPC 0 of Pumphouse Deep: Sallow Kett"
+    },
+    {
+      "kind": "healer",
+      "location": 1,
+      "x": 22,
+      "y": 4,
+      "price": 30,
+      "note": "Saltwell healer, 30 coins"
+    },
+    {
+      "kind": "healer",
+      "location": 2,
+      "x": 25,
+      "y": 21,
+      "price": 40,
+      "note": "Ninemile healer, 40 coins"
+    },
+    {
+      "kind": "win",
+      "location": 1,
+      "x": 15,
+      "y": 11,
+      "item": 12,
+      "win_paragraph": 24,
+      "not_yet_paragraph": 4,
+      "note": "Fit the Governor valve"
+    }
+  ]
+}
+
+==================== scenario dir listing
+encounters.json
+hooks.json
+items.json
+map0-overworld.json
+map1-saltwell.json
+map2-ninemile.json
+map3-pumphouse.json
+npcs.json
+paragraphs.json
+party.json
+portraits.json
+rng-vectors.json
+scenario.json
+shops.json
+skills.json
+strings.json
+tiles.json
+walkthrough-reference-log.json
+walkthrough.json
+==================== hooks json in SPEC
+==================== hooks json in tests
+/Users/dtinholt/wasteland-build/project/tests/fixtures-generated/dd/LABHOOKS.JSON
+/Users/dtinholt/wasteland-build/project/tests/fixtures-generated/dd117/LABHOOKS.JSON
+/Users/dtinholt/wasteland-build/project/tests/fixtures-generated/dd2/LABHOOKS.JSON
+/Users/dtinholt/wasteland-build/project/tests/fixtures-generated/dd3/LABHOOKS.JSON
+/Users/dtinholt/wasteland-build/project/tests/fixtures-generated/dd9/LABHOOKS.JSON
+==================== JSON SPEC/scenario/walkthrough.json
+{
+ "seed": 20261021,
+ "start": "new game: party.json at scenario.json start",
+ "token_rules": {
+  "key": "UP, DOWN, LEFT, RIGHT, ESC, or one printable character",
+  "repeat_until": "test the condition; while false, send 'keys' in order and test again; fail the run after 'max' rounds",
+  "conditions": "mode:NAME is true when the engine mode is NAME; cell:L,X,Y is true when cell (X,Y) of location L has a cell change",
+  "checkpoint": "emit a checkpoint event carrying the state snapshot; consumes no input"
+ },
+ "summary": {
+  "steps_to_win": 358,
+  "tokens": 414,
+  "direction_tokens": 363,
+  "checkpoints": 10,
+  "auxiliary_checkpoints": 1,
+  "seeds_checked": "5000 seeds (1 to 5000) replayed by the lab reference: all 10 checkpoints match 'expected', no member ever falls"
+ },
+ "expected_rule": "Every field under 'expected' must match exactly for any seed. items_excluding_ammo is sorted; 'hp' and 'items' (slot order, with status bytes) appear only where the lab reference found them independent of the random stream over seeds 1 to 300. CP5 must equal CP5-pre-save in every snapshot field, generator state included. 'reference_seeded' holds the lab reference values for seed 20261021; an independent clean-room implementation built from SPEC-03, SPEC-04 and SPEC-06 alone reproduced it exactly on 21 Oct 2026; SPEC-07 decides whether to assert it.",
+ "script": [
+  {
+   "checkpoint": "CP1"
+  },
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "B",
+  "c",
+  "3",
+  "B",
+  "c",
+  "4",
+  "S",
+  "2",
+  "c",
+  "B",
+  "d",
+  "2",
+  "X",
+  "C",
+  "2",
+  "E",
+  "c",
+  "X",
+  {
+   "checkpoint": "CP2"
+  },
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "UP",
+  "Y",
+  {
+   "checkpoint": "CP3"
+  },
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  {
+   "repeat_until": "mode:map",
+   "keys": [
+    "A"
+   ],
+   "max": 30
+  },
+  {
+   "checkpoint": "CP4"
+  },
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "B",
+  "d",
+  "2",
+  "X",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "RIGHT",
+  "RIGHT",
+  "B",
+  "c",
+  "1",
+  "X",
+  "C",
+  "1",
+  "E",
+  "d",
+  "X",
+  {
+   "checkpoint": "CP5-pre-save"
+  },
+  "S",
+  "O",
+  "Y",
+  {
+   "checkpoint": "CP5"
+  },
+  "LEFT",
+  "LEFT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "LEFT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  {
+   "repeat_until": "cell:2,26,14",
+   "keys": [
+    "UP"
+   ],
+   "max": 40
+  },
+  "UP",
+  "UP",
+  "UP",
+  {
+   "checkpoint": "CP6"
+  },
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "DOWN",
+  "Y",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "UP",
+  "Y",
+  {
+   "checkpoint": "CP7"
+  },
+  "DOWN",
+  "DOWN",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "DOWN",
+  "RIGHT",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "DOWN",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  {
+   "repeat_until": "mode:map",
+   "keys": [
+    "A"
+   ],
+   "max": 30
+  },
+  {
+   "checkpoint": "CP8"
+  },
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "UP",
+  "UP",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  "RIGHT",
+  {
+   "checkpoint": "CP9"
+  },
+  "DOWN",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "DOWN",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "LEFT",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  "UP",
+  {
+   "checkpoint": "CP10"
+  }
+ ],
+ "checkpoints": [
+  {
+   "name": "CP1",
+   "description": "New game in Saltwell: four PCs at (15,20), 08:00 day 1, paragraph 1 shown",
+   "auxiliary": false,
+   "expected": {
+    "location": 1,
+    "x": 15,
+    "
+... (39860 more chars)
+==================== JSON SPEC/scenario/hooks.json
+{
+ "note": "Lab cell hooks (SPEC-04 section 6). Each hook sits on a class 11 cell or on a class 4 cell whose record is impassable, and runs after the SPEC-03 bump effect of that cell.",
+ "hooks": [
+  {
+   "kind": "lock",
+   "location": 2,
+   "x": 26,
+   "y": 14,
+   "skill": 14,
+   "difficulty": 30,
+   "key_item": 0,
+   "tool_item": 0,
+   "success_message": 8,
+   "fail_message": 9,
+   "remote": null,
+   "note": "Lock: storehouse door, Tumblers 30"
+  },
+  {
+   "kind": "lock",
+   "location": 0,
+   "x": 31,
+   "y": 55,
+   "skill": 17,
+   "difficulty": 25,
+   "key_item": 0,
+   "tool_item": 0,
+   "success_message": 11,
+   "fail_message": 12,
+   "remote": null,
+   "note": "Lock: ford, Fording 25"
+  },
+  {
+   "kind": "lock",
+   "location": 3,
+   "x": 26,
+   "y": 11,
+   "skill": 29,
+   "difficulty": 30,
+   "key_item": 0,
+   "tool_item": 0,
+   "success_message": 8,
+   "fail_message": 9,
+   "remote": {
+    "x": 14,
+    "y": 12,
+    "new_class": 4,
+    "new_action": 1
+   },
+   "note": "Lock: console, Terminals 30; opens the cage gate (14,12)"
+  },
+  {
+   "kind": "lock",
+   "location": 3,
+   "x": 16,
+   "y": 6,
+   "skill": 23,
+   "difficulty": 60,
+   "key_item": 11,
+   "tool_item": 0,
+   "success_message": 11,
+   "fail_message": 12,
+   "remote": null,
+   "note": "Lock: vault gate, key Gate card or Circuitry 60"
+  },
+  {
+   "kind": "lock",
+   "location": 3,
+   "x": 4,
+   "y": 20,
+   "skill": 16,
+   "difficulty": 35,
+   "key_item": 0,
+   "tool_item": 10,
+   "success_message": 14,
+   "fail_message": 15,
+   "remote": null,
+   "note": "Lock: rubble, Scaling 35, tool Rope coil"
+  },
+  {
+   "kind": "recruit",
+   "location": 1,
+   "x": 8,
+   "y": 17,
+   "npc": 0,
+   "min_leader_cha": 0,
+   "refuse_message": 7,
+   "cleared_image": 28,
+   "note": "NPC 0 of Saltwell: Orla Penn"
+  },
+  {
+   "kind": "recruit",
+   "location": 2,
+   "x": 18,
+   "y": 17,
+   "npc": 0,
+   "min_leader_cha": 10,
+   "refuse_message": 11,
+   "cleared_image": 28,
+   "note": "NPC 0 of Ninemile: Teodor Lusk"
+  },
+  {
+   "kind": "recruit",
+   "location": 2,
+   "x": 20,
+   "y": 4,
+   "npc": 1,
+   "min_leader_cha": 17,
+   "refuse_message": 13,
+   "cleared_image": 27,
+   "note": "NPC 1 of Ninemile: Wren Abara (leader CHA 17)"
+  },
+  {
+   "kind": "recruit",
+   "location": 3,
+   "x": 14,
+   "y": 14,
+   "npc": 0,
+   "min_leader_cha": 0,
+   "refuse_message": 17,
+   "cleared_image": 37,
+   "note": "NPC 0 of Pumphouse Deep: Sallow Kett"
+  },
+  {
+   "kind": "healer",
+   "location": 1,
+   "x": 22,
+   "y": 4,
+   "price": 30,
+   "note": "Saltwell healer, 30 coins"
+  },
+  {
+   "kind": "healer",
+   "location": 2,
+   "x": 25,
+   "y": 21,
+   "price": 40,
+   "note": "Ninemile healer, 40 coins"
+  },
+  {
+   "kind": "win",
+   "location": 1,
+   "x": 15,
+   "y": 11,
+   "item": 12,
+   "win_paragraph": 24,
+   "not_yet_paragraph": 4,
+   "note": "Fit the Governor valve"
+  }
+ ]
+}
+==================== JSON SPEC/scenario/labhooks.json
+ERR [Errno 2] No such file or directory: '/Users/dtinholt/wasteland-build/project/SPEC/scenario/labhooks.json'

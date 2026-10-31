@@ -1,0 +1,4 @@
+rc=0 stderr=
+top keys ['oracle', 'expected', 'errors']
+oracle keys ['tables', 'map0', 'map1', 'map2', 'map3', 'savegame', 'shop0', 'shop1', 'shop2', 'gameLength', 'labstr', 'tilesets', 'portraits', 'labskill', 'files']
+errors {}

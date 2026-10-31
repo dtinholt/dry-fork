@@ -1,0 +1,7 @@
+@pytest.mark.parametrize("cat", ["orders", "need", "target", "jam", "victory"])
+def test_raider_fight_rules(runner, walkthrough, cat):
+    for seed in FIGHT_SEEDS:
+        ev = _fight(runner, walkthrough, seed)
+        issues = [m for c, m in CR.consistency(ev) if c in (cat, "all")]
+        if issues:
+            fail("seed %d, %s: %s" % (seed, cat, issues[0]))

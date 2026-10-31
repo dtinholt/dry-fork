@@ -1,0 +1,319 @@
+items.json type: <class 'dict'>
+keys: ['record', 'type_byte', 'damage_byte', 'items']
+record: "item id N = record N - 1 of every shop list; records 12 to 93 are eight zero bytes"
+type_byte: "itemType = byte >> 3 (lab: 1 melee, 2 ranged, 3 ammo, 4 armour, 5 medical, 6 tool, 7 quest, 8 burst); lowFlags = 0"
+damage_byte: "melee, ranged, burst, medical: high nibble = dice count, low nibble = die sides; armour: AC bonus"
+items: [{"id": 1, "name": "Pipe club", "price": 15, "class": "melee", "type_byte": 8, "capacity": 0, "skill": 1, "damage": 22, "ammo": 0, "description": "A length of iron pipe with tape wound round one end."}, {"id": 2, "name": "Hook knife", "price": 12, "class": "melee", "type_byte": 8, "capacity": 0, "skill": 2, "damage": 20, "ammo": 0, "description": "A short curved blade for cutting rope and hide."}, {"id": 3, "name": "Ranch pistol", "price": 60, "class": "ranged", "type_byte": 16, "capacity": 6, "skill": 4, "damage": 24, "ammo": 4, "description": "A revolver that holds six rounds."}, {"id": 4, "name": "Pistol rounds", "price": 8, "class": "ammo", "type_byte": 24, "capacity": 6, "skill": 0, "damage": 0, "ammo": 0, "description": "One box of six pistol rounds. One box fills the pistol once."}, {"id": 5, "name": "Lever rifle", "price": 140, "class": "ranged", "type_byte": 16, "capacity": 8, "skill": 5, "damage": 38, "ammo": 6, "description": "A lever-action rifle that holds eight rounds."}, {"id": 6, "name": "Rifle rounds", "price": 14, "class": "ammo", "type_byte": 24, "capacity": 8, "skill": 0, "damage": 0, "ammo": 0, "description": "One box of eight rifle rounds. One box fills the rifle once."}, {"id": 7, "name": "Hide vest", "price": 30, "class": "armour", "type_byte": 32, "capacity": 0, "skill": 0, "damage": 1, "ammo": 0, "description": "Stitched goat hide over a canvas lining. AC 1."}, {"id": 8, "name": "Plate jacket", "price": 110, "class": "armour", "type_byte": 32, "capacity": 0, "skill": 0, "damage": 3, "ammo": 0, "description": "Canvas jacket with flattened can lids sewn in rows. AC 3."}, {"id": 9, "name": "Field kit", "price": 25, "class": "medical", "type_byte": 40, "capacity": 3, "skill": 12, "damage": 36, "ammo": 0, "description": "Bandages, splints and a bottle of spirit. Three uses, heals 2d4."}, {"id": 10, "name": "Rope coil", "price": 10, "class": "tool", "type_byte": 48, "capacity": 0, "skill": 16, "damage": 0, "ammo": 0, "description": "Fifty feet of
+=== party.json ===
+{
+ "note": "Premade party, savegame slots 1 to 4. weapon_slot and armour_slot are 1-based item slots, 0 = none (SPEC-02 section 4.4). DEX is written as 0.",
+ "party": [
+  {
+   "name": "Hessa Brand",
+   "gender": 1,
+   "nationality": 0,
+   "attrs": {
+    "STR": 14,
+    "IQ": 13,
+    "LCK": 11,
+    "SPD": 12,
+    "AGL": 14,
+    "CHA": 15
+   },
+   "money": 120,
+   "skills": [
+    [
+     4,
+     2
+    ],
+    [
+     20,
+     1
+    ],
+    [
+     21,
+     1
+    ],
+    [
+     18,
+     1
+    ]
+   ],
+   "items": [
+    [
+     3,
+     6
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     7,
+     0
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 3,
+   "xp": 90,
+   "level": 1,
+   "portrait": 0
+  },
+  {
+   "name": "Tobin Ash",
+   "gender": 0,
+   "nationality": 1,
+   "attrs": {
+    "STR": 16,
+    "IQ": 10,
+    "LCK": 12,
+    "SPD": 11,
+    "AGL": 12,
+    "CHA": 9
+   },
+   "money": 60,
+   "skills": [
+    [
+     5,
+     2
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     17,
+     1
+    ],
+    [
+     3,
+     1
+    ]
+   ],
+   "items": [
+    [
+     5,
+     8
+    ],
+    [
+     6,
+     1
+    ],
+    [
+     1,
+     0
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0,
+   "xp": 90,
+   "level": 1,
+   "portrait": 0
+  },
+  {
+   "name": "Maro Quill",
+   "gender": 0,
+   "nationality": 0,
+   "attrs": {
+    "STR": 11,
+    "IQ": 16,
+    "LCK": 13,
+    "SPD": 13,
+    "AGL": 15,
+    "CHA": 10
+   },
+   "money": 80,
+   "skills": [
+    [
+     14,
+     2
+    ],
+    [
+     23,
+     1
+    ],
+    [
+     22,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     12,
+     1
+    ]
+   ],
+   "items": [
+    [
+     3,
+     6
+    ],
+    [
+     4,
+     1
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0,
+   "xp": 90,
+   "level": 1,
+   "portrait": 0
+  },
+  {
+   "name": "Dell Ostrow",
+   "gender": 1,
+   "nationality": 2,
+   "attrs": {
+    "STR": 12,
+    "IQ": 15,
+    "LCK": 12,
+    "SPD": 12,
+    "AGL": 13,
+    "CHA": 12
+   },
+   "money": 70,
+   "skills": [
+    [
+     12,
+     2
+    ],
+    [
+     13,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     29,
+     1
+    ],
+    [
+     18,
+     1
+    ]
+   ],
+   "items": [
+    [
+     3,
+     6
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     9,
+     3
+    ]
+   ],
+   "weapon_slot": 1,
+   "armour_slot": 0,
+   "xp": 90,
+   "level": 1,
+   "portrait": 0
+  }
+ ]
+}
+=== reference log: encounter + rounds ===
+encounter_start at 217
+213: {"seq": 213, "type": "input", "key": "RIGHT"}
+214: {"seq": 214, "type": "move", "location": 0, "x": 29, "y": 41, "steps": 78}
+215: {"seq": 215, "type": "input", "key": "RIGHT"}
+216: {"seq": 216, "type": "move", "location": 0, "x": 30, "y": 41, "steps": 79}
+217: {"seq": 217, "type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [14, 12, 14]}]}
+218: {"seq": 218, "type": "paragraph", "n": 8}
+219: {"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 54, "success": true}
+220: {"seq": 220, "type": "input", "key": "A"}
+221: {"seq": 221, "type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+222: {"seq": 222, "type": "round_start", "round": 1}
+223: {"seq": 223, "type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 53, "hit": true, "damage": 6}
+224: {"seq": 224, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 38, "hit": true, "damage": 4}
+225: {"seq": 225, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 46, "roll": 32, "hit": true, "damage": 6}
+226: {"seq": 226, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 92, "hit": false}
+227: {"seq": 227, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 56, "hit": true, "damage": 3}
+228: {"seq": 228, "type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 1, "need": 22, "roll": 61, "hit": false}
+229: {"seq": 229, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 16, "hit": true, "damage": 1}
+230: {"seq": 230, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 2, "need": 22, "roll": 60, "hit": false}
+231: {"seq": 231, "type": "monster_dies", "group": 1, "index": 1}
+232: {"seq": 232, "type": "input", "key": "A"}
+233: {"seq": 233, "type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+234: {"seq": 234, "type": "round_start", "round": 2}
+235: {"seq": 235, "type": "jam", "member": 1, "roll": 4, "chance": 4}
+236: {"seq": 236, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 75, "hit": false}
+237: {"seq": 237, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 48, "hit": false}
+238: {"seq": 238, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 15, "hit": true, "damage": 8}
+239: {"seq": 239, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 78, "hit": false}
+240: {"seq": 240, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 4, "need": 28, "roll": 2, "hit": true, "damage": 4}
+241: {"seq": 241, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 75, "hit": false}
+242: {"seq": 242, "type": "input", "key": "A"}
+243: {"seq": 243, "type": "round_orders", "round": 3, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+244: {"seq": 244, "type": "round_start", "round": 3}
+245: {"seq": 245, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 98, "hit": false}
+246: {"seq": 246, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 33, "hit": true, "damage": 3}
+247: {"seq": 247, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 68, "hit": false}
+248: {"seq": 248, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 85, "hit": false}
+249: {"seq": 249, "type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 42, "hit": false}
+250: {"seq": 250, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 3, "need": 22, "roll": 66, "hit": false}
+251: {"seq": 251, "type": "monster_dies", "group": 1, "index": 2}
+252: {"seq": 252, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 79, "success": false}
+253: {"seq": 253, "type": "input", "key": "A"}
+254: {"seq": 254, "type": "round_orders", "round": 4, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+255: {"seq": 255, "type": "round_start", "round": 4}
+256: {"seq": 256, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 85, "hit": false}
+257: {"seq": 257, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 38, "hit": true, "damage": 3}
+258: {"seq": 258, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 19, "hit": true, "damage": 4}
+259: {"seq": 259, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 69, "hit": false}
+260: {"seq": 260, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 19, "hit": true, "damage": 3}
+261: {"seq": 261, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 22, "success": true}
+262: {"seq": 262, "type": "unjammed", "member": 1}
+263: {"seq": 263, "type": "input", "key": "A"}
+264: {"seq": 264, "type": "round_orders", "round": 5, "orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+265: {"seq": 265, "type": "round_start", "round": 5}
+266: {"seq": 266, "type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 34, "hit": true, "damage": 8}
+267: {"seq": 267, "type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 39, "hit": true, "damage": 7}
+268: {"seq": 268, "type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 33, "hit": true, "damage": 7}
+269: {"seq": 269, "type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 12, "hit": true, "damage": 7}
+270: {"seq": 270, "type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 94, "hit": false}
+271: {"seq": 271, "type": "monster_dies", "group": 1, "index": 3}
+272: {"seq": 272, "type": "combat_end", "result": "victory", "rounds": 5}
+273: {"seq": 273, "type": "xp", "member": 1, "delta": 14, "total": 104}
+274: {"seq": 274, "type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+275: {"seq": 275, "type": "xp", "member": 2, "delta": 14, "total": 104}
+276: {"seq": 276, "type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+277: {"seq": 277, "type": "xp", "member": 3, "delta": 14, "total": 104}
+278: {"seq": 278, "type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+279: {"seq": 279, "type": "xp", "member": 4, "delta": 14, "total": 104}
+280: {"seq": 280, "type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+281: {"seq": 281, "type": "xp", "member": 5, "delta": 14, "total": 214}
+282: {"seq": 282, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+283: {"seq": 283, "type": "money", "member": 1, "delta": 75, "total": 195}
+284: {"seq": 284, "type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+285: {"seq": 285, "type": "checkpoint", "name": "CP4", "state": {"location": 0, "x": 30, "y": 41, "steps": 79, "day": 1, "hour": 12, "minute": 19, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "max_hp": 28, "hp": 25, "cond": 0, "money": 195, "ac": 3, "rank": "Hand", "skill_points": 2, "items": [[3, 0], [4, 2], [7, 0]], "weapon_slot": 1, "armour_slot": 3}, {"slot": 2, "name": "Tobin Ash", "npc
+286: {"seq": 286, "type": "input", "key": "RIGHT"}
+287: {"seq": 287, "type": "move", "location": 0, "x": 31, "y": 41, "steps": 80}
+288: {"seq": 288, "type": "paragraph", "n": 9}
+289: {"seq": 289, "type": "cell_change", "location": 0, "x": 31, "y": 41, "action_class": 0, "action": 0, "image": 22}
+290: {"seq": 290, "type": "input", "key": "RIGHT"}
+291: {"seq": 291, "type": "move", "location": 0, "x": 32, "y": 41, "steps": 81}
+292: {"seq": 292, "type": "input", "key": "UP"}
+293: {"seq": 293, "type": "move", "location": 0, "x": 32, "y": 40, "steps": 82}
+294: {"seq": 294, "type": "input", "key": "UP"}
+295: {"seq": 295, "type": "move", "location": 0, "x": 32, "y": 39, "steps": 83}
+296: {"seq": 296, "type": "input", "key": "UP"}
+297: {"seq": 297, "type": "move", "location": 0, "x": 32, "y": 38, "steps": 84}
+298: {"seq": 298, "type": "natural_heal", "members": [1, 2, 4]}
+299: {"seq": 299, "type": "input", "key": "UP"}
+300: {"seq": 300, "type": "move", "location": 0, "x": 32, "y": 37, "steps": 85}
+301: {"seq": 301, "type": "input", "key": "UP"}
+302: {"seq": 302, "type": "move", "location": 0, "x": 32, "y": 36, "steps": 86}
+303: {"seq": 303, "type": "input", "key": "UP"}
+304: {"seq": 304, "type": "move", "location": 0, "x": 32, "y": 35, "steps": 87}
+305: {"seq": 305, "type": "input", "key": "UP"}
+306: {"seq": 306, "type": "move", "location": 0, "x": 32, "y": 34, "steps": 88}
+=== reference CP4 state ===
+CP3: {"location": 1, "x": 8, "y": 18, "steps": 39, "day": 1, "hour": 8, "minute": 39, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "cond": 0, "money": 120, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 2], [7, 0]], "weapon_slot": 1, "armour_slot": 3}, {"slot": 2, "name": "Tobin Ash", "npc": 0, "level": 1, "xp": 90, "max_hp": 26, "hp": 26, "cond": 0, "money": 40, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[5, 8], [6, 1], [7, 0]], "weapon_slot": 1, "armour_slot": 3}, {"slot": 3, "name": "Maro Quill", "npc": 0, "level": 1, "xp": 90, "max_hp": 21, "hp": 21, "cond": 0, "money": 73, "ac": 3, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 2]], "weapon_slot": 1, "armour_slot": 0}, {"slot": 4, "name": "Dell Ostrow", "npc": 0, "level": 1, "xp": 90, "max_hp": 22, "hp": 22, "cond": 0, "money": 63, "ac": 2, "rank": "Drifter", "skill_points": 0, "items": [[3, 6], [4, 2], [9, 3]], "weapon_slot": 1, "armour_slot": 0}, {"slot": 5, "name": "Orla Penn", "npc": 1, "level": 2, "xp": 200, "max_hp": 27, "hp": 27, "cond": 0, "money": 25, "ac": 3, "rank": "Hand", "skill_points": 0, "items": [[5, 8], [6, 2]], "weapon_slot": 1, "armour_slot": 0}], "rng_state": 20261021}
+CP4: {"location": 0, "x": 30, "y": 41, "steps": 79, "day": 1, "hour": 12, "minute": 19, "mode": "map", "cell_changes": [[0, 30, 41, 0, 0, 13], [1, 8, 17, 0, 0, 28]], "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "max_hp": 28, "hp": 25, "cond": 0, "money": 195, "ac": 3, "rank": "Hand", "skill_points": 2, "items": [[3, 0], [4, 2], [7, 0]], "weapon_slot": 1, "armour_slot": 3}, {"slot": 2, "name": "Tobin Ash", "npc": 0, "level": 2, "xp": 104, "max_hp": 31, "hp": 30, "cond": 0, "money": 40, "ac": 3, "rank": "Hand", "skill_points": 2, "items": [[5, 3], [6, 1], [7, 0]], "weapon_slot": 1, "armour_slot": 3}, {"slot": 3, "name": "Maro Quill", "npc": 0, "level": 2, "xp": 104, "max_hp": 25, "hp": 25, "cond": 0, "money": 73, "ac": 3, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2]], "weapon_slot": 1, "armour_slot": 0}, {"slot": 4, "name": "Dell Ostrow", "npc": 0, "level": 2, "xp": 104, "max_hp": 26, "hp": 22, "cond": 0, "money": 63, "ac": 2, "rank": "Hand", "skill_points": 2, "items": [[3, 1], [4, 2], [9, 3]], "weapon_slot": 1, "armour_slot": 0}, {"slot": 5, "name": "Orla Penn", "npc": 1, "level": 2, "xp": 214, "max_hp": 27, "hp": 27, "cond": 0, "money": 25, "ac": 3, "rank": "Hand", "skill_points": 0, "items": [[5, 3], [6, 2]], "weapon_slot": 1, "armour_slot": 0}], "rng_state": 2973743393}

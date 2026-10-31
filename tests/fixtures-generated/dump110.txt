@@ -1,0 +1,1464 @@
+TOTAL headless 1064
+=== headless lines 1-60 ===
+   1| """Headless driver (SPEC-06 section 5, SPEC-07 API).
+   2| 
+   3| The headless driver runs the engine over a compiled data directory with a
+   4| scripted list of input tokens and returns the event log plus the final state.
+   5| """
+   6| 
+   7| from __future__ import annotations
+   8| 
+   9| import json
+  10| import os
+  11| 
+  12| from . import containers, labstate, maps, rules, strings
+  13| from .combat import CombatMixin
+  14| from .errors import FormatError, ScriptError
+  15| 
+  16| # ---------------------------------------------------------------------------
+  17| # scenario loading
+  18| # ---------------------------------------------------------------------------
+  19| 
+  20| 
+  21| def _load_scenario(data_dir):
+  22|     from . import scenario as scenario_mod
+  23|     loader = getattr(scenario_mod, "load", None)
+  24|     if loader is not None:
+  25|         return loader(data_dir)
+  26|     cls = getattr(scenario_mod, "Scenario", None)
+  27|     if cls is not None:
+  28|         for name in ("from_dir", "read", "load"):
+  29|             fn = getattr(cls, name, None)
+  30|             if fn is not None:
+  31|                 return fn(data_dir)
+  32|         return cls(data_dir)
+  33|     raise FormatError("wlengine.scenario has no loader")
+  34| 
+  35| 
+  36| # ---------------------------------------------------------------------------
+  37| # engine
+  38| # ---------------------------------------------------------------------------
+  39| 
+  40| 
+  41| class Engine(CombatMixin):
+  42|     """One engine instance driven by a script of input tokens."""
+  43| 
+  44|     def __init__(self, data_dir, seed=None, options=None):
+  45|         self.data_dir = data_dir
+  46|         self.options = dict(options or {})
+  47|         self.sc = _load_scenario(data_dir)
+  48|         self.events = []
+  49|         self._seq = 0
+  50|         self.mode = "map"
+  51|         self.location = 0
+  52|         self.x = 0
+  53|         self.y = 0
+  54|         self.steps = 0
+  55|         self.day = 1
+  56|         self.hour = 0
+  57|         self.minute = 0
+  58|         self.cell_changes = []
+  59|         self.rng = None
+  60|         self.seed = seed
+=== headless lines 440-545 ===
+ 440|         self.party[member - 1]["armour_slot"] = slot + 1
+ 441|         self.recompute_ac(member)
+ 442|         ac = self.party[member - 1]["ac"]
+ 443|         self.emit("equip", member=member, slot=slot + 1, item=iid, ac=ac)
+ 444| 
+ 445|     # -- combat ------------------------------------------------------------
+ 446| 
+ 447|     def combat_key(self, key, low):
+ 448|         if low == "a":
+ 449|             self.combat_round()
+ 450|             return True
+ 451|         if low == "f":
+ 452|             self.flee()
+ 453|             return True
+ 454|         return False
+ 455| 
+ 456|     def build_groups(self, rec):
+ 457|         """LR-26, LR-28: groups from the map's monster table and the record."""
+ 458|         m = self.sc.map(self.location)
+ 459|         mobs = list((m or {}).get("mobs", []))
+ 460|         groups = rules.build_groups(self.rng, mobs, rec or {})
+ 461|         for g in groups:
+ 462|             mob = mobs[g["monster"] - 1]
+ 463|             name = mob.get("name", b"")
+ 464|             if isinstance(name, bytes):
+ 465|                 name = name.split(b"\x0a")[0].decode("latin-1")
+ 466|             else:
+ 467|                 name = str(name).split("\n")[0]
+ 468|             g["mob"] = mob
+ 469|             g["monster"] = name
+ 470|         return groups
+ 471| 
+ 472|     def group_event(self, g):
+ 473|         out = {k: (list(v) if isinstance(v, list) else v) for k, v in g.items() if k != "mob"}
+ 474|         return out
+ 475| 
+ 476|     ATTR_ORDER = ("STR", "IQ", "LCK", "SPD", "AGL", "CHA")
+ 477|     ATTR_OFFSETS = {14: 0, 15: 1, 16: 2, 17: 3, 18: 4, 20: 5}
+ 478| 
+ 479|     def attr_value(self, member, skill):
+ 480|         """LR-13: the member's value of the attribute linked to ``skill``."""
+ 481|         idx = self.skill_attribute(skill)
+ 482|         attrs = member.get("attrs") or {}
+ 483|         return attrs.get(self.ATTR_ORDER[idx], 0)
+ 484| 
+ 485|     # -- movement ----------------------------------------------------------
+ 486| 
+ 487|     def key_down(self):
+ 488|         self.move(0, 1)
+ 489| 
+ 490|     def key_up(self):
+ 491|         self.move(0, -1)
+ 492| 
+ 493|     def key_left(self):
+ 494|         self.move(-1, 0)
+ 495| 
+ 496|     def key_right(self):
+ 497|         self.move(1, 0)
+ 498| 
+ 499|     def move(self, dx, dy):
+ 500|         nx, ny = self.x + dx, self.y + dy
+ 501|         m = self.sc.map(self.location)
+ 502|         size = m["size"]
+ 503|         if not (0 <= nx < size and 0 <= ny < size):
+ 504|             self.emit("blocked", x=nx, y=ny)
+ 505|             return
+ 506|         if not maps.is_passable(m, nx, ny):
+ 507|             self.bump(nx, ny)
+ 508|             return
+ 509|         self.x, self.y = nx, ny
+ 510|         self.steps += 1
+ 511|         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+ 512|         self.advance_time(self.step_minutes())
+ 513|         self.after_move()
+ 514| 
+ 515|     def step_minutes(self):
+ 516|         m = self.sc.map(self.location)
+ 517|         tp = m["info"].get("timePerStep", 256)
+ 518|         return tp >> 8
+ 519| 
+ 520|     def cell_class_action(self, x, y):
+ 521|         m = self.sc.map(self.location)
+ 522|         size = m["size"]
+ 523|         if not (0 <= x < size and 0 <= y < size):
+ 524|             return 0, 0
+ 525|         return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+ 526| 
+ 527|     def show_message(self, index):
+ 528|         if not index:
+ 529|             return
+ 530|         text = self.sc.map_string(self.location, index)
+ 531|         if text.startswith("Read paragraph ") and text.endswith("."):
+ 532|             body = text[len("Read paragraph "):-1]
+ 533|             if body.isdigit():
+ 534|                 self.emit("paragraph", n=int(body))
+ 535|                 return
+ 536|         self.emit("message", location=self.location, string=index)
+ 537| 
+ 538|     def advance_time(self, minutes):
+ 539|         before_hour = self.hour
+ 540|         self.minute += minutes
+ 541|         while self.minute >= 60:
+ 542|             self.minute -= 60
+ 543|             self.hour += 1
+ 544|         while self.hour >= 24:
+ 545|             self.hour -= 24
+=== headless lines 680-845 ===
+ 680|             self.emit("paragraph", n=para)
+ 681|         self.mode = "won"
+ 682|         self.emit("win", steps=self.steps, day=self.day,
+ 683|                   minutes=self.hour * 60 + self.minute)
+ 684| 
+ 685|     def hook_get(self, hook, *names):
+ 686|         for name in names:
+ 687|             if name in hook and hook[name] is not None:
+ 688|                 return hook[name]
+ 689|         return None
+ 690| 
+ 691|     def hook_recruit(self, hook, nx, ny):
+ 692|         para = self.hook_get(hook, "paragraph")
+ 693|         if para:
+ 694|             self.emit("paragraph", n=para)
+ 695|         self.pending = "recruit"
+ 696|         self.pending_hook = hook
+ 697|         self.pending_cell = (nx, ny)
+ 698|         self.emit("prompt", prompt="recruit")
+ 699| 
+ 700|     def hook_healer(self, hook, nx, ny):
+ 701|         self.pending = "heal"
+ 702|         self.pending_hook = hook
+ 703|         self.pending_cell = (nx, ny)
+ 704|         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+ 705| 
+ 706|     # -- locks -------------------------------------------------------------
+ 707| 
+ 708|     def bump_lock(self, rec, nx, ny):
+ 709|         hook = self.sc.hook(self.location, nx, ny)
+ 710|         if hook is None:
+ 711|             return
+ 712|         msg = self.hook_get(hook, "success_message", "message")
+ 713|         if msg:
+ 714|             self.emit("message", location=self.location, string=msg)
+ 715|         key_item = hook.get("key_item")
+ 716|         if key_item is not None:
+ 717|             member = self.member_with_item(key_item)
+ 718|             if member is not None:
+ 719|                 self.emit("key_used", member=member, item=key_item)
+ 720|                 self.unlock(nx, ny, hook, member, xp=0)
+ 721|                 return
+ 722|         member = self.pick_member(hook.get("skill", 0))
+ 723|         skill = hook.get("skill", 0)
+ 724|         level = self.skill_level(self.party[member - 1], skill)
+ 725|         attr = self.skill_attribute(skill)
+ 726|         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+ 727|                                 hook.get("tool_item") is not None)
+ 728|         roll = self.rng.d100()
+ 729|         success = roll <= need
+ 730|         self.emit("check", member=member, skill=skill, level=level, need=need,
+ 731|                   roll=roll, success=success)
+ 732|         if success:
+ 733|             self.unlock(nx, ny, hook, member)
+ 734|         else:
+ 735|             self.emit("message", location=self.location,
+ 736|                       string=hook.get("fail_message", ""))
+ 737| 
+ 738|     def unlock(self, nx, ny, hook, member, xp=10):
+ 739|         self.emit("unlock", x=nx, y=ny)
+ 740|         m = self.sc.map(self.location)
+ 741|         rec = maps.record_at(m, nx, ny)
+ 742|         img = maps.image_at(m, nx, ny)
+ 743|         tail = maps.apply_tail(rec) if rec is not None else None
+ 744|         if tail is None:
+ 745|             tail = (0, 0)
+ 746|         m["cells"]["actionClass"][ny][nx] = tail[0]
+ 747|         m["cells"]["action"][ny][nx] = tail[1]
+ 748|         self.cell_change(nx, ny, tail[0], tail[1], img)
+ 749|         newimg = maps.image_at(m, nx, ny)
+ 750|         self.cell_change(nx, ny, tail[0], tail[1], newimg)
+ 751|         if xp:
+ 752|             mm = self.party[member - 1]
+ 753|             mm["xp"] = mm.get("xp", 0) + xp
+ 754|             self.emit("xp", member=member, delta=xp, total=mm["xp"])
+ 755|         para = self.hook_get(hook, "paragraph", "success_paragraph")
+ 756|         if para:
+ 757|             self.emit("paragraph", n=para)
+ 758| 
+ 759|     def member_with_item(self, item):
+ 760|         for i, m in enumerate(self.party):
+ 761|             for it in m.get("items", []):
+ 762|                 if it[0] == item and it[1] > 0:
+ 763|                     return i + 1
+ 764|         return None
+ 765| 
+ 766|     def pick_member(self, skill):
+ 767|         idx = self.skill_attribute(skill)
+ 768|         best = 1
+ 769|         best_key = None
+ 770|         for i, m in enumerate(self.party):
+ 771|             if m.get("cond", 0) != 0:
+ 772|                 continue
+ 773|             lvl = self.skill_level(m, skill)
+ 774|             attrs = m.get("attrs") or {}
+ 775|             a = attrs.get(self.ATTR_ORDER[idx], 0)
+ 776|             key = (lvl, a, -i)
+ 777|             if best_key is None or key > best_key:
+ 778|                 best_key = key
+ 779|                 best = i + 1
+ 780|         return best
+ 781| 
+ 782|     def skill_attribute(self, skill):
+ 783|         """LR-6: LABSKILL byte 1 is a record offset; map it to an attribute."""
+ 784|         tbl = getattr(self.sc, "skill_table", None)
+ 785|         if tbl:
+ 786|             try:
+ 787|                 off = tbl[skill][2]
+ 788|             except Exception:  # noqa: BLE001
+ 789|                 off = None
+ 790|             if off in self.ATTR_OFFSETS:
+ 791|                 return self.ATTR_OFFSETS[off]
+ 792|         return 1
+ 793| 
+ 794|     def end_of_round(self):
+ 795|         """LR-36: living melee groups above band 1 close in, then round += 1."""
+ 796|         c = self.combat
+ 797|         if c is None:
+ 798|             return
+ 799|         for i, g in enumerate(c["groups"]):
+ 800|             mob = g.get("mob") or {}
+ 801|             melee = mob.get("weaponType", 0) < 3
+ 802|             if melee and g["band"] > 1 and any(h > 0 for h in g["hp"]):
+ 803|                 g["band"] -= 1
+ 804|                 self.emit("group_closes", group=i + 1, band=g["band"])
+ 805|         c["round"] += 1
+ 806| 
+ 807|     def party_has(self, item):
+ 808|         for m in self.party:
+ 809|             for it in m.get("items", []):
+ 810|                 if it[0] == item and it[1] > 0:
+ 811|                     return True
+ 812|         return False
+ 813| 
+ 814|     def skill_level(self, member, skill):
+ 815|         for sid, lvl in member.get("skills", []):
+ 816|             if sid == skill:
+ 817|                 return lvl
+ 818|         return 0
+ 819| 
+ 820|     # -- shops -------------------------------------------------------------
+ 821| 
+ 822|     def open_shop(self, rec):
+ 823|         n = rec.get("shop", 0)
+ 824|         self.show_message(rec.get("message", 0))
+ 825|         self.mode = "shop"
+ 826|         recs = self.sc.shops[n]["items"] if n in self.sc.shops else []
+ 827|         items = [i + 1 for i, it in enumerate(recs) if 1 <= it.get("stock", 0) <= 255]
+ 828|         self.shop = {"number": n, "recs": recs, "items": items}
+ 829|         self.emit("shop_open", shop=n)
+ 830| 
+ 831|     def key_b(self):
+ 832|         if self.mode != "shop":
+ 833|             return False
+ 834|         self.pending = "buy_item"
+ 835|         self.emit("prompt", prompt="buy_item", items=list(self.shop["items"]))
+ 836| 
+ 837|     def key_s(self):
+ 838|         if self.mode == "shop":
+ 839|             self.pending = "sell_member"
+ 840|             self.emit("prompt", prompt="member")
+ 841|             return
+ 842|         self.serial += 1
+ 843|         self.save_game()
+ 844| 
+ 845|     def key_c(self):
+=== headless lines 940-1064 ===
+ 940| 
+ 941|     # -- rest --------------------------------------------------------------
+ 942| 
+ 943|     def key_r(self):
+ 944|         self.advance_time(60)
+ 945|         self.emit("rest")
+ 946| 
+ 947|     # -- save / load -------------------------------------------------------
+ 948| 
+ 949|     def save_game(self):
+ 950|         self.emit("save", serial=self.serial)
+ 951|         self.saved[self.serial] = self.snapshot()
+ 952|         try:
+ 953|             self.write_save_files()
+ 954|         except Exception:  # noqa: BLE001
+ 955|             pass
+ 956| 
+ 957|     def write_save_files(self):
+ 958|         pass
+ 959| 
+ 960|     def load_game(self):
+ 961|         self.emit("load", serial=self.serial)
+ 962| 
+ 963|     # -- combat ------------------------------------------------------------
+ 964| 
+ 965|     def start_encounter(self, rec):
+ 966|         self.mode = "combat"
+ 967|         groups = self.build_groups(rec)
+ 968|         self.combat = {"groups": groups, "round": 0, "rec": rec, "surprised": False,
+ 969|                        "band": 3, "kills": 0, "fired": set(),
+ 970|                        "pending_monsters": [[0] * len(g["hp"]) for g in groups],
+ 971|                        "pending_members": {}, "over": False, "last_death_round": None}
+ 972|         self.emit("encounter_start", groups=[self.group_event(g) for g in groups])
+ 973|         msg = (rec or {}).get("message", 0)
+ 974|         if msg:
+ 975|             self.show_message(msg)
+ 976|         if (rec or {}).get("friendly"):
+ 977|             self.emit("combat_end", result="friendly")
+ 978|             self.mode = "map"
+ 979|             self.apply_tail(rec, self.x, self.y)
+ 980|             return
+ 981|         if not groups:
+ 982|             self.emit("combat_end", result="victory", rounds=0)
+ 983|             self.mode = "map"
+ 984|             self.apply_tail(rec, self.x, self.y)
+ 985|             return
+ 986|         d_max = max(g["mob"].get("combatRating", 0) for g in groups)
+ 987|         skill = 18
+ 988|         member = self.pick_member(skill)
+ 989|         level = self.skill_level(self.party[member - 1], skill)
+ 990|         attr = self.attr_value(self.party[member - 1], skill)
+ 991|         res = rules.skill_check(self.rng, level, attr, d_max)
+ 992|         self.emit("check", member=member, skill=skill, level=level, **res)
+ 993|         if not res["success"]:
+ 994|             self.combat["surprised"] = True
+ 995|             self.emit("surprised")
+ 996|             self.surprise_round()
+ 997| 
+ 998|     def key_a(self):
+ 999|         if self.mode != "combat":
+1000|             return False
+1001|         self.combat_round()
+1002|         return True
+1003| 
+1004|     # -- repeat ------------------------------------------------------------
+1005| 
+1006|     def run_repeat(self, item):
+1007|         spec = item["repeat_until"]
+1008|         if isinstance(spec, dict):
+1009|             script = spec.get("script")
+1010|             if script is None:
+1011|                 script = spec.get("keys", [])
+1012|             until = spec.get("until")
+1013|             if until is None:
+1014|                 until = spec.get("condition")
+1015|             limit = spec.get("limit", spec.get("max", 200))
+1016|         else:
+1017|             script = item.get("keys", [])
+1018|             until = spec
+1019|             limit = item.get("max", item.get("limit", 200))
+1020|         for _ in range(limit):
+1021|             self.run_script(script)
+1022|             if until is None or self._until_met(until):
+1023|                 break
+1024| 
+1025|     def _until_met(self, until):
+1026|         if isinstance(until, str):
+1027|             if until.startswith("mode:"):
+1028|                 return self.mode == until[len("mode:"):]
+1029|             if until.startswith("cell:"):
+1030|                 parts = until[len("cell:"):].split(",")
+1031|                 if len(parts) == 3:
+1032|                     loc, x, y = (int(p) for p in parts)
+1033|                     return any(c[0] == loc and c[1] == x and c[2] == y
+1034|                                for c in self.cell_changes)
+1035|                 return False
+1036|             return any(e.get("type") == until for e in self.events)
+1037|         if isinstance(until, dict):
+1038|             for e in self.events:
+1039|                 if all(e.get(k) == v for k, v in until.items()):
+1040|                     return True
+1041|         return False
+1042| 
+1043| 
+1044| # ---------------------------------------------------------------------------
+1045| # entry point
+1046| # ---------------------------------------------------------------------------
+1047| 
+1048| 
+1049| def run(data_dir, options=None, seed=None, *args, **kwargs):
+1050|     if isinstance(options, str):
+1051|         try:
+1052|             options = json.loads(options)
+1053|         except ValueError:
+1054|             options = {"script": [options]}
+1055|     if isinstance(options, (list, tuple)):
+1056|         options = {"script": list(options)}
+1057|     options = dict(options or {})
+1058|     if seed is None:
+1059|         seed = kwargs.get("seed", options.get("seed"))
+1060|     eng = Engine(data_dir, seed=seed, options=options)
+1061|     eng.new_game(seed)
+1062|     eng.run_script(options.get("script", []))
+1063|     return eng.events
+1064| 
+=== rules.py (319 lines) ===
+   1| """Game rules (SPEC-04).
+   2| 
+   3| This module holds the lab rules v1 of SPEC-04: the random generator, the
+   4| character formulas, skill checks, movement and time, encounters, combat and
+   5| the shop prices.  ``read_skill_table`` reads the 36-entry skill metadata table
+   6| of LABSKILL.BIN (SPEC-04 LR-6).
+   7| """
+   8| 
+   9| from __future__ import annotations
+  10| 
+  11| from .errors import FormatError
+  12| 
+  13| SKILL_ENTRIES = 36
+  14| MASK32 = 0xFFFFFFFF
+  15| DEFAULT_SEED = 0x6D2B79F5
+  16| 
+  17| 
+  18| def read_skill_table(path: str) -> list:
+  19|     """36 x ``[minimum_iq, cost, attribute_offset]`` (SPEC-04 LR-6)."""
+  20|     with open(path, "rb") as fh:
+  21|         data = fh.read()
+  22|     if len(data) < 2 * SKILL_ENTRIES:
+  23|         raise FormatError("LABSKILL: %d bytes, expected at least %d"
+  24|                           % (len(data), 2 * SKILL_ENTRIES))
+  25|     out = []
+  26|     for i in range(SKILL_ENTRIES):
+  27|         b0, b1 = data[2 * i], data[2 * i + 1]
+  28|         out.append([b0 >> 3, b0 & 7, b1])
+  29|     return out
+  30| 
+  31| 
+  32| # ---------------------------------------------------------------------------
+  33| # LR-1, LR-2: the generator
+  34| # ---------------------------------------------------------------------------
+  35| 
+  36| class Rng:
+  37|     """xorshift32 generator of SPEC-04 LR-1 and LR-2."""
+  38| 
+  39|     def __init__(self, seed: int = 0) -> None:
+  40|         seed = int(seed) & MASK32
+  41|         self.state = seed if seed else DEFAULT_SEED
+  42| 
+  43|     def next(self) -> int:
+  44|         x = self.state
+  45|         x ^= (x << 13) & MASK32
+  46|         x ^= x >> 17
+  47|         x ^= (x << 5) & MASK32
+  48|         x &= MASK32
+  49|         self.state = x
+  50|         return x
+  51| 
+  52|     def roll(self, n: int) -> int:
+  53|         return 1 + self.next() % n
+  54| 
+  55|     def rnd(self, n: int) -> int:
+  56|         if n == 0:
+  57|             return 0
+  58|         if n == 1:
+  59|             return 1
+  60|         return self.roll(n)
+  61| 
+  62|     def dice(self, n: int, sides: int) -> int:
+  63|         total = 0
+  64|         for _ in range(n):
+  65|             total += self.roll(sides)
+  66|         return total
+  67| 
+  68|     def d100(self) -> int:
+  69|         return self.roll(100)
+  70| 
+  71| 
+  72| # ---------------------------------------------------------------------------
+  73| # LR-5 to LR-10: characters
+  74| # ---------------------------------------------------------------------------
+  75| 
+  76| def roll_attributes(rng: Rng) -> list:
+  77|     """LR-7: six draws, in the order STR, IQ, LCK, SPD, AGL, CHA."""
+  78|     return [8 + rng.roll(10) for _ in range(6)]
+  79| 
+  80| 
+  81| def max_hp(strength: int, level: int) -> int:
+  82|     """LR-8, LR-46."""
+  83|     return 10 + strength + (level - 1) * (2 + strength // 5)
+  84| 
+  85| 
+  86| def armour_class(agility: int, armour_bonus: int, evasion_level: int) -> int:
+  87|     """LR-8."""
+  88|     return agility // 5 + armour_bonus + evasion_level
+  89| 
+  90| 
+  91| def starting_money(luck: int) -> int:
+  92|     """LR-9."""
+  93|     return 50 + 5 * luck
+  94| 
+  95| 
+  96| # ---------------------------------------------------------------------------
+  97| # LR-13, LR-14: checks
+  98| # ---------------------------------------------------------------------------
+  99| 
+ 100| def check_need(level: int, attribute: int, difficulty: int, tool: bool = False) -> int:
+ 101|     """LR-13, unclamped."""
+ 102|     return 20 + 15 * level + 2 * attribute - difficulty + (20 if tool else 0)
+ 103| 
+ 104| 
+ 105| def skill_check(rng: Rng, level: int, attribute: int, difficulty: int, tool: bool = False) -> dict:
+ 106|     """LR-13: one d100 unless the need is 100 or more, or 0 or less."""
+ 107|     need = check_need(level, attribute, difficulty, tool)
+ 108|     if need >= 100:
+ 109|         return {"need": need, "roll": None, "success": True}
+ 110|     if need <= 0:
+ 111|         return {"need": need, "roll": None, "success": False}
+ 112|     r = rng.d100()
+ 113|     return {"need": need, "roll": r, "success": r <= need}
+ 114| 
+ 115| 
+ 116| def pick_checker(candidates: list):
+ 117|     """LR-14: highest level, then higher attribute, then lower slot."""
+ 118|     best = None
+ 119|     best_key = None
+ 120|     for c in candidates:
+ 121|         if c.get("cond", 0) != 0:
+ 122|             continue
+ 123|         key = (c.get("level", 0), c.get("attribute", 0), -c.get("slot", 0))
+ 124|         if best_key is None or key > best_key:
+ 125|             best_key = key
+ 126|             best = c.get("slot")
+ 127|     return best
+ 128| 
+ 129| 
+ 130| # ---------------------------------------------------------------------------
+ 131| # LR-15 to LR-17: movement and time
+ 132| # ---------------------------------------------------------------------------
+ 133| 
+ 134| def advance_clock(clock: dict, minutes: int, seconds: int):
+ 135|     """LR-16, LR-17: returns (clock, hours whose minute 0 was reached)."""
+ 136|     day = clock.get("day", 1)
+ 137|     minute = clock.get("minute", 0)
+ 138|     second = clock.get("second", 0)
+ 139|     total_s = second + seconds
+ 140|     second = total_s % 60
+ 141|     add_min = minutes + total_s // 60
+ 142|     hours = []
+ 143|     for _ in range(add_min):
+ 144|         minute += 1
+ 145|         if minute == 1440:
+ 146|             minute = 0
+ 147|         if minute % 60 == 0:
+ 148|             h = minute // 60
+ 149|             hours.append(h)
+ 150|             if h == 0:
+ 151|                 day += 1
+ 152|     return {"day": day, "minute": minute, "second": second}, hours
+ 153| 
+ 154| 
+ 155| # ---------------------------------------------------------------------------
+ 156| # LR-45, LR-46: experience
+ 157| # ---------------------------------------------------------------------------
+ 158| 
+ 159| def xp_threshold(level: int) -> int:
+ 160|     """LR-45."""
+ 161|     return 50 * level * (level + 1)
+ 162| 
+ 163| 
+ 164| def level_after(level: int, xp: int) -> int:
+ 165|     """LR-45."""
+ 166|     while xp >= xp_threshold(level):
+ 167|         level += 1
+ 168|     return level
+ 169| 
+ 170| 
+ 171| # ---------------------------------------------------------------------------
+ 172| # LR-20, LR-53: money and shops
+ 173| # ---------------------------------------------------------------------------
+ 174| 
+ 175| def buy_price(price: int, haggling: int) -> int:
+ 176|     """LR-53."""
+ 177|     h = min(5, haggling)
+ 178|     return price * (100 - 5 * h) // 100
+ 179| 
+ 180| 
+ 181| def sell_price(price: int, haggling: int) -> int:
+ 182|     """LR-53."""
+ 183|     h = min(5, haggling)
+ 184|     return price * (50 + 5 * h) // 100
+ 185| 
+ 186| 
+ 187| def pay(moneys: list, first_slot: int, price: int):
+ 188|     """LR-20: new money list, or None when the party cannot pay."""
+ 189|     if sum(moneys) < price:
+ 190|         return None
+ 191|     out = list(moneys)
+ 192|     order = [first_slot - 1] + [i for i in range(len(moneys)) if i != first_slot - 1]
+ 193|     left = price
+ 194|     for i in order:
+ 195|         take = min(out[i], left)
+ 196|         out[i] -= take
+ 197|         left -= take
+ 198|         if left == 0:
+ 199|             break
+ 200|     return out
+ 201| 
+ 202| 
+ 203| # ---------------------------------------------------------------------------
+ 204| # LR-26 to LR-28: monsters and encounters
+ 205| # ---------------------------------------------------------------------------
+ 206| 
+ 207| def monster_values(mob: dict) -> dict:
+ 208|     """LR-27."""
+ 209|     cr = mob.get("combatRating", 0)
+ 210|     ac = mob.get("armorClass", 0)
+ 211|     st = mob.get("sturdiness", 0)
+ 212|     return {"to_hit_base": 20 + 5 * cr, "speed": cr, "ac": ac,
+ 213|             "ranged": mob.get("weaponType", 0) >= 3, "xp": st * (ac + 1)}
+ 214| 
+ 215| 
+ 216| def monster_hp(rng: Rng, sturdiness: int) -> int:
+ 217|     """SPEC-03 6.6, LR-26: the high byte is drawn first."""
+ 218|     hi = rng.rnd(sturdiness >> 8)
+ 219|     lo = rng.rnd(sturdiness & 0xFF)
+ 220|     return sturdiness // 4 + ((hi << 8) | lo)
+ 221| 
+ 222| 
+ 223| def monster_damage(rng: Rng, mob: dict) -> int:
+ 224|     """LR-27."""
+ 225|     return rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+ 226| 
+ 227| 
+ 228| def build_groups(rng: Rng, mobs: list, record: dict) -> list:
+ 229|     """LR-26, LR-28."""
+ 230|     counts = []
+ 231|     for entry in record.get("groups", []):
+ 232|         mob_index, rnd_flag, size = entry[0], entry[1], entry[2]
+ 233|         if mob_index == 0:
+ 234|             continue
+ 235|         mob = mobs[mob_index - 1]
+ 236|         s = size if size else mob.get("maxGroup", 0)
+ 237|         counts.append((mob_index, rng.rnd(s) if rnd_flag else s))
+ 238|     out = []
+ 239|     for mob_index, count in counts:
+ 240|         if count <= 0:
+ 241|             continue
+ 242|         mob = mobs[mob_index - 1]
+ 243|         hp = [monster_hp(rng, mob.get("sturdiness", 0)) for _ in range(count)]
+ 244|         band = 3 if mob.get("weaponType", 0) >= 3 else 2
+ 245|         out.append({"monster": mob_index, "count": count, "band": band, "hp": hp})
+ 246|     return out
+ 247| 
+ 248| 
+ 249| # ---------------------------------------------------------------------------
+ 250| # LR-34, LR-35, LR-39, LR-40, LR-43: combat formulas
+ 251| # ---------------------------------------------------------------------------
+ 252| 
+ 253| def _clamp(v: int, lo: int, hi: int) -> int:
+ 254|     return max(lo, min(hi, v))
+ 255| 
+ 256| 
+ 257| def ranged_need(level: int, agility: int, target_ac: int, band: int) -> int:
+ 258|     """LR-34."""
+ 259|     return _clamp(35 + 12 * level + agility - 6 * target_ac - 5 * (band - 1), 5, 95)
+ 260| 
+ 261| 
+ 262| def melee_need(level: int, agility: int, target_ac: int) -> int:
+ 263|     """LR-35."""
+ 264|     return _clamp(35 + 12 * level + agility - 6 * target_ac, 5, 95)
+ 265| 
+ 266| 
+ 267| def monster_need(combat_rating: int, member_ac: int, band: int) -> int:
+ 268|     """LR-34, LR-35."""
+ 269|     return _clamp(20 + 5 * combat_rating - 6 * member_ac - 5 * (band - 1), 5, 95)
+ 270| 
+ 271| 
+ 272| def flee_need(best_member_speed: int, best_monster_speed: int, command_level: int) -> int:
+ 273|     """LR-43."""
+ 274|     return _clamp(40 + 5 * (best_member_speed - best_monster_speed) + 5 * command_level, 5, 95)
+ 275| 
+ 276| 
+ 277| def jam_chance(gunsmithing_level: int) -> int:
+ 278|     """LR-34."""
+ 279|     return max(1, 4 - gunsmithing_level)
+ 280| 
+ 281| 
+ 282| def unarmed_attacks(grappling_level: int) -> int:
+ 283|     """LR-35."""
+ 284|     return 1 + grappling_level // 2
+ 285| 
+ 286| 
+ 287| def melee_damage_bonus(strength: int) -> int:
+ 288|     """LR-35."""
+ 289|     return max(0, (strength - 10) // 2)
+ 290| 
+ 291| 
+ 292| def damage_member(hp: int, damage: int) -> dict:
+ 293|     """LR-40."""
+ 294|     prev = hp
+ 295|     hp -= damage
+ 296|     if hp > 0:
+ 297|         return {"hp": hp, "cond": 0, "last_hp": None}
+ 298|     over = damage - prev
+ 299|     return {"hp": 0, "cond": 2 if over >= 5 else 1, "last_hp": prev}
+ 300| 
+ 301| 
+ 302| def speed_order(actors: list) -> list:
+ 303|     """LR-35: speed, members before monsters, slot, group, monster."""
+ 304|     def key(a):
+ 305|         party = a.get("side") == "party"
+ 306|         return (-a.get("speed", 0), 0 if party else 1,
+ 307|                 a.get("slot", 0) if party else 0,
+ 308|                 0 if party else a.get("group", 0),
+ 309|                 0 if party else a.get("index", 0))
+ 310|     return sorted(actors, key=key)
+ 311| 
+ 312| 
+ 313| __all__ = ["Rng", "read_skill_table", "roll_attributes", "max_hp", "armour_class",
+ 314|            "starting_money", "check_need", "skill_check", "pick_checker", "advance_clock",
+ 315|            "xp_threshold", "level_after", "buy_price", "sell_price", "pay", "monster_values",
+ 316|            "monster_hp", "monster_damage", "build_groups", "ranged_need", "melee_need",
+ 317|            "monster_need", "flee_need", "jam_chance", "unarmed_attacks", "melee_damage_bonus",
+ 318|            "damage_member", "speed_order"]
+ 319| 
+=== combat.py (485 lines) ===
+   1| """SPEC-04 LR-26 to LR-46: combat resolution for the headless driver.
+   2| 
+   3| The engine keeps ``self.combat`` as a dict while a fight is running:
+   4| 
+   5|     {"round": int,            # 0 while the surprise round is pending
+   6|      "groups": [...],         # LR-26 groups, each with "hp" per monster
+   7|      "band": int,             # LR-28 range band (1 = melee)
+   8|      "surprised": bool,
+   9|      "kills": int,
+  10|      "fired": set(),          # slots that fired in phase 1
+  11|      "pending_monsters": [[int]],   # phase 1 damage per group/index
+  12|      "pending_members": {slot: int},
+  13|      "over": bool,
+  14|      "last_death_round": int}
+  15| 
+  16| This module is a mixin: ``wlengine.headless.Engine`` inherits from
+  17| ``CombatMixin`` so the combat methods can use the engine's helpers
+  18| (``emit``, ``item_record``, ``skill_level``, ``rng`` ...).
+  19| """
+  20| 
+  21| from __future__ import annotations
+  22| 
+  23| from . import rules
+  24| 
+  25| RANGED_SKILLS = (4, 5, 12)
+  26| GUNSMITHING = 22
+  27| LOOKOUT = 18
+  28| RANKS = ["Drifter", "Hand", "Outrider", "Warden", "Steward", "Marshal", "Old hand"]
+  29| 
+  30| 
+  31| def _alive(member):
+  32|     return member.get("hp", 0) > 0 and not member.get("cond")
+  33| 
+  34| 
+  35| def weapon_dice(rec):
+  36|     """(n, s) of a weapon's damage: high nibble dice, low nibble sides."""
+  37|     if rec is None:
+  38|         return 1, 6
+  39|     if "damage_n" in rec:
+  40|         return rec.get("damage_n", 1), rec.get("damage_s", 6)
+  41|     byte = rec.get("damage", 0) or 0
+  42|     n = (byte >> 4) & 0x0F
+  43|     s = byte & 0x0F
+  44|     if n <= 0:
+  45|         n = 1
+  46|     if s <= 0:
+  47|         s = 6
+  48|     return n, s
+  49| 
+  50| 
+  51| class CombatMixin:
+  52|     # -- inventory helpers -------------------------------------------------
+  53| 
+  54|     def member_weapon(self, member):
+  55|         """The equipped weapon: item slot 1 (LR-33)."""
+  56|         items = member.get("items") or []
+  57|         if not items:
+  58|             return None, 0
+  59|         iid = items[0][0]
+  60|         return self.item_record(iid), iid
+  61| 
+  62|     def weapon_ammo(self, member):
+  63|         rec, _iid = self.member_weapon(member)
+  64|         if rec is None:
+  65|             return 0
+  66|         return member.get("loaded", rec.get("capacity", 0))
+  67| 
+  68|     def ammo_boxes(self, member):
+  69|         """Total rounds in the member's ammunition items."""
+  70|         total = 0
+  71|         for iid, count in (member.get("items") or [])[1:]:
+  72|             rec = self.item_record(iid)
+  73|             if rec and rec.get("ammo"):
+  74|                 total += rec["ammo"] * count
+  75|         return total
+  76| 
+  77|     def spend_ammo(self, member):
+  78|         member["loaded"] = max(0, self.weapon_ammo(member) - 1)
+  79| 
+  80|     def reload(self, member):
+  81|         """LR-33: one ammunition item refills the weapon to capacity."""
+  82|         rec, _iid = self.member_weapon(member)
+  83|         cap = rec.get("capacity", 0) if rec else 0
+  84|         items = member.get("items") or []
+  85|         for idx in range(1, len(items)):
+  86|             iid, count = items[idx]
+  87|             irec = self.item_record(iid)
+  88|             if not irec or not irec.get("ammo") or count <= 0:
+  89|                 continue
+  90|             items[idx] = [iid, count - 1]
+  91|             member["loaded"] = cap
+  92|             return cap
+  93|         return 0
+  94| 
+  95|     # -- orders (LR-33) ----------------------------------------------------
+  96| 
+  97|     def auto_orders(self):
+  98|         c = self.combat
+  99|         orders = {}
+ 100|         any_alive = any(hp > 0 for g in c["groups"] for hp in g["hp"])
+ 101|         band = c["band"]
+ 102|         for i, m in enumerate(self.party):
+ 103|             slot = str(i + 1)
+ 104|             if not _alive(m):
+ 105|                 orders[slot] = ["dead"]
+ 106|                 continue
+ 107|             if not any_alive:
+ 108|                 orders[slot] = ["wait"]
+ 109|                 continue
+ 110|             if m.get("jammed"):
+ 111|                 orders[slot] = ["unjam"]
+ 112|                 continue
+ 113|             rec, _iid = self.member_weapon(m)
+ 114|             if rec is not None and rec.get("skill") in RANGED_SKILLS:
+ 115|                 if self.weapon_ammo(m) > 0:
+ 116|                     orders[slot] = ["fire", 1]
+ 117|                     continue
+ 118|                 if self.ammo_boxes(m) > 0:
+ 119|                     orders[slot] = ["reload"]
+ 120|                     continue
+ 121|             orders[slot] = ["unarmed", 1] if band == 1 else ["advance", 1]
+ 122|         return orders
+ 123| 
+ 124|     # -- targeting ---------------------------------------------------------
+ 125| 
+ 126|     def pick_monster_target(self, pending=None):
+ 127|         """LR-34 step 4: first monster that is still standing after pending damage."""
+ 128|         c = self.combat
+ 129|         if pending is None:
+ 130|             pending = c.get("pending_monsters")
+ 131|         for gi, g in enumerate(c["groups"]):
+ 132|             pend = pending[gi] if pending else [0] * len(g["hp"])
+ 133|             for mi, hp in enumerate(g["hp"]):
+ 134|                 if hp > 0 and hp - pend[mi] > 0:
+ 135|                     return {"group": gi, "index": mi, "ac": g["mob"].get("armorClass", 0),
+ 136|                             "band": c["band"]}
+ 137|         for gi, g in enumerate(c["groups"]):
+ 138|             for mi, hp in enumerate(g["hp"]):
+ 139|                 if hp > 0:
+ 140|                     return {"group": gi, "index": mi, "ac": g["mob"].get("armorClass", 0),
+ 141|                             "band": c["band"]}
+ 142|         return None
+ 143| 
+ 144|     def pick_random_member(self):
+ 145|         """LR-34: a conscious member chosen uniformly."""
+ 146|         conscious = [i + 1 for i, m in enumerate(self.party) if _alive(m)]
+ 147|         if not conscious:
+ 148|             return None
+ 149|         slot = conscious[self.rng.roll(len(conscious)) - 1]
+ 150|         return {"slot": slot, "ac": self.party[slot - 1].get("ac", 0)}
+ 151| 
+ 152|     # -- phase 1 (LR-34) ---------------------------------------------------
+ 153| 
+ 154|     def party_phase1(self):
+ 155|         c = self.combat
+ 156|         if c is None:
+ 157|             return
+ 158|         fired = c.setdefault("fired", set())
+ 159|         pend = c["pending_monsters"]
+ 160|         for i, m in enumerate(self.party):
+ 161|             if not _alive(m):
+ 162|                 continue
+ 163|             rec, _iid = self.member_weapon(m)
+ 164|             if rec is None or rec.get("skill") not in RANGED_SKILLS:
+ 165|                 continue
+ 166|             if self.weapon_ammo(m) <= 0:
+ 167|                 self.emit("click", member=i + 1)
+ 168|                 continue
+ 169|             roll = self.rng.d100()
+ 170|             jam = rules.jam_chance(self.skill_level(m, GUNSMITHING))
+ 171|             if roll <= jam:
+ 172|                 m["jammed"] = True
+ 173|                 m["loaded"] = 0
+ 174|                 self.emit("jam", member=i + 1, roll=roll, chance=jam)
+ 175|                 continue
+ 176|             self.spend_ammo(m)
+ 177|             fired.add(i + 1)
+ 178|             target = self.pick_monster_target(pend)
+ 179|             if target is None:
+ 180|                 continue
+ 181|             need = rules.ranged_need(self.skill_level(m, rec.get("skill", 0)),
+ 182|                                      (m.get("attrs") or {}).get("AGL", 0),
+ 183|                                      target["ac"], c["band"])
+ 184|             roll = self.rng.d100()
+ 185|             hit = roll <= need
+ 186|             ev = {"side": "party", "member": i + 1, "group": target["group"] + 1,
+ 187|                   "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+ 188|             if hit:
+ 189|                 n, s = weapon_dice(rec)
+ 190|                 dmg = self.rng.dice(n, s)
+ 191|                 ev["damage"] = dmg
+ 192|                 pend[target["group"]][target["index"]] += dmg
+ 193|             self.emit("attack", **ev)
+ 194| 
+ 195|     def monster_phase1(self):
+ 196|         c = self.combat
+ 197|         if c is None:
+ 198|             return
+ 199|         pend = c["pending_members"]
+ 200|         conscious = [i + 1 for i, m in enumerate(self.party) if _alive(m)]
+ 201|         for gi, g in enumerate(c["groups"]):
+ 202|             mob = g["mob"]
+ 203|             if mob.get("weaponType", 0) < 3:
+ 204|                 continue
+ 205|             for mi, hp in enumerate(g["hp"]):
+ 206|                 if hp <= 0:
+ 207|                     continue
+ 208|                 if not conscious:
+ 209|                     break
+ 210|                 t = conscious[self.rng.roll(len(conscious)) - 1]
+ 211|                 m = self.party[t - 1]
+ 212|                 need = rules.monster_need(mob.get("combatRating", 0), m.get("ac", 0), c["band"])
+ 213|                 roll = self.rng.d100()
+ 214|                 hit = roll <= need
+ 215|                 ev = {"side": "monsters", "group": gi + 1, "attacker": mi + 1, "member": t,
+ 216|                       "need": need, "roll": roll, "hit": hit}
+ 217|                 if hit:
+ 218|                     dmg = self.rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+ 219|                     ev["damage"] = dmg
+ 220|                     pend[t] = pend.get(t, 0) + dmg
+ 221|                 self.emit("attack", **ev)
+ 222| 
+ 223|     def apply_phase1(self):
+ 224|         c = self.combat
+ 225|         for gi, g in enumerate(c["groups"]):
+ 226|             pend = c["pending_monsters"][gi]
+ 227|             for mi in range(len(g["hp"])):
+ 228|                 if g["hp"][mi] > 0 and pend[mi]:
+ 229|                     g["hp"][mi] -= pend[mi]
+ 230|                     if g["hp"][mi] <= 0:
+ 231|                         c["kills"] += 1
+ 232|                         c["last_death_round"] = c["round"]
+ 233|                         self.emit("monster_dies", group=gi + 1, index=mi + 1)
+ 234|         for slot in sorted(c["pending_members"]):
+ 235|             dmg = c["pending_members"][slot]
+ 236|             if dmg and _alive(self.party[slot - 1]):
+ 237|                 self.apply_member_damage(slot, dmg)
+ 238| 
+ 239|     def apply_member_damage(self, slot, dmg):
+ 240|         m = self.party[slot - 1]
+ 241|         res = rules.damage_member(m.get("hp", 0), dmg)
+ 242|         m["hp"] = res["hp"]
+ 243|         if res.get("cond"):
+ 244|             m["cond"] = res["cond"]
+ 245|             self.emit("death" if res["cond"] == 2 else "unconscious", member=slot)
+ 246| 
+ 247|     # -- phase 2 (LR-35) ---------------------------------------------------
+ 248| 
+ 249|     def phase2(self):
+ 250|         c = self.combat
+ 251|         actors = []
+ 252|         fired = c.get("fired") or set()
+ 253|         for i, m in enumerate(self.party):
+ 254|             if not _alive(m):
+ 255|                 continue
+ 256|             if (i + 1) in fired:
+ 257|                 continue
+ 258|             actors.append({"side": "party", "slot": i + 1, "speed": self.member_speed(m)})
+ 259|         for gi, g in enumerate(c["groups"]):
+ 260|             if g["mob"].get("weaponType", 0) >= 3:
+ 261|                 continue
+ 262|             for mi, hp in enumerate(g["hp"]):
+ 263|                 if hp <= 0:
+ 264|                     continue
+ 265|                 actors.append({"side": "monster", "group": gi, "index": mi,
+ 266|                                "speed": g["mob"].get("combatRating", 0)})
+ 267|         for a in rules.speed_order(actors):
+ 268|             if c.get("over"):
+ 269|                 return
+ 270|             if a["side"] == "party":
+ 271|                 self.member_phase2(a["slot"])
+ 272|             else:
+ 273|                 self.monster_phase2(a["group"], a["index"])
+ 274|             if self.check_end():
+ 275|                 return
+ 276| 
+ 277|     def member_speed(self, member):
+ 278|         return (member.get("attrs") or {}).get("SPD", 0)
+ 279| 
+ 280|     def member_phase2(self, slot):
+ 281|         m = self.party[slot - 1]
+ 282|         if not _alive(m):
+ 283|             return
+ 284|         if m.get("jammed"):
+ 285|             self.unjam(slot)
+ 286|             return
+ 287|         rec, _iid = self.member_weapon(m)
+ 288|         if rec is not None and rec.get("skill") in RANGED_SKILLS and self.weapon_ammo(m) > 0:
+ 289|             self.fire(slot, rec)
+ 290|             return
+ 291|         if self.combat["band"] <= 1:
+ 292|             self.melee_attack(slot)
+ 293|         else:
+ 294|             self.advance()
+ 295| 
+ 296|     def fire(self, slot, rec):
+ 297|         m = self.party[slot - 1]
+ 298|         target = self.pick_monster_target()
+ 299|         if target is None:
+ 300|             return
+ 301|         self.spend_ammo(m)
+ 302|         need = rules.ranged_need(self.skill_level(m, rec.get("skill", 0)),
+ 303|                                  (m.get("attrs") or {}).get("AGL", 0),
+ 304|                                  target["ac"], self.combat["band"])
+ 305|         roll = self.rng.d100()
+ 306|         hit = roll <= need
+ 307|         ev = {"side": "party", "member": slot, "group": target["group"] + 1,
+ 308|               "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+ 309|         if hit:
+ 310|             n, s = weapon_dice(rec)
+ 311|             dmg = self.rng.dice(n, s)
+ 312|             ev["damage"] = dmg
+ 313|             self.damage_monster(target["group"], target["index"], dmg)
+ 314|         self.emit("attack", **ev)
+ 315| 
+ 316|     def melee_attack(self, slot):
+ 317|         m = self.party[slot - 1]
+ 318|         target = self.pick_monster_target()
+ 319|         if target is None:
+ 320|             return
+ 321|         rec, _iid = self.member_weapon(m)
+ 322|         level = self.skill_level(m, rec.get("skill", 0)) if rec else 0
+ 323|         need = rules.melee_need(level, (m.get("attrs") or {}).get("STR", 0), target["ac"])
+ 324|         roll = self.rng.d100()
+ 325|         hit = roll <= need
+ 326|         ev = {"side": "party", "member": slot, "group": target["group"] + 1,
+ 327|               "target": target["index"] + 1, "need": need, "roll": roll, "hit": hit}
+ 328|         if hit:
+ 329|             if rec is not None:
+ 330|                 n, s = weapon_dice(rec)
+ 331|             else:
+ 332|                 n, s = 1, 2
+ 333|             dmg = self.rng.dice(n, s) + rules.melee_damage_bonus(
+ 334|                 (m.get("attrs") or {}).get("STR", 0))
+ 335|             ev["damage"] = dmg
+ 336|             self.damage_monster(target["group"], target["index"], dmg)
+ 337|         self.emit("attack", **ev)
+ 338| 
+ 339|     def monster_phase2(self, gi, mi):
+ 340|         c = self.combat
+ 341|         g = c["groups"][gi]
+ 342|         mob = g["mob"]
+ 343|         target = self.pick_random_member()
+ 344|         if target is None:
+ 345|             return
+ 346|         m = self.party[target["slot"] - 1]
+ 347|         need = rules.monster_need(mob.get("combatRating", 0), m.get("ac", 0), c["band"])
+ 348|         roll = self.rng.d100()
+ 349|         hit = roll <= need
+ 350|         ev = {"side": "monsters", "group": gi + 1, "attacker": mi + 1, "member": target["slot"],
+ 351|               "need": need, "roll": roll, "hit": hit}
+ 352|         if hit:
+ 353|             dmg = self.rng.dice(mob.get("randomDamage", 0), 6) + mob.get("fixedDamage", 0)
+ 354|             ev["damage"] = dmg
+ 355|             self.apply_member_damage(target["slot"], dmg)
+ 356|         self.emit("attack", **ev)
+ 357| 
+ 358|     def unjam(self, slot):
+ 359|         m = self.party[slot - 1]
+ 360|         level = self.skill_level(m, GUNSMITHING)
+ 361|         res = rules.skill_check(self.rng, level, (m.get("attrs") or {}).get("IQ", 0), 0)
+ 362|         self.emit("check", member=slot, skill=GUNSMITHING, level=level, **res)
+ 363|         if res.get("success"):
+ 364|             m["jammed"] = False
+ 365|             self.emit("unjammed", member=slot)
+ 366| 
+ 367|     def advance(self):
+ 368|         c = self.combat
+ 369|         c["band"] = max(1, c["band"] - 1)
+ 370|         self.emit("advance", band=c["band"])
+ 371| 
+ 372|     def damage_monster(self, gi, mi, dmg):
+ 373|         c = self.combat
+ 374|         g = c["groups"][gi]
+ 375|         if g["hp"][mi] <= 0:
+ 376|             return
+ 377|         g["hp"][mi] -= dmg
+ 378|         if g["hp"][mi] <= 0:
+ 379|             c["kills"] += 1
+ 380|             c["last_death_round"] = c["round"]
+ 381|             self.emit("monster_dies", group=gi + 1, index=mi + 1)
+ 382| 
+ 383|     # -- rounds ------------------------------------------------------------
+ 384| 
+ 385|     def reset_phase(self):
+ 386|         c = self.combat
+ 387|         c["fired"] = set()
+ 388|         c["pending_monsters"] = [[0] * len(g["hp"]) for g in c["groups"]]
+ 389|         c["pending_members"] = {}
+ 390| 
+ 391|     def check_end(self):
+ 392|         c = self.combat
+ 393|         if c is None or c.get("over"):
+ 394|             return True
+ 395|         if not any(hp > 0 for g in c["groups"] for hp in g["hp"]):
+ 396|             self.victory()
+ 397|             return True
+ 398|         if not any(_alive(m) for m in self.party):
+ 399|             self.defeat()
+ 400|             return True
+ 401|         return False
+ 402| 
+ 403|     def combat_round(self):
+ 404|         c = self.combat
+ 405|         if c is None:
+ 406|             return
+ 407|         rnd = c["round"] if c["round"] else 1
+ 408|         c["round"] = rnd
+ 409|         orders = self.auto_orders()
+ 410|         self.emit("round_orders", round=rnd, orders=orders)
+ 411|         self.emit("round_start", round=rnd)
+ 412|         self.reset_phase()
+ 413|         self.party_phase1()
+ 414|         self.monster_phase1()
+ 415|         self.apply_phase1()
+ 416|         if self.check_end():
+ 417|             return
+ 418|         self.phase2()
+ 419|         if self.check_end():
+ 420|             return
+ 421|         self.end_of_round()
+ 422| 
+ 423|     def surprise_round(self):
+ 424|         c = self.combat
+ 425|         if c is None:
+ 426|             return
+ 427|         c["round"] = 0
+ 428|         self.emit("round_start", round=0)
+ 429|         self.reset_phase()
+ 430|         self.monster_phase1()
+ 431|         self.apply_phase1()
+ 432|         if self.check_end():
+ 433|             return
+ 434|         self.end_of_round()
+ 435| 
+ 436|     # -- victory and defeat (LR-44 to LR-46) -------------------------------
+ 437| 
+ 438|     def victory(self):
+ 439|         c = self.combat
+ 440|         if c is None or c.get("over"):
+ 441|             return
+ 442|         c["over"] = True
+ 443|         rounds = c.get("last_death_round") or c["round"]
+ 444|         self.emit("combat_end", result="victory", rounds=rounds)
+ 445|         total = 0
+ 446|         for gi, g in enumerate(c["groups"]):
+ 447|             mob = g["mob"]
+ 448|             killed = sum(1 for hp in g["hp"] if hp <= 0)
+ 449|             total += killed * mob.get("sturdiness", 0) * (mob.get("armorClass", 0) + 1)
+ 450|         alive = [i + 1 for i, m in enumerate(self.party) if not m.get("cond") == 2]
+ 451|         share = total // len(alive) if alive else 0
+ 452|         for slot in range(1, len(self.party) + 1):
+ 453|             m = self.party[slot - 1]
+ 454|             m["xp"] = m.get("xp", 0) + share
+ 455|             self.emit("xp", member=slot, delta=share, total=m["xp"])
+ 456|             lvl0 = m.get("level", 1)
+ 457|             lvl = rules.level_after(lvl0, m["xp"])
+ 458|             if lvl > lvl0:
+ 459|                 m["level"] = lvl
+ 460|                 m["max_hp"] = rules.max_hp((m.get("attrs") or {}).get("STR", 0), lvl)
+ 461|                 self.emit("promote", member=slot, level=lvl, max_hp=m["max_hp"],
+ 462|                           rank=RANKS[min(lvl, 7) - 1])
+ 463|         money = 5 * self.best_salvage() * c["kills"]
+ 464|         if money:
+ 465|             self.party[0]["money"] = self.party[0].get("money", 0) + money
+ 466|             self.emit("money", member=1, delta=money, total=self.party[0]["money"])
+ 467|         self.combat = None
+ 468|         self.mode = "map"
+ 469| 
+ 470|     def best_salvage(self):
+ 471|         best = 0
+ 472|         for m in self.party:
+ 473|             best = max(best, self.skill_level(m, 20))
+ 474|         return best
+ 475| 
+ 476|     def defeat(self):
+ 477|         c = self.combat
+ 478|         if c is None or c.get("over"):
+ 479|             return
+ 480|         c["over"] = True
+ 481|         self.emit("combat_end", result="defeat")
+ 482|         self.emit("game_over")
+ 483|         self.combat = None
+ 484|         self.mode = "gameover"
+ 485| 
+=== labstate.py (51 lines) ===
+   1| """LABSTATE.BIN (SPEC-04 LR-57).
+   2| 
+   3| Little-endian file: magic ``WLLABSV1``, step counter, day, clock seconds, a
+   4| pad byte, the generator state, the cell-change count and the cell changes
+   5| sorted by (location, y, x), then a u16 sum of all earlier bytes.
+   6| """
+   7| 
+   8| from __future__ import annotations
+   9| 
+  10| from .errors import FormatError
+  11| 
+  12| MAGIC = b"WLLABSV1"
+  13| 
+  14| 
+  15| def encode_labstate(state: dict) -> bytes:
+  16|     """LR-57: cell changes written sorted by (location, y, x)."""
+  17|     cc = sorted(state.get("cell_changes") or [], key=lambda c: (c[0], c[2], c[1]))
+  18|     b = bytearray(MAGIC)
+  19|     b += int(state.get("steps", 0)).to_bytes(4, "little")
+  20|     b += int(state.get("day", 1)).to_bytes(2, "little")
+  21|     b += bytes((int(state.get("seconds", 0)) & 0xFF, 0))
+  22|     b += int(state.get("rng_state", 0)).to_bytes(4, "little")
+  23|     b += len(cc).to_bytes(2, "little")
+  24|     for c in cc:
+  25|         b += bytes(int(v) & 0xFF for v in c)
+  26|     b += (sum(b) & 0xFFFF).to_bytes(2, "little")
+  27|     return bytes(b)
+  28| 
+  29| 
+  30| def decode_labstate(data: bytes) -> dict:
+  31|     """LR-57; ``FormatError`` on a wrong magic or sum."""
+  32|     if len(data) < 0x16 + 2:
+  33|         raise FormatError("LABSTATE: %d bytes, too short" % len(data))
+  34|     if data[:8] != MAGIC:
+  35|         raise FormatError("LABSTATE: bad magic %r" % (bytes(data[:8]),))
+  36|     n = int.from_bytes(data[0x14:0x16], "little")
+  37|     end = 0x16 + 6 * n
+  38|     if len(data) != end + 2:
+  39|         raise FormatError("LABSTATE: %d bytes, expected %d" % (len(data), end + 2))
+  40|     if sum(data[:end]) & 0xFFFF != int.from_bytes(data[end:end + 2], "little"):
+  41|         raise FormatError("LABSTATE: bad checksum")
+  42|     cc = [list(data[0x16 + 6 * i:0x16 + 6 * i + 6]) for i in range(n)]
+  43|     return {"steps": int.from_bytes(data[8:12], "little"),
+  44|             "day": int.from_bytes(data[12:14], "little"),
+  45|             "seconds": data[14], "pad": data[15],
+  46|             "rng_state": int.from_bytes(data[16:20], "little"),
+  47|             "cell_changes": cc}
+  48| 
+  49| 
+  50| __all__ = ["encode_labstate", "decode_labstate", "MAGIC"]
+  51| 
+### bump
+{"seq": 1, "type": "paragraph", "n": 1}
+{"seq": 2, "type": "input", "key": "LEFT"}
+{"seq": 4, "type": "input", "key": "LEFT"}
+{"seq": 6, "type": "input", "key": "LEFT"}
+{"seq": 8, "type": "input", "key": "LEFT"}
+{"seq": 10, "type": "input", "key": "LEFT"}
+{"seq": 12, "type": "input", "key": "LEFT"}
+{"seq": 14, "type": "input", "key": "LEFT"}
+{"seq": 16, "type": "input", "key": "LEFT"}
+{"seq": 18, "type": "input", "key": "LEFT"}
+{"seq": 20, "type": "input", "key": "LEFT"}
+{"seq": 22, "type": "input", "key": "LEFT"}
+{"seq": 24, "type": "input", "key": "LEFT"}
+{"seq": 25, "type": "bump", "x": 3, "y": 20, "action_class": 11, "action": 0}
+{"seq": 26, "type": "input", "key": "LEFT"}
+{"seq": 27, "type": "bump", "x": 3, "y": 20, "action_class": 11, "action": 0}
+{"seq": 28, "type": "checkpoint", "name": "a", "state": {"location": 1, "x": 4, "y": 20, "steps": 11, "day": 1, "hour": 8, "minute": 11, "mode": "map", "cell_changes": [], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "con
+### storehouse (CP6)
+{"seq": 1, "type": "paragraph", "n": 1}
+{"seq": 47, "type": "paragraph", "n": 3}
+{"seq": 52, "type": "message", "location": 1, "string": 5}
+{"seq": 99, "type": "paragraph", "n": 3}
+{"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+{"seq": 128, "type": "paragraph", "n": 6}
+{"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 170, "type": "paragraph", "n": 2}
+{"seq": 208, "type": "paragraph", "n": 7}
+{"seq": 218, "type": "paragraph", "n": 8}
+{"seq": 219, "type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 54, "success": true}
+{"seq": 242, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 58, "success": false}
+{"seq": 254, "type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 38, "success": true}
+{"seq": 267, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 269, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 271, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 273, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 275, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 280, "type": "paragraph", "n": 9}
+{"seq": 337, "type": "paragraph", "n": 10}
+{"seq": 368, "type": "paragraph", "n": 11}
+{"seq": 371, "type": "message", "location": 2, "string": 5}
+{"seq": 384, "type": "paragraph", "n": 11}
+{"seq": 427, "type": "message", "location": 2, "string": 6}
+{"seq": 491, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 492, "type": "message", "location": 2, "string": 7}
+{"seq": 493, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+{"seq": 494, "type": "message", "location": 2, "string": 8}
+{"seq": 495, "type": "check", "member": 3, "skill": 14, "level": 2, "need": 48, "roll": 19, "success": true}
+{"seq": 496, "type": "unlock", "x": 26, "y": 14}
+{"seq": 497, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 0, "action": 0, "image": 30}
+{"seq": 498, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 0, "action": 0, "image": 30}
+{"seq": 499, "type": "xp", "member": 3, "delta": 10, "total": 114}
+{"seq": 507, "type": "cell_change", "location": 2, "x": 26, "y": 12, "action_class": 0, "action": 0, "image": 27}
+### healer (CP7)
+{"seq": 2, "type": "checkpoint", "name": "CP1", "state": {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map", "cell_changes": [], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "con
+{"seq": 55, "type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+{"seq": 57, "type": "prompt", "prompt": "member"}
+{"seq": 59, "type": "money", "member": 3, "delta": -7, "total": 73}
+{"seq": 62, "type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+{"seq": 64, "type": "prompt", "prompt": "member"}
+{"seq": 66, "type": "money", "member": 4, "delta": -7, "total": 63}
+{"seq": 69, "type": "prompt", "prompt": "member"}
+{"seq": 71, "type": "prompt", "prompt": "item_slot"}
+{"seq": 74, "type": "money", "member": 2, "delta": 8, "total": 68}
+{"seq": 76, "type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+{"seq": 78, "type": "prompt", "prompt": "member"}
+{"seq": 80, "type": "money", "member": 2, "delta": -28, "total": 40}
+{"seq": 85, "type": "prompt", "prompt": "member"}
+{"seq": 89, "type": "prompt", "prompt": "item_slot"}
+{"seq": 94, "type": "checkpoint", "name": "CP2", "state": {"location": 1, "x": 6, "y": 5, "steps": 24, "day": 1, "hour": 8, "minute": 24, "mode": "map", "cell_changes": [], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "co
+{"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+{"seq": 129, "type": "prompt", "prompt": "recruit"}
+{"seq": 133, "type": "checkpoint", "name": "CP3", "state": {"location": 1, "x": 8, "y": 18, "steps": 39, "day": 1, "hour": 8, "minute": 39, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_
+{"seq": 276, "type": "money", "member": 1, "delta": 15, "total": 135}
+{"seq": 277, "type": "checkpoint", "name": "CP4", "state": {"location": 0, "x": 30, "y": 41, "steps": 79, "day": 1, "hour": 12, "minute": 19, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "rng_state": 90935533, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "m
+{"seq": 374, "type": "prompt", "prompt": "buy_item", "items": [3, 4, 5, 6]}
+{"seq": 376, "type": "prompt", "prompt": "member"}
+{"seq": 378, "type": "money", "member": 2, "delta": -13, "total": 27}
+{"seq": 430, "type": "prompt", "prompt": "buy_item", "items": [2, 7, 8, 9, 10]}
+{"seq": 432, "type": "prompt", "prompt": "member"}
+{"seq": 434, "type": "money", "member": 1, "delta": -104, "total": 31}
+{"seq": 439, "type": "prompt", "prompt": "member"}
+{"seq": 443, "type": "prompt", "prompt": "item_slot"}
+{"seq": 448, "type": "checkpoint", "name": "CP5-pre-save", "state": {"location": 2, "x": 25, "y": 5, "steps": 145, "day": 1, "hour": 17, "minute": 28, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "rng_state": 90935533, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp"
+{"seq": 452, "type": "prompt", "prompt": "load"}
+{"seq": 455, "type": "checkpoint", "name": "CP5", "state": {"location": 2, "x": 25, "y": 5, "steps": 145, "day": 1, "hour": 17, "minute": 28, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "rng_state": 90935533, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "m
+{"seq": 491, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 508, "type": "checkpoint", "name": "CP6", "state": {"location": 2, "x": 26, "y": 12, "steps": 165, "day": 1, "hour": 17, "minute": 48, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 0, 0, 30], [2, 26, 14, 0, 0, 30], [2, 26, 12, 0, 0, 27]], "rng_state
+{"seq": 534, "type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+{"seq": 536, "type": "prompt", "prompt": "recruit"}
+{"seq": 575, "type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+{"seq": 576, "type": "prompt", "prompt": "heal", "price": 40}
+{"seq": 578, "type": "money", "member": 1, "delta": -40, "total": -9}
+{"seq": 579, "type": "heal_all", "price": 40}
+{"seq": 580, "type": "checkpoint", "name": "CP7", "state": {"location": 2, "x": 25, "y": 22, "steps": 194, "day": 1, "hour": 18, "minute": 17, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 0, 0, 30], [2, 26, 14, 0, 0, 30], [2, 26, 12, 0, 0, 27], [2, 18, 17,
+### key (CP9)
+{"seq": 2, "type": "checkpoint", "name": "CP1", "state": {"location": 1, "x": 15, "y": 20, "steps": 0, "day": 1, "hour": 8, "minute": 0, "mode": "map", "cell_changes": [], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "con
+{"seq": 52, "type": "message", "location": 1, "string": 5}
+{"seq": 94, "type": "checkpoint", "name": "CP2", "state": {"location": 1, "x": 6, "y": 5, "steps": 24, "day": 1, "hour": 8, "minute": 24, "mode": "map", "cell_changes": [], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_hp": 24, "hp": 24, "co
+{"seq": 127, "type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+{"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 133, "type": "checkpoint", "name": "CP3", "state": {"location": 1, "x": 8, "y": 18, "steps": 39, "day": 1, "hour": 8, "minute": 39, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "rng_state": 20261021, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 1, "xp": 90, "max_
+{"seq": 277, "type": "checkpoint", "name": "CP4", "state": {"location": 0, "x": 30, "y": 41, "steps": 79, "day": 1, "hour": 12, "minute": 19, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "rng_state": 90935533, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "m
+{"seq": 371, "type": "message", "location": 2, "string": 5}
+{"seq": 427, "type": "message", "location": 2, "string": 6}
+{"seq": 448, "type": "checkpoint", "name": "CP5-pre-save", "state": {"location": 2, "x": 25, "y": 5, "steps": 145, "day": 1, "hour": 17, "minute": 28, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "rng_state": 90935533, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp"
+{"seq": 455, "type": "checkpoint", "name": "CP5", "state": {"location": 2, "x": 25, "y": 5, "steps": 145, "day": 1, "hour": 17, "minute": 28, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28]], "rng_state": 90935533, "party": [{"slot": 1, "name": "Hessa Brand", "npc": 0, "level": 2, "xp": 104, "m
+{"seq": 491, "type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"seq": 492, "type": "message", "location": 2, "string": 7}
+{"seq": 493, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+{"seq": 494, "type": "message", "location": 2, "string": 8}
+{"seq": 496, "type": "unlock", "x": 26, "y": 14}
+{"seq": 497, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 0, "action": 0, "image": 30}
+{"seq": 498, "type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 0, "action": 0, "image": 30}
+{"seq": 507, "type": "cell_change", "location": 2, "x": 26, "y": 12, "action_class": 0, "action": 0, "image": 27}
+{"seq": 508, "type": "checkpoint", "name": "CP6", "state": {"location": 2, "x": 26, "y": 12, "steps": 165, "day": 1, "hour": 17, "minute": 48, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 0, 0, 30], [2, 26, 14, 0, 0, 30], [2, 26, 12, 0, 0, 27]], "rng_state
+{"seq": 534, "type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+{"seq": 538, "type": "cell_change", "location": 2, "x": 18, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 575, "type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+{"seq": 580, "type": "checkpoint", "name": "CP7", "state": {"location": 2, "x": 25, "y": 22, "steps": 194, "day": 1, "hour": 18, "minute": 17, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 0, 0, 30], [2, 26, 14, 0, 0, 30], [2, 26, 12, 0, 0, 27], [2, 18, 17,
+{"seq": 763, "type": "checkpoint", "name": "CP8", "state": {"location": 3, "x": 9, "y": 6, "steps": 259, "day": 1, "hour": 22, "minute": 32, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 0, 0, 30], [2, 26, 14, 0, 0, 30], [2, 26, 12, 0, 0, 27], [2, 18, 17, 0
+{"seq": 777, "type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+{"seq": 778, "type": "message", "location": 3, "string": 10}
+{"seq": 779, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39}
+{"seq": 780, "type": "message", "location": 3, "string": 11}
+{"seq": 781, "type": "key_used", "member": 1, "item": 11}
+{"seq": 782, "type": "unlock", "x": 16, "y": 6}
+{"seq": 783, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 0, "action": 0, "image": 39}
+{"seq": 784, "type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 0, "action": 0, "image": 39}
+{"seq": 803, "type": "cell_change", "location": 3, "x": 21, "y": 4, "action_class": 0, "action": 0, "image": 37}
+{"seq": 804, "type": "checkpoint", "name": "CP9", "state": {"location": 3, "x": 21, "y": 4, "steps": 273, "day": 1, "hour": 23, "minute": 0, "mode": "map", "cell_changes": [[1, 8, 17, 0, 0, 28], [2, 26, 14, 4, 1, 30], [2, 26, 14, 0, 0, 30], [2, 26, 14, 0, 0, 30], [2, 26, 12, 0, 0, 27], [2, 18, 17, 0
+### victory loot
+{"seq": 59, "type": "money", "member": 3, "delta": -7, "total": 73}
+{"seq": 66, "type": "money", "member": 4, "delta": -7, "total": 63}
+{"seq": 74, "type": "money", "member": 2, "delta": 8, "total": 68}
+{"seq": 80, "type": "money", "member": 2, "delta": -28, "total": 40}
+{"seq": 131, "type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"seq": 266, "type": "combat_end", "result": "victory", "rounds": 4}
+{"seq": 267, "type": "xp", "member": 1, "delta": 14, "total": 104}
+{"seq": 269, "type": "xp", "member": 2, "delta": 14, "total": 104}
+{"seq": 271, "type": "xp", "member": 3, "delta": 14, "total": 104}
+{"seq": 273, "type": "xp", "member": 4, "delta": 14, "total": 104}
+{"seq": 275, "type": "xp", "member": 5, "delta": 14, "total": 214}
+{"seq": 276, "type": "money", "member": 1, "delta": 15, "total": 135}

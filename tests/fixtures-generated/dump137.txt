@@ -1,0 +1,46 @@
+map1 keys: ['action_cells', 'action_class', 'action_value', 'conventions', 'height', 'info', 'location', 'mobs', 'name', 'npcs', 'records', 'strings', 'tiles', 'tileset', 'width']
+--- raw action_class rows 18..22 ---
+y=18 [11, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=19 [11, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=20 [11, 0, 0, 11, 0, 0, 0, 0, 0, 0]
+y=21 [11, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=22 [11, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+--- raw tiles rows 18..22 ---
+y=18 [25, 0, 0, 0, 0, 0, 0, 0, 18, 18]
+y=19 [25, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=20 [25, 0, 0, 11, 0, 0, 0, 0, 0, 0]
+y=21 [25, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=22 [25, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+compiled map size 32
+y=18 class=[11, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=18 action=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=18 image=[35, 10, 10, 10, 10, 10, 10, 10, 28, 28]
+y=18 pass=[False, True, True, True, True, True, True, True, True, True]
+y=19 class=[11, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=19 action=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=19 image=[35, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+y=19 pass=[False, True, True, True, True, True, True, True, True, True]
+y=20 class=[11, 0, 0, 11, 0, 0, 0, 0, 0, 0]
+y=20 action=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=20 image=[35, 10, 10, 21, 10, 10, 10, 10, 10, 10]
+y=20 pass=[False, True, True, False, True, True, True, True, True, True]
+y=21 class=[11, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=21 action=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=21 image=[35, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+y=21 pass=[False, True, True, True, True, True, True, True, True, True]
+y=22 class=[11, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=22 action=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+y=22 image=[35, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+y=22 pass=[False, True, True, True, True, True, True, True, True, True]
+
+(x=0,y=20) rec=null
+(x=1,y=20) rec=null
+(x=2,y=20) rec=null
+(x=3,y=20) rec=null
+(x=4,y=20) rec=null
+(x=5,y=20) rec=null
+(x=6,y=20) rec=null
+(x=7,y=20) rec=null
+
+hooks: []

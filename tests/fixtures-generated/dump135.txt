@@ -1,0 +1,524 @@
+=== headless.py 490-800 ===
+ 490 
+ 491     def key_down(self):
+ 492         self.move(0, 1)
+ 493 
+ 494     def key_up(self):
+ 495         self.move(0, -1)
+ 496 
+ 497     def key_left(self):
+ 498         self.move(-1, 0)
+ 499 
+ 500     def key_right(self):
+ 501         self.move(1, 0)
+ 502 
+ 503     def move(self, dx, dy):
+ 504         nx, ny = self.x + dx, self.y + dy
+ 505         m = self.sc.map(self.location)
+ 506         size = m["size"]
+ 507         if not (0 <= nx < size and 0 <= ny < size):
+ 508             self.emit("blocked", x=nx, y=ny)
+ 509             return
+ 510         if not maps.is_passable(m, nx, ny):
+ 511             self.bump(nx, ny)
+ 512             return
+ 513         ox, oy = self.x, self.y
+ 514         self.x, self.y = nx, ny
+ 515         self.steps += 1
+ 516         self.emit("move", location=self.location, x=self.x, y=self.y, steps=self.steps)
+ 517         self.advance_time(self.step_minutes())
+ 518         self.after_move(ox, oy)
+ 519 
+ 520     def step_minutes(self):
+ 521         m = self.sc.map(self.location)
+ 522         tp = m["info"].get("timePerStep", 256)
+ 523         return tp >> 8
+ 524 
+ 525     def cell_class_action(self, x, y):
+ 526         m = self.sc.map(self.location)
+ 527         size = m["size"]
+ 528         if not (0 <= x < size and 0 <= y < size):
+ 529             return 0, 0
+ 530         return m["cells"]["actionClass"][y][x], m["cells"]["action"][y][x]
+ 531 
+ 532     def show_message(self, index):
+ 533         if not index:
+ 534             return
+ 535         text = self.sc.map_string(self.location, index)
+ 536         if text.startswith("Read paragraph ") and text.endswith("."):
+ 537             body = text[len("Read paragraph "):-1]
+ 538             if body.isdigit():
+ 539                 self.emit("paragraph", n=int(body))
+ 540                 return
+ 541         self.emit("message", location=self.location, string=index)
+ 542 
+ 543     def advance_time(self, minutes):
+ 544         before_hour = self.hour
+ 545         self.minute += minutes
+ 546         while self.minute >= 60:
+ 547             self.minute -= 60
+ 548             self.hour += 1
+ 549         while self.hour >= 24:
+ 550             self.hour -= 24
+ 551             self.day += 1
+ 552             self.emit("day", day=self.day)
+ 553         if self.hour != before_hour:
+ 554             self.natural_heal()
+ 555 
+ 556     def natural_heal(self):
+ 557         healed = []
+ 558         for i, m in enumerate(self.party):
+ 559             if m.get("hp", 0) < m.get("max_hp", 0):
+ 560                 m["hp"] = m.get("max_hp", 0)
+ 561                 healed.append(i + 1)
+ 562         if healed:
+ 563             self.emit("natural_heal", members=healed)
+ 564 
+ 565     def after_move(self, ox=None, oy=None):
+ 566         m = self.sc.map(self.location)
+ 567         cls, action = self.cell_class_action(self.x, self.y)
+ 568         rec = maps.record_at(m, self.x, self.y)
+ 569         if cls == 10:
+ 570             self.transition(rec, ox, oy)
+ 571         elif cls == 6:
+ 572             self.open_shop(rec)
+ 573         elif cls == 3:
+ 574             self.start_encounter(rec)
+ 575         elif cls == 1 and rec is not None:
+ 576             for msg in rec.get("messages", []):
+ 577                 self.show_message(msg)
+ 578         elif cls == 5 and rec is not None:
+ 579             self.apply_loot(rec, self.x, self.y)
+ 580         elif cls == 4 and rec is not None and not rec.get("impassable"):
+ 581             self.show_message(rec.get("message", 0))
+ 582             self.apply_tail(rec, self.x, self.y)
+ 583 
+ 584     def transition(self, rec, ox=None, oy=None):
+ 585         loc, x, y = maps.resolve_transition(self.sc.tables, rec, self.x, self.y,
+ 586                                             (self.location, self.x, self.y))
+ 587         if rec.get("location", 0) != 255:
+ 588             self.prev_location = self.location
+ 589             self.prev_x = self.x if ox is None else ox
+ 590             self.prev_y = self.y if oy is None else oy
+ 591         self.location, self.x, self.y = loc, x, y
+ 592         self.emit("map_change", location=loc, x=x, y=y)
+ 593 
+ 594     def bump(self, nx, ny):
+ 595         m = self.sc.map(self.location)
+ 596         rec = maps.record_at(m, nx, ny)
+ 597         cls, action = self.cell_class_action(nx, ny)
+ 598         self.emit("bump", x=nx, y=ny, action_class=cls, action=action)
+ 599         self.bump_effect(rec, nx, ny, cls)
+ 600 
+ 601     def bump_effect(self, rec, nx, ny, cls=None):
+ 602         if cls is None:
+ 603             cls, _a = self.cell_class_action(nx, ny)
+ 604         if cls == 11:
+ 605             self.bump_blocked(rec, nx, ny)
+ 606         elif cls == 4:
+ 607             if rec is not None and rec.get("impassable"):
+ 608                 self.show_message(rec.get("message", 0))
+ 609                 if self.sc.hook(self.location, nx, ny):
+ 610                     self.run_hook_at(nx, ny)
+ 611                 else:
+ 612                     self.apply_tail(rec, nx, ny)
+ 613             elif rec is not None:
+ 614                 self.show_message(rec.get("message", 0))
+ 615                 self.apply_tail(rec, nx, ny)
+ 616         elif cls == 3:
+ 617             self.start_encounter(rec)
+ 618 
+ 619     def bump_blocked(self, rec, nx, ny):
+ 620         if rec is not None:
+ 621             self.show_message(rec.get("message", 0))
+ 622             self.apply_tail(rec, nx, ny)
+ 623         self.run_hook_at(nx, ny)
+ 624 
+ 625     def run_hook_at(self, nx, ny):
+ 626         hook = self.sc.hook(self.location, nx, ny)
+ 627         if hook:
+ 628             self.run_hook(hook, nx, ny)
+ 629 
+ 630     def apply_tail(self, rec, x, y):
+ 631         tail = maps.apply_tail(rec)
+ 632         if tail is None:
+ 633             return
+ 634         m = self.sc.map(self.location)
+ 635         m["cells"]["actionClass"][y][x] = tail[0]
+ 636         m["cells"]["action"][y][x] = tail[1]
+ 637         img = maps.image_at(m, x, y)
+ 638         newrec = maps.record_at(m, x, y)
+ 639         if newrec is not None and "tile" in newrec:
+ 640             img = newrec["tile"]
+ 641             m["cells"]["image"][y][x] = img
+ 642         self.cell_change(x, y, tail[0], tail[1], img)
+ 643 
+ 644     def apply_loot(self, rec, x, y):
+ 645         for item in rec.get("items", []):
+ 646             if isinstance(item, (list, tuple)):
+ 647                 iid = item[0]
+ 648                 fixed = bool(item[1]) if len(item) > 1 else True
+ 649                 amount = item[2] if len(item) > 2 else 0
+ 650             else:
+ 651                 iid, fixed, amount = item, True, 0
+ 652             status = amount if fixed else self.rng.rnd(amount)
+ 653             placed = False
+ 654             for i, m in enumerate(self.party):
+ 655                 if len(m.get("items", [])) < 30:
+ 656                     self.add_item(i + 1, iid, 1)
+ 657                     slot = self.item_slot(i + 1, iid) + 1
+ 658                     self.emit("item_gain", member=i + 1, item=iid, slot=slot,
+ 659                               status=status)
+ 660                     placed = True
+ 661                     break
+ 662             if not placed:
+ 663                 self.emit("item_lost", item=iid)
+ 664         cash = rec.get("cash")
+ 665         if cash:
+ 666             if isinstance(cash, (list, tuple)):
+ 667                 fixed = bool(cash[0]) if len(cash) > 1 else True
+ 668                 amount = cash[1] if len(cash) > 1 else cash[0]
+ 669             else:
+ 670                 fixed, amount = True, cash
+ 671             amount = amount if fixed else self.rng.rnd(amount)
+ 672             m = self.party[0]
+ 673             m["money"] = m.get("money", 0) + amount
+ 674             self.emit("money", member=1, delta=amount, total=m["money"])
+ 675         self.apply_tail(rec, x, y)
+ 676 
+ 677     # -- cell changes ------------------------------------------------------
+ 678 
+ 679     def cell_change(self, x, y, action_class, action, image):
+ 680         self.cell_changes.append([self.location, x, y, action_class, action,
+ 681                                   image])
+ 682         self.emit("cell_change", location=self.location, x=x, y=y,
+ 683                   action_class=action_class, action=action, image=image)
+ 684 
+ 685     # -- hooks -------------------------------------------------------------
+ 686 
+ 687     def run_hook(self, hook, nx, ny):
+ 688         kind = hook.get("kind")
+ 689         if kind == "win":
+ 690             self.hook_win(hook, nx, ny)
+ 691         elif kind == "recruit":
+ 692             self.hook_recruit(hook, nx, ny)
+ 693         elif kind == "healer":
+ 694             self.hook_healer(hook, nx, ny)
+ 695         elif kind == "lock":
+ 696             self.bump_lock(None, nx, ny)
+ 697 
+ 698     def hook_win(self, hook, nx, ny):
+ 699         item = hook.get("item")
+ 700         if item is not None and not self.party_has(item):
+ 701             para = self.hook_get(hook, "not_yet_paragraph", "not_yet")
+ 702             if para:
+ 703                 self.emit("paragraph", n=para)
+ 704             return
+ 705         para = self.hook_get(hook, "win_paragraph", "win_para")
+ 706         if para:
+ 707             self.emit("paragraph", n=para)
+ 708         self.mode = "won"
+ 709         self.emit("win", steps=self.steps, day=self.day,
+ 710                   minutes=self.hour * 60 + self.minute)
+ 711 
+ 712     def hook_get(self, hook, *names):
+ 713         for name in names:
+ 714             if name in hook and hook[name] is not None:
+ 715                 return hook[name]
+ 716         return None
+ 717 
+ 718     def hook_recruit(self, hook, nx, ny):
+ 719         para = self.hook_get(hook, "paragraph")
+ 720         if para:
+ 721             self.emit("paragraph", n=para)
+ 722         self.pending = "recruit"
+ 723         self.pending_hook = hook
+ 724         self.pending_cell = (nx, ny)
+ 725         self.emit("prompt", prompt="recruit")
+ 726 
+ 727     def hook_healer(self, hook, nx, ny):
+ 728         self.pending = "heal"
+ 729         self.pending_hook = hook
+ 730         self.pending_cell = (nx, ny)
+ 731         self.emit("prompt", prompt="heal", price=hook.get("price", 0))
+ 732 
+ 733     # -- locks -------------------------------------------------------------
+ 734 
+ 735     def bump_lock(self, rec, nx, ny):
+ 736         hook = self.sc.hook(self.location, nx, ny)
+ 737         if hook is None:
+ 738             return
+ 739         key_item = hook.get("key_item")
+ 740         if key_item is not None:
+ 741             member = self.member_with_item(key_item)
+ 742             if member is not None:
+ 743                 self.emit("key_used", member=member, item=key_item)
+ 744                 self.unlock(nx, ny, hook, member, xp=0)
+ 745                 return
+ 746         member = self.pick_member(hook.get("skill", 0))
+ 747         skill = hook.get("skill", 0)
+ 748         level = self.skill_level(self.party[member - 1], skill)
+ 749         attr = self.attr_value(self.party[member - 1], skill)
+ 750         need = rules.check_need(level, attr, hook.get("difficulty", 0),
+ 751                                 bool(hook.get("tool_item")))
+ 752         roll = self.rng.d100()
+ 753         success = roll <= need
+ 754         self.emit("check", member=member, skill=skill, level=level, need=need,
+ 755                   roll=roll, success=success)
+ 756         if success:
+ 757             self.unlock(nx, ny, hook, member)
+ 758         else:
+ 759             self.emit("message", location=self.location,
+ 760                       string=hook.get("fail_message", ""))
+ 761 
+ 762     def unlock(self, nx, ny, hook, member, xp=10):
+ 763         self.emit("unlock", x=nx, y=ny)
+ 764         m = self.sc.map(self.location)
+ 765         rec = maps.record_at(m, nx, ny)
+ 766         img = maps.image_at(m, nx, ny)
+ 767         tail = maps.apply_tail(rec) if rec is not None else None
+ 768         if tail is None:
+ 769             tail = (0, 0)
+ 770         m["cells"]["actionClass"][ny][nx] = tail[0]
+ 771         m["cells"]["action"][ny][nx] = tail[1]
+ 772         self.cell_change(nx, ny, tail[0], tail[1], img)
+ 773         newimg = img
+ 774         newrec = maps.record_at(m, nx, ny)
+ 775         if newrec is not None and "tile" in newrec:
+ 776             newimg = newrec["tile"]
+ 777             m["cells"]["image"][ny][nx] = newimg
+ 778         self.cell_change(nx, ny, tail[0], tail[1], newimg)
+ 779         if xp:
+ 780             mm = self.party[member - 1]
+ 781             mm["xp"] = mm.get("xp", 0) + xp
+ 782             self.emit("xp", member=member, delta=xp, total=mm["xp"])
+ 783         para = self.hook_get(hook, "paragraph", "success_paragraph")
+ 784         if para:
+ 785             self.emit("paragraph", n=para)
+ 786 
+ 787     def member_with_item(self, item):
+ 788         for i, m in enumerate(self.party):
+ 789             for it in m.get("items", []):
+ 790                 if it[0] == item and it[1] > 0:
+ 791                     return i + 1
+ 792         return None
+ 793 
+ 794     def pick_member(self, skill):
+ 795         idx = self.skill_attribute(skill)
+ 796         best = 1
+ 797         best_key = None
+ 798         for i, m in enumerate(self.party):
+ 799             if m.get("cond", 0) != 0:
+ 800                 continue
+
+=== headless.py 880-1080 ===
+ 880         self.pending = "char_member"
+ 881         self.emit("prompt", prompt="member")
+ 882 
+ 883     def key_e(self):
+ 884         if self.mode != "char":
+ 885             return False
+ 886         self.pending = "equip_item"
+ 887         self.emit("prompt", prompt="item_slot")
+ 888 
+ 889     def key_x(self):
+ 890         if self.mode == "shop":
+ 891             self.mode = "map"
+ 892             self.shop = None
+ 893             self.pending = None
+ 894             self.emit("shop_close")
+ 895             return
+ 896         if self.mode == "char":
+ 897             self.mode = "map"
+ 898             self.pending = None
+ 899             self.emit("char_close")
+ 900             return
+ 901         return False
+ 902 
+ 903     def key_o(self):
+ 904         self.emit("prompt", prompt="load")
+ 905         self.pending = "load"
+ 906 
+ 907     def key_y(self):
+ 908         if self.pending == "load":
+ 909             self.pending = None
+ 910             self.load_game()
+ 911             return
+ 912         if self.pending == "recruit":
+ 913             self.pending = None
+ 914             self.do_recruit()
+ 915             return
+ 916         if self.pending == "heal":
+ 917             self.pending = None
+ 918             self.do_heal()
+ 919             return
+ 920         return False
+ 921 
+ 922     def key_n(self):
+ 923         if self.pending in ("recruit", "heal", "load"):
+ 924             self.pending = None
+ 925             return
+ 926         return False
+ 927 
+ 928     def do_recruit(self):
+ 929         hook = self.pending_hook
+ 930         nx, ny = self.pending_cell
+ 931         m = self.sc.map(self.location)
+ 932         img = self.hook_get(hook, "cleared_image", "image")
+ 933         m["cells"]["actionClass"][ny][nx] = 0
+ 934         m["cells"]["action"][ny][nx] = 0
+ 935         m["cells"]["image"][ny][nx] = img
+ 936         self.cell_change(nx, ny, 0, 0, img)
+ 937         slot = len(self.party) + 1
+ 938         idx = hook.get("npc", 0) or 0
+ 939         npcs = m.get("npcs", [])
+ 940         ch = npcs[idx] if 0 <= idx < len(npcs) else {}
+ 941         self.party.append(self.member_from_character(ch, slot))
+ 942         self.emit("recruit", location=self.location, npc=idx, slot=slot)
+ 943 
+ 944     def member_from_character(self, ch, slot):
+ 945         aff = ch.get("afflictions", 0)
+ 946         cond = 2 if aff & 2 else (1 if aff & 1 else 0)
+ 947         return {
+ 948             "slot": slot, "name": ch.get("name", ""), "npc": ch.get("npc", 0),
+ 949             "level": ch.get("level", 1), "xp": ch.get("experience", 0),
+ 950             "max_hp": ch.get("maxCon", 0), "hp": ch.get("curCon", 0),
+ 951             "cond": cond, "money": ch.get("money", 0),
+ 952             "ac": ch.get("armorClass", 0), "rank": ch.get("rank", ""),
+ 953             "skill_points": ch.get("skillPoints", 0),
+ 954             "items": [list(x) for x in ch.get("items", [])],
+ 955             "skills": [list(x) for x in ch.get("skills", [])],
+ 956             "weapon_slot": ch.get("weaponSlot", 0),
+ 957             "armour_slot": ch.get("armorSlot", 0),
+ 958             "attrs": {"STR": ch.get("strength", 0), "IQ": ch.get("intelligence", 0),
+ 959                       "LCK": ch.get("luck", 0), "SPD": ch.get("speed", 0),
+ 960                       "AGL": ch.get("agility", 0), "CHA": ch.get("charisma", 0)},
+ 961             "gender": ch.get("gender", 0), "nationality": ch.get("nationality", 0),
+ 962             "game_won": ch.get("gameWon", 0),
+ 963         }
+ 964 
+ 965     def do_heal(self):
+ 966         hook = self.pending_hook
+ 967         price = hook.get("price", 0)
+ 968         m = self.party[0]
+ 969         m["money"] = m.get("money", 0) - price
+ 970         self.emit("money", member=1, delta=-price, total=m["money"])
+ 971         for mm in self.party:
+ 972             mm["hp"] = mm.get("max_hp", 0)
+ 973         self.emit("heal_all", price=price)
+ 974 
+ 975     # -- rest --------------------------------------------------------------
+ 976 
+ 977     def key_r(self):
+ 978         self.advance_time(60)
+ 979         self.emit("rest")
+ 980 
+ 981     # -- save / load -------------------------------------------------------
+ 982 
+ 983     def save_game(self):
+ 984         self.emit("save", serial=self.serial)
+ 985         self.saved[self.serial] = self.snapshot()
+ 986         try:
+ 987             self.write_save_files()
+ 988         except Exception:  # noqa: BLE001
+ 989             pass
+ 990 
+ 991     def write_save_files(self):
+ 992         dd = Path(self.data_dir)
+ 993         # LABSTATE.BIN next to GAME1 (LR-54, LR-57)
+ 994         cc = sorted([list(c) for c in self.cell_changes], key=lambda c: (c[0], c[2], c[1]))
+ 995         blob = labstate.encode_labstate({
+ 996             "steps": self.steps, "day": self.day, "seconds": 0, "pad": 0,
+ 997             "rng_state": self.rng.state if self.rng is not None else 0,
+ 998             "cell_changes": cc,
+ 999         })
+1000         try:
+1001             (dd / "LABSTATE.BIN").write_bytes(blob)
+1002         except OSError:
+1003             pass
+1004         # GAME1 savegame block (LR-55)
+1005         try:
+1006             block = self.build_savegame_payload()
+1007             path = dd / "GAME1"
+1008             data = bytearray(path.read_bytes())
+1009             off = self.sc.tables["savegameOffsets"][0]
+1010             data[off:off + len(block)] = block
+1011             path.write_bytes(bytes(data))
+1012         except Exception:  # noqa: BLE001
+1013             pass
+1014 
+1015     def build_savegame_payload(self):
+1016         order = [m.get("slot", i + 1) for i, m in enumerate(self.party)]
+1017         order = order + [0] * (7 - len(order))
+1018         chars = [self.character_dict(m) for m in self.party]
+1019         sg = {
+1020             "groups": [{
+1021                 "order": order[:7], "x": self.x, "y": self.y, "map": self.location,
+1022                 "prevX": self.prev_x, "prevY": self.prev_y, "prevMap": self.prev_location,
+1023             }],
+1024             "viewportX": self.x, "viewportY": self.y,
+1025             "currentMembers": len(self.party), "currentParty": 0,
+1026             "currentMap": self.location, "totalMembers": len(self.party),
+1027             "extraGroups": 0, "minute": self.minute, "hour": self.hour,
+1028             "combatScrollSpeed": 0, "serial": self.serial,
+1029             "characters": chars,
+1030         }
+1031         return containers.encode_savegame(sg, 0)
+1032 
+1033     def character_dict(self, m):
+1034         attrs = m.get("attrs", {})
+1035         return {
+1036             "name": m.get("name", ""),
+1037             "strength": attrs.get("STR", 0), "intelligence": attrs.get("IQ", 0),
+1038             "luck": attrs.get("LCK", 0), "speed": attrs.get("SPD", 0),
+1039             "agility": attrs.get("AGL", 0), "charisma": attrs.get("CHA", 0),
+1040             "money": m.get("money", 0), "gender": m.get("gender", 0),
+1041             "nationality": m.get("nationality", 0), "armorClass": m.get("ac", 0),
+1042             "maxCon": m.get("max_hp", 0), "curCon": m.get("hp", 0),
+1043             "weaponSlot": m.get("weapon_slot", 0), "skillPoints": m.get("skill_points", 0),
+1044             "experience": m.get("xp", 0), "level": m.get("level", 1),
+1045             "armorSlot": m.get("armour_slot", 0), "afflictions": m.get("cond", 0),
+1046             "npc": m.get("npc", 0), "rank": m.get("rank", ""),
+1047             "gameWon": m.get("game_won", 0),
+1048             "skills": [list(x) for x in m.get("skills", [])],
+1049             "items": [list(x) for x in m.get("items", [])],
+1050         }
+1051 
+1052     def load_game(self):
+1053         dd = Path(self.data_dir)
+1054         ls_path = dd / "LABSTATE.BIN"
+1055         if ls_path.is_file():
+1056             st = labstate.decode_labstate(ls_path.read_bytes())
+1057             self.steps = st.get("steps", self.steps)
+1058             self.day = st.get("day", self.day)
+1059             if self.rng is not None:
+1060                 self.rng.state = st.get("rng_state", self.rng.state)
+1061             self.cell_changes = [tuple(c) for c in st.get("cell_changes", [])]
+1062         try:
+1063             data = (dd / "GAME1").read_bytes()
+1064             off = self.sc.tables["savegameOffsets"][0]
+1065             sg = containers.decode_savegame(data, off)
+1066             g = sg["groups"][0]
+1067             self.x = g["x"]
+1068             self.y = g["y"]
+1069             self.location = g["map"]
+1070             self.prev_x = g["prevX"]
+1071             self.prev_y = g["prevY"]
+1072             self.prev_location = g["prevMap"]
+1073             self.minute = sg["minute"]
+1074             self.hour = sg["hour"]
+1075             self.serial = sg["serial"]
+1076             self.restore_party(sg)
+1077         except Exception:  # noqa: BLE001
+1078             pass
+1079         self.emit("load", serial=self.serial)
+1080 
+
+=== scenario bump ===
+Traceback (most recent call last):
+  File "/Users/dtinholt/wasteland-build/project/tests/fixtures-generated/probe135.py", line 40, in run_scenario
+    runner = W.Runner()
+             ^^^^^^^^
+AttributeError: module 'wl_support' has no attribute 'Runner'
+
+

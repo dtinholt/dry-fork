@@ -1,0 +1,1022 @@
+{"type": "new_game", "seed": 20261021}
+{"type": "paragraph", "n": 1}
+CP CP1
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 19, "steps": 1}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 18, "steps": 2}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 17, "steps": 3}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 16, "steps": 4}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 15, "steps": 5}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 14, "steps": 6}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 13, "steps": 7}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 12, "steps": 8}
+IN LEFT
+{"type": "move", "location": 1, "x": 14, "y": 12, "steps": 9}
+IN UP
+{"type": "move", "location": 1, "x": 14, "y": 11, "steps": 10}
+IN UP
+{"type": "move", "location": 1, "x": 14, "y": 10, "steps": 11}
+IN UP
+{"type": "move", "location": 1, "x": 14, "y": 9, "steps": 12}
+IN UP
+{"type": "move", "location": 1, "x": 14, "y": 8, "steps": 13}
+IN LEFT
+{"type": "move", "location": 1, "x": 13, "y": 8, "steps": 14}
+IN LEFT
+{"type": "move", "location": 1, "x": 12, "y": 8, "steps": 15}
+IN LEFT
+{"type": "move", "location": 1, "x": 11, "y": 8, "steps": 16}
+IN LEFT
+{"type": "move", "location": 1, "x": 10, "y": 8, "steps": 17}
+IN LEFT
+{"type": "move", "location": 1, "x": 9, "y": 8, "steps": 18}
+IN LEFT
+{"type": "move", "location": 1, "x": 8, "y": 8, "steps": 19}
+IN LEFT
+{"type": "move", "location": 1, "x": 7, "y": 8, "steps": 20}
+IN LEFT
+{"type": "move", "location": 1, "x": 6, "y": 8, "steps": 21}
+IN UP
+{"type": "move", "location": 1, "x": 6, "y": 7, "steps": 22}
+{"type": "paragraph", "n": 3}
+IN UP
+{"type": "move", "location": 1, "x": 6, "y": 6, "steps": 23}
+IN UP
+{"type": "move", "location": 1, "x": 6, "y": 5, "steps": 24}
+{"type": "message", "location": 1, "string": 5}
+{"type": "shop_open", "shop": 0}
+IN B
+{"type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+IN c
+{"type": "prompt", "prompt": "member"}
+IN 3
+{"type": "money", "member": 3, "delta": -7, "total": 73}
+{"type": "buy", "member": 3, "item": 4, "price": 7, "slot": 2, "status": 2}
+IN B
+{"type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+IN c
+{"type": "prompt", "prompt": "member"}
+IN 4
+{"type": "money", "member": 4, "delta": -7, "total": 63}
+{"type": "buy", "member": 4, "item": 4, "price": 7, "slot": 2, "status": 2}
+IN S
+{"type": "prompt", "prompt": "member"}
+IN 2
+{"type": "prompt", "prompt": "item_slot"}
+IN c
+{"type": "sell", "member": 2, "item": 1, "price": 8, "slot": 3}
+{"type": "money", "member": 2, "delta": 8, "total": 68}
+IN B
+{"type": "prompt", "prompt": "buy_item", "items": [1, 3, 4, 7, 9, 10]}
+IN d
+{"type": "prompt", "prompt": "member"}
+IN 2
+{"type": "money", "member": 2, "delta": -28, "total": 40}
+{"type": "buy", "member": 2, "item": 7, "price": 28, "slot": 3, "status": 0}
+IN X
+{"type": "shop_close"}
+IN C
+{"type": "prompt", "prompt": "member"}
+IN 2
+{"type": "char_open", "member": 2}
+IN E
+{"type": "prompt", "prompt": "item_slot"}
+IN c
+{"type": "equip", "member": 2, "slot": 3, "item": 7, "ac": 3}
+IN X
+{"type": "char_close"}
+CP CP2
+IN DOWN
+{"type": "move", "location": 1, "x": 6, "y": 6, "steps": 25}
+IN DOWN
+{"type": "move", "location": 1, "x": 6, "y": 7, "steps": 26}
+{"type": "paragraph", "n": 3}
+IN DOWN
+{"type": "move", "location": 1, "x": 6, "y": 8, "steps": 27}
+IN RIGHT
+{"type": "move", "location": 1, "x": 7, "y": 8, "steps": 28}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 9, "steps": 29}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 10, "steps": 30}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 11, "steps": 31}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 12, "steps": 32}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 13, "steps": 33}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 14, "steps": 34}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 15, "steps": 35}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 16, "steps": 36}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 17, "steps": 37}
+IN DOWN
+{"type": "move", "location": 1, "x": 7, "y": 18, "steps": 38}
+IN RIGHT
+{"type": "move", "location": 1, "x": 8, "y": 18, "steps": 39}
+IN UP
+{"type": "bump", "x": 8, "y": 17, "action_class": 11, "action": 1}
+{"type": "paragraph", "n": 6}
+{"type": "prompt", "prompt": "recruit"}
+IN Y
+{"type": "cell_change", "location": 1, "x": 8, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"type": "recruit", "location": 1, "npc": 0, "slot": 5}
+CP CP3
+IN RIGHT
+{"type": "move", "location": 1, "x": 9, "y": 18, "steps": 40}
+IN RIGHT
+{"type": "move", "location": 1, "x": 10, "y": 18, "steps": 41}
+IN RIGHT
+{"type": "move", "location": 1, "x": 11, "y": 18, "steps": 42}
+IN RIGHT
+{"type": "move", "location": 1, "x": 12, "y": 18, "steps": 43}
+IN RIGHT
+{"type": "move", "location": 1, "x": 13, "y": 18, "steps": 44}
+IN RIGHT
+{"type": "move", "location": 1, "x": 14, "y": 18, "steps": 45}
+IN RIGHT
+{"type": "move", "location": 1, "x": 15, "y": 18, "steps": 46}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 19, "steps": 47}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 20, "steps": 48}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 21, "steps": 49}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 22, "steps": 50}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 23, "steps": 51}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 24, "steps": 52}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 25, "steps": 53}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 26, "steps": 54}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 27, "steps": 55}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 28, "steps": 56}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 29, "steps": 57}
+{"type": "paragraph", "n": 2}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 30, "steps": 58}
+IN DOWN
+{"type": "move", "location": 1, "x": 15, "y": 31, "steps": 59}
+{"type": "map_change", "location": 0, "x": 10, "y": 41}
+IN RIGHT
+{"type": "move", "location": 0, "x": 11, "y": 41, "steps": 60}
+IN RIGHT
+{"type": "move", "location": 0, "x": 12, "y": 41, "steps": 61}
+IN RIGHT
+{"type": "move", "location": 0, "x": 13, "y": 41, "steps": 62}
+IN RIGHT
+{"type": "move", "location": 0, "x": 14, "y": 41, "steps": 63}
+IN RIGHT
+{"type": "move", "location": 0, "x": 15, "y": 41, "steps": 64}
+IN RIGHT
+{"type": "move", "location": 0, "x": 16, "y": 41, "steps": 65}
+IN RIGHT
+{"type": "move", "location": 0, "x": 17, "y": 41, "steps": 66}
+IN RIGHT
+{"type": "move", "location": 0, "x": 18, "y": 41, "steps": 67}
+IN RIGHT
+{"type": "move", "location": 0, "x": 19, "y": 41, "steps": 68}
+IN RIGHT
+{"type": "move", "location": 0, "x": 20, "y": 41, "steps": 69}
+IN RIGHT
+{"type": "move", "location": 0, "x": 21, "y": 41, "steps": 70}
+IN RIGHT
+{"type": "move", "location": 0, "x": 22, "y": 41, "steps": 71}
+IN RIGHT
+{"type": "move", "location": 0, "x": 23, "y": 41, "steps": 72}
+IN RIGHT
+{"type": "move", "location": 0, "x": 24, "y": 41, "steps": 73}
+IN RIGHT
+{"type": "move", "location": 0, "x": 25, "y": 41, "steps": 74}
+IN RIGHT
+{"type": "move", "location": 0, "x": 26, "y": 41, "steps": 75}
+{"type": "paragraph", "n": 7}
+IN RIGHT
+{"type": "move", "location": 0, "x": 27, "y": 41, "steps": 76}
+IN RIGHT
+{"type": "move", "location": 0, "x": 28, "y": 41, "steps": 77}
+IN RIGHT
+{"type": "move", "location": 0, "x": 29, "y": 41, "steps": 78}
+IN RIGHT
+{"type": "move", "location": 0, "x": 30, "y": 41, "steps": 79}
+{"type": "encounter_start", "groups": [{"monster": "raider", "count": 3, "band": 3, "hp": [14, 12, 14]}]}
+{"type": "paragraph", "n": 8}
+{"type": "check", "member": 5, "skill": 18, "level": 2, "need": 66, "roll": 54, "success": true}
+IN A
+{"type": "round_orders", "round": 1, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"type": "round_start", "round": 1}
+{"type": "attack", "side": "party", "member": 1, "group": 1, "target": 1, "need": 57, "roll": 53, "hit": true, "damage": 6}
+{"type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 55, "roll": 38, "hit": true, "damage": 4}
+{"type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 46, "roll": 32, "hit": true, "damage": 6}
+{"type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 92, "hit": false}
+{"type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 56, "hit": true, "damage": 3}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 1, "member": 1, "need": 22, "roll": 61, "hit": false}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 16, "hit": true, "damage": 1}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 2, "need": 22, "roll": 60, "hit": false}
+{"type": "monster_dies", "group": 1, "index": 1}
+IN A
+{"type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"type": "round_start", "round": 2}
+{"type": "jam", "member": 1, "roll": 4, "chance": 4}
+{"type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 75, "hit": false}
+{"type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 48, "hit": false}
+{"type": "attack", "side": "party", "member": 4, "group": 1, "target": 2, "need": 44, "roll": 15, "hit": true, "damage": 8}
+{"type": "attack", "side": "party", "member": 5, "group": 1, "target": 2, "need": 58, "roll": 78, "hit": false}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 4, "need": 28, "roll": 2, "hit": true, "damage": 4}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 5, "need": 22, "roll": 75, "hit": false}
+IN A
+{"type": "round_orders", "round": 3, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"type": "round_start", "round": 3}
+{"type": "attack", "side": "party", "member": 2, "group": 1, "target": 2, "need": 55, "roll": 98, "hit": false}
+{"type": "attack", "side": "party", "member": 3, "group": 1, "target": 2, "need": 46, "roll": 33, "hit": true, "damage": 3}
+{"type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 68, "hit": false}
+{"type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 85, "hit": false}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 2, "need": 22, "roll": 42, "hit": false}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 3, "need": 22, "roll": 66, "hit": false}
+{"type": "monster_dies", "group": 1, "index": 2}
+{"type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 79, "success": false}
+IN A
+{"type": "round_orders", "round": 4, "orders": {"1": ["unjam"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"type": "round_start", "round": 4}
+{"type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 85, "hit": false}
+{"type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 38, "hit": true, "damage": 3}
+{"type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 19, "hit": true, "damage": 4}
+{"type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 69, "hit": false}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 19, "hit": true, "damage": 3}
+{"type": "check", "member": 1, "skill": 22, "level": 0, "need": 46, "roll": 22, "success": true}
+{"type": "unjammed", "member": 1}
+IN A
+{"type": "round_orders", "round": 5, "orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1]}}
+{"type": "round_start", "round": 5}
+{"type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 55, "roll": 34, "hit": true, "damage": 8}
+{"type": "attack", "side": "party", "member": 3, "group": 1, "target": 3, "need": 46, "roll": 39, "hit": true, "damage": 7}
+{"type": "attack", "side": "party", "member": 4, "group": 1, "target": 3, "need": 44, "roll": 33, "hit": true, "damage": 7}
+{"type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 58, "roll": 12, "hit": true, "damage": 7}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 1, "need": 22, "roll": 94, "hit": false}
+{"type": "monster_dies", "group": 1, "index": 3}
+{"type": "combat_end", "result": "victory", "rounds": 5}
+{"type": "xp", "member": 1, "delta": 14, "total": 104}
+{"type": "promote", "member": 1, "level": 2, "max_hp": 28, "rank": "Hand"}
+{"type": "xp", "member": 2, "delta": 14, "total": 104}
+{"type": "promote", "member": 2, "level": 2, "max_hp": 31, "rank": "Hand"}
+{"type": "xp", "member": 3, "delta": 14, "total": 104}
+{"type": "promote", "member": 3, "level": 2, "max_hp": 25, "rank": "Hand"}
+{"type": "xp", "member": 4, "delta": 14, "total": 104}
+{"type": "promote", "member": 4, "level": 2, "max_hp": 26, "rank": "Hand"}
+{"type": "xp", "member": 5, "delta": 14, "total": 214}
+{"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 5, "action": 1, "image": 13}
+{"type": "money", "member": 1, "delta": 75, "total": 195}
+{"type": "cell_change", "location": 0, "x": 30, "y": 41, "action_class": 0, "action": 0, "image": 13}
+CP CP4
+IN RIGHT
+{"type": "move", "location": 0, "x": 31, "y": 41, "steps": 80}
+{"type": "paragraph", "n": 9}
+{"type": "cell_change", "location": 0, "x": 31, "y": 41, "action_class": 0, "action": 0, "image": 22}
+IN RIGHT
+{"type": "move", "location": 0, "x": 32, "y": 41, "steps": 81}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 40, "steps": 82}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 39, "steps": 83}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 38, "steps": 84}
+{"type": "natural_heal", "members": [1, 2, 4]}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 37, "steps": 85}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 36, "steps": 86}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 35, "steps": 87}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 34, "steps": 88}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 33, "steps": 89}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 32, "steps": 90}
+{"type": "natural_heal", "members": [1, 4]}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 31, "steps": 91}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 30, "steps": 92}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 29, "steps": 93}
+IN UP
+{"type": "move", "location": 0, "x": 32, "y": 28, "steps": 94}
+IN RIGHT
+{"type": "move", "location": 0, "x": 33, "y": 28, "steps": 95}
+IN RIGHT
+{"type": "move", "location": 0, "x": 34, "y": 28, "steps": 96}
+{"type": "natural_heal", "members": [1, 4]}
+IN RIGHT
+{"type": "move", "location": 0, "x": 35, "y": 28, "steps": 97}
+IN RIGHT
+{"type": "move", "location": 0, "x": 36, "y": 28, "steps": 98}
+IN RIGHT
+{"type": "move", "location": 0, "x": 37, "y": 28, "steps": 99}
+IN RIGHT
+{"type": "move", "location": 0, "x": 38, "y": 28, "steps": 100}
+IN RIGHT
+{"type": "move", "location": 0, "x": 39, "y": 28, "steps": 101}
+IN RIGHT
+{"type": "move", "location": 0, "x": 40, "y": 28, "steps": 102}
+{"type": "natural_heal", "members": [4]}
+IN RIGHT
+{"type": "move", "location": 0, "x": 41, "y": 28, "steps": 103}
+IN RIGHT
+{"type": "move", "location": 0, "x": 42, "y": 28, "steps": 104}
+IN RIGHT
+{"type": "move", "location": 0, "x": 43, "y": 28, "steps": 105}
+IN RIGHT
+{"type": "move", "location": 0, "x": 44, "y": 28, "steps": 106}
+{"type": "map_change", "location": 2, "x": 1, "y": 16}
+IN RIGHT
+{"type": "move", "location": 2, "x": 2, "y": 16, "steps": 107}
+{"type": "paragraph", "n": 10}
+IN UP
+{"type": "move", "location": 2, "x": 2, "y": 15, "steps": 108}
+IN UP
+{"type": "move", "location": 2, "x": 2, "y": 14, "steps": 109}
+IN UP
+{"type": "move", "location": 2, "x": 2, "y": 13, "steps": 110}
+IN UP
+{"type": "move", "location": 2, "x": 2, "y": 12, "steps": 111}
+IN UP
+{"type": "move", "location": 2, "x": 2, "y": 11, "steps": 112}
+IN UP
+{"type": "move", "location": 2, "x": 2, "y": 10, "steps": 113}
+IN UP
+{"type": "move", "location": 2, "x": 2, "y": 9, "steps": 114}
+IN UP
+{"type": "move", "location": 2, "x": 2, "y": 8, "steps": 115}
+IN UP
+{"type": "move", "location": 2, "x": 2, "y": 7, "steps": 116}
+IN RIGHT
+{"type": "move", "location": 2, "x": 3, "y": 7, "steps": 117}
+IN RIGHT
+{"type": "move", "location": 2, "x": 4, "y": 7, "steps": 118}
+IN RIGHT
+{"type": "move", "location": 2, "x": 5, "y": 7, "steps": 119}
+IN RIGHT
+{"type": "move", "location": 2, "x": 6, "y": 7, "steps": 120}
+IN RIGHT
+{"type": "move", "location": 2, "x": 7, "y": 7, "steps": 121}
+IN UP
+{"type": "move", "location": 2, "x": 7, "y": 6, "steps": 122}
+{"type": "paragraph", "n": 11}
+IN UP
+{"type": "move", "location": 2, "x": 7, "y": 5, "steps": 123}
+{"type": "message", "location": 2, "string": 5}
+{"type": "shop_open", "shop": 1}
+IN B
+{"type": "prompt", "prompt": "buy_item", "items": [3, 4, 5, 6]}
+IN d
+{"type": "prompt", "prompt": "member"}
+IN 2
+{"type": "money", "member": 2, "delta": -13, "total": 27}
+{"type": "buy", "member": 2, "item": 6, "price": 13, "slot": 2, "status": 2}
+IN X
+{"type": "shop_close"}
+IN DOWN
+{"type": "move", "location": 2, "x": 7, "y": 6, "steps": 124}
+{"type": "paragraph", "n": 11}
+IN DOWN
+{"type": "move", "location": 2, "x": 7, "y": 7, "steps": 125}
+IN RIGHT
+{"type": "move", "location": 2, "x": 8, "y": 7, "steps": 126}
+IN RIGHT
+{"type": "move", "location": 2, "x": 9, "y": 7, "steps": 127}
+IN RIGHT
+{"type": "move", "location": 2, "x": 10, "y": 7, "steps": 128}
+IN RIGHT
+{"type": "move", "location": 2, "x": 11, "y": 7, "steps": 129}
+IN RIGHT
+{"type": "move", "location": 2, "x": 12, "y": 7, "steps": 130}
+IN RIGHT
+{"type": "move", "location": 2, "x": 13, "y": 7, "steps": 131}
+IN RIGHT
+{"type": "move", "location": 2, "x": 14, "y": 7, "steps": 132}
+IN RIGHT
+{"type": "move", "location": 2, "x": 15, "y": 7, "steps": 133}
+IN RIGHT
+{"type": "move", "location": 2, "x": 16, "y": 7, "steps": 134}
+IN RIGHT
+{"type": "move", "location": 2, "x": 17, "y": 7, "steps": 135}
+IN RIGHT
+{"type": "move", "location": 2, "x": 18, "y": 7, "steps": 136}
+IN RIGHT
+{"type": "move", "location": 2, "x": 19, "y": 7, "steps": 137}
+IN RIGHT
+{"type": "move", "location": 2, "x": 20, "y": 7, "steps": 138}
+IN RIGHT
+{"type": "move", "location": 2, "x": 21, "y": 7, "steps": 139}
+IN RIGHT
+{"type": "move", "location": 2, "x": 22, "y": 7, "steps": 140}
+IN RIGHT
+{"type": "move", "location": 2, "x": 23, "y": 7, "steps": 141}
+IN UP
+{"type": "move", "location": 2, "x": 23, "y": 6, "steps": 142}
+IN UP
+{"type": "move", "location": 2, "x": 23, "y": 5, "steps": 143}
+IN RIGHT
+{"type": "move", "location": 2, "x": 24, "y": 5, "steps": 144}
+IN RIGHT
+{"type": "move", "location": 2, "x": 25, "y": 5, "steps": 145}
+{"type": "message", "location": 2, "string": 6}
+{"type": "shop_open", "shop": 2}
+IN B
+{"type": "prompt", "prompt": "buy_item", "items": [2, 7, 8, 9, 10]}
+IN c
+{"type": "prompt", "prompt": "member"}
+IN 1
+{"type": "money", "member": 1, "delta": -104, "total": 91}
+{"type": "buy", "member": 1, "item": 8, "price": 104, "slot": 4, "status": 0}
+IN X
+{"type": "shop_close"}
+IN C
+{"type": "prompt", "prompt": "member"}
+IN 1
+{"type": "char_open", "member": 1}
+IN E
+{"type": "prompt", "prompt": "item_slot"}
+IN d
+{"type": "equip", "member": 1, "slot": 4, "item": 8, "ac": 5}
+IN X
+{"type": "char_close"}
+CP CP5-pre-save
+IN S
+{"type": "save", "serial": 1}
+IN O
+{"type": "prompt", "prompt": "load"}
+IN Y
+{"type": "load", "serial": 1}
+CP CP5
+IN LEFT
+{"type": "move", "location": 2, "x": 24, "y": 5, "steps": 146}
+IN LEFT
+{"type": "move", "location": 2, "x": 23, "y": 5, "steps": 147}
+IN DOWN
+{"type": "move", "location": 2, "x": 23, "y": 6, "steps": 148}
+IN DOWN
+{"type": "move", "location": 2, "x": 23, "y": 7, "steps": 149}
+IN DOWN
+{"type": "move", "location": 2, "x": 23, "y": 8, "steps": 150}
+IN DOWN
+{"type": "move", "location": 2, "x": 23, "y": 9, "steps": 151}
+IN LEFT
+{"type": "move", "location": 2, "x": 22, "y": 9, "steps": 152}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 10, "steps": 153}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 11, "steps": 154}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 12, "steps": 155}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 13, "steps": 156}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 14, "steps": 157}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 15, "steps": 158}
+IN RIGHT
+{"type": "move", "location": 2, "x": 23, "y": 15, "steps": 159}
+IN RIGHT
+{"type": "move", "location": 2, "x": 24, "y": 15, "steps": 160}
+IN RIGHT
+{"type": "move", "location": 2, "x": 25, "y": 15, "steps": 161}
+IN RIGHT
+{"type": "move", "location": 2, "x": 26, "y": 15, "steps": 162}
+IN UP
+{"type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"type": "message", "location": 2, "string": 7}
+{"type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 69, "success": false}
+{"type": "message", "location": 2, "string": 9}
+IN UP
+{"type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"type": "message", "location": 2, "string": 7}
+{"type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 57, "success": false}
+{"type": "message", "location": 2, "string": 9}
+IN UP
+{"type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"type": "message", "location": 2, "string": 7}
+{"type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 78, "success": false}
+{"type": "message", "location": 2, "string": 9}
+IN UP
+{"type": "bump", "x": 26, "y": 14, "action_class": 4, "action": 2}
+{"type": "message", "location": 2, "string": 7}
+{"type": "check", "member": 3, "skill": 14, "level": 2, "need": 50, "roll": 21, "success": true}
+{"type": "unlock", "x": 26, "y": 14}
+{"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 30}
+{"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+{"type": "xp", "member": 3, "delta": 10, "total": 114}
+{"type": "paragraph", "n": 12}
+IN UP
+{"type": "move", "location": 2, "x": 26, "y": 14, "steps": 163}
+{"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+IN UP
+{"type": "move", "location": 2, "x": 26, "y": 13, "steps": 164}
+IN UP
+{"type": "move", "location": 2, "x": 26, "y": 12, "steps": 165}
+{"type": "item_gain", "member": 1, "item": 11, "slot": 5, "status": 0}
+{"type": "cell_change", "location": 2, "x": 26, "y": 12, "action_class": 0, "action": 0, "image": 27}
+CP CP6
+IN DOWN
+{"type": "move", "location": 2, "x": 26, "y": 13, "steps": 166}
+IN DOWN
+{"type": "move", "location": 2, "x": 26, "y": 14, "steps": 167}
+{"type": "cell_change", "location": 2, "x": 26, "y": 14, "action_class": 4, "action": 1, "image": 29}
+IN DOWN
+{"type": "move", "location": 2, "x": 26, "y": 15, "steps": 168}
+IN DOWN
+{"type": "move", "location": 2, "x": 26, "y": 16, "steps": 169}
+IN LEFT
+{"type": "move", "location": 2, "x": 25, "y": 16, "steps": 170}
+IN LEFT
+{"type": "move", "location": 2, "x": 24, "y": 16, "steps": 171}
+IN LEFT
+{"type": "move", "location": 2, "x": 23, "y": 16, "steps": 172}
+IN LEFT
+{"type": "move", "location": 2, "x": 22, "y": 16, "steps": 173}
+IN LEFT
+{"type": "move", "location": 2, "x": 21, "y": 16, "steps": 174}
+IN LEFT
+{"type": "move", "location": 2, "x": 20, "y": 16, "steps": 175}
+IN LEFT
+{"type": "move", "location": 2, "x": 19, "y": 16, "steps": 176}
+IN LEFT
+{"type": "move", "location": 2, "x": 18, "y": 16, "steps": 177}
+IN DOWN
+{"type": "bump", "x": 18, "y": 17, "action_class": 11, "action": 1}
+{"type": "paragraph", "n": 13}
+{"type": "prompt", "prompt": "recruit"}
+IN Y
+{"type": "cell_change", "location": 2, "x": 18, "y": 17, "action_class": 0, "action": 0, "image": 28}
+{"type": "recruit", "location": 2, "npc": 0, "slot": 6}
+IN RIGHT
+{"type": "move", "location": 2, "x": 19, "y": 16, "steps": 178}
+IN RIGHT
+{"type": "move", "location": 2, "x": 20, "y": 16, "steps": 179}
+IN RIGHT
+{"type": "move", "location": 2, "x": 21, "y": 16, "steps": 180}
+IN RIGHT
+{"type": "move", "location": 2, "x": 22, "y": 16, "steps": 181}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 17, "steps": 182}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 18, "steps": 183}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 19, "steps": 184}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 20, "steps": 185}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 21, "steps": 186}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 22, "steps": 187}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 23, "steps": 188}
+IN DOWN
+{"type": "move", "location": 2, "x": 22, "y": 24, "steps": 189}
+IN RIGHT
+{"type": "move", "location": 2, "x": 23, "y": 24, "steps": 190}
+IN RIGHT
+{"type": "move", "location": 2, "x": 24, "y": 24, "steps": 191}
+IN RIGHT
+{"type": "move", "location": 2, "x": 25, "y": 24, "steps": 192}
+IN UP
+{"type": "move", "location": 2, "x": 25, "y": 23, "steps": 193}
+IN UP
+{"type": "move", "location": 2, "x": 25, "y": 22, "steps": 194}
+IN UP
+{"type": "bump", "x": 25, "y": 21, "action_class": 11, "action": 0}
+{"type": "prompt", "prompt": "heal", "price": 40}
+IN Y
+{"type": "money", "member": 1, "delta": -40, "total": 51}
+{"type": "heal_all", "price": 40}
+CP CP7
+IN DOWN
+{"type": "move", "location": 2, "x": 25, "y": 23, "steps": 195}
+IN DOWN
+{"type": "move", "location": 2, "x": 25, "y": 24, "steps": 196}
+IN LEFT
+{"type": "move", "location": 2, "x": 24, "y": 24, "steps": 197}
+IN LEFT
+{"type": "move", "location": 2, "x": 23, "y": 24, "steps": 198}
+IN LEFT
+{"type": "move", "location": 2, "x": 22, "y": 24, "steps": 199}
+IN UP
+{"type": "move", "location": 2, "x": 22, "y": 23, "steps": 200}
+IN UP
+{"type": "move", "location": 2, "x": 22, "y": 22, "steps": 201}
+IN UP
+{"type": "move", "location": 2, "x": 22, "y": 21, "steps": 202}
+IN UP
+{"type": "move", "location": 2, "x": 22, "y": 20, "steps": 203}
+IN UP
+{"type": "move", "location": 2, "x": 22, "y": 19, "steps": 204}
+IN UP
+{"type": "move", "location": 2, "x": 22, "y": 18, "steps": 205}
+IN UP
+{"type": "move", "location": 2, "x": 22, "y": 17, "steps": 206}
+IN UP
+{"type": "move", "location": 2, "x": 22, "y": 16, "steps": 207}
+IN LEFT
+{"type": "move", "location": 2, "x": 21, "y": 16, "steps": 208}
+IN LEFT
+{"type": "move", "location": 2, "x": 20, "y": 16, "steps": 209}
+IN LEFT
+{"type": "move", "location": 2, "x": 19, "y": 16, "steps": 210}
+IN LEFT
+{"type": "move", "location": 2, "x": 18, "y": 16, "steps": 211}
+IN LEFT
+{"type": "move", "location": 2, "x": 17, "y": 16, "steps": 212}
+IN LEFT
+{"type": "move", "location": 2, "x": 16, "y": 16, "steps": 213}
+IN LEFT
+{"type": "move", "location": 2, "x": 15, "y": 16, "steps": 214}
+IN LEFT
+{"type": "move", "location": 2, "x": 14, "y": 16, "steps": 215}
+IN LEFT
+{"type": "move", "location": 2, "x": 13, "y": 16, "steps": 216}
+IN LEFT
+{"type": "move", "location": 2, "x": 12, "y": 16, "steps": 217}
+IN LEFT
+{"type": "move", "location": 2, "x": 11, "y": 16, "steps": 218}
+IN LEFT
+{"type": "move", "location": 2, "x": 10, "y": 16, "steps": 219}
+IN LEFT
+{"type": "move", "location": 2, "x": 9, "y": 16, "steps": 220}
+IN LEFT
+{"type": "move", "location": 2, "x": 8, "y": 16, "steps": 221}
+IN LEFT
+{"type": "move", "location": 2, "x": 7, "y": 16, "steps": 222}
+IN LEFT
+{"type": "move", "location": 2, "x": 6, "y": 16, "steps": 223}
+IN LEFT
+{"type": "move", "location": 2, "x": 5, "y": 16, "steps": 224}
+IN LEFT
+{"type": "move", "location": 2, "x": 4, "y": 16, "steps": 225}
+IN LEFT
+{"type": "move", "location": 2, "x": 3, "y": 16, "steps": 226}
+IN LEFT
+{"type": "move", "location": 2, "x": 2, "y": 16, "steps": 227}
+{"type": "paragraph", "n": 10}
+IN LEFT
+{"type": "move", "location": 2, "x": 1, "y": 16, "steps": 228}
+IN LEFT
+{"type": "move", "location": 2, "x": 0, "y": 16, "steps": 229}
+{"type": "map_change", "location": 0, "x": 43, "y": 28}
+IN DOWN
+{"type": "move", "location": 0, "x": 43, "y": 29, "steps": 230}
+IN RIGHT
+{"type": "move", "location": 0, "x": 44, "y": 29, "steps": 231}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 30, "steps": 232}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 31, "steps": 233}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 32, "steps": 234}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 33, "steps": 235}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 34, "steps": 236}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 35, "steps": 237}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 36, "steps": 238}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 37, "steps": 239}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 38, "steps": 240}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 39, "steps": 241}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 40, "steps": 242}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 41, "steps": 243}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 42, "steps": 244}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 43, "steps": 245}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 44, "steps": 246}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 45, "steps": 247}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 46, "steps": 248}
+IN DOWN
+{"type": "move", "location": 0, "x": 44, "y": 47, "steps": 249}
+{"type": "map_change", "location": 3, "x": 3, "y": 2}
+IN DOWN
+{"type": "move", "location": 3, "x": 3, "y": 3, "steps": 250}
+{"type": "paragraph", "n": 18}
+IN DOWN
+{"type": "move", "location": 3, "x": 3, "y": 4, "steps": 251}
+IN DOWN
+{"type": "move", "location": 3, "x": 3, "y": 5, "steps": 252}
+IN DOWN
+{"type": "move", "location": 3, "x": 3, "y": 6, "steps": 253}
+IN RIGHT
+{"type": "move", "location": 3, "x": 4, "y": 6, "steps": 254}
+IN RIGHT
+{"type": "move", "location": 3, "x": 5, "y": 6, "steps": 255}
+IN RIGHT
+{"type": "move", "location": 3, "x": 6, "y": 6, "steps": 256}
+IN RIGHT
+{"type": "move", "location": 3, "x": 7, "y": 6, "steps": 257}
+IN RIGHT
+{"type": "move", "location": 3, "x": 8, "y": 6, "steps": 258}
+IN RIGHT
+{"type": "move", "location": 3, "x": 9, "y": 6, "steps": 259}
+{"type": "encounter_start", "groups": [{"monster": "pump crawler", "count": 4, "band": 2, "hp": [9, 5, 10, 17]}]}
+{"type": "paragraph", "n": 19}
+{"type": "check", "member": 5, "skill": 18, "level": 2, "need": 65, "roll": 74, "success": false}
+{"type": "surprised"}
+{"type": "round_start", "round": 0}
+{"type": "group_closes", "group": 1, "band": 1}
+IN A
+{"type": "round_orders", "round": 1, "orders": {"1": ["reload"], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["melee", 1]}}
+{"type": "round_start", "round": 1}
+{"type": "attack", "side": "party", "member": 2, "group": 1, "target": 1, "need": 65, "roll": 53, "hit": true, "damage": 4}
+{"type": "attack", "side": "party", "member": 3, "group": 1, "target": 1, "need": 56, "roll": 12, "hit": true, "damage": 2}
+{"type": "attack", "side": "party", "member": 4, "group": 1, "target": 1, "need": 54, "roll": 90, "hit": false}
+{"type": "attack", "side": "party", "member": 5, "group": 1, "target": 1, "need": 68, "roll": 26, "hit": true, "damage": 8}
+{"type": "monster_dies", "group": 1, "index": 1}
+{"type": "reload", "member": 1, "status": 6}
+{"type": "attack", "side": "party", "member": 6, "group": 1, "target": 2, "need": 52, "roll": 95, "hit": false}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 2, "member": 1, "need": 25, "roll": 54, "hit": false}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 3, "member": 6, "need": 37, "roll": 29, "hit": true, "damage": 4}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 4, "member": 4, "need": 43, "roll": 93, "hit": false}
+IN A
+{"type": "round_orders", "round": 2, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["reload"], "4": ["reload"], "5": ["fire", 1], "6": ["melee", 1]}}
+{"type": "round_start", "round": 2}
+{"type": "attack", "side": "party", "member": 1, "group": 1, "target": 2, "need": 67, "roll": 25, "hit": true, "damage": 6}
+{"type": "attack", "side": "party", "member": 2, "group": 1, "target": 3, "need": 65, "roll": 35, "hit": true, "damage": 7}
+{"type": "attack", "side": "party", "member": 5, "group": 1, "target": 3, "need": 68, "roll": 89, "hit": false}
+{"type": "monster_dies", "group": 1, "index": 2}
+{"type": "reload", "member": 3, "status": 6}
+{"type": "reload", "member": 4, "status": 6}
+{"type": "attack", "side": "party", "member": 6, "group": 1, "target": 3, "need": 52, "roll": 50, "hit": true, "damage": 4}
+{"type": "monster_dies", "group": 1, "index": 3}
+{"type": "attack", "side": "monsters", "group": 1, "attacker": 4, "member": 2, "need": 37, "roll": 24, "hit": true, "damage": 5}
+IN A
+{"type": "round_orders", "round": 3, "orders": {"1": ["fire", 1], "2": ["fire", 1], "3": ["fire", 1], "4": ["fire", 1], "5": ["fire", 1], "6": ["melee", 1]}}
+{"type": "round_start", "round": 3}
+{"type": "attack", "side": "party", "member": 1, "group": 1, "target": 4, "need": 67, "roll": 4, "hit": true, "damage": 8}
+{"type": "attack", "side": "party", "member": 2, "group": 1, "target": 4, "need": 65, "roll": 19, "hit": true, "damage": 5}
+{"type": "attack", "side": "party", "member": 3, "group": 1, "target": 4, "need": 56, "roll": 13, "hit": true, "damage": 6}
+{"type": "attack", "side": "party", "member": 4, "group": 1, "target": 4, "need": 54, "roll": 32, "hit": true, "damage": 6}
+{"type": "attack", "side": "party", "member": 5, "group": 1, "target": 4, "need": 68, "roll": 76, "hit": false}
+{"type": "monster_dies", "group": 1, "index": 4}
+{"type": "combat_end", "result": "victory", "rounds": 3}
+{"type": "xp", "member": 1, "delta": 18, "total": 122}
+{"type": "xp", "member": 2, "delta": 18, "total": 122}
+{"type": "xp", "member": 3, "delta": 18, "total": 132}
+{"type": "xp", "member": 4, "delta": 18, "total": 122}
+{"type": "xp", "member": 5, "delta": 18, "total": 232}
+{"type": "xp", "member": 6, "delta": 18, "total": 168}
+{"type": "cell_change", "location": 3, "x": 9, "y": 6, "action_class": 5, "action": 1, "image": 37}
+{"type": "item_gain", "member": 1, "item": 9, "slot": 6, "status": 3}
+{"type": "cell_change", "location": 3, "x": 9, "y": 6, "action_class": 0, "action": 0, "image": 37}
+CP CP8
+IN RIGHT
+{"type": "move", "location": 3, "x": 10, "y": 6, "steps": 260}
+IN RIGHT
+{"type": "move", "location": 3, "x": 11, "y": 6, "steps": 261}
+IN RIGHT
+{"type": "move", "location": 3, "x": 12, "y": 6, "steps": 262}
+IN RIGHT
+{"type": "move", "location": 3, "x": 13, "y": 6, "steps": 263}
+IN RIGHT
+{"type": "move", "location": 3, "x": 14, "y": 6, "steps": 264}
+IN RIGHT
+{"type": "move", "location": 3, "x": 15, "y": 6, "steps": 265}
+IN RIGHT
+{"type": "bump", "x": 16, "y": 6, "action_class": 4, "action": 5}
+{"type": "message", "location": 3, "string": 10}
+{"type": "key_used", "member": 1, "item": 11}
+{"type": "unlock", "x": 16, "y": 6}
+{"type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 39}
+{"type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+{"type": "paragraph", "n": 21}
+IN RIGHT
+{"type": "move", "location": 3, "x": 16, "y": 6, "steps": 266}
+{"type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+IN RIGHT
+{"type": "move", "location": 3, "x": 17, "y": 6, "steps": 267}
+{"type": "paragraph", "n": 22}
+IN UP
+{"type": "move", "location": 3, "x": 17, "y": 5, "steps": 268}
+IN UP
+{"type": "move", "location": 3, "x": 17, "y": 4, "steps": 269}
+IN RIGHT
+{"type": "move", "location": 3, "x": 18, "y": 4, "steps": 270}
+IN RIGHT
+{"type": "move", "location": 3, "x": 19, "y": 4, "steps": 271}
+IN RIGHT
+{"type": "move", "location": 3, "x": 20, "y": 4, "steps": 272}
+IN RIGHT
+{"type": "move", "location": 3, "x": 21, "y": 4, "steps": 273}
+{"type": "natural_heal", "members": [2, 6]}
+{"type": "item_gain", "member": 1, "item": 12, "slot": 7, "status": 0}
+{"type": "cell_change", "location": 3, "x": 21, "y": 4, "action_class": 0, "action": 0, "image": 37}
+CP CP9
+IN DOWN
+{"type": "move", "location": 3, "x": 21, "y": 5, "steps": 274}
+IN LEFT
+{"type": "move", "location": 3, "x": 20, "y": 5, "steps": 275}
+IN LEFT
+{"type": "move", "location": 3, "x": 19, "y": 5, "steps": 276}
+IN LEFT
+{"type": "move", "location": 3, "x": 18, "y": 5, "steps": 277}
+IN DOWN
+{"type": "move", "location": 3, "x": 18, "y": 6, "steps": 278}
+IN LEFT
+{"type": "move", "location": 3, "x": 17, "y": 6, "steps": 279}
+{"type": "paragraph", "n": 22}
+IN LEFT
+{"type": "move", "location": 3, "x": 16, "y": 6, "steps": 280}
+{"type": "cell_change", "location": 3, "x": 16, "y": 6, "action_class": 4, "action": 4, "image": 37}
+IN LEFT
+{"type": "move", "location": 3, "x": 15, "y": 6, "steps": 281}
+IN LEFT
+{"type": "move", "location": 3, "x": 14, "y": 6, "steps": 282}
+IN LEFT
+{"type": "move", "location": 3, "x": 13, "y": 6, "steps": 283}
+IN LEFT
+{"type": "move", "location": 3, "x": 12, "y": 6, "steps": 284}
+IN LEFT
+{"type": "move", "location": 3, "x": 11, "y": 6, "steps": 285}
+IN LEFT
+{"type": "move", "location": 3, "x": 10, "y": 6, "steps": 286}
+IN LEFT
+{"type": "move", "location": 3, "x": 9, "y": 6, "steps": 287}
+IN LEFT
+{"type": "move", "location": 3, "x": 8, "y": 6, "steps": 288}
+IN LEFT
+{"type": "move", "location": 3, "x": 7, "y": 6, "steps": 289}
+IN LEFT
+{"type": "move", "location": 3, "x": 6, "y": 6, "steps": 290}
+IN LEFT
+{"type": "move", "location": 3, "x": 5, "y": 6, "steps": 291}
+IN LEFT
+{"type": "move", "location": 3, "x": 4, "y": 6, "steps": 292}
+IN LEFT
+{"type": "move", "location": 3, "x": 3, "y": 6, "steps": 293}
+IN UP
+{"type": "move", "location": 3, "x": 3, "y": 5, "steps": 294}
+IN UP
+{"type": "move", "location": 3, "x": 3, "y": 4, "steps": 295}
+IN UP
+{"type": "move", "location": 3, "x": 3, "y": 3, "steps": 296}
+{"type": "paragraph", "n": 18}
+IN UP
+{"type": "move", "location": 3, "x": 3, "y": 2, "steps": 297}
+IN UP
+{"type": "move", "location": 3, "x": 3, "y": 1, "steps": 298}
+{"type": "map_change", "location": 0, "x": 44, "y": 48}
+IN LEFT
+{"type": "move", "location": 0, "x": 43, "y": 48, "steps": 299}
+{"type": "natural_heal", "members": [2, 6]}
+{"type": "day", "day": 2}
+IN UP
+{"type": "move", "location": 0, "x": 43, "y": 47, "steps": 300}
+IN UP
+{"type": "move", "location": 0, "x": 43, "y": 46, "steps": 301}
+IN UP
+{"type": "move", "location": 0, "x": 43, "y": 45, "steps": 302}
+IN UP
+{"type": "move", "location": 0, "x": 43, "y": 44, "steps": 303}
+IN UP
+{"type": "move", "location": 0, "x": 43, "y": 43, "steps": 304}
+IN UP
+{"type": "move", "location": 0, "x": 43, "y": 42, "steps": 305}
+{"type": "natural_heal", "members": [2, 6]}
+IN UP
+{"type": "move", "location": 0, "x": 43, "y": 41, "steps": 306}
+IN LEFT
+{"type": "move", "location": 0, "x": 42, "y": 41, "steps": 307}
+IN LEFT
+{"type": "move", "location": 0, "x": 41, "y": 41, "steps": 308}
+IN LEFT
+{"type": "move", "location": 0, "x": 40, "y": 41, "steps": 309}
+IN LEFT
+{"type": "move", "location": 0, "x": 39, "y": 41, "steps": 310}
+IN LEFT
+{"type": "move", "location": 0, "x": 38, "y": 41, "steps": 311}
+{"type": "natural_heal", "members": [2, 6]}
+IN LEFT
+{"type": "move", "location": 0, "x": 37, "y": 41, "steps": 312}
+IN LEFT
+{"type": "move", "location": 0, "x": 36, "y": 41, "steps": 313}
+IN LEFT
+{"type": "move", "location": 0, "x": 35, "y": 41, "steps": 314}
+IN LEFT
+{"type": "move", "location": 0, "x": 34, "y": 41, "steps": 315}
+IN LEFT
+{"type": "move", "location": 0, "x": 33, "y": 41, "steps": 316}
+IN LEFT
+{"type": "move", "location": 0, "x": 32, "y": 41, "steps": 317}
+{"type": "natural_heal", "members": [2]}
+IN LEFT
+{"type": "move", "location": 0, "x": 31, "y": 41, "steps": 318}
+IN LEFT
+{"type": "move", "location": 0, "x": 30, "y": 41, "steps": 319}
+IN UP
+{"type": "move", "location": 0, "x": 30, "y": 40, "steps": 320}
+IN LEFT
+{"type": "move", "location": 0, "x": 29, "y": 40, "steps": 321}
+IN LEFT
+{"type": "move", "location": 0, "x": 28, "y": 40, "steps": 322}
+IN LEFT
+{"type": "move", "location": 0, "x": 27, "y": 40, "steps": 323}
+IN LEFT
+{"type": "move", "location": 0, "x": 26, "y": 40, "steps": 324}
+IN LEFT
+{"type": "move", "location": 0, "x": 25, "y": 40, "steps": 325}
+IN LEFT
+{"type": "move", "location": 0, "x": 24, "y": 40, "steps": 326}
+IN LEFT
+{"type": "move", "location": 0, "x": 23, "y": 40, "steps": 327}
+IN LEFT
+{"type": "move", "location": 0, "x": 22, "y": 40, "steps": 328}
+IN LEFT
+{"type": "move", "location": 0, "x": 21, "y": 40, "steps": 329}
+IN LEFT
+{"type": "move", "location": 0, "x": 20, "y": 40, "steps": 330}
+IN LEFT
+{"type": "move", "location": 0, "x": 19, "y": 40, "steps": 331}
+IN LEFT
+{"type": "move", "location": 0, "x": 18, "y": 40, "steps": 332}
+IN LEFT
+{"type": "move", "location": 0, "x": 17, "y": 40, "steps": 333}
+IN LEFT
+{"type": "move", "location": 0, "x": 16, "y": 40, "steps": 334}
+IN LEFT
+{"type": "move", "location": 0, "x": 15, "y": 40, "steps": 335}
+IN LEFT
+{"type": "move", "location": 0, "x": 14, "y": 40, "steps": 336}
+IN LEFT
+{"type": "move", "location": 0, "x": 13, "y": 40, "steps": 337}
+IN LEFT
+{"type": "move", "location": 0, "x": 12, "y": 40, "steps": 338}
+IN LEFT
+{"type": "move", "location": 0, "x": 11, "y": 40, "steps": 339}
+IN LEFT
+{"type": "move", "location": 0, "x": 10, "y": 40, "steps": 340}
+{"type": "map_change", "location": 1, "x": 15, "y": 30}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 29, "steps": 341}
+{"type": "paragraph", "n": 2}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 28, "steps": 342}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 27, "steps": 343}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 26, "steps": 344}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 25, "steps": 345}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 24, "steps": 346}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 23, "steps": 347}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 22, "steps": 348}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 21, "steps": 349}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 20, "steps": 350}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 19, "steps": 351}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 18, "steps": 352}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 17, "steps": 353}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 16, "steps": 354}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 15, "steps": 355}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 14, "steps": 356}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 13, "steps": 357}
+IN UP
+{"type": "move", "location": 1, "x": 15, "y": 12, "steps": 358}
+IN UP
+{"type": "bump", "x": 15, "y": 11, "action_class": 11, "action": 0}
+{"type": "paragraph", "n": 24}
+{"type": "win", "steps": 358, "day": 2, "minutes": 428}
+CP CP10

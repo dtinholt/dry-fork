@@ -1,0 +1,341 @@
+============================== headless.py 200-460
+   1             member = int(key)
+   2             if 1 <= member <= len(self.party):
+   3                 self.pending = None
+   4                 self.pending_member = member
+   5                 self.mode = "char"
+   6                 self.emit("char_open", member=member)
+   7                 return True
+   8             return False
+   9         if self.mode == "shop":
+  10             return self.shop_key(key, low)
+  11         if self.mode == "char":
+  12             return self.char_key(key, low)
+  13         if self.mode == "combat":
+  14             return self.combat_key(key, low)
+  15         handler = getattr(self, "key_" + low, None)
+  16         if handler is None:
+  17             return False
+  18         return handler() is not False
+  19 
+  20     # -- inventory ---------------------------------------------------------
+  21 
+  22     def member_items(self, member):
+  23         return self.party[member - 1].setdefault("items", [])
+  24 
+  25     def add_item(self, member, iid, count=1):
+  26         items = self.member_items(member)
+  27         for entry in items:
+  28             if entry[0] == iid:
+  29                 entry[1] += count
+  30                 return entry
+  31         items.append([iid, count])
+  32         return items[-1]
+  33 
+  34     def remove_item(self, member, iid, count=1):
+  35         items = self.member_items(member)
+  36         for i, entry in enumerate(items):
+  37             if entry[0] == iid:
+  38                 entry[1] -= count
+  39                 if entry[1] <= 0:
+  40                     items.pop(i)
+  41                 return True
+  42         return False
+  43 
+  44     def item_slot(self, member, iid):
+  45         for i, entry in enumerate(self.member_items(member)):
+  46             if entry[0] == iid:
+  47                 return i
+  48         return -1
+  49 
+  50     # -- shop --------------------------------------------------------------
+  51 
+  52     def shop_items(self):
+  53         if self.shop is None:
+  54             return []
+  55         return list(self.shop.get("items", []))
+  56 
+  57     def shop_recs(self):
+  58         if self.shop is None:
+  59             return []
+  60         return self.shop.get("recs", [])
+  61 
+  62     def item_record(self, iid):
+  63         recs = self.shop_recs()
+  64         if not recs:
+  65             recs = self.sc.shops[0]["items"] if self.sc.shops else []
+  66         if 1 <= iid <= len(recs):
+  67             return recs[iid - 1]
+  68         return None
+  69 
+  70     def best_skill(self, skill):
+  71         best = 0
+  72         for m in self.party:
+  73             if m.get("hp", 0) <= 0:
+  74                 continue
+  75             best = max(best, self.skill_level(m, skill))
+  76         return best
+  77 
+  78     def haggling(self):
+  79         return min(5, self.best_skill(20))
+  80 
+  81     def buy_price(self, price):
+  82         h = self.haggling()
+  83         return price * (100 - 5 * h) // 100
+  84 
+  85     def sell_price(self, price):
+  86         h = self.haggling()
+  87         return price * (50 + 5 * h) // 100
+  88 
+  89     def shop_key(self, key, low):
+  90         if self.pending == "buy_item" and low.isalpha():
+  91             idx = ord(low) - ord("a")
+  92             items = self.shop_items()
+  93             if 0 <= idx < len(items):
+  94                 self.pending_item = items[idx]
+  95                 self.pending = "buy_member"
+  96                 self.emit("prompt", prompt="member")
+  97                 return True
+  98             return False
+  99         if self.pending == "buy_member" and low.isdigit():
+ 100             member = int(low)
+ 101             if 1 <= member <= len(self.party):
+ 102                 self.pending = None
+ 103                 self.shop_buy(member, self.pending_item)
+ 104                 return True
+ 105             return False
+ 106         if self.pending == "sell_member" and low.isdigit():
+ 107             member = int(low)
+ 108             if 1 <= member <= len(self.party):
+ 109                 self.pending_member = member
+ 110                 self.pending = "sell_item"
+ 111                 self.emit("prompt", prompt="item_slot")
+ 112                 return True
+ 113             return False
+ 114         if self.pending == "sell_item" and low.isalpha():
+ 115             idx = ord(low) - ord("a")
+ 116             items = self.member_items(self.pending_member)
+ 117             if 0 <= idx < len(items):
+ 118                 self.pending = None
+ 119                 self.shop_sell(self.pending_member, items[idx][0])
+ 120                 return True
+ 121             return False
+ 122         if self.pending == "char_member" and low.isdigit():
+ 123             member = int(low)
+ 124             if 1 <= member <= len(self.party):
+ 125                 self.pending = None
+ 126                 self.pending_member = member
+ 127                 self.mode = "char"
+ 128                 self.emit("char_open", member=member)
+ 129                 return True
+ 130             return False
+ 131         if low == "b":
+ 132             self.pending = "buy_item"
+ 133             self.emit("prompt", prompt="buy_item", items=self.shop_items())
+ 134             return True
+ 135         if low == "s":
+ 136             self.pending = "sell_member"
+ 137             self.emit("prompt", prompt="member")
+ 138             return True
+ 139         if low == "c":
+ 140             self.pending = "char_member"
+ 141             self.emit("prompt", prompt="member")
+ 142             return True
+ 143         if low == "x":
+ 144             self.mode = "map"
+ 145             self.shop = None
+ 146             self.pending = None
+ 147             self.emit("shop_close")
+ 148             return True
+ 149         return False
+ 150 
+ 151     def shop_buy(self, member, iid):
+ 152         rec = self.item_record(iid) or {}
+ 153         price = self.buy_price(rec.get("price", 0))
+ 154         m = self.party[member - 1]
+ 155         m["money"] = m.get("money", 0) - price
+ 156         self.emit("money", member=member, delta=-price, total=m["money"])
+ 157         items = self.member_items(member)
+ 158         itype = rec.get("type", 0)
+ 159         if itype == 3:  # ammunition stacks
+ 160             for i, entry in enumerate(items):
+ 161                 if entry[0] == iid and entry[1] < 127:
+ 162                     entry[1] += 1
+ 163                     self.emit("buy", member=member, item=iid, price=price,
+ 164                               slot=i + 1, status=entry[1])
+ 165                     return
+ 166         status = 1 if itype == 3 else (rec.get("capacity", 0) if itype == 5 else 0)
+ 167         slot = None
+ 168         for i, entry in enumerate(items):
+ 169             if entry[0] == 0:
+ 170                 slot = i
+ 171                 break
+ 172         if slot is None:
+ 173             if len(items) >= 30:
+ 174                 self.emit("message", location=self.location, string=3)
+ 175                 return
+ 176             items.append([iid, status])
+ 177             slot = len(items) - 1
+ 178         else:
+ 179             items[slot] = [iid, status]
+ 180         self.emit("buy", member=member, item=iid, price=price, slot=slot + 1,
+ 181                   status=status)
+ 182 
+ 183     def shop_sell(self, member, iid):
+ 184         rec = self.item_record(iid) or {}
+ 185         if rec.get("type", 0) == 7:
+ 186             self.emit("message", location=self.location, string=31)
+ 187             return
+ 188         price = self.sell_price(rec.get("price", 0))
+ 189         slot = self.item_slot(member, iid)
+ 190         self.emit("sell", member=member, item=iid, price=price, slot=slot + 1)
+ 191         items = self.member_items(member)
+ 192         if 0 <= slot < len(items):
+ 193             items[slot] = [0, 0]
+ 194         m = self.party[member - 1]
+ 195         if m.get("armour_slot", 0) == slot + 1:
+ 196             m["armour_slot"] = 0
+ 197             self.recompute_ac(member)
+ 198         if m.get("weapon_slot", 0) == slot + 1:
+ 199             m["weapon_slot"] = 0
+ 200         m["money"] = m.get("money", 0) + price
+ 201         self.emit("money", member=member, delta=price, total=m["money"])
+ 202 
+ 203     def recompute_ac(self, member):
+ 204         m = self.party[member - 1]
+ 205         attrs = m.get("attrs") or {}
+ 206         agl = attrs.get("AGL", m.get("agility", 0))
+ 207         bonus = 0
+ 208         aslot = m.get("armour_slot", 0)
+ 209         items = m.get("items", [])
+ 210         if aslot and 0 <= aslot - 1 < len(items):
+ 211             rec = self.item_record(items[aslot - 1][0])
+ 212             if rec:
+ 213                 bonus = rec.get("damage", 0)
+ 214         evasion = self.skill_level(m, 11)
+ 215         m["ac"] = agl // 5 + bonus + evasion
+ 216 
+ 217     # -- character screen --------------------------------------------------
+ 218 
+ 219     def char_key(self, key, low):
+ 220         if low == "e":
+ 221             self.pending = "equip_item"
+ 222             self.emit("prompt", prompt="item_slot")
+ 223             return True
+ 224         if low == "x":
+ 225             self.mode = "map"
+ 226             self.pending = None
+ 227             self.emit("char_close")
+ 228             return True
+ 229         if self.pending == "equip_item" and low.isalpha():
+ 230             idx = ord(low) - ord("a")
+ 231             items = self.member_items(self.pending_member)
+ 232             if 0 <= idx < len(items):
+ 233                 self.pending = None
+ 234                 self.equip(self.pending_member, idx, items[idx][0])
+ 235                 return True
+ 236             return False
+ 237         return False
+ 238 
+ 239     def equip(self, member, slot, iid):
+ 240         self.party[member - 1]["armour_slot"] = slot + 1
+ 241         self.recompute_ac(member)
+ 242         ac = self.party[member - 1]["ac"]
+ 243         self.emit("equip", member=member, slot=slot + 1, item=iid, ac=ac)
+ 244 
+ 245     # -- combat ------------------------------------------------------------
+ 246 
+ 247     def combat_key(self, key, low):
+ 248         if low == "a":
+ 249             self.combat_round()
+ 250             return True
+ 251         return False
+ 252 
+ 253     def build_groups(self, rec):
+ 254         """LR-26, LR-28: groups from the map's monster table and the record."""
+ 255         m = self.sc.map(self.location)
+ 256         mobs = list((m or {}).get("mobs", []))
+ 257         groups = rules.build_groups(self.rng, mobs, rec or {})
+ 258         for g in groups:
+ 259             mob = mobs[g["monster"] - 1]
+ 260             name = mob.get("name", b"")
+ 261             if isinstance(name, bytes):
+============================== headless.py 1000-1077
+   1         member = self.pick_member(skill)
+   2         level = self.skill_level(self.party[member - 1], skill)
+   3         attr = self.attr_value(self.party[member - 1], skill)
+   4         res = rules.skill_check(self.rng, level, attr, d_max)
+   5         self.emit("check", member=member, skill=skill, level=level, **res)
+   6         if not res["success"]:
+   7             self.combat["surprised"] = True
+   8             self.emit("surprised")
+   9             self.emit("round_start", round=0)
+  10             self.monster_phase1()
+  11             self.end_of_round()
+  12 
+  13     def key_a(self):
+  14         if self.mode != "combat":
+  15             return False
+  16         self.combat_round()
+  17         return True
+  18 
+  19     # -- repeat ------------------------------------------------------------
+  20 
+  21     def run_repeat(self, item):
+  22         spec = item["repeat_until"]
+  23         if isinstance(spec, dict):
+  24             script = spec.get("script")
+  25             if script is None:
+  26                 script = spec.get("keys", [])
+  27             until = spec.get("until")
+  28             if until is None:
+  29                 until = spec.get("condition")
+  30             limit = spec.get("limit", spec.get("max", 200))
+  31         else:
+  32             script = spec
+  33             until = None
+  34             limit = 200
+  35         for _ in range(limit):
+  36             self.run_script(script)
+  37             if until is None or self._until_met(until):
+  38                 break
+  39 
+  40     def _until_met(self, until):
+  41         if isinstance(until, str):
+  42             if until.startswith("mode:"):
+  43                 return self.mode == until[len("mode:"):]
+  44             if until.startswith("cell:"):
+  45                 parts = until[len("cell:"):].split(",")
+  46                 if len(parts) == 3:
+  47                     loc, x, y = (int(p) for p in parts)
+  48                     return any(c[0] == loc and c[1] == x and c[2] == y
+  49                                for c in self.cell_changes)
+  50                 return False
+  51             return any(e.get("type") == until for e in self.events)
+  52         if isinstance(until, dict):
+  53             for e in self.events:
+  54                 if all(e.get(k) == v for k, v in until.items()):
+  55                     return True
+  56         return False
+  57 
+  58 
+  59 # ---------------------------------------------------------------------------
+  60 # entry point
+  61 # ---------------------------------------------------------------------------
+  62 
+  63 
+  64 def run(data_dir, options=None, seed=None, *args, **kwargs):
+  65     if isinstance(options, str):
+  66         try:
+  67             options = json.loads(options)
+  68         except ValueError:
+  69             options = {"script": [options]}
+  70     if isinstance(options, (list, tuple)):
+  71         options = {"script": list(options)}
+  72     options = dict(options or {})
+  73     if seed is None:
+  74         seed = kwargs.get("seed", options.get("seed"))
+  75     eng = Engine(data_dir, seed=seed, options=options)
+  76     eng.new_game(seed)
+  77     eng.run_script(options.get("script", []))
+  78     return eng.events

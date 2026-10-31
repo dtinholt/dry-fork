@@ -1,0 +1,8264 @@
+{
+  "note": "Event log of the lab reference implementation for walkthrough.json with seed 20261021 (SPEC-06 section 6 schema). Reproduced event for event (1022 events) by an independent implementation built from the spec text on 21 Oct 2026.",
+  "events": [
+    {
+      "seq": 0,
+      "type": "new_game",
+      "seed": 20261021
+    },
+    {
+      "seq": 1,
+      "type": "paragraph",
+      "n": 1
+    },
+    {
+      "seq": 2,
+      "type": "checkpoint",
+      "name": "CP1",
+      "state": {
+        "location": 1,
+        "x": 15,
+        "y": 20,
+        "steps": 0,
+        "day": 1,
+        "hour": 8,
+        "minute": 0,
+        "mode": "map",
+        "cell_changes": [],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "hp": 24,
+            "cond": 0,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 60,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [1, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "hp": 21,
+            "cond": 0,
+            "money": 80,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 1]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "hp": 22,
+            "cond": 0,
+            "money": 70,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 1],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 20261021
+      }
+    },
+    {
+      "seq": 3,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 4,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 19,
+      "steps": 1
+    },
+    {
+      "seq": 5,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 6,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 18,
+      "steps": 2
+    },
+    {
+      "seq": 7,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 8,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 17,
+      "steps": 3
+    },
+    {
+      "seq": 9,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 10,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 16,
+      "steps": 4
+    },
+    {
+      "seq": 11,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 12,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 15,
+      "steps": 5
+    },
+    {
+      "seq": 13,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 14,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 14,
+      "steps": 6
+    },
+    {
+      "seq": 15,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 16,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 13,
+      "steps": 7
+    },
+    {
+      "seq": 17,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 18,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 12,
+      "steps": 8
+    },
+    {
+      "seq": 19,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 20,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 12,
+      "steps": 9
+    },
+    {
+      "seq": 21,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 22,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 11,
+      "steps": 10
+    },
+    {
+      "seq": 23,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 24,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 10,
+      "steps": 11
+    },
+    {
+      "seq": 25,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 26,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 9,
+      "steps": 12
+    },
+    {
+      "seq": 27,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 28,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 8,
+      "steps": 13
+    },
+    {
+      "seq": 29,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 30,
+      "type": "move",
+      "location": 1,
+      "x": 13,
+      "y": 8,
+      "steps": 14
+    },
+    {
+      "seq": 31,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 32,
+      "type": "move",
+      "location": 1,
+      "x": 12,
+      "y": 8,
+      "steps": 15
+    },
+    {
+      "seq": 33,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 34,
+      "type": "move",
+      "location": 1,
+      "x": 11,
+      "y": 8,
+      "steps": 16
+    },
+    {
+      "seq": 35,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 36,
+      "type": "move",
+      "location": 1,
+      "x": 10,
+      "y": 8,
+      "steps": 17
+    },
+    {
+      "seq": 37,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 38,
+      "type": "move",
+      "location": 1,
+      "x": 9,
+      "y": 8,
+      "steps": 18
+    },
+    {
+      "seq": 39,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 40,
+      "type": "move",
+      "location": 1,
+      "x": 8,
+      "y": 8,
+      "steps": 19
+    },
+    {
+      "seq": 41,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 42,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 8,
+      "steps": 20
+    },
+    {
+      "seq": 43,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 44,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 8,
+      "steps": 21
+    },
+    {
+      "seq": 45,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 46,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 7,
+      "steps": 22
+    },
+    {
+      "seq": 47,
+      "type": "paragraph",
+      "n": 3
+    },
+    {
+      "seq": 48,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 49,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 6,
+      "steps": 23
+    },
+    {
+      "seq": 50,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 51,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 5,
+      "steps": 24
+    },
+    {
+      "seq": 52,
+      "type": "message",
+      "location": 1,
+      "string": 5
+    },
+    {
+      "seq": 53,
+      "type": "shop_open",
+      "shop": 0
+    },
+    {
+      "seq": 54,
+      "type": "input",
+      "key": "B"
+    },
+    {
+      "seq": 55,
+      "type": "prompt",
+      "prompt": "buy_item",
+      "items": [1, 3, 4, 7, 9, 10]
+    },
+    {
+      "seq": 56,
+      "type": "input",
+      "key": "c"
+    },
+    {
+      "seq": 57,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 58,
+      "type": "input",
+      "key": "3"
+    },
+    {
+      "seq": 59,
+      "type": "money",
+      "member": 3,
+      "delta": -7,
+      "total": 73
+    },
+    {
+      "seq": 60,
+      "type": "buy",
+      "member": 3,
+      "item": 4,
+      "price": 7,
+      "slot": 2,
+      "status": 2
+    },
+    {
+      "seq": 61,
+      "type": "input",
+      "key": "B"
+    },
+    {
+      "seq": 62,
+      "type": "prompt",
+      "prompt": "buy_item",
+      "items": [1, 3, 4, 7, 9, 10]
+    },
+    {
+      "seq": 63,
+      "type": "input",
+      "key": "c"
+    },
+    {
+      "seq": 64,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 65,
+      "type": "input",
+      "key": "4"
+    },
+    {
+      "seq": 66,
+      "type": "money",
+      "member": 4,
+      "delta": -7,
+      "total": 63
+    },
+    {
+      "seq": 67,
+      "type": "buy",
+      "member": 4,
+      "item": 4,
+      "price": 7,
+      "slot": 2,
+      "status": 2
+    },
+    {
+      "seq": 68,
+      "type": "input",
+      "key": "S"
+    },
+    {
+      "seq": 69,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 70,
+      "type": "input",
+      "key": "2"
+    },
+    {
+      "seq": 71,
+      "type": "prompt",
+      "prompt": "item_slot"
+    },
+    {
+      "seq": 72,
+      "type": "input",
+      "key": "c"
+    },
+    {
+      "seq": 73,
+      "type": "sell",
+      "member": 2,
+      "item": 1,
+      "price": 8,
+      "slot": 3
+    },
+    {
+      "seq": 74,
+      "type": "money",
+      "member": 2,
+      "delta": 8,
+      "total": 68
+    },
+    {
+      "seq": 75,
+      "type": "input",
+      "key": "B"
+    },
+    {
+      "seq": 76,
+      "type": "prompt",
+      "prompt": "buy_item",
+      "items": [1, 3, 4, 7, 9, 10]
+    },
+    {
+      "seq": 77,
+      "type": "input",
+      "key": "d"
+    },
+    {
+      "seq": 78,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 79,
+      "type": "input",
+      "key": "2"
+    },
+    {
+      "seq": 80,
+      "type": "money",
+      "member": 2,
+      "delta": -28,
+      "total": 40
+    },
+    {
+      "seq": 81,
+      "type": "buy",
+      "member": 2,
+      "item": 7,
+      "price": 28,
+      "slot": 3,
+      "status": 0
+    },
+    {
+      "seq": 82,
+      "type": "input",
+      "key": "X"
+    },
+    {
+      "seq": 83,
+      "type": "shop_close"
+    },
+    {
+      "seq": 84,
+      "type": "input",
+      "key": "C"
+    },
+    {
+      "seq": 85,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 86,
+      "type": "input",
+      "key": "2"
+    },
+    {
+      "seq": 87,
+      "type": "char_open",
+      "member": 2
+    },
+    {
+      "seq": 88,
+      "type": "input",
+      "key": "E"
+    },
+    {
+      "seq": 89,
+      "type": "prompt",
+      "prompt": "item_slot"
+    },
+    {
+      "seq": 90,
+      "type": "input",
+      "key": "c"
+    },
+    {
+      "seq": 91,
+      "type": "equip",
+      "member": 2,
+      "slot": 3,
+      "item": 7,
+      "ac": 3
+    },
+    {
+      "seq": 92,
+      "type": "input",
+      "key": "X"
+    },
+    {
+      "seq": 93,
+      "type": "char_close"
+    },
+    {
+      "seq": 94,
+      "type": "checkpoint",
+      "name": "CP2",
+      "state": {
+        "location": 1,
+        "x": 6,
+        "y": 5,
+        "steps": 24,
+        "day": 1,
+        "hour": 8,
+        "minute": 24,
+        "mode": "map",
+        "cell_changes": [],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "hp": 24,
+            "cond": 0,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 40,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "hp": 21,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "hp": 22,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 20261021
+      }
+    },
+    {
+      "seq": 95,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 96,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 6,
+      "steps": 25
+    },
+    {
+      "seq": 97,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 98,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 7,
+      "steps": 26
+    },
+    {
+      "seq": 99,
+      "type": "paragraph",
+      "n": 3
+    },
+    {
+      "seq": 100,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 101,
+      "type": "move",
+      "location": 1,
+      "x": 6,
+      "y": 8,
+      "steps": 27
+    },
+    {
+      "seq": 102,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 103,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 8,
+      "steps": 28
+    },
+    {
+      "seq": 104,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 105,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 9,
+      "steps": 29
+    },
+    {
+      "seq": 106,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 107,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 10,
+      "steps": 30
+    },
+    {
+      "seq": 108,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 109,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 11,
+      "steps": 31
+    },
+    {
+      "seq": 110,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 111,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 12,
+      "steps": 32
+    },
+    {
+      "seq": 112,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 113,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 13,
+      "steps": 33
+    },
+    {
+      "seq": 114,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 115,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 14,
+      "steps": 34
+    },
+    {
+      "seq": 116,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 117,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 15,
+      "steps": 35
+    },
+    {
+      "seq": 118,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 119,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 16,
+      "steps": 36
+    },
+    {
+      "seq": 120,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 121,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 17,
+      "steps": 37
+    },
+    {
+      "seq": 122,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 123,
+      "type": "move",
+      "location": 1,
+      "x": 7,
+      "y": 18,
+      "steps": 38
+    },
+    {
+      "seq": 124,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 125,
+      "type": "move",
+      "location": 1,
+      "x": 8,
+      "y": 18,
+      "steps": 39
+    },
+    {
+      "seq": 126,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 127,
+      "type": "bump",
+      "x": 8,
+      "y": 17,
+      "action_class": 11,
+      "action": 1
+    },
+    {
+      "seq": 128,
+      "type": "paragraph",
+      "n": 6
+    },
+    {
+      "seq": 129,
+      "type": "prompt",
+      "prompt": "recruit"
+    },
+    {
+      "seq": 130,
+      "type": "input",
+      "key": "Y"
+    },
+    {
+      "seq": 131,
+      "type": "cell_change",
+      "location": 1,
+      "x": 8,
+      "y": 17,
+      "action_class": 0,
+      "action": 0,
+      "image": 28
+    },
+    {
+      "seq": 132,
+      "type": "recruit",
+      "location": 1,
+      "npc": 0,
+      "slot": 5
+    },
+    {
+      "seq": 133,
+      "type": "checkpoint",
+      "name": "CP3",
+      "state": {
+        "location": 1,
+        "x": 8,
+        "y": 18,
+        "steps": 39,
+        "day": 1,
+        "hour": 8,
+        "minute": 39,
+        "mode": "map",
+        "cell_changes": [
+          [1, 8, 17, 0, 0, 28]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 24,
+            "hp": 24,
+            "cond": 0,
+            "money": 120,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 40,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [5, 8],
+              [6, 1],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 21,
+            "hp": 21,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 1,
+            "xp": 90,
+            "max_hp": 22,
+            "hp": 22,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Drifter",
+            "skill_points": 0,
+            "items": [
+              [3, 6],
+              [4, 2],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 200,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 8],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 20261021
+      }
+    },
+    {
+      "seq": 134,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 135,
+      "type": "move",
+      "location": 1,
+      "x": 9,
+      "y": 18,
+      "steps": 40
+    },
+    {
+      "seq": 136,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 137,
+      "type": "move",
+      "location": 1,
+      "x": 10,
+      "y": 18,
+      "steps": 41
+    },
+    {
+      "seq": 138,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 139,
+      "type": "move",
+      "location": 1,
+      "x": 11,
+      "y": 18,
+      "steps": 42
+    },
+    {
+      "seq": 140,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 141,
+      "type": "move",
+      "location": 1,
+      "x": 12,
+      "y": 18,
+      "steps": 43
+    },
+    {
+      "seq": 142,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 143,
+      "type": "move",
+      "location": 1,
+      "x": 13,
+      "y": 18,
+      "steps": 44
+    },
+    {
+      "seq": 144,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 145,
+      "type": "move",
+      "location": 1,
+      "x": 14,
+      "y": 18,
+      "steps": 45
+    },
+    {
+      "seq": 146,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 147,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 18,
+      "steps": 46
+    },
+    {
+      "seq": 148,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 149,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 19,
+      "steps": 47
+    },
+    {
+      "seq": 150,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 151,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 20,
+      "steps": 48
+    },
+    {
+      "seq": 152,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 153,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 21,
+      "steps": 49
+    },
+    {
+      "seq": 154,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 155,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 22,
+      "steps": 50
+    },
+    {
+      "seq": 156,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 157,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 23,
+      "steps": 51
+    },
+    {
+      "seq": 158,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 159,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 24,
+      "steps": 52
+    },
+    {
+      "seq": 160,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 161,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 25,
+      "steps": 53
+    },
+    {
+      "seq": 162,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 163,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 26,
+      "steps": 54
+    },
+    {
+      "seq": 164,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 165,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 27,
+      "steps": 55
+    },
+    {
+      "seq": 166,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 167,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 28,
+      "steps": 56
+    },
+    {
+      "seq": 168,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 169,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 29,
+      "steps": 57
+    },
+    {
+      "seq": 170,
+      "type": "paragraph",
+      "n": 2
+    },
+    {
+      "seq": 171,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 172,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 30,
+      "steps": 58
+    },
+    {
+      "seq": 173,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 174,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 31,
+      "steps": 59
+    },
+    {
+      "seq": 175,
+      "type": "map_change",
+      "location": 0,
+      "x": 10,
+      "y": 41
+    },
+    {
+      "seq": 176,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 177,
+      "type": "move",
+      "location": 0,
+      "x": 11,
+      "y": 41,
+      "steps": 60
+    },
+    {
+      "seq": 178,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 179,
+      "type": "move",
+      "location": 0,
+      "x": 12,
+      "y": 41,
+      "steps": 61
+    },
+    {
+      "seq": 180,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 181,
+      "type": "move",
+      "location": 0,
+      "x": 13,
+      "y": 41,
+      "steps": 62
+    },
+    {
+      "seq": 182,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 183,
+      "type": "move",
+      "location": 0,
+      "x": 14,
+      "y": 41,
+      "steps": 63
+    },
+    {
+      "seq": 184,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 185,
+      "type": "move",
+      "location": 0,
+      "x": 15,
+      "y": 41,
+      "steps": 64
+    },
+    {
+      "seq": 186,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 187,
+      "type": "move",
+      "location": 0,
+      "x": 16,
+      "y": 41,
+      "steps": 65
+    },
+    {
+      "seq": 188,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 189,
+      "type": "move",
+      "location": 0,
+      "x": 17,
+      "y": 41,
+      "steps": 66
+    },
+    {
+      "seq": 190,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 191,
+      "type": "move",
+      "location": 0,
+      "x": 18,
+      "y": 41,
+      "steps": 67
+    },
+    {
+      "seq": 192,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 193,
+      "type": "move",
+      "location": 0,
+      "x": 19,
+      "y": 41,
+      "steps": 68
+    },
+    {
+      "seq": 194,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 195,
+      "type": "move",
+      "location": 0,
+      "x": 20,
+      "y": 41,
+      "steps": 69
+    },
+    {
+      "seq": 196,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 197,
+      "type": "move",
+      "location": 0,
+      "x": 21,
+      "y": 41,
+      "steps": 70
+    },
+    {
+      "seq": 198,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 199,
+      "type": "move",
+      "location": 0,
+      "x": 22,
+      "y": 41,
+      "steps": 71
+    },
+    {
+      "seq": 200,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 201,
+      "type": "move",
+      "location": 0,
+      "x": 23,
+      "y": 41,
+      "steps": 72
+    },
+    {
+      "seq": 202,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 203,
+      "type": "move",
+      "location": 0,
+      "x": 24,
+      "y": 41,
+      "steps": 73
+    },
+    {
+      "seq": 204,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 205,
+      "type": "move",
+      "location": 0,
+      "x": 25,
+      "y": 41,
+      "steps": 74
+    },
+    {
+      "seq": 206,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 207,
+      "type": "move",
+      "location": 0,
+      "x": 26,
+      "y": 41,
+      "steps": 75
+    },
+    {
+      "seq": 208,
+      "type": "paragraph",
+      "n": 7
+    },
+    {
+      "seq": 209,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 210,
+      "type": "move",
+      "location": 0,
+      "x": 27,
+      "y": 41,
+      "steps": 76
+    },
+    {
+      "seq": 211,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 212,
+      "type": "move",
+      "location": 0,
+      "x": 28,
+      "y": 41,
+      "steps": 77
+    },
+    {
+      "seq": 213,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 214,
+      "type": "move",
+      "location": 0,
+      "x": 29,
+      "y": 41,
+      "steps": 78
+    },
+    {
+      "seq": 215,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 216,
+      "type": "move",
+      "location": 0,
+      "x": 30,
+      "y": 41,
+      "steps": 79
+    },
+    {
+      "seq": 217,
+      "type": "encounter_start",
+      "groups": [
+        {
+          "monster": "raider",
+          "count": 3,
+          "band": 3,
+          "hp": [14, 12, 14]
+        }
+      ]
+    },
+    {
+      "seq": 218,
+      "type": "paragraph",
+      "n": 8
+    },
+    {
+      "seq": 219,
+      "type": "check",
+      "member": 5,
+      "skill": 18,
+      "level": 2,
+      "need": 66,
+      "roll": 54,
+      "success": true
+    },
+    {
+      "seq": 220,
+      "type": "input",
+      "key": "A"
+    },
+    {
+      "seq": 221,
+      "type": "round_orders",
+      "round": 1,
+      "orders": {
+        "1": ["fire", 1],
+        "2": ["fire", 1],
+        "3": ["fire", 1],
+        "4": ["fire", 1],
+        "5": ["fire", 1]
+      }
+    },
+    {
+      "seq": 222,
+      "type": "round_start",
+      "round": 1
+    },
+    {
+      "seq": 223,
+      "type": "attack",
+      "side": "party",
+      "member": 1,
+      "group": 1,
+      "target": 1,
+      "need": 57,
+      "roll": 53,
+      "hit": true,
+      "damage": 6
+    },
+    {
+      "seq": 224,
+      "type": "attack",
+      "side": "party",
+      "member": 2,
+      "group": 1,
+      "target": 1,
+      "need": 55,
+      "roll": 38,
+      "hit": true,
+      "damage": 4
+    },
+    {
+      "seq": 225,
+      "type": "attack",
+      "side": "party",
+      "member": 3,
+      "group": 1,
+      "target": 1,
+      "need": 46,
+      "roll": 32,
+      "hit": true,
+      "damage": 6
+    },
+    {
+      "seq": 226,
+      "type": "attack",
+      "side": "party",
+      "member": 4,
+      "group": 1,
+      "target": 2,
+      "need": 44,
+      "roll": 92,
+      "hit": false
+    },
+    {
+      "seq": 227,
+      "type": "attack",
+      "side": "party",
+      "member": 5,
+      "group": 1,
+      "target": 2,
+      "need": 58,
+      "roll": 56,
+      "hit": true,
+      "damage": 3
+    },
+    {
+      "seq": 228,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 1,
+      "member": 1,
+      "need": 22,
+      "roll": 61,
+      "hit": false
+    },
+    {
+      "seq": 229,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 2,
+      "member": 2,
+      "need": 22,
+      "roll": 16,
+      "hit": true,
+      "damage": 1
+    },
+    {
+      "seq": 230,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 3,
+      "member": 2,
+      "need": 22,
+      "roll": 60,
+      "hit": false
+    },
+    {
+      "seq": 231,
+      "type": "monster_dies",
+      "group": 1,
+      "index": 1
+    },
+    {
+      "seq": 232,
+      "type": "input",
+      "key": "A"
+    },
+    {
+      "seq": 233,
+      "type": "round_orders",
+      "round": 2,
+      "orders": {
+        "1": ["fire", 1],
+        "2": ["fire", 1],
+        "3": ["fire", 1],
+        "4": ["fire", 1],
+        "5": ["fire", 1]
+      }
+    },
+    {
+      "seq": 234,
+      "type": "round_start",
+      "round": 2
+    },
+    {
+      "seq": 235,
+      "type": "jam",
+      "member": 1,
+      "roll": 4,
+      "chance": 4
+    },
+    {
+      "seq": 236,
+      "type": "attack",
+      "side": "party",
+      "member": 2,
+      "group": 1,
+      "target": 2,
+      "need": 55,
+      "roll": 75,
+      "hit": false
+    },
+    {
+      "seq": 237,
+      "type": "attack",
+      "side": "party",
+      "member": 3,
+      "group": 1,
+      "target": 2,
+      "need": 46,
+      "roll": 48,
+      "hit": false
+    },
+    {
+      "seq": 238,
+      "type": "attack",
+      "side": "party",
+      "member": 4,
+      "group": 1,
+      "target": 2,
+      "need": 44,
+      "roll": 15,
+      "hit": true,
+      "damage": 8
+    },
+    {
+      "seq": 239,
+      "type": "attack",
+      "side": "party",
+      "member": 5,
+      "group": 1,
+      "target": 2,
+      "need": 58,
+      "roll": 78,
+      "hit": false
+    },
+    {
+      "seq": 240,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 2,
+      "member": 4,
+      "need": 28,
+      "roll": 2,
+      "hit": true,
+      "damage": 4
+    },
+    {
+      "seq": 241,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 3,
+      "member": 5,
+      "need": 22,
+      "roll": 75,
+      "hit": false
+    },
+    {
+      "seq": 242,
+      "type": "input",
+      "key": "A"
+    },
+    {
+      "seq": 243,
+      "type": "round_orders",
+      "round": 3,
+      "orders": {
+        "1": ["unjam"],
+        "2": ["fire", 1],
+        "3": ["fire", 1],
+        "4": ["fire", 1],
+        "5": ["fire", 1]
+      }
+    },
+    {
+      "seq": 244,
+      "type": "round_start",
+      "round": 3
+    },
+    {
+      "seq": 245,
+      "type": "attack",
+      "side": "party",
+      "member": 2,
+      "group": 1,
+      "target": 2,
+      "need": 55,
+      "roll": 98,
+      "hit": false
+    },
+    {
+      "seq": 246,
+      "type": "attack",
+      "side": "party",
+      "member": 3,
+      "group": 1,
+      "target": 2,
+      "need": 46,
+      "roll": 33,
+      "hit": true,
+      "damage": 3
+    },
+    {
+      "seq": 247,
+      "type": "attack",
+      "side": "party",
+      "member": 4,
+      "group": 1,
+      "target": 3,
+      "need": 44,
+      "roll": 68,
+      "hit": false
+    },
+    {
+      "seq": 248,
+      "type": "attack",
+      "side": "party",
+      "member": 5,
+      "group": 1,
+      "target": 3,
+      "need": 58,
+      "roll": 85,
+      "hit": false
+    },
+    {
+      "seq": 249,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 2,
+      "member": 2,
+      "need": 22,
+      "roll": 42,
+      "hit": false
+    },
+    {
+      "seq": 250,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 3,
+      "member": 3,
+      "need": 22,
+      "roll": 66,
+      "hit": false
+    },
+    {
+      "seq": 251,
+      "type": "monster_dies",
+      "group": 1,
+      "index": 2
+    },
+    {
+      "seq": 252,
+      "type": "check",
+      "member": 1,
+      "skill": 22,
+      "level": 0,
+      "need": 46,
+      "roll": 79,
+      "success": false
+    },
+    {
+      "seq": 253,
+      "type": "input",
+      "key": "A"
+    },
+    {
+      "seq": 254,
+      "type": "round_orders",
+      "round": 4,
+      "orders": {
+        "1": ["unjam"],
+        "2": ["fire", 1],
+        "3": ["fire", 1],
+        "4": ["fire", 1],
+        "5": ["fire", 1]
+      }
+    },
+    {
+      "seq": 255,
+      "type": "round_start",
+      "round": 4
+    },
+    {
+      "seq": 256,
+      "type": "attack",
+      "side": "party",
+      "member": 2,
+      "group": 1,
+      "target": 3,
+      "need": 55,
+      "roll": 85,
+      "hit": false
+    },
+    {
+      "seq": 257,
+      "type": "attack",
+      "side": "party",
+      "member": 3,
+      "group": 1,
+      "target": 3,
+      "need": 46,
+      "roll": 38,
+      "hit": true,
+      "damage": 3
+    },
+    {
+      "seq": 258,
+      "type": "attack",
+      "side": "party",
+      "member": 4,
+      "group": 1,
+      "target": 3,
+      "need": 44,
+      "roll": 19,
+      "hit": true,
+      "damage": 4
+    },
+    {
+      "seq": 259,
+      "type": "attack",
+      "side": "party",
+      "member": 5,
+      "group": 1,
+      "target": 3,
+      "need": 58,
+      "roll": 69,
+      "hit": false
+    },
+    {
+      "seq": 260,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 3,
+      "member": 1,
+      "need": 22,
+      "roll": 19,
+      "hit": true,
+      "damage": 3
+    },
+    {
+      "seq": 261,
+      "type": "check",
+      "member": 1,
+      "skill": 22,
+      "level": 0,
+      "need": 46,
+      "roll": 22,
+      "success": true
+    },
+    {
+      "seq": 262,
+      "type": "unjammed",
+      "member": 1
+    },
+    {
+      "seq": 263,
+      "type": "input",
+      "key": "A"
+    },
+    {
+      "seq": 264,
+      "type": "round_orders",
+      "round": 5,
+      "orders": {
+        "1": ["reload"],
+        "2": ["fire", 1],
+        "3": ["fire", 1],
+        "4": ["fire", 1],
+        "5": ["fire", 1]
+      }
+    },
+    {
+      "seq": 265,
+      "type": "round_start",
+      "round": 5
+    },
+    {
+      "seq": 266,
+      "type": "attack",
+      "side": "party",
+      "member": 2,
+      "group": 1,
+      "target": 3,
+      "need": 55,
+      "roll": 34,
+      "hit": true,
+      "damage": 8
+    },
+    {
+      "seq": 267,
+      "type": "attack",
+      "side": "party",
+      "member": 3,
+      "group": 1,
+      "target": 3,
+      "need": 46,
+      "roll": 39,
+      "hit": true,
+      "damage": 7
+    },
+    {
+      "seq": 268,
+      "type": "attack",
+      "side": "party",
+      "member": 4,
+      "group": 1,
+      "target": 3,
+      "need": 44,
+      "roll": 33,
+      "hit": true,
+      "damage": 7
+    },
+    {
+      "seq": 269,
+      "type": "attack",
+      "side": "party",
+      "member": 5,
+      "group": 1,
+      "target": 3,
+      "need": 58,
+      "roll": 12,
+      "hit": true,
+      "damage": 7
+    },
+    {
+      "seq": 270,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 3,
+      "member": 1,
+      "need": 22,
+      "roll": 94,
+      "hit": false
+    },
+    {
+      "seq": 271,
+      "type": "monster_dies",
+      "group": 1,
+      "index": 3
+    },
+    {
+      "seq": 272,
+      "type": "combat_end",
+      "result": "victory",
+      "rounds": 5
+    },
+    {
+      "seq": 273,
+      "type": "xp",
+      "member": 1,
+      "delta": 14,
+      "total": 104
+    },
+    {
+      "seq": 274,
+      "type": "promote",
+      "member": 1,
+      "level": 2,
+      "max_hp": 28,
+      "rank": "Hand"
+    },
+    {
+      "seq": 275,
+      "type": "xp",
+      "member": 2,
+      "delta": 14,
+      "total": 104
+    },
+    {
+      "seq": 276,
+      "type": "promote",
+      "member": 2,
+      "level": 2,
+      "max_hp": 31,
+      "rank": "Hand"
+    },
+    {
+      "seq": 277,
+      "type": "xp",
+      "member": 3,
+      "delta": 14,
+      "total": 104
+    },
+    {
+      "seq": 278,
+      "type": "promote",
+      "member": 3,
+      "level": 2,
+      "max_hp": 25,
+      "rank": "Hand"
+    },
+    {
+      "seq": 279,
+      "type": "xp",
+      "member": 4,
+      "delta": 14,
+      "total": 104
+    },
+    {
+      "seq": 280,
+      "type": "promote",
+      "member": 4,
+      "level": 2,
+      "max_hp": 26,
+      "rank": "Hand"
+    },
+    {
+      "seq": 281,
+      "type": "xp",
+      "member": 5,
+      "delta": 14,
+      "total": 214
+    },
+    {
+      "seq": 282,
+      "type": "cell_change",
+      "location": 0,
+      "x": 30,
+      "y": 41,
+      "action_class": 5,
+      "action": 1,
+      "image": 13
+    },
+    {
+      "seq": 283,
+      "type": "money",
+      "member": 1,
+      "delta": 75,
+      "total": 195
+    },
+    {
+      "seq": 284,
+      "type": "cell_change",
+      "location": 0,
+      "x": 30,
+      "y": 41,
+      "action_class": 0,
+      "action": 0,
+      "image": 13
+    },
+    {
+      "seq": 285,
+      "type": "checkpoint",
+      "name": "CP4",
+      "state": {
+        "location": 0,
+        "x": 30,
+        "y": 41,
+        "steps": 79,
+        "day": 1,
+        "hour": 12,
+        "minute": 19,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [1, 8, 17, 0, 0, 28]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "hp": 25,
+            "cond": 0,
+            "money": 195,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "hp": 30,
+            "cond": 0,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [5, 3],
+              [6, 1],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 25,
+            "hp": 25,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "hp": 22,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 2973743393
+      }
+    },
+    {
+      "seq": 286,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 287,
+      "type": "move",
+      "location": 0,
+      "x": 31,
+      "y": 41,
+      "steps": 80
+    },
+    {
+      "seq": 288,
+      "type": "paragraph",
+      "n": 9
+    },
+    {
+      "seq": 289,
+      "type": "cell_change",
+      "location": 0,
+      "x": 31,
+      "y": 41,
+      "action_class": 0,
+      "action": 0,
+      "image": 22
+    },
+    {
+      "seq": 290,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 291,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 41,
+      "steps": 81
+    },
+    {
+      "seq": 292,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 293,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 40,
+      "steps": 82
+    },
+    {
+      "seq": 294,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 295,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 39,
+      "steps": 83
+    },
+    {
+      "seq": 296,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 297,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 38,
+      "steps": 84
+    },
+    {
+      "seq": 298,
+      "type": "natural_heal",
+      "members": [1, 2, 4]
+    },
+    {
+      "seq": 299,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 300,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 37,
+      "steps": 85
+    },
+    {
+      "seq": 301,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 302,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 36,
+      "steps": 86
+    },
+    {
+      "seq": 303,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 304,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 35,
+      "steps": 87
+    },
+    {
+      "seq": 305,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 306,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 34,
+      "steps": 88
+    },
+    {
+      "seq": 307,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 308,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 33,
+      "steps": 89
+    },
+    {
+      "seq": 309,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 310,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 32,
+      "steps": 90
+    },
+    {
+      "seq": 311,
+      "type": "natural_heal",
+      "members": [1, 4]
+    },
+    {
+      "seq": 312,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 313,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 31,
+      "steps": 91
+    },
+    {
+      "seq": 314,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 315,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 30,
+      "steps": 92
+    },
+    {
+      "seq": 316,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 317,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 29,
+      "steps": 93
+    },
+    {
+      "seq": 318,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 319,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 28,
+      "steps": 94
+    },
+    {
+      "seq": 320,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 321,
+      "type": "move",
+      "location": 0,
+      "x": 33,
+      "y": 28,
+      "steps": 95
+    },
+    {
+      "seq": 322,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 323,
+      "type": "move",
+      "location": 0,
+      "x": 34,
+      "y": 28,
+      "steps": 96
+    },
+    {
+      "seq": 324,
+      "type": "natural_heal",
+      "members": [1, 4]
+    },
+    {
+      "seq": 325,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 326,
+      "type": "move",
+      "location": 0,
+      "x": 35,
+      "y": 28,
+      "steps": 97
+    },
+    {
+      "seq": 327,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 328,
+      "type": "move",
+      "location": 0,
+      "x": 36,
+      "y": 28,
+      "steps": 98
+    },
+    {
+      "seq": 329,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 330,
+      "type": "move",
+      "location": 0,
+      "x": 37,
+      "y": 28,
+      "steps": 99
+    },
+    {
+      "seq": 331,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 332,
+      "type": "move",
+      "location": 0,
+      "x": 38,
+      "y": 28,
+      "steps": 100
+    },
+    {
+      "seq": 333,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 334,
+      "type": "move",
+      "location": 0,
+      "x": 39,
+      "y": 28,
+      "steps": 101
+    },
+    {
+      "seq": 335,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 336,
+      "type": "move",
+      "location": 0,
+      "x": 40,
+      "y": 28,
+      "steps": 102
+    },
+    {
+      "seq": 337,
+      "type": "natural_heal",
+      "members": [4]
+    },
+    {
+      "seq": 338,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 339,
+      "type": "move",
+      "location": 0,
+      "x": 41,
+      "y": 28,
+      "steps": 103
+    },
+    {
+      "seq": 340,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 341,
+      "type": "move",
+      "location": 0,
+      "x": 42,
+      "y": 28,
+      "steps": 104
+    },
+    {
+      "seq": 342,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 343,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 28,
+      "steps": 105
+    },
+    {
+      "seq": 344,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 345,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 28,
+      "steps": 106
+    },
+    {
+      "seq": 346,
+      "type": "map_change",
+      "location": 2,
+      "x": 1,
+      "y": 16
+    },
+    {
+      "seq": 347,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 348,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 16,
+      "steps": 107
+    },
+    {
+      "seq": 349,
+      "type": "paragraph",
+      "n": 10
+    },
+    {
+      "seq": 350,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 351,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 15,
+      "steps": 108
+    },
+    {
+      "seq": 352,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 353,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 14,
+      "steps": 109
+    },
+    {
+      "seq": 354,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 355,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 13,
+      "steps": 110
+    },
+    {
+      "seq": 356,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 357,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 12,
+      "steps": 111
+    },
+    {
+      "seq": 358,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 359,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 11,
+      "steps": 112
+    },
+    {
+      "seq": 360,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 361,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 10,
+      "steps": 113
+    },
+    {
+      "seq": 362,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 363,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 9,
+      "steps": 114
+    },
+    {
+      "seq": 364,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 365,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 8,
+      "steps": 115
+    },
+    {
+      "seq": 366,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 367,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 7,
+      "steps": 116
+    },
+    {
+      "seq": 368,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 369,
+      "type": "move",
+      "location": 2,
+      "x": 3,
+      "y": 7,
+      "steps": 117
+    },
+    {
+      "seq": 370,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 371,
+      "type": "move",
+      "location": 2,
+      "x": 4,
+      "y": 7,
+      "steps": 118
+    },
+    {
+      "seq": 372,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 373,
+      "type": "move",
+      "location": 2,
+      "x": 5,
+      "y": 7,
+      "steps": 119
+    },
+    {
+      "seq": 374,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 375,
+      "type": "move",
+      "location": 2,
+      "x": 6,
+      "y": 7,
+      "steps": 120
+    },
+    {
+      "seq": 376,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 377,
+      "type": "move",
+      "location": 2,
+      "x": 7,
+      "y": 7,
+      "steps": 121
+    },
+    {
+      "seq": 378,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 379,
+      "type": "move",
+      "location": 2,
+      "x": 7,
+      "y": 6,
+      "steps": 122
+    },
+    {
+      "seq": 380,
+      "type": "paragraph",
+      "n": 11
+    },
+    {
+      "seq": 381,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 382,
+      "type": "move",
+      "location": 2,
+      "x": 7,
+      "y": 5,
+      "steps": 123
+    },
+    {
+      "seq": 383,
+      "type": "message",
+      "location": 2,
+      "string": 5
+    },
+    {
+      "seq": 384,
+      "type": "shop_open",
+      "shop": 1
+    },
+    {
+      "seq": 385,
+      "type": "input",
+      "key": "B"
+    },
+    {
+      "seq": 386,
+      "type": "prompt",
+      "prompt": "buy_item",
+      "items": [3, 4, 5, 6]
+    },
+    {
+      "seq": 387,
+      "type": "input",
+      "key": "d"
+    },
+    {
+      "seq": 388,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 389,
+      "type": "input",
+      "key": "2"
+    },
+    {
+      "seq": 390,
+      "type": "money",
+      "member": 2,
+      "delta": -13,
+      "total": 27
+    },
+    {
+      "seq": 391,
+      "type": "buy",
+      "member": 2,
+      "item": 6,
+      "price": 13,
+      "slot": 2,
+      "status": 2
+    },
+    {
+      "seq": 392,
+      "type": "input",
+      "key": "X"
+    },
+    {
+      "seq": 393,
+      "type": "shop_close"
+    },
+    {
+      "seq": 394,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 395,
+      "type": "move",
+      "location": 2,
+      "x": 7,
+      "y": 6,
+      "steps": 124
+    },
+    {
+      "seq": 396,
+      "type": "paragraph",
+      "n": 11
+    },
+    {
+      "seq": 397,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 398,
+      "type": "move",
+      "location": 2,
+      "x": 7,
+      "y": 7,
+      "steps": 125
+    },
+    {
+      "seq": 399,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 400,
+      "type": "move",
+      "location": 2,
+      "x": 8,
+      "y": 7,
+      "steps": 126
+    },
+    {
+      "seq": 401,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 402,
+      "type": "move",
+      "location": 2,
+      "x": 9,
+      "y": 7,
+      "steps": 127
+    },
+    {
+      "seq": 403,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 404,
+      "type": "move",
+      "location": 2,
+      "x": 10,
+      "y": 7,
+      "steps": 128
+    },
+    {
+      "seq": 405,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 406,
+      "type": "move",
+      "location": 2,
+      "x": 11,
+      "y": 7,
+      "steps": 129
+    },
+    {
+      "seq": 407,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 408,
+      "type": "move",
+      "location": 2,
+      "x": 12,
+      "y": 7,
+      "steps": 130
+    },
+    {
+      "seq": 409,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 410,
+      "type": "move",
+      "location": 2,
+      "x": 13,
+      "y": 7,
+      "steps": 131
+    },
+    {
+      "seq": 411,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 412,
+      "type": "move",
+      "location": 2,
+      "x": 14,
+      "y": 7,
+      "steps": 132
+    },
+    {
+      "seq": 413,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 414,
+      "type": "move",
+      "location": 2,
+      "x": 15,
+      "y": 7,
+      "steps": 133
+    },
+    {
+      "seq": 415,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 416,
+      "type": "move",
+      "location": 2,
+      "x": 16,
+      "y": 7,
+      "steps": 134
+    },
+    {
+      "seq": 417,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 418,
+      "type": "move",
+      "location": 2,
+      "x": 17,
+      "y": 7,
+      "steps": 135
+    },
+    {
+      "seq": 419,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 420,
+      "type": "move",
+      "location": 2,
+      "x": 18,
+      "y": 7,
+      "steps": 136
+    },
+    {
+      "seq": 421,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 422,
+      "type": "move",
+      "location": 2,
+      "x": 19,
+      "y": 7,
+      "steps": 137
+    },
+    {
+      "seq": 423,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 424,
+      "type": "move",
+      "location": 2,
+      "x": 20,
+      "y": 7,
+      "steps": 138
+    },
+    {
+      "seq": 425,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 426,
+      "type": "move",
+      "location": 2,
+      "x": 21,
+      "y": 7,
+      "steps": 139
+    },
+    {
+      "seq": 427,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 428,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 7,
+      "steps": 140
+    },
+    {
+      "seq": 429,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 430,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 7,
+      "steps": 141
+    },
+    {
+      "seq": 431,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 432,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 6,
+      "steps": 142
+    },
+    {
+      "seq": 433,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 434,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 5,
+      "steps": 143
+    },
+    {
+      "seq": 435,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 436,
+      "type": "move",
+      "location": 2,
+      "x": 24,
+      "y": 5,
+      "steps": 144
+    },
+    {
+      "seq": 437,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 438,
+      "type": "move",
+      "location": 2,
+      "x": 25,
+      "y": 5,
+      "steps": 145
+    },
+    {
+      "seq": 439,
+      "type": "message",
+      "location": 2,
+      "string": 6
+    },
+    {
+      "seq": 440,
+      "type": "shop_open",
+      "shop": 2
+    },
+    {
+      "seq": 441,
+      "type": "input",
+      "key": "B"
+    },
+    {
+      "seq": 442,
+      "type": "prompt",
+      "prompt": "buy_item",
+      "items": [2, 7, 8, 9, 10]
+    },
+    {
+      "seq": 443,
+      "type": "input",
+      "key": "c"
+    },
+    {
+      "seq": 444,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 445,
+      "type": "input",
+      "key": "1"
+    },
+    {
+      "seq": 446,
+      "type": "money",
+      "member": 1,
+      "delta": -104,
+      "total": 91
+    },
+    {
+      "seq": 447,
+      "type": "buy",
+      "member": 1,
+      "item": 8,
+      "price": 104,
+      "slot": 4,
+      "status": 0
+    },
+    {
+      "seq": 448,
+      "type": "input",
+      "key": "X"
+    },
+    {
+      "seq": 449,
+      "type": "shop_close"
+    },
+    {
+      "seq": 450,
+      "type": "input",
+      "key": "C"
+    },
+    {
+      "seq": 451,
+      "type": "prompt",
+      "prompt": "member"
+    },
+    {
+      "seq": 452,
+      "type": "input",
+      "key": "1"
+    },
+    {
+      "seq": 453,
+      "type": "char_open",
+      "member": 1
+    },
+    {
+      "seq": 454,
+      "type": "input",
+      "key": "E"
+    },
+    {
+      "seq": 455,
+      "type": "prompt",
+      "prompt": "item_slot"
+    },
+    {
+      "seq": 456,
+      "type": "input",
+      "key": "d"
+    },
+    {
+      "seq": 457,
+      "type": "equip",
+      "member": 1,
+      "slot": 4,
+      "item": 8,
+      "ac": 5
+    },
+    {
+      "seq": 458,
+      "type": "input",
+      "key": "X"
+    },
+    {
+      "seq": 459,
+      "type": "char_close"
+    },
+    {
+      "seq": 460,
+      "type": "checkpoint",
+      "name": "CP5-pre-save",
+      "state": {
+        "location": 2,
+        "x": 25,
+        "y": 5,
+        "steps": 145,
+        "day": 1,
+        "hour": 17,
+        "minute": 28,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "hp": 28,
+            "cond": 0,
+            "money": 91,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0],
+              [8, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 4
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "hp": 31,
+            "cond": 0,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [5, 3],
+              [6, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 25,
+            "hp": 25,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 2973743393
+      }
+    },
+    {
+      "seq": 461,
+      "type": "input",
+      "key": "S"
+    },
+    {
+      "seq": 462,
+      "type": "save",
+      "serial": 1
+    },
+    {
+      "seq": 463,
+      "type": "input",
+      "key": "O"
+    },
+    {
+      "seq": 464,
+      "type": "prompt",
+      "prompt": "load"
+    },
+    {
+      "seq": 465,
+      "type": "input",
+      "key": "Y"
+    },
+    {
+      "seq": 466,
+      "type": "load",
+      "serial": 1
+    },
+    {
+      "seq": 467,
+      "type": "checkpoint",
+      "name": "CP5",
+      "state": {
+        "location": 2,
+        "x": 25,
+        "y": 5,
+        "steps": 145,
+        "day": 1,
+        "hour": 17,
+        "minute": 28,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "hp": 28,
+            "cond": 0,
+            "money": 91,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0],
+              [8, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 4
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "hp": 31,
+            "cond": 0,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [5, 3],
+              [6, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 25,
+            "hp": 25,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 2973743393
+      }
+    },
+    {
+      "seq": 468,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 469,
+      "type": "move",
+      "location": 2,
+      "x": 24,
+      "y": 5,
+      "steps": 146
+    },
+    {
+      "seq": 470,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 471,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 5,
+      "steps": 147
+    },
+    {
+      "seq": 472,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 473,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 6,
+      "steps": 148
+    },
+    {
+      "seq": 474,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 475,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 7,
+      "steps": 149
+    },
+    {
+      "seq": 476,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 477,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 8,
+      "steps": 150
+    },
+    {
+      "seq": 478,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 479,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 9,
+      "steps": 151
+    },
+    {
+      "seq": 480,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 481,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 9,
+      "steps": 152
+    },
+    {
+      "seq": 482,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 483,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 10,
+      "steps": 153
+    },
+    {
+      "seq": 484,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 485,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 11,
+      "steps": 154
+    },
+    {
+      "seq": 486,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 487,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 12,
+      "steps": 155
+    },
+    {
+      "seq": 488,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 489,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 13,
+      "steps": 156
+    },
+    {
+      "seq": 490,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 491,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 14,
+      "steps": 157
+    },
+    {
+      "seq": 492,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 493,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 15,
+      "steps": 158
+    },
+    {
+      "seq": 494,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 495,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 15,
+      "steps": 159
+    },
+    {
+      "seq": 496,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 497,
+      "type": "move",
+      "location": 2,
+      "x": 24,
+      "y": 15,
+      "steps": 160
+    },
+    {
+      "seq": 498,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 499,
+      "type": "move",
+      "location": 2,
+      "x": 25,
+      "y": 15,
+      "steps": 161
+    },
+    {
+      "seq": 500,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 501,
+      "type": "move",
+      "location": 2,
+      "x": 26,
+      "y": 15,
+      "steps": 162
+    },
+    {
+      "seq": 502,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 503,
+      "type": "bump",
+      "x": 26,
+      "y": 14,
+      "action_class": 4,
+      "action": 2
+    },
+    {
+      "seq": 504,
+      "type": "message",
+      "location": 2,
+      "string": 7
+    },
+    {
+      "seq": 505,
+      "type": "check",
+      "member": 3,
+      "skill": 14,
+      "level": 2,
+      "need": 50,
+      "roll": 69,
+      "success": false
+    },
+    {
+      "seq": 506,
+      "type": "message",
+      "location": 2,
+      "string": 9
+    },
+    {
+      "seq": 507,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 508,
+      "type": "bump",
+      "x": 26,
+      "y": 14,
+      "action_class": 4,
+      "action": 2
+    },
+    {
+      "seq": 509,
+      "type": "message",
+      "location": 2,
+      "string": 7
+    },
+    {
+      "seq": 510,
+      "type": "check",
+      "member": 3,
+      "skill": 14,
+      "level": 2,
+      "need": 50,
+      "roll": 57,
+      "success": false
+    },
+    {
+      "seq": 511,
+      "type": "message",
+      "location": 2,
+      "string": 9
+    },
+    {
+      "seq": 512,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 513,
+      "type": "bump",
+      "x": 26,
+      "y": 14,
+      "action_class": 4,
+      "action": 2
+    },
+    {
+      "seq": 514,
+      "type": "message",
+      "location": 2,
+      "string": 7
+    },
+    {
+      "seq": 515,
+      "type": "check",
+      "member": 3,
+      "skill": 14,
+      "level": 2,
+      "need": 50,
+      "roll": 78,
+      "success": false
+    },
+    {
+      "seq": 516,
+      "type": "message",
+      "location": 2,
+      "string": 9
+    },
+    {
+      "seq": 517,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 518,
+      "type": "bump",
+      "x": 26,
+      "y": 14,
+      "action_class": 4,
+      "action": 2
+    },
+    {
+      "seq": 519,
+      "type": "message",
+      "location": 2,
+      "string": 7
+    },
+    {
+      "seq": 520,
+      "type": "check",
+      "member": 3,
+      "skill": 14,
+      "level": 2,
+      "need": 50,
+      "roll": 21,
+      "success": true
+    },
+    {
+      "seq": 521,
+      "type": "unlock",
+      "x": 26,
+      "y": 14
+    },
+    {
+      "seq": 522,
+      "type": "cell_change",
+      "location": 2,
+      "x": 26,
+      "y": 14,
+      "action_class": 4,
+      "action": 1,
+      "image": 30
+    },
+    {
+      "seq": 523,
+      "type": "cell_change",
+      "location": 2,
+      "x": 26,
+      "y": 14,
+      "action_class": 4,
+      "action": 1,
+      "image": 29
+    },
+    {
+      "seq": 524,
+      "type": "xp",
+      "member": 3,
+      "delta": 10,
+      "total": 114
+    },
+    {
+      "seq": 525,
+      "type": "paragraph",
+      "n": 12
+    },
+    {
+      "seq": 526,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 527,
+      "type": "move",
+      "location": 2,
+      "x": 26,
+      "y": 14,
+      "steps": 163
+    },
+    {
+      "seq": 528,
+      "type": "cell_change",
+      "location": 2,
+      "x": 26,
+      "y": 14,
+      "action_class": 4,
+      "action": 1,
+      "image": 29
+    },
+    {
+      "seq": 529,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 530,
+      "type": "move",
+      "location": 2,
+      "x": 26,
+      "y": 13,
+      "steps": 164
+    },
+    {
+      "seq": 531,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 532,
+      "type": "move",
+      "location": 2,
+      "x": 26,
+      "y": 12,
+      "steps": 165
+    },
+    {
+      "seq": 533,
+      "type": "item_gain",
+      "member": 1,
+      "item": 11,
+      "slot": 5,
+      "status": 0
+    },
+    {
+      "seq": 534,
+      "type": "cell_change",
+      "location": 2,
+      "x": 26,
+      "y": 12,
+      "action_class": 0,
+      "action": 0,
+      "image": 27
+    },
+    {
+      "seq": 535,
+      "type": "checkpoint",
+      "name": "CP6",
+      "state": {
+        "location": 2,
+        "x": 26,
+        "y": 12,
+        "steps": 165,
+        "day": 1,
+        "hour": 17,
+        "minute": 48,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "hp": 28,
+            "cond": 0,
+            "money": 91,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0],
+              [8, 0],
+              [11, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 4
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "hp": 31,
+            "cond": 0,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [5, 3],
+              [6, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 114,
+            "max_hp": 25,
+            "hp": 25,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          }
+        ],
+        "rng_state": 68685520
+      }
+    },
+    {
+      "seq": 536,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 537,
+      "type": "move",
+      "location": 2,
+      "x": 26,
+      "y": 13,
+      "steps": 166
+    },
+    {
+      "seq": 538,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 539,
+      "type": "move",
+      "location": 2,
+      "x": 26,
+      "y": 14,
+      "steps": 167
+    },
+    {
+      "seq": 540,
+      "type": "cell_change",
+      "location": 2,
+      "x": 26,
+      "y": 14,
+      "action_class": 4,
+      "action": 1,
+      "image": 29
+    },
+    {
+      "seq": 541,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 542,
+      "type": "move",
+      "location": 2,
+      "x": 26,
+      "y": 15,
+      "steps": 168
+    },
+    {
+      "seq": 543,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 544,
+      "type": "move",
+      "location": 2,
+      "x": 26,
+      "y": 16,
+      "steps": 169
+    },
+    {
+      "seq": 545,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 546,
+      "type": "move",
+      "location": 2,
+      "x": 25,
+      "y": 16,
+      "steps": 170
+    },
+    {
+      "seq": 547,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 548,
+      "type": "move",
+      "location": 2,
+      "x": 24,
+      "y": 16,
+      "steps": 171
+    },
+    {
+      "seq": 549,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 550,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 16,
+      "steps": 172
+    },
+    {
+      "seq": 551,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 552,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 16,
+      "steps": 173
+    },
+    {
+      "seq": 553,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 554,
+      "type": "move",
+      "location": 2,
+      "x": 21,
+      "y": 16,
+      "steps": 174
+    },
+    {
+      "seq": 555,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 556,
+      "type": "move",
+      "location": 2,
+      "x": 20,
+      "y": 16,
+      "steps": 175
+    },
+    {
+      "seq": 557,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 558,
+      "type": "move",
+      "location": 2,
+      "x": 19,
+      "y": 16,
+      "steps": 176
+    },
+    {
+      "seq": 559,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 560,
+      "type": "move",
+      "location": 2,
+      "x": 18,
+      "y": 16,
+      "steps": 177
+    },
+    {
+      "seq": 561,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 562,
+      "type": "bump",
+      "x": 18,
+      "y": 17,
+      "action_class": 11,
+      "action": 1
+    },
+    {
+      "seq": 563,
+      "type": "paragraph",
+      "n": 13
+    },
+    {
+      "seq": 564,
+      "type": "prompt",
+      "prompt": "recruit"
+    },
+    {
+      "seq": 565,
+      "type": "input",
+      "key": "Y"
+    },
+    {
+      "seq": 566,
+      "type": "cell_change",
+      "location": 2,
+      "x": 18,
+      "y": 17,
+      "action_class": 0,
+      "action": 0,
+      "image": 28
+    },
+    {
+      "seq": 567,
+      "type": "recruit",
+      "location": 2,
+      "npc": 0,
+      "slot": 6
+    },
+    {
+      "seq": 568,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 569,
+      "type": "move",
+      "location": 2,
+      "x": 19,
+      "y": 16,
+      "steps": 178
+    },
+    {
+      "seq": 570,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 571,
+      "type": "move",
+      "location": 2,
+      "x": 20,
+      "y": 16,
+      "steps": 179
+    },
+    {
+      "seq": 572,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 573,
+      "type": "move",
+      "location": 2,
+      "x": 21,
+      "y": 16,
+      "steps": 180
+    },
+    {
+      "seq": 574,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 575,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 16,
+      "steps": 181
+    },
+    {
+      "seq": 576,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 577,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 17,
+      "steps": 182
+    },
+    {
+      "seq": 578,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 579,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 18,
+      "steps": 183
+    },
+    {
+      "seq": 580,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 581,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 19,
+      "steps": 184
+    },
+    {
+      "seq": 582,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 583,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 20,
+      "steps": 185
+    },
+    {
+      "seq": 584,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 585,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 21,
+      "steps": 186
+    },
+    {
+      "seq": 586,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 587,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 22,
+      "steps": 187
+    },
+    {
+      "seq": 588,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 589,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 23,
+      "steps": 188
+    },
+    {
+      "seq": 590,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 591,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 24,
+      "steps": 189
+    },
+    {
+      "seq": 592,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 593,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 24,
+      "steps": 190
+    },
+    {
+      "seq": 594,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 595,
+      "type": "move",
+      "location": 2,
+      "x": 24,
+      "y": 24,
+      "steps": 191
+    },
+    {
+      "seq": 596,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 597,
+      "type": "move",
+      "location": 2,
+      "x": 25,
+      "y": 24,
+      "steps": 192
+    },
+    {
+      "seq": 598,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 599,
+      "type": "move",
+      "location": 2,
+      "x": 25,
+      "y": 23,
+      "steps": 193
+    },
+    {
+      "seq": 600,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 601,
+      "type": "move",
+      "location": 2,
+      "x": 25,
+      "y": 22,
+      "steps": 194
+    },
+    {
+      "seq": 602,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 603,
+      "type": "bump",
+      "x": 25,
+      "y": 21,
+      "action_class": 11,
+      "action": 0
+    },
+    {
+      "seq": 604,
+      "type": "prompt",
+      "prompt": "heal",
+      "price": 40
+    },
+    {
+      "seq": 605,
+      "type": "input",
+      "key": "Y"
+    },
+    {
+      "seq": 606,
+      "type": "money",
+      "member": 1,
+      "delta": -40,
+      "total": 51
+    },
+    {
+      "seq": 607,
+      "type": "heal_all",
+      "price": 40
+    },
+    {
+      "seq": 608,
+      "type": "checkpoint",
+      "name": "CP7",
+      "state": {
+        "location": 2,
+        "x": 25,
+        "y": 22,
+        "steps": 194,
+        "day": 1,
+        "hour": 18,
+        "minute": 17,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 18, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 28,
+            "hp": 28,
+            "cond": 0,
+            "money": 51,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 0],
+              [4, 2],
+              [7, 0],
+              [8, 0],
+              [11, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 4
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 31,
+            "hp": 31,
+            "cond": 0,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [5, 3],
+              [6, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 114,
+            "max_hp": 25,
+            "hp": 25,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 104,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 1],
+              [4, 2],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 214,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 3],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 6,
+            "name": "Teodor Lusk",
+            "npc": 1,
+            "level": 2,
+            "xp": 150,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [1, 0],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 2
+          }
+        ],
+        "rng_state": 68685520
+      }
+    },
+    {
+      "seq": 609,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 610,
+      "type": "move",
+      "location": 2,
+      "x": 25,
+      "y": 23,
+      "steps": 195
+    },
+    {
+      "seq": 611,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 612,
+      "type": "move",
+      "location": 2,
+      "x": 25,
+      "y": 24,
+      "steps": 196
+    },
+    {
+      "seq": 613,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 614,
+      "type": "move",
+      "location": 2,
+      "x": 24,
+      "y": 24,
+      "steps": 197
+    },
+    {
+      "seq": 615,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 616,
+      "type": "move",
+      "location": 2,
+      "x": 23,
+      "y": 24,
+      "steps": 198
+    },
+    {
+      "seq": 617,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 618,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 24,
+      "steps": 199
+    },
+    {
+      "seq": 619,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 620,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 23,
+      "steps": 200
+    },
+    {
+      "seq": 621,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 622,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 22,
+      "steps": 201
+    },
+    {
+      "seq": 623,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 624,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 21,
+      "steps": 202
+    },
+    {
+      "seq": 625,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 626,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 20,
+      "steps": 203
+    },
+    {
+      "seq": 627,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 628,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 19,
+      "steps": 204
+    },
+    {
+      "seq": 629,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 630,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 18,
+      "steps": 205
+    },
+    {
+      "seq": 631,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 632,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 17,
+      "steps": 206
+    },
+    {
+      "seq": 633,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 634,
+      "type": "move",
+      "location": 2,
+      "x": 22,
+      "y": 16,
+      "steps": 207
+    },
+    {
+      "seq": 635,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 636,
+      "type": "move",
+      "location": 2,
+      "x": 21,
+      "y": 16,
+      "steps": 208
+    },
+    {
+      "seq": 637,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 638,
+      "type": "move",
+      "location": 2,
+      "x": 20,
+      "y": 16,
+      "steps": 209
+    },
+    {
+      "seq": 639,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 640,
+      "type": "move",
+      "location": 2,
+      "x": 19,
+      "y": 16,
+      "steps": 210
+    },
+    {
+      "seq": 641,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 642,
+      "type": "move",
+      "location": 2,
+      "x": 18,
+      "y": 16,
+      "steps": 211
+    },
+    {
+      "seq": 643,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 644,
+      "type": "move",
+      "location": 2,
+      "x": 17,
+      "y": 16,
+      "steps": 212
+    },
+    {
+      "seq": 645,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 646,
+      "type": "move",
+      "location": 2,
+      "x": 16,
+      "y": 16,
+      "steps": 213
+    },
+    {
+      "seq": 647,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 648,
+      "type": "move",
+      "location": 2,
+      "x": 15,
+      "y": 16,
+      "steps": 214
+    },
+    {
+      "seq": 649,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 650,
+      "type": "move",
+      "location": 2,
+      "x": 14,
+      "y": 16,
+      "steps": 215
+    },
+    {
+      "seq": 651,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 652,
+      "type": "move",
+      "location": 2,
+      "x": 13,
+      "y": 16,
+      "steps": 216
+    },
+    {
+      "seq": 653,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 654,
+      "type": "move",
+      "location": 2,
+      "x": 12,
+      "y": 16,
+      "steps": 217
+    },
+    {
+      "seq": 655,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 656,
+      "type": "move",
+      "location": 2,
+      "x": 11,
+      "y": 16,
+      "steps": 218
+    },
+    {
+      "seq": 657,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 658,
+      "type": "move",
+      "location": 2,
+      "x": 10,
+      "y": 16,
+      "steps": 219
+    },
+    {
+      "seq": 659,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 660,
+      "type": "move",
+      "location": 2,
+      "x": 9,
+      "y": 16,
+      "steps": 220
+    },
+    {
+      "seq": 661,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 662,
+      "type": "move",
+      "location": 2,
+      "x": 8,
+      "y": 16,
+      "steps": 221
+    },
+    {
+      "seq": 663,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 664,
+      "type": "move",
+      "location": 2,
+      "x": 7,
+      "y": 16,
+      "steps": 222
+    },
+    {
+      "seq": 665,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 666,
+      "type": "move",
+      "location": 2,
+      "x": 6,
+      "y": 16,
+      "steps": 223
+    },
+    {
+      "seq": 667,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 668,
+      "type": "move",
+      "location": 2,
+      "x": 5,
+      "y": 16,
+      "steps": 224
+    },
+    {
+      "seq": 669,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 670,
+      "type": "move",
+      "location": 2,
+      "x": 4,
+      "y": 16,
+      "steps": 225
+    },
+    {
+      "seq": 671,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 672,
+      "type": "move",
+      "location": 2,
+      "x": 3,
+      "y": 16,
+      "steps": 226
+    },
+    {
+      "seq": 673,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 674,
+      "type": "move",
+      "location": 2,
+      "x": 2,
+      "y": 16,
+      "steps": 227
+    },
+    {
+      "seq": 675,
+      "type": "paragraph",
+      "n": 10
+    },
+    {
+      "seq": 676,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 677,
+      "type": "move",
+      "location": 2,
+      "x": 1,
+      "y": 16,
+      "steps": 228
+    },
+    {
+      "seq": 678,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 679,
+      "type": "move",
+      "location": 2,
+      "x": 0,
+      "y": 16,
+      "steps": 229
+    },
+    {
+      "seq": 680,
+      "type": "map_change",
+      "location": 0,
+      "x": 43,
+      "y": 28
+    },
+    {
+      "seq": 681,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 682,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 29,
+      "steps": 230
+    },
+    {
+      "seq": 683,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 684,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 29,
+      "steps": 231
+    },
+    {
+      "seq": 685,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 686,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 30,
+      "steps": 232
+    },
+    {
+      "seq": 687,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 688,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 31,
+      "steps": 233
+    },
+    {
+      "seq": 689,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 690,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 32,
+      "steps": 234
+    },
+    {
+      "seq": 691,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 692,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 33,
+      "steps": 235
+    },
+    {
+      "seq": 693,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 694,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 34,
+      "steps": 236
+    },
+    {
+      "seq": 695,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 696,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 35,
+      "steps": 237
+    },
+    {
+      "seq": 697,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 698,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 36,
+      "steps": 238
+    },
+    {
+      "seq": 699,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 700,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 37,
+      "steps": 239
+    },
+    {
+      "seq": 701,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 702,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 38,
+      "steps": 240
+    },
+    {
+      "seq": 703,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 704,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 39,
+      "steps": 241
+    },
+    {
+      "seq": 705,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 706,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 40,
+      "steps": 242
+    },
+    {
+      "seq": 707,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 708,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 41,
+      "steps": 243
+    },
+    {
+      "seq": 709,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 710,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 42,
+      "steps": 244
+    },
+    {
+      "seq": 711,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 712,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 43,
+      "steps": 245
+    },
+    {
+      "seq": 713,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 714,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 44,
+      "steps": 246
+    },
+    {
+      "seq": 715,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 716,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 45,
+      "steps": 247
+    },
+    {
+      "seq": 717,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 718,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 46,
+      "steps": 248
+    },
+    {
+      "seq": 719,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 720,
+      "type": "move",
+      "location": 0,
+      "x": 44,
+      "y": 47,
+      "steps": 249
+    },
+    {
+      "seq": 721,
+      "type": "map_change",
+      "location": 3,
+      "x": 3,
+      "y": 2
+    },
+    {
+      "seq": 722,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 723,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 3,
+      "steps": 250
+    },
+    {
+      "seq": 724,
+      "type": "paragraph",
+      "n": 18
+    },
+    {
+      "seq": 725,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 726,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 4,
+      "steps": 251
+    },
+    {
+      "seq": 727,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 728,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 5,
+      "steps": 252
+    },
+    {
+      "seq": 729,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 730,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 6,
+      "steps": 253
+    },
+    {
+      "seq": 731,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 732,
+      "type": "move",
+      "location": 3,
+      "x": 4,
+      "y": 6,
+      "steps": 254
+    },
+    {
+      "seq": 733,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 734,
+      "type": "move",
+      "location": 3,
+      "x": 5,
+      "y": 6,
+      "steps": 255
+    },
+    {
+      "seq": 735,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 736,
+      "type": "move",
+      "location": 3,
+      "x": 6,
+      "y": 6,
+      "steps": 256
+    },
+    {
+      "seq": 737,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 738,
+      "type": "move",
+      "location": 3,
+      "x": 7,
+      "y": 6,
+      "steps": 257
+    },
+    {
+      "seq": 739,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 740,
+      "type": "move",
+      "location": 3,
+      "x": 8,
+      "y": 6,
+      "steps": 258
+    },
+    {
+      "seq": 741,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 742,
+      "type": "move",
+      "location": 3,
+      "x": 9,
+      "y": 6,
+      "steps": 259
+    },
+    {
+      "seq": 743,
+      "type": "encounter_start",
+      "groups": [
+        {
+          "monster": "pump crawler",
+          "count": 4,
+          "band": 2,
+          "hp": [9, 5, 10, 17]
+        }
+      ]
+    },
+    {
+      "seq": 744,
+      "type": "paragraph",
+      "n": 19
+    },
+    {
+      "seq": 745,
+      "type": "check",
+      "member": 5,
+      "skill": 18,
+      "level": 2,
+      "need": 65,
+      "roll": 74,
+      "success": false
+    },
+    {
+      "seq": 746,
+      "type": "surprised"
+    },
+    {
+      "seq": 747,
+      "type": "round_start",
+      "round": 0
+    },
+    {
+      "seq": 748,
+      "type": "group_closes",
+      "group": 1,
+      "band": 1
+    },
+    {
+      "seq": 749,
+      "type": "input",
+      "key": "A"
+    },
+    {
+      "seq": 750,
+      "type": "round_orders",
+      "round": 1,
+      "orders": {
+        "1": ["reload"],
+        "2": ["fire", 1],
+        "3": ["fire", 1],
+        "4": ["fire", 1],
+        "5": ["fire", 1],
+        "6": ["melee", 1]
+      }
+    },
+    {
+      "seq": 751,
+      "type": "round_start",
+      "round": 1
+    },
+    {
+      "seq": 752,
+      "type": "attack",
+      "side": "party",
+      "member": 2,
+      "group": 1,
+      "target": 1,
+      "need": 65,
+      "roll": 53,
+      "hit": true,
+      "damage": 4
+    },
+    {
+      "seq": 753,
+      "type": "attack",
+      "side": "party",
+      "member": 3,
+      "group": 1,
+      "target": 1,
+      "need": 56,
+      "roll": 12,
+      "hit": true,
+      "damage": 2
+    },
+    {
+      "seq": 754,
+      "type": "attack",
+      "side": "party",
+      "member": 4,
+      "group": 1,
+      "target": 1,
+      "need": 54,
+      "roll": 90,
+      "hit": false
+    },
+    {
+      "seq": 755,
+      "type": "attack",
+      "side": "party",
+      "member": 5,
+      "group": 1,
+      "target": 1,
+      "need": 68,
+      "roll": 26,
+      "hit": true,
+      "damage": 8
+    },
+    {
+      "seq": 756,
+      "type": "monster_dies",
+      "group": 1,
+      "index": 1
+    },
+    {
+      "seq": 757,
+      "type": "reload",
+      "member": 1,
+      "status": 6
+    },
+    {
+      "seq": 758,
+      "type": "attack",
+      "side": "party",
+      "member": 6,
+      "group": 1,
+      "target": 2,
+      "need": 52,
+      "roll": 95,
+      "hit": false
+    },
+    {
+      "seq": 759,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 2,
+      "member": 1,
+      "need": 25,
+      "roll": 54,
+      "hit": false
+    },
+    {
+      "seq": 760,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 3,
+      "member": 6,
+      "need": 37,
+      "roll": 29,
+      "hit": true,
+      "damage": 4
+    },
+    {
+      "seq": 761,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 4,
+      "member": 4,
+      "need": 43,
+      "roll": 93,
+      "hit": false
+    },
+    {
+      "seq": 762,
+      "type": "input",
+      "key": "A"
+    },
+    {
+      "seq": 763,
+      "type": "round_orders",
+      "round": 2,
+      "orders": {
+        "1": ["fire", 1],
+        "2": ["fire", 1],
+        "3": ["reload"],
+        "4": ["reload"],
+        "5": ["fire", 1],
+        "6": ["melee", 1]
+      }
+    },
+    {
+      "seq": 764,
+      "type": "round_start",
+      "round": 2
+    },
+    {
+      "seq": 765,
+      "type": "attack",
+      "side": "party",
+      "member": 1,
+      "group": 1,
+      "target": 2,
+      "need": 67,
+      "roll": 25,
+      "hit": true,
+      "damage": 6
+    },
+    {
+      "seq": 766,
+      "type": "attack",
+      "side": "party",
+      "member": 2,
+      "group": 1,
+      "target": 3,
+      "need": 65,
+      "roll": 35,
+      "hit": true,
+      "damage": 7
+    },
+    {
+      "seq": 767,
+      "type": "attack",
+      "side": "party",
+      "member": 5,
+      "group": 1,
+      "target": 3,
+      "need": 68,
+      "roll": 89,
+      "hit": false
+    },
+    {
+      "seq": 768,
+      "type": "monster_dies",
+      "group": 1,
+      "index": 2
+    },
+    {
+      "seq": 769,
+      "type": "reload",
+      "member": 3,
+      "status": 6
+    },
+    {
+      "seq": 770,
+      "type": "reload",
+      "member": 4,
+      "status": 6
+    },
+    {
+      "seq": 771,
+      "type": "attack",
+      "side": "party",
+      "member": 6,
+      "group": 1,
+      "target": 3,
+      "need": 52,
+      "roll": 50,
+      "hit": true,
+      "damage": 4
+    },
+    {
+      "seq": 772,
+      "type": "monster_dies",
+      "group": 1,
+      "index": 3
+    },
+    {
+      "seq": 773,
+      "type": "attack",
+      "side": "monsters",
+      "group": 1,
+      "attacker": 4,
+      "member": 2,
+      "need": 37,
+      "roll": 24,
+      "hit": true,
+      "damage": 5
+    },
+    {
+      "seq": 774,
+      "type": "input",
+      "key": "A"
+    },
+    {
+      "seq": 775,
+      "type": "round_orders",
+      "round": 3,
+      "orders": {
+        "1": ["fire", 1],
+        "2": ["fire", 1],
+        "3": ["fire", 1],
+        "4": ["fire", 1],
+        "5": ["fire", 1],
+        "6": ["melee", 1]
+      }
+    },
+    {
+      "seq": 776,
+      "type": "round_start",
+      "round": 3
+    },
+    {
+      "seq": 777,
+      "type": "attack",
+      "side": "party",
+      "member": 1,
+      "group": 1,
+      "target": 4,
+      "need": 67,
+      "roll": 4,
+      "hit": true,
+      "damage": 8
+    },
+    {
+      "seq": 778,
+      "type": "attack",
+      "side": "party",
+      "member": 2,
+      "group": 1,
+      "target": 4,
+      "need": 65,
+      "roll": 19,
+      "hit": true,
+      "damage": 5
+    },
+    {
+      "seq": 779,
+      "type": "attack",
+      "side": "party",
+      "member": 3,
+      "group": 1,
+      "target": 4,
+      "need": 56,
+      "roll": 13,
+      "hit": true,
+      "damage": 6
+    },
+    {
+      "seq": 780,
+      "type": "attack",
+      "side": "party",
+      "member": 4,
+      "group": 1,
+      "target": 4,
+      "need": 54,
+      "roll": 32,
+      "hit": true,
+      "damage": 6
+    },
+    {
+      "seq": 781,
+      "type": "attack",
+      "side": "party",
+      "member": 5,
+      "group": 1,
+      "target": 4,
+      "need": 68,
+      "roll": 76,
+      "hit": false
+    },
+    {
+      "seq": 782,
+      "type": "monster_dies",
+      "group": 1,
+      "index": 4
+    },
+    {
+      "seq": 783,
+      "type": "combat_end",
+      "result": "victory",
+      "rounds": 3
+    },
+    {
+      "seq": 784,
+      "type": "xp",
+      "member": 1,
+      "delta": 18,
+      "total": 122
+    },
+    {
+      "seq": 785,
+      "type": "xp",
+      "member": 2,
+      "delta": 18,
+      "total": 122
+    },
+    {
+      "seq": 786,
+      "type": "xp",
+      "member": 3,
+      "delta": 18,
+      "total": 132
+    },
+    {
+      "seq": 787,
+      "type": "xp",
+      "member": 4,
+      "delta": 18,
+      "total": 122
+    },
+    {
+      "seq": 788,
+      "type": "xp",
+      "member": 5,
+      "delta": 18,
+      "total": 232
+    },
+    {
+      "seq": 789,
+      "type": "xp",
+      "member": 6,
+      "delta": 18,
+      "total": 168
+    },
+    {
+      "seq": 790,
+      "type": "cell_change",
+      "location": 3,
+      "x": 9,
+      "y": 6,
+      "action_class": 5,
+      "action": 1,
+      "image": 37
+    },
+    {
+      "seq": 791,
+      "type": "item_gain",
+      "member": 1,
+      "item": 9,
+      "slot": 6,
+      "status": 3
+    },
+    {
+      "seq": 792,
+      "type": "cell_change",
+      "location": 3,
+      "x": 9,
+      "y": 6,
+      "action_class": 0,
+      "action": 0,
+      "image": 37
+    },
+    {
+      "seq": 793,
+      "type": "checkpoint",
+      "name": "CP8",
+      "state": {
+        "location": 3,
+        "x": 9,
+        "y": 6,
+        "steps": 259,
+        "day": 1,
+        "hour": 22,
+        "minute": 32,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 18, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29],
+          [3, 9, 6, 0, 0, 37]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 28,
+            "hp": 28,
+            "cond": 0,
+            "money": 51,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 4],
+              [4, 1],
+              [7, 0],
+              [8, 0],
+              [11, 0],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 4
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 31,
+            "hp": 26,
+            "cond": 0,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [5, 0],
+              [6, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 132,
+            "max_hp": 25,
+            "hp": 25,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 5],
+              [4, 1]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 5],
+              [4, 1],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 232,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 0],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 6,
+            "name": "Teodor Lusk",
+            "npc": 1,
+            "level": 2,
+            "xp": 168,
+            "max_hp": 26,
+            "hp": 22,
+            "cond": 0,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [1, 0],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 2
+          }
+        ],
+        "rng_state": 1205497775
+      }
+    },
+    {
+      "seq": 794,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 795,
+      "type": "move",
+      "location": 3,
+      "x": 10,
+      "y": 6,
+      "steps": 260
+    },
+    {
+      "seq": 796,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 797,
+      "type": "move",
+      "location": 3,
+      "x": 11,
+      "y": 6,
+      "steps": 261
+    },
+    {
+      "seq": 798,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 799,
+      "type": "move",
+      "location": 3,
+      "x": 12,
+      "y": 6,
+      "steps": 262
+    },
+    {
+      "seq": 800,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 801,
+      "type": "move",
+      "location": 3,
+      "x": 13,
+      "y": 6,
+      "steps": 263
+    },
+    {
+      "seq": 802,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 803,
+      "type": "move",
+      "location": 3,
+      "x": 14,
+      "y": 6,
+      "steps": 264
+    },
+    {
+      "seq": 804,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 805,
+      "type": "move",
+      "location": 3,
+      "x": 15,
+      "y": 6,
+      "steps": 265
+    },
+    {
+      "seq": 806,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 807,
+      "type": "bump",
+      "x": 16,
+      "y": 6,
+      "action_class": 4,
+      "action": 5
+    },
+    {
+      "seq": 808,
+      "type": "message",
+      "location": 3,
+      "string": 10
+    },
+    {
+      "seq": 809,
+      "type": "key_used",
+      "member": 1,
+      "item": 11
+    },
+    {
+      "seq": 810,
+      "type": "unlock",
+      "x": 16,
+      "y": 6
+    },
+    {
+      "seq": 811,
+      "type": "cell_change",
+      "location": 3,
+      "x": 16,
+      "y": 6,
+      "action_class": 4,
+      "action": 4,
+      "image": 39
+    },
+    {
+      "seq": 812,
+      "type": "cell_change",
+      "location": 3,
+      "x": 16,
+      "y": 6,
+      "action_class": 4,
+      "action": 4,
+      "image": 37
+    },
+    {
+      "seq": 813,
+      "type": "paragraph",
+      "n": 21
+    },
+    {
+      "seq": 814,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 815,
+      "type": "move",
+      "location": 3,
+      "x": 16,
+      "y": 6,
+      "steps": 266
+    },
+    {
+      "seq": 816,
+      "type": "cell_change",
+      "location": 3,
+      "x": 16,
+      "y": 6,
+      "action_class": 4,
+      "action": 4,
+      "image": 37
+    },
+    {
+      "seq": 817,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 818,
+      "type": "move",
+      "location": 3,
+      "x": 17,
+      "y": 6,
+      "steps": 267
+    },
+    {
+      "seq": 819,
+      "type": "paragraph",
+      "n": 22
+    },
+    {
+      "seq": 820,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 821,
+      "type": "move",
+      "location": 3,
+      "x": 17,
+      "y": 5,
+      "steps": 268
+    },
+    {
+      "seq": 822,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 823,
+      "type": "move",
+      "location": 3,
+      "x": 17,
+      "y": 4,
+      "steps": 269
+    },
+    {
+      "seq": 824,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 825,
+      "type": "move",
+      "location": 3,
+      "x": 18,
+      "y": 4,
+      "steps": 270
+    },
+    {
+      "seq": 826,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 827,
+      "type": "move",
+      "location": 3,
+      "x": 19,
+      "y": 4,
+      "steps": 271
+    },
+    {
+      "seq": 828,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 829,
+      "type": "move",
+      "location": 3,
+      "x": 20,
+      "y": 4,
+      "steps": 272
+    },
+    {
+      "seq": 830,
+      "type": "input",
+      "key": "RIGHT"
+    },
+    {
+      "seq": 831,
+      "type": "move",
+      "location": 3,
+      "x": 21,
+      "y": 4,
+      "steps": 273
+    },
+    {
+      "seq": 832,
+      "type": "natural_heal",
+      "members": [2, 6]
+    },
+    {
+      "seq": 833,
+      "type": "item_gain",
+      "member": 1,
+      "item": 12,
+      "slot": 7,
+      "status": 0
+    },
+    {
+      "seq": 834,
+      "type": "cell_change",
+      "location": 3,
+      "x": 21,
+      "y": 4,
+      "action_class": 0,
+      "action": 0,
+      "image": 37
+    },
+    {
+      "seq": 835,
+      "type": "checkpoint",
+      "name": "CP9",
+      "state": {
+        "location": 3,
+        "x": 21,
+        "y": 4,
+        "steps": 273,
+        "day": 1,
+        "hour": 23,
+        "minute": 0,
+        "mode": "map",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 18, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29],
+          [3, 9, 6, 0, 0, 37],
+          [3, 16, 6, 4, 4, 37],
+          [3, 21, 4, 0, 0, 37]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 28,
+            "hp": 28,
+            "cond": 0,
+            "money": 51,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 4],
+              [4, 1],
+              [7, 0],
+              [8, 0],
+              [11, 0],
+              [9, 3],
+              [12, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 4
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 31,
+            "hp": 27,
+            "cond": 0,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [5, 0],
+              [6, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 132,
+            "max_hp": 25,
+            "hp": 25,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 5],
+              [4, 1]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 5],
+              [4, 1],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 232,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 0],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 6,
+            "name": "Teodor Lusk",
+            "npc": 1,
+            "level": 2,
+            "xp": 168,
+            "max_hp": 26,
+            "hp": 23,
+            "cond": 0,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [1, 0],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 2
+          }
+        ],
+        "rng_state": 1205497775
+      }
+    },
+    {
+      "seq": 836,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 837,
+      "type": "move",
+      "location": 3,
+      "x": 21,
+      "y": 5,
+      "steps": 274
+    },
+    {
+      "seq": 838,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 839,
+      "type": "move",
+      "location": 3,
+      "x": 20,
+      "y": 5,
+      "steps": 275
+    },
+    {
+      "seq": 840,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 841,
+      "type": "move",
+      "location": 3,
+      "x": 19,
+      "y": 5,
+      "steps": 276
+    },
+    {
+      "seq": 842,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 843,
+      "type": "move",
+      "location": 3,
+      "x": 18,
+      "y": 5,
+      "steps": 277
+    },
+    {
+      "seq": 844,
+      "type": "input",
+      "key": "DOWN"
+    },
+    {
+      "seq": 845,
+      "type": "move",
+      "location": 3,
+      "x": 18,
+      "y": 6,
+      "steps": 278
+    },
+    {
+      "seq": 846,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 847,
+      "type": "move",
+      "location": 3,
+      "x": 17,
+      "y": 6,
+      "steps": 279
+    },
+    {
+      "seq": 848,
+      "type": "paragraph",
+      "n": 22
+    },
+    {
+      "seq": 849,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 850,
+      "type": "move",
+      "location": 3,
+      "x": 16,
+      "y": 6,
+      "steps": 280
+    },
+    {
+      "seq": 851,
+      "type": "cell_change",
+      "location": 3,
+      "x": 16,
+      "y": 6,
+      "action_class": 4,
+      "action": 4,
+      "image": 37
+    },
+    {
+      "seq": 852,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 853,
+      "type": "move",
+      "location": 3,
+      "x": 15,
+      "y": 6,
+      "steps": 281
+    },
+    {
+      "seq": 854,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 855,
+      "type": "move",
+      "location": 3,
+      "x": 14,
+      "y": 6,
+      "steps": 282
+    },
+    {
+      "seq": 856,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 857,
+      "type": "move",
+      "location": 3,
+      "x": 13,
+      "y": 6,
+      "steps": 283
+    },
+    {
+      "seq": 858,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 859,
+      "type": "move",
+      "location": 3,
+      "x": 12,
+      "y": 6,
+      "steps": 284
+    },
+    {
+      "seq": 860,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 861,
+      "type": "move",
+      "location": 3,
+      "x": 11,
+      "y": 6,
+      "steps": 285
+    },
+    {
+      "seq": 862,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 863,
+      "type": "move",
+      "location": 3,
+      "x": 10,
+      "y": 6,
+      "steps": 286
+    },
+    {
+      "seq": 864,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 865,
+      "type": "move",
+      "location": 3,
+      "x": 9,
+      "y": 6,
+      "steps": 287
+    },
+    {
+      "seq": 866,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 867,
+      "type": "move",
+      "location": 3,
+      "x": 8,
+      "y": 6,
+      "steps": 288
+    },
+    {
+      "seq": 868,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 869,
+      "type": "move",
+      "location": 3,
+      "x": 7,
+      "y": 6,
+      "steps": 289
+    },
+    {
+      "seq": 870,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 871,
+      "type": "move",
+      "location": 3,
+      "x": 6,
+      "y": 6,
+      "steps": 290
+    },
+    {
+      "seq": 872,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 873,
+      "type": "move",
+      "location": 3,
+      "x": 5,
+      "y": 6,
+      "steps": 291
+    },
+    {
+      "seq": 874,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 875,
+      "type": "move",
+      "location": 3,
+      "x": 4,
+      "y": 6,
+      "steps": 292
+    },
+    {
+      "seq": 876,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 877,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 6,
+      "steps": 293
+    },
+    {
+      "seq": 878,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 879,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 5,
+      "steps": 294
+    },
+    {
+      "seq": 880,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 881,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 4,
+      "steps": 295
+    },
+    {
+      "seq": 882,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 883,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 3,
+      "steps": 296
+    },
+    {
+      "seq": 884,
+      "type": "paragraph",
+      "n": 18
+    },
+    {
+      "seq": 885,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 886,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 2,
+      "steps": 297
+    },
+    {
+      "seq": 887,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 888,
+      "type": "move",
+      "location": 3,
+      "x": 3,
+      "y": 1,
+      "steps": 298
+    },
+    {
+      "seq": 889,
+      "type": "map_change",
+      "location": 0,
+      "x": 44,
+      "y": 48
+    },
+    {
+      "seq": 890,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 891,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 48,
+      "steps": 299
+    },
+    {
+      "seq": 892,
+      "type": "natural_heal",
+      "members": [2, 6]
+    },
+    {
+      "seq": 893,
+      "type": "day",
+      "day": 2
+    },
+    {
+      "seq": 894,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 895,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 47,
+      "steps": 300
+    },
+    {
+      "seq": 896,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 897,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 46,
+      "steps": 301
+    },
+    {
+      "seq": 898,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 899,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 45,
+      "steps": 302
+    },
+    {
+      "seq": 900,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 901,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 44,
+      "steps": 303
+    },
+    {
+      "seq": 902,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 903,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 43,
+      "steps": 304
+    },
+    {
+      "seq": 904,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 905,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 42,
+      "steps": 305
+    },
+    {
+      "seq": 906,
+      "type": "natural_heal",
+      "members": [2, 6]
+    },
+    {
+      "seq": 907,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 908,
+      "type": "move",
+      "location": 0,
+      "x": 43,
+      "y": 41,
+      "steps": 306
+    },
+    {
+      "seq": 909,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 910,
+      "type": "move",
+      "location": 0,
+      "x": 42,
+      "y": 41,
+      "steps": 307
+    },
+    {
+      "seq": 911,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 912,
+      "type": "move",
+      "location": 0,
+      "x": 41,
+      "y": 41,
+      "steps": 308
+    },
+    {
+      "seq": 913,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 914,
+      "type": "move",
+      "location": 0,
+      "x": 40,
+      "y": 41,
+      "steps": 309
+    },
+    {
+      "seq": 915,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 916,
+      "type": "move",
+      "location": 0,
+      "x": 39,
+      "y": 41,
+      "steps": 310
+    },
+    {
+      "seq": 917,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 918,
+      "type": "move",
+      "location": 0,
+      "x": 38,
+      "y": 41,
+      "steps": 311
+    },
+    {
+      "seq": 919,
+      "type": "natural_heal",
+      "members": [2, 6]
+    },
+    {
+      "seq": 920,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 921,
+      "type": "move",
+      "location": 0,
+      "x": 37,
+      "y": 41,
+      "steps": 312
+    },
+    {
+      "seq": 922,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 923,
+      "type": "move",
+      "location": 0,
+      "x": 36,
+      "y": 41,
+      "steps": 313
+    },
+    {
+      "seq": 924,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 925,
+      "type": "move",
+      "location": 0,
+      "x": 35,
+      "y": 41,
+      "steps": 314
+    },
+    {
+      "seq": 926,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 927,
+      "type": "move",
+      "location": 0,
+      "x": 34,
+      "y": 41,
+      "steps": 315
+    },
+    {
+      "seq": 928,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 929,
+      "type": "move",
+      "location": 0,
+      "x": 33,
+      "y": 41,
+      "steps": 316
+    },
+    {
+      "seq": 930,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 931,
+      "type": "move",
+      "location": 0,
+      "x": 32,
+      "y": 41,
+      "steps": 317
+    },
+    {
+      "seq": 932,
+      "type": "natural_heal",
+      "members": [2]
+    },
+    {
+      "seq": 933,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 934,
+      "type": "move",
+      "location": 0,
+      "x": 31,
+      "y": 41,
+      "steps": 318
+    },
+    {
+      "seq": 935,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 936,
+      "type": "move",
+      "location": 0,
+      "x": 30,
+      "y": 41,
+      "steps": 319
+    },
+    {
+      "seq": 937,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 938,
+      "type": "move",
+      "location": 0,
+      "x": 30,
+      "y": 40,
+      "steps": 320
+    },
+    {
+      "seq": 939,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 940,
+      "type": "move",
+      "location": 0,
+      "x": 29,
+      "y": 40,
+      "steps": 321
+    },
+    {
+      "seq": 941,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 942,
+      "type": "move",
+      "location": 0,
+      "x": 28,
+      "y": 40,
+      "steps": 322
+    },
+    {
+      "seq": 943,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 944,
+      "type": "move",
+      "location": 0,
+      "x": 27,
+      "y": 40,
+      "steps": 323
+    },
+    {
+      "seq": 945,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 946,
+      "type": "move",
+      "location": 0,
+      "x": 26,
+      "y": 40,
+      "steps": 324
+    },
+    {
+      "seq": 947,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 948,
+      "type": "move",
+      "location": 0,
+      "x": 25,
+      "y": 40,
+      "steps": 325
+    },
+    {
+      "seq": 949,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 950,
+      "type": "move",
+      "location": 0,
+      "x": 24,
+      "y": 40,
+      "steps": 326
+    },
+    {
+      "seq": 951,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 952,
+      "type": "move",
+      "location": 0,
+      "x": 23,
+      "y": 40,
+      "steps": 327
+    },
+    {
+      "seq": 953,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 954,
+      "type": "move",
+      "location": 0,
+      "x": 22,
+      "y": 40,
+      "steps": 328
+    },
+    {
+      "seq": 955,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 956,
+      "type": "move",
+      "location": 0,
+      "x": 21,
+      "y": 40,
+      "steps": 329
+    },
+    {
+      "seq": 957,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 958,
+      "type": "move",
+      "location": 0,
+      "x": 20,
+      "y": 40,
+      "steps": 330
+    },
+    {
+      "seq": 959,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 960,
+      "type": "move",
+      "location": 0,
+      "x": 19,
+      "y": 40,
+      "steps": 331
+    },
+    {
+      "seq": 961,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 962,
+      "type": "move",
+      "location": 0,
+      "x": 18,
+      "y": 40,
+      "steps": 332
+    },
+    {
+      "seq": 963,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 964,
+      "type": "move",
+      "location": 0,
+      "x": 17,
+      "y": 40,
+      "steps": 333
+    },
+    {
+      "seq": 965,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 966,
+      "type": "move",
+      "location": 0,
+      "x": 16,
+      "y": 40,
+      "steps": 334
+    },
+    {
+      "seq": 967,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 968,
+      "type": "move",
+      "location": 0,
+      "x": 15,
+      "y": 40,
+      "steps": 335
+    },
+    {
+      "seq": 969,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 970,
+      "type": "move",
+      "location": 0,
+      "x": 14,
+      "y": 40,
+      "steps": 336
+    },
+    {
+      "seq": 971,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 972,
+      "type": "move",
+      "location": 0,
+      "x": 13,
+      "y": 40,
+      "steps": 337
+    },
+    {
+      "seq": 973,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 974,
+      "type": "move",
+      "location": 0,
+      "x": 12,
+      "y": 40,
+      "steps": 338
+    },
+    {
+      "seq": 975,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 976,
+      "type": "move",
+      "location": 0,
+      "x": 11,
+      "y": 40,
+      "steps": 339
+    },
+    {
+      "seq": 977,
+      "type": "input",
+      "key": "LEFT"
+    },
+    {
+      "seq": 978,
+      "type": "move",
+      "location": 0,
+      "x": 10,
+      "y": 40,
+      "steps": 340
+    },
+    {
+      "seq": 979,
+      "type": "map_change",
+      "location": 1,
+      "x": 15,
+      "y": 30
+    },
+    {
+      "seq": 980,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 981,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 29,
+      "steps": 341
+    },
+    {
+      "seq": 982,
+      "type": "paragraph",
+      "n": 2
+    },
+    {
+      "seq": 983,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 984,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 28,
+      "steps": 342
+    },
+    {
+      "seq": 985,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 986,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 27,
+      "steps": 343
+    },
+    {
+      "seq": 987,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 988,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 26,
+      "steps": 344
+    },
+    {
+      "seq": 989,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 990,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 25,
+      "steps": 345
+    },
+    {
+      "seq": 991,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 992,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 24,
+      "steps": 346
+    },
+    {
+      "seq": 993,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 994,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 23,
+      "steps": 347
+    },
+    {
+      "seq": 995,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 996,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 22,
+      "steps": 348
+    },
+    {
+      "seq": 997,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 998,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 21,
+      "steps": 349
+    },
+    {
+      "seq": 999,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1000,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 20,
+      "steps": 350
+    },
+    {
+      "seq": 1001,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1002,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 19,
+      "steps": 351
+    },
+    {
+      "seq": 1003,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1004,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 18,
+      "steps": 352
+    },
+    {
+      "seq": 1005,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1006,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 17,
+      "steps": 353
+    },
+    {
+      "seq": 1007,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1008,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 16,
+      "steps": 354
+    },
+    {
+      "seq": 1009,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1010,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 15,
+      "steps": 355
+    },
+    {
+      "seq": 1011,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1012,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 14,
+      "steps": 356
+    },
+    {
+      "seq": 1013,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1014,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 13,
+      "steps": 357
+    },
+    {
+      "seq": 1015,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1016,
+      "type": "move",
+      "location": 1,
+      "x": 15,
+      "y": 12,
+      "steps": 358
+    },
+    {
+      "seq": 1017,
+      "type": "input",
+      "key": "UP"
+    },
+    {
+      "seq": 1018,
+      "type": "bump",
+      "x": 15,
+      "y": 11,
+      "action_class": 11,
+      "action": 0
+    },
+    {
+      "seq": 1019,
+      "type": "paragraph",
+      "n": 24
+    },
+    {
+      "seq": 1020,
+      "type": "win",
+      "steps": 358,
+      "day": 2,
+      "minutes": 428
+    },
+    {
+      "seq": 1021,
+      "type": "checkpoint",
+      "name": "CP10",
+      "state": {
+        "location": 1,
+        "x": 15,
+        "y": 12,
+        "steps": 358,
+        "day": 2,
+        "hour": 7,
+        "minute": 8,
+        "mode": "won",
+        "cell_changes": [
+          [0, 30, 41, 0, 0, 13],
+          [0, 31, 41, 0, 0, 22],
+          [1, 8, 17, 0, 0, 28],
+          [2, 18, 17, 0, 0, 28],
+          [2, 26, 12, 0, 0, 27],
+          [2, 26, 14, 4, 1, 29],
+          [3, 9, 6, 0, 0, 37],
+          [3, 16, 6, 4, 4, 37],
+          [3, 21, 4, 0, 0, 37]
+        ],
+        "party": [
+          {
+            "slot": 1,
+            "name": "Hessa Brand",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 28,
+            "hp": 28,
+            "cond": 0,
+            "money": 51,
+            "ac": 5,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 4],
+              [4, 1],
+              [7, 0],
+              [8, 0],
+              [11, 0],
+              [9, 3],
+              [12, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 4
+          },
+          {
+            "slot": 2,
+            "name": "Tobin Ash",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 31,
+            "hp": 31,
+            "cond": 0,
+            "money": 27,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [5, 0],
+              [6, 2],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 3
+          },
+          {
+            "slot": 3,
+            "name": "Maro Quill",
+            "npc": 0,
+            "level": 2,
+            "xp": 132,
+            "max_hp": 25,
+            "hp": 25,
+            "cond": 0,
+            "money": 73,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 5],
+              [4, 1]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 4,
+            "name": "Dell Ostrow",
+            "npc": 0,
+            "level": 2,
+            "xp": 122,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 63,
+            "ac": 2,
+            "rank": "Hand",
+            "skill_points": 2,
+            "items": [
+              [3, 5],
+              [4, 1],
+              [9, 3]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 5,
+            "name": "Orla Penn",
+            "npc": 1,
+            "level": 2,
+            "xp": 232,
+            "max_hp": 27,
+            "hp": 27,
+            "cond": 0,
+            "money": 25,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [5, 0],
+              [6, 2]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 0
+          },
+          {
+            "slot": 6,
+            "name": "Teodor Lusk",
+            "npc": 1,
+            "level": 2,
+            "xp": 168,
+            "max_hp": 26,
+            "hp": 26,
+            "cond": 0,
+            "money": 40,
+            "ac": 3,
+            "rank": "Hand",
+            "skill_points": 0,
+            "items": [
+              [1, 0],
+              [7, 0]
+            ],
+            "weapon_slot": 1,
+            "armour_slot": 2
+          }
+        ],
+        "rng_state": 1205497775
+      }
+    }
+  ]
+}
