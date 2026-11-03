@@ -11,6 +11,6 @@
 - Where the public documentation stops (map action semantics, scripts, combat and skill
   formulas), the spec defines "lab rules v1" explicitly, labelled as non-parity, so the
   builder never guesses silently. Parity on those rules waits for ground truth.
-- The build runs unattended on the DeepSeek pair through the harness in harness/, under a
+- The build runs unattended on the lab's local model pair through the harness in harness/, under a
   registration (PREREG-W1) that measures what a mid-tier open model achieves per day from a
   frozen spec and acceptance tests, with frontier review at milestones.
